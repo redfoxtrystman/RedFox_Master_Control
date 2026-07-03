@@ -1,0 +1,9 @@
+Test ID,Date,BeamNG Version,Game Mode,Enabled ZIPs,Disabled Duplicate ZIPs,Map Level,Vehicle,Expected Result,Actual Result,UI Visible,GM UI Visible,WE Native UI Visible,Errors Log Lines,Screenshot Included,Pass Fail,Next Action,Tester,Notes
+T001,TBD,TBD,Freeroam,Hub only,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
+T002,TBD,TBD,Career,Hub only,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
+T003,TBD,TBD,Freeroam,Hub + UI Load Tester,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
+T004,TBD,TBD,Career,Hub + UI Load Tester,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
+T005,TBD,TBD,Freeroam,Hub + Knight Rider,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
+T006,TBD,TBD,Career,Hub + Knight Rider,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
+T007,TBD,TBD,Freeroam,Hub + TrailSpotter Cam,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
+T008,TBD,TBD,Career,Hub + TrailSpotter Cam,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
