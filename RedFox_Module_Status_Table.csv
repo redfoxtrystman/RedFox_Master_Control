@@ -1,0 +1,12 @@
+Module,Current ZIP,Assigned Chat,Owner,Freeroam Status,Career Status,GM UI Status,WE Native UI Status,Hub Bridge Status,Needs Player Vehicle,Needs Level Loaded,Needs RenderViewManager,Known Issue,Next Action,Last Updated,Notes
+Garage Hub,TBD,Hub Chat,TBD,TBD,TBD,TBD,TBD,TBD,No,TBD,No,Need baseline upload,Inspect first,TBD,
+UI Load Tester,TBD,UI Load Tester Chat,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Not built or not uploaded,Build or inspect before mass conversion,TBD,
+Career Bridge + Load Doctor,TBD,Career Bridge Chat,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Not built or not uploaded,Build after UI timing pattern is proven,TBD,
+Knight Rider,TBD,Knight Rider Chat,TBD,TBD,TBD,TBD,TBD,TBD,Yes,Yes,TBD,GM/settings history and World Editor settings risk,Use as first real test candidate,TBD,
+TrailSpotter Cam,TBD,TrailSpotter Chat,TBD,TBD,TBD,TBD,TBD,TBD,Yes,Yes,Yes,RenderViewManager/PiP timing likely,Use as render timing test candidate,TBD,
+RaceBuilder,TBD,RaceBuilder Chat,TBD,TBD,TBD,TBD,TBD,TBD,Yes,Yes,TBD,Old Event Manager bridge naming history,Test after Hub/load pattern,TBD,
+Surface Studio,TBD,Surface Studio Chat,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Old v0.2.9 is not true native Hub window,Use v0.2.11 or newer,TBD,
+Winch Core,TBD,Winch Chat,TBD,TBD,TBD,TBD,TBD,TBD,Yes,Yes,TBD,Do not rewrite winch physics,Visual bridge only,TBD,
+PSI Controller,TBD,PSI Chat,TBD,TBD,TBD,TBD,TBD,TBD,Yes,Yes,TBD,Do not move tire gameplay into Hub,Visual bridge only,TBD,
+Offroad Drivetrain,TBD,Drivetrain Chat,TBD,TBD,TBD,TBD,TBD,TBD,Yes,Yes,TBD,Do not rewrite crawl or gearbox systems,Visual bridge only,TBD,
+Spy Tools,TBD,Spy Tools Chat,TBD,TBD,TBD,TBD,TBD,TBD,Yes,Yes,TBD,Keep one combined bridge for spy gadgets,Plan tabs and safe loading,TBD,
