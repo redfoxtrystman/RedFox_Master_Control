@@ -84,3 +84,21 @@ What the next chat needs to know = RF-HUB01 should read RedFox_Worker_Chat_Quick
 What David needs to test/check = Open the Hub Chat and give it only the repo link plus the role RF-HUB01 Garage Hub Chat. Ask it to follow the Coordinator handoff on the message board. Do not upload Hub ZIPs yet unless RF-HUB01 asks for them after checking in.
 Coordinator action needed = yes
 ```
+
+### 2026-07-03 13:25 America/Los_Angeles — RF-HUB01 — CHECK-IN
+
+```text
+Timestamp = 2026-07-03 13:25 America/Los_Angeles
+Chat ID = RF-HUB01
+Chat Name = Garage Hub Chat
+Message type = CHECK-IN
+Assigned role = Garage Hub Chat / RedFox Garage Hub workflow owner
+I read these files = RedFox_Worker_Chat_Quick_Start.md, RedFox_Chat_Message_Board.md
+I changed these files = RedFox_Chat_Message_Board.md
+I created these files = None
+I delivered these files = None
+What I did = Confirmed RF-HUB01 identity, read the required quick start and Coordinator handoff, and successfully wrote this check-in to the shared message board.
+What the next chat needs to know = RF-HUB01 understands the no-silent-read workflow and can write to GitHub directly. RF-HUB01 will not rebuild the Hub yet. Next step is for David/Coordinator to provide the current Hub ZIP and the master bridge/handoff documents when real Hub work begins.
+What David needs to test/check = Confirm this CHECK-IN appears in RedFox_Chat_Message_Board.md. Then provide Hub files only when ready for actual Hub inspection or rebuild planning.
+Coordinator action needed = no
+```
