@@ -1,6 +1,6 @@
 Module,Current ZIP,Assigned Chat,Owner,Freeroam Status,Career Status,GM UI Status,WE Native UI Status,Hub Bridge Status,Needs Player Vehicle,Needs Level Loaded,Needs RenderViewManager,Known Issue,Next Action,Last Updated,Notes
 Garage Hub,TBD,Hub Chat,TBD,WAITING,WAITING,TBD,TBD,TBD,No,TBD,No,Must wait until UI Load Tester proof is complete,Do not rebuild yet,2026-07-03,Hub chat check-in passed; real Hub ZIP inspection waits for pre-Hub checklist
-UI Load Tester,TBD,UI Load Tester Chat,RF-UILOAD01,READY FOR PRE-HUB CHECK,READY FOR PRE-HUB CHECK,NEEDS PROOF,NEEDS PROOF,TBD,TBD,TBD,TBD,Not built or not uploaded,Define or inspect UI Load Tester before Hub rebuild,2026-07-03,Required before real Hub work
+UI Load Tester,RF-UILOAD01_UI_Load_Tester_v0_1_0.zip,UI Load Tester Chat,RF-UILOAD01,NEEDS IN-GAME TEST,NEEDS IN-GAME TEST,BUILT NEEDS TEST,BUILT NEEDS TEST,STANDALONE TESTER ONLY,TBD,TBD,TBD,Awaiting BeamNG test proof,David test standalone ZIP before Hub rebuild,2026-07-03,Research notes added; static ZIP verification passed; real Hub untouched
 Career Bridge + Load Doctor,TBD,Career Bridge Chat,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Not built or not uploaded,Build after UI timing pattern is proven,TBD,
 Knight Rider,TBD,Knight Rider Chat,TBD,TBD,TBD,TBD,TBD,TBD,Yes,Yes,TBD,GM/settings history and World Editor settings risk,Use as first real test candidate,TBD,
 TrailSpotter Cam,TBD,TrailSpotter Chat,TBD,TBD,TBD,TBD,TBD,TBD,Yes,Yes,Yes,RenderViewManager/PiP timing likely,Use as render timing test candidate,TBD,
