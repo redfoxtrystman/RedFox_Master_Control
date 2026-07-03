@@ -51,6 +51,7 @@ If there is no message-board/log entry, communication failed.
 | RedFox_Test_Results_Table.csv | BeamNG testing result tracker. |
 | RedFox_Module_Status_Table.csv | Module status tracker. |
 | RedFox_Communication_SignIn_Log.md | Detailed sign-in, work-update, and finish log. |
+| RedFox_Research_Findings_Log.csv | Shared short log for useful search/research findings. |
 
 ---
 
