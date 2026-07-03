@@ -66,3 +66,21 @@ What the next chat needs to know = Reading is not enough. A worker chat must pos
 What David needs to test/check = Run Hello World again and require the worker chat to provide a message-board entry.
 Coordinator action needed = no
 ```
+
+### 2026-07-03 13:16 America/Los_Angeles — RF-C00 — HANDOFF TO RF-HUB01
+
+```text
+Timestamp = 2026-07-03 13:16 America/Los_Angeles
+Chat ID = RF-C00
+Chat Name = Coordinator Chat
+Message type = HANDOFF
+Assigned role = Coordinator / Master Control
+I read these files = RedFox_Chat_Message_Board.md, RedFox_Worker_Chat_Quick_Start.md, README.md
+I changed these files = RedFox_Chat_Message_Board.md
+I created these files = None
+I delivered these files = None
+What I did = Prepared the next worker handoff for RF-HUB01 Garage Hub Chat. This is a dry-run communication test first, not a real Hub rebuild yet.
+What the next chat needs to know = RF-HUB01 should read RedFox_Worker_Chat_Quick_Start.md and this message board, then leave a CHECK-IN or RESULT block. RF-HUB01 should not rebuild the Hub yet. First task is to confirm it understands the workflow, identify what Hub files/docs it needs next, and report whether it can write to GitHub or must return blocks through David.
+What David needs to test/check = Open the Hub Chat and give it only the repo link plus the role RF-HUB01 Garage Hub Chat. Ask it to follow the Coordinator handoff on the message board. Do not upload Hub ZIPs yet unless RF-HUB01 asks for them after checking in.
+Coordinator action needed = yes
+```
