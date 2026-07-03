@@ -14,6 +14,8 @@ Read these in order:
 1. RedFox_Master_Build_Control_Document.md
 2. RedFox_Chat_Communication_Bridge_Handoff_Pack.md
 3. RedFox_Worker_Chat_Quick_Start.md
+4. RedFox_Chat_ID_Registry.md
+5. RedFox_Communication_SignIn_Log.md
 ```
 
 For a simple communication test, use:
@@ -28,12 +30,34 @@ For spreadsheet-style tracking, use the CSV tracker files:
 RedFox_Module_Status_Table.csv
 RedFox_Test_Results_Table.csv
 RedFox_File_Verification_Checklist.csv
+RedFox_Communication_SignIn_Log.csv
 ```
+
+---
+
+## Required Chat Flow
+
+Every worker chat must have a Chat ID and must log or return entries for:
+
+```text
+START = I am taking this job.
+WORK UPDATE = Here is what I actually changed, checked, failed, or found.
+FINISH = I am done and this is what David received.
+BLOCKED = I could not continue and this is why.
+```
+
+A complete worker handoff should have:
+
+```text
+START -> WORK UPDATE -> FINISH
+```
+
+If a worker chat cannot write directly to GitHub, it must paste the exact log entries back to David so the Coordinator Chat can add them.
 
 ---
 
 ## Repo Rule
 
-No worker chat should edit real BeamNG mods until it has read the master document and understands its assigned role.
+No worker chat should edit real BeamNG mods until it has read the master document, confirmed its Chat ID, and signed in.
 
 No fake verification. No silent renames. No giant messy upload piles.
