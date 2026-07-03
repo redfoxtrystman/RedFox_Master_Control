@@ -20,6 +20,14 @@ Handoff file:
 RedFox_Chat_Communication_Bridge_Handoff_Pack.md
 ```
 
+Sign-in files:
+
+```text
+RedFox_Chat_ID_Registry.md
+RedFox_Communication_SignIn_Log.md
+RedFox_Communication_SignIn_Log.csv
+```
+
 ---
 
 ## 1. What Every Chat Must Do First
@@ -27,18 +35,71 @@ RedFox_Chat_Communication_Bridge_Handoff_Pack.md
 Before editing any mod, every RedFox chat must:
 
 ```text
-1. Open/read RedFox_Master_Build_Control_Document.md.
-2. Open/read RedFox_Chat_Communication_Bridge_Handoff_Pack.md.
-3. Confirm its assigned role: Coordinator, Hub, Career Bridge, UI Load Tester, Testing, or Individual Mod Chat.
-4. Work only on its assigned section.
-5. Never rename moduleId, windowId, extension name, manifest path, settings path, or bridge function unless the master document explicitly approves it.
+1. Open/read README.md.
+2. Open/read RedFox_Master_Build_Control_Document.md.
+3. Open/read RedFox_Chat_Communication_Bridge_Handoff_Pack.md.
+4. Open/read RedFox_Worker_Chat_Quick_Start.md.
+5. Open/read RedFox_Chat_ID_Registry.md.
+6. Confirm its assigned Chat ID.
+7. Confirm its assigned role: Coordinator, Hub, Career Bridge, UI Load Tester, Testing, or Individual Mod Chat.
+8. Add or return a START sign-in entry before editing.
+9. Work only on its assigned section.
+10. Never rename moduleId, windowId, extension name, manifest path, settings path, or bridge function unless the master document explicitly approves it.
 ```
 
 If another source disagrees with the master document, the master document wins unless David changes it.
 
 ---
 
-## 2. Verification Before Editing
+## 2. Required Sign-In / Work-Update / Sign-Out
+
+Every worker chat must use the sign-in log.
+
+Required flow:
+
+```text
+START = I am taking this job.
+WORK UPDATE = Here is what I actually changed, checked, failed, or found.
+FINISH = I am done and this is what David received.
+BLOCKED = I could not continue and this is why.
+```
+
+A complete handoff should have:
+
+```text
+START -> WORK UPDATE -> FINISH
+```
+
+If a worker chat cannot write to GitHub, it must paste the exact log entries back to David so the Coordinator Chat can add them.
+
+Use this block:
+
+```text
+Timestamp = YYYY-MM-DD HH:MM timezone
+Chat ID =
+Chat Name =
+Phase = START / WORK UPDATE / FINISH / BLOCKED
+Assigned role =
+Files read =
+Files edited =
+Files created =
+Files delivered to David =
+What I actually did =
+Static verification done = yes/no
+In-game verification done = yes/no
+Summary =
+Next chat/action =
+```
+
+No START entry means the work was not officially taken.
+
+No WORK UPDATE means David and the Coordinator Chat cannot tell what happened.
+
+No FINISH entry means the handoff is incomplete.
+
+---
+
+## 3. Verification Before Editing
 
 Before editing any uploaded mod ZIP or file, the worker chat must inspect the source first.
 
@@ -63,7 +124,7 @@ The worker chat must not claim it edited, fixed, or verified anything it did not
 
 ---
 
-## 3. Editing Rules
+## 4. Editing Rules
 
 While editing:
 
@@ -84,7 +145,7 @@ If one stage fails, pause that stage only. Do not break the entire mod.
 
 ---
 
-## 4. Verification After Editing, Before Giving David a ZIP
+## 5. Verification After Editing, Before Giving David a ZIP
 
 After editing and packaging, the worker chat must reopen the finished output and verify it.
 
@@ -112,7 +173,7 @@ Static ZIP/code verification is not the same as BeamNG in-game testing. Say that
 
 ---
 
-## 5. Required Output Report From Every Worker Chat
+## 6. Required Output Report From Every Worker Chat
 
 Every worker chat must return this block:
 
@@ -131,7 +192,7 @@ If the chat cannot verify something, it must say so directly.
 
 ---
 
-## 6. Required Mod Bridge Return Block
+## 7. Required Mod Bridge Return Block
 
 For a mod, return this exact block to the Coordinator Chat:
 
@@ -163,7 +224,7 @@ does it need Career-safe delayed load? yes/no
 
 ---
 
-## 7. Required Test Result Block
+## 8. Required Test Result Block
 
 Testing chats must return this exact block:
 
@@ -188,16 +249,21 @@ Next action requested =
 
 ---
 
-## 8. Simple Chat Handoff Test
+## 9. Simple Chat Handoff Test
 
 A worker chat can prove it understands the communication flow by doing this:
 
 ```text
 1. Read this file.
 2. Read RedFox_Master_Build_Control_Document.md.
-3. Say what role it was assigned.
-4. Return a short test block using the Required Output Report.
-5. Do not edit real mods during the test.
+3. Read RedFox_Chat_ID_Registry.md.
+4. Read RedFox_Communication_SignIn_Log.md.
+5. Say what Chat ID and role it was assigned.
+6. Return a START entry.
+7. Return a WORK UPDATE entry.
+8. Return a FINISH entry.
+9. Return a short test block using the Required Output Report.
+10. Do not edit real mods during the test.
 ```
 
 Example test output:
@@ -215,8 +281,8 @@ In-game verification completed = no
 
 ---
 
-## 9. Bottom Line
+## 10. Bottom Line
 
 No guessing. No fake verification. No silent renames. No giant messy upload piles.
 
-Read the master document, verify the source, make the smallest safe edit, verify the output, report clearly, then send results back to the Coordinator Chat.
+Read the master document, sign in, verify the source, make the smallest safe edit, write a work update, verify the output, sign out, report clearly, then send results back to the Coordinator Chat.
