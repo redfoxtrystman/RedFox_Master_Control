@@ -174,3 +174,11 @@ Then evidence:
 9. Only one version of each test mod enabled.
 10. Test Hub + one mod at a time.
 ```
+
+---
+
+## Coordinator Write Access Test
+
+Status: passed.
+
+The Coordinator Chat successfully updated this file through the GitHub connector after David granted permission.
