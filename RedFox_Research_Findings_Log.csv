@@ -1,0 +1,2 @@
+Timestamp,Chat ID,Chat Name,Topic,Source Type,Source Name,Source URL Or File,Finding Summary,Why It Matters,Related Module,Recommended Action,Verification Level,Notes
+2026-07-03 13:40 America/Los_Angeles,RF-C00,Coordinator Chat,Research log setup,Repo planning,Coordinator,N/A,Created shared tracker for useful research findings,Scanner and worker chats can save useful findings for other chats,All,Use this CSV for short research summaries,Repo write verified,Keep entries short and factual
