@@ -1,0 +1,1 @@
+Hub checkpoint 064. Red popup issue addressed. Test only this Hub build first, then add one dummy module after Hub opens cleanly.
