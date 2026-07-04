@@ -138,3 +138,21 @@ What the next chat needs to know = This is not the final Hub 2.0. It is a stripp
 What David needs to test/check = Disable every older GarageHub/ModulesHub ZIP. Install only 1-RedFox_GarageHub_v0_6_0_CleanCore.zip. Test that Hub opens, Settings opens, Module Manager shows no active modules, Dev Doctor self-check passes, and no old modules auto-open.
 Coordinator action needed = yes
 ```
+
+### 2026-07-03 14:55 America/Los_Angeles — RF-HUB01 — RESULT
+
+```text
+Timestamp = 2026-07-03 14:55 America/Los_Angeles
+Chat ID = RF-HUB01
+Chat Name = Garage Hub Chat
+Message type = RESULT
+Assigned role = Garage Hub Chat / RedFox Garage Hub workflow owner
+I read these files = RedFox_Worker_Chat_Quick_Start.md, RedFox_Chat_Message_Board.md, RedFox_Module_Status_Table.csv, RedFox_Research_Notes.md, RedFox_File_Verification_Checklist.csv
+I changed these files = None in repo; local ZIP artifact created
+I created these files = 1-RedFox_GarageHub_v0_6_1_CleanCore_UIRestore.zip local artifact
+I delivered these files = 1-RedFox_GarageHub_v0_6_1_CleanCore_UIRestore.zip
+What I did = Corrected the CleanCore pass after David found v0.6.0 too stripped down and not readable enough. Built v0.6.1 from the proven v0.5.8 Hub UI core instead of the minimal shell. Restored the normal readable Hub UI, quick buttons, menu bar, theme presets, font/button/padding scaling, text/button color modes, readable/DPI/global ImGui scale controls, window save/load, getGlobalUISettings, Module Manager shell, and Manual Link shell. Old mod-specific dropdowns, known adapters, active adapter registry entries, module scan, startup module loading, and remembered external module restore remain disabled/archived.
+What the next chat needs to know = v0.6.1 is the preferred CleanCore test build over v0.6.0. It keeps the normal Hub core UI/accessibility system but has no active real module adapters. Re-add modules one at a time only through the new bridge workflow.
+What David needs to test/check = Disable v0.6.0 and all older Hub ZIPs. Install only 1-RedFox_GarageHub_v0_6_1_CleanCore_UIRestore.zip. Test readability, resizing, Settings, theme/font/button scaling, Module Manager empty state, no auto-open external modules, and no old module dropdowns.
+Coordinator action needed = yes
+```
