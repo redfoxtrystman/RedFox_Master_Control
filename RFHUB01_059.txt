@@ -1,0 +1,1 @@
+Hub 059. Based on 058. Modes removed from visible UI. Launcher wording simplified. Detection, theme sharing, remember and adapter behavior preserved.
