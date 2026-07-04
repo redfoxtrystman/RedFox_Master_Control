@@ -192,3 +192,21 @@ What the next chat needs to know = Hub scanner should look for lua/ge/extensions
 What David needs to test/check = Install this dummy only after Hub generic scanner patch. Run Hub Scan/Modules and confirm RedFox UI Load Tester appears.
 Coordinator action needed = yes
 ```
+
+### 2026-07-03 20:45 America/Los_Angeles — RF-UILOAD01 — BLOCKED / HUB FAIL DIAGNOSIS
+
+```text
+Timestamp = 2026-07-03 20:45 America/Los_Angeles
+Chat ID = RF-UILOAD01
+Chat Name = UI Load Tester Chat
+Message type = BLOCKED
+Assigned role = UI Load Tester Chat / tester-side diagnosis only
+I read these files = RedFox_Module_Status_Table.csv, RedFox_Chat_Message_Board.md
+I changed these files = RedFox_Module_Status_Table.csv, RedFox_Chat_Message_Board.md
+I created these files = None
+I delivered these files = Diagnosis for Hub Chat
+What I did = Reviewed David's screenshot of the Fatal Lua Error. Diagnosis: Hub v0.6.2 is still calling old extensions.redfox_modulesHub somewhere. Error text says attempt to index field redfox_modulesHub nil. This is a Hub-side stale-call failure, not a UI Load Tester manifest failure.
+What the next chat needs to know = RF-HUB01 should search the entire Hub ZIP for redfox_modulesHub. Likely source is a button callback, Scan/Modules command, startup/autoload hook, UI JS engineLua call, old module registry, or settings restore path. Remove or guard stale redfox_modulesHub calls before continuing Career testing or generic scanner testing.
+What David needs to test/check = Stop testing Hub v0.6.2 in Career until RF-HUB01 removes/guards the stale redfox_modulesHub call. UI Load Tester v0.1.2 remains ready for discovery testing after Hub scanner is fixed.
+Coordinator action needed = yes
+```
