@@ -1,6 +1,6 @@
 Test ID,Date,BeamNG Version,Game Mode,Enabled ZIPs,Disabled Duplicate ZIPs,Map Level,Vehicle,Expected Result,Actual Result,UI Visible,GM UI Visible,WE Native UI Visible,Errors Log Lines,Screenshot Included,Pass Fail,Next Action,Tester,Notes
-T001,2026-07-03,TBD,Freeroam,1-RedFox_GarageHub_v0_6_2_CoreUI_Cleanup.zip,Older Hub ZIPs disabled,TBD,TBD,Hub opens by itself,Hub opened and readable after Ctrl+L UI reset,yes,no,yes,TBD,yes,PASS,Add one test module next,David,Screenshot provided; purple seafoam theme visible; old modules not connected
-T002,TBD,TBD,Career,Hub only,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
+T001,TBD,TBD,Freeroam,1-RedFox_GarageHub_v0_6_2_CoreUI_Cleanup.zip,Older Hub ZIPs disabled,TBD,TBD,Hub opens by itself,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Quick Freeroam confirmation later,David,Do not assume; Career pass is stronger but Freeroam still tracked separately
+T002,2026-07-03,TBD,Career,1-RedFox_GarageHub_v0_6_2_CoreUI_Cleanup.zip,Older Hub ZIPs disabled,TBD,TBD,Hub opens by itself in Career,Hub opened and readable after Ctrl+L UI reset,yes,no,yes,TBD,yes,PASS,Add one test module next,David,Screenshot provided from Career; purple seafoam theme visible; old modules not connected
 T003,TBD,TBD,Freeroam,Hub + UI Load Tester,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
 T004,TBD,TBD,Career,Hub + UI Load Tester,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
 T005,TBD,TBD,Freeroam,Hub + Knight Rider,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
