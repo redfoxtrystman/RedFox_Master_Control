@@ -1,0 +1,1 @@
+RF-HUB01 built RF-HUB01_TestBridgeModule_v0_1_0.zip. It is a safe dummy bridge module for testing Hub manual link and bridge calls only. Static ZIP verification passed. In-game testing still required. Test command for Hub Manual Links: extensions.load('redfox_hub_test_bridge'); extensions.redfox_hub_test_bridge.openWindow()
