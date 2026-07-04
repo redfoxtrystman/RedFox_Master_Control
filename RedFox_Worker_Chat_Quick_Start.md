@@ -110,6 +110,7 @@ Timestamp = YYYY-MM-DD HH:MM timezone
 Chat ID =
 Chat Name =
 Message type = CHECK-IN / STATUS / HANDOFF / RESULT / BLOCKED
+Screen status = 🟩 PASS / 🟥 FAIL / 🟨 NEEDS TEST / 🟧 BLOCKED / ⬜ NOT TESTED
 Assigned role =
 I read these files =
 I changed these files =
@@ -190,6 +191,7 @@ Do not fake verification.
 Every worker chat must finish with:
 
 ```text
+Screen status = 🟩 PASS / 🟥 FAIL / 🟨 NEEDS TEST / 🟧 BLOCKED / ⬜ NOT TESTED
 What changed =
 What was preserved =
 File created =
@@ -204,7 +206,27 @@ If the chat cannot verify something, it must say so directly.
 
 ---
 
-## 11. What To Do If Unsure
+## 11. Visible Pass / Fail Colors
+
+Every worker chat must make pass/fail easy for David to see on screen.
+
+Use this status code in replies, reports, and message-board blocks:
+
+```text
+🟩 PASS = worked and safe to continue
+🟥 FAIL = failed; stop and fix before continuing
+🟨 NEEDS TEST = static check only or not proven in BeamNG yet
+🟧 BLOCKED = chat/tool/GitHub/file issue prevents continuing
+⬜ NOT TESTED = not checked yet
+```
+
+If GitHub update fails, still show David the color-coded status at the top of the reply.
+
+If building a BeamNG UI or status panel, use green for pass/good states and red for fail/broken states when practical.
+
+---
+
+## 12. What To Do If Unsure
 
 If the chat does not know what it is working on, it must ask David:
 
@@ -218,7 +240,7 @@ Do not start editing real files until the assignment is clear.
 
 ---
 
-## 12. Bottom Line
+## 13. Bottom Line
 
 Read this file first.
 
@@ -227,6 +249,8 @@ Know the assigned role.
 Ask if the role is unclear.
 
 Leave a written footprint.
+
+Use the visible pass/fail status code.
 
 Only read extra files when the job needs them.
 
