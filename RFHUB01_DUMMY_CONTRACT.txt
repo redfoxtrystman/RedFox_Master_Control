@@ -1,0 +1,1 @@
+Dummy module requirement for Hub scan: include a standard RedFox module manifest and a matching Lua bridge. Hub will scan for module manifests and list modules from them. Test with Hub plus one dummy module only.
