@@ -1,0 +1,1 @@
+Hub checkpoint 069. Dummy module is found. Patch fixes bridge button calls and adds top menu show hide controls. Test Hub plus one dummy module only.
