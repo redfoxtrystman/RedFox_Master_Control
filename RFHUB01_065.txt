@@ -1,0 +1,1 @@
+Hub checkpoint 065. Rollback base is 062 because 064 did not open. New 065 keeps 062 open path and adds scanner only. Test Hub alone first.
