@@ -1,1 +1,1 @@
-Hub checkpoint 0610. Build 069 failed to load because the Hub file exceeded the Lua local variable limit. Build 0610 fixes load only and keeps the 069 scanner and menu work. Test Hub opens first.
+Hub checkpoint 0610. Test build exists. Pause broad changes. Review options tomorrow. Keep Hub simple and keep gameplay separate.
