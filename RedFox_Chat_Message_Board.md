@@ -120,3 +120,21 @@ What the next chat needs to know = Hub remains paused. Test the standalone ZIP i
 What David needs to test/check = Install RF-UILOAD01_UI_Load_Tester_v0_1_0.zip, add the GM app, press the buttons in order, and check the BeamNG log for RF-UILOAD01 status.
 Coordinator action needed = yes
 ```
+
+### 2026-07-03 14:25 America/Los_Angeles — RF-HUB01 — RESULT
+
+```text
+Timestamp = 2026-07-03 14:25 America/Los_Angeles
+Chat ID = RF-HUB01
+Chat Name = Garage Hub Chat
+Message type = RESULT
+Assigned role = Garage Hub Chat / RedFox Garage Hub workflow owner
+I read these files = RedFox_Worker_Chat_Quick_Start.md, RedFox_Chat_Message_Board.md, RedFox_Module_Status_Table.csv, RedFox_Research_Notes.md, RedFox_File_Verification_Checklist.csv
+I changed these files = None in repo; local ZIP artifact created
+I created these files = 1-RedFox_GarageHub_v0_6_0_CleanCore.zip local artifact
+I delivered these files = 1-RedFox_GarageHub_v0_6_0_CleanCore.zip
+What I did = Created a CleanCore Hub build by setting aside all nonessential/non-Hub adapter and module-specific code from v0.5.8. The old v0.5.8 modulesHub.lua and adapter_registry.json were preserved inside _redfox_dev_notes. Active adapter registry is now empty. Hub keeps only the clean native window, theme/font/button settings, settings save/load, getGlobalUISettings, existing autoload/keybind paths, Module Manager shell, and Dev Doctor shell. No real modules are active and no external module auto-restore is enabled.
+What the next chat needs to know = This is not the final Hub 2.0. It is a stripped safe foundation. Re-add real modules one at a time only after bridge contract verification. Do not reintroduce old adapters wholesale. Do not move gameplay into Hub. Next step is in-game test of CleanCore alone, then connect a dummy/test module before reconnecting real RedFox mods.
+What David needs to test/check = Disable every older GarageHub/ModulesHub ZIP. Install only 1-RedFox_GarageHub_v0_6_0_CleanCore.zip. Test that Hub opens, Settings opens, Module Manager shows no active modules, Dev Doctor self-check passes, and no old modules auto-open.
+Coordinator action needed = yes
+```
