@@ -156,3 +156,21 @@ What the next chat needs to know = v0.6.1 is the preferred CleanCore test build 
 What David needs to test/check = Disable v0.6.0 and all older Hub ZIPs. Install only 1-RedFox_GarageHub_v0_6_1_CleanCore_UIRestore.zip. Test readability, resizing, Settings, theme/font/button scaling, Module Manager empty state, no auto-open external modules, and no old module dropdowns.
 Coordinator action needed = yes
 ```
+
+### 2026-07-03 15:25 America/Los_Angeles — RF-HUB01 — RESULT SUMMARY
+
+```text
+Timestamp = 2026-07-03 15:25 America/Los_Angeles
+Chat ID = RF-HUB01
+Chat Name = Garage Hub Chat
+Message type = RESULT
+Assigned role = Garage Hub Chat / RedFox Garage Hub workflow owner
+I read these files = RedFox_Chat_Message_Board.md and current Hub v0.6.1 ZIP
+I changed these files = local Hub ZIP only; RF-HUB01_v0_6_2_status.txt exists in repo
+I created these files = 1-RedFox_GarageHub_v0_6_2_CoreUI_Cleanup.zip
+I delivered these files = 1-RedFox_GarageHub_v0_6_2_CoreUI_Cleanup.zip
+What I did = Created v0.6.2 Core UI Cleanup. Removed old/confusing mode controls from active Hub UI, kept readable Hub core, preserved purple/seafoam default theme, kept Module Manager and Manual Link shells, added/restored Save Settings, Load Settings, Undo, and Redo controls, and cleaned monthly theme presets.
+What the next chat needs to know = Use v0.6.2 over v0.6.1 only if it passes in-game testing. Real modules remain disconnected. Reconnect modules one at a time through verified bridge work only.
+What David needs to test/check = Disable older Hub ZIPs and test v0.6.2 by itself. Check readability, Settings, Save/Load/Undo/Redo, Module Manager, purple/seafoam theme, and that old display mode buttons are gone.
+Coordinator action needed = yes
+```
