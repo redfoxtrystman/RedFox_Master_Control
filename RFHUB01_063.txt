@@ -1,0 +1,1 @@
+Hub checkpoint. Build 063 is ready for testing. Scope: Hub discovery only. Next test: use one dummy module and run the module scan from the Hub. No real modules should be added yet.
