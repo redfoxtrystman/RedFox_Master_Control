@@ -1,0 +1,1 @@
+Hub checkpoint 066. Scanner message crash fixed from 065. Test Hub opens first, then Modules scan. PASS means no red popup.
