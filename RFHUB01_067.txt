@@ -1,0 +1,1 @@
+Hub checkpoint 067. Scanner discovery broadened for VFS manifest search. Test with Hub plus one dummy module only. PASS means dummy appears after Scan.
