@@ -1,0 +1,1 @@
+Hub checkpoint 068. Hub found one manifest but added zero modules. Patch normalizes manifest paths and logs reject counts. Test Hub plus one dummy module only.
