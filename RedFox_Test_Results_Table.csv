@@ -1,5 +1,5 @@
 Test ID,Date,BeamNG Version,Game Mode,Enabled ZIPs,Disabled Duplicate ZIPs,Map Level,Vehicle,Expected Result,Actual Result,UI Visible,GM UI Visible,WE Native UI Visible,Errors Log Lines,Screenshot Included,Pass Fail,Next Action,Tester,Notes
-T001,TBD,TBD,Freeroam,Hub only,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
+T001,2026-07-03,TBD,Freeroam,1-RedFox_GarageHub_v0_6_2_CoreUI_Cleanup.zip,Older Hub ZIPs disabled,TBD,TBD,Hub opens by itself,Hub opened and readable after Ctrl+L UI reset,yes,no,yes,TBD,yes,PASS,Add one test module next,David,Screenshot provided; purple seafoam theme visible; old modules not connected
 T002,TBD,TBD,Career,Hub only,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
 T003,TBD,TBD,Freeroam,Hub + UI Load Tester,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
 T004,TBD,TBD,Career,Hub + UI Load Tester,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
