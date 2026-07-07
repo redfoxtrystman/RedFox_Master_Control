@@ -7,3 +7,4 @@ T005,TBD,TBD,Freeroam,Hub + Knight Rider,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD
 T006,TBD,TBD,Career,Hub + Knight Rider,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
 T007,TBD,TBD,Freeroam,Hub + TrailSpotter Cam,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
 T008,TBD,TBD,Career,Hub + TrailSpotter Cam,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,
+T009,2026-07-06,TBD,TBD,43_RedFoxUnicycleWeapons_v2_4_4_guarded_playercontroller_override_test.zip,Older 42/43 Project 43 zips should be disabled,TBD,Unicycle / walking player,Walk/sprint speed should finally change through guarded playerController override,David reported a big difference but player still acts like a ball and keeps rolling after controls are released,TBD,N/A,yes,TBD,no,NEEDS TEST,Build v2.4.5 idle brake / anti-roll / FPS stop controller pass,David,In-game report from David; not full formal test table yet. Weapons remain paused until movement is acceptable.
