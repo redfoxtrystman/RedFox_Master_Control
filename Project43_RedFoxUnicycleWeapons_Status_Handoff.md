@@ -21,15 +21,27 @@ David's target is a BeamNG-native FPS-style player core before inventory/weapons
 
 ## Latest delivered build in chat
 
-`43_RedFoxUnicycleWeapons_v2_4_4_guarded_playercontroller_override_test.zip`
+`43_RedFoxUnicycleWeapons_v2_4_5_idle_brake_antiball_fps_stop.zip`
 
-This build actively restored a guarded/patched `lua/vehicle/controller/playerController.lua` override while keeping `lua/ge/extensions/gameplay/walk.lua` deactivated to avoid the earlier exit-crash path.
+This build adds the anti-roll / FPS-stop test pass on top of the guarded `playerController.lua` branch. It should be tested after v2.4.4 partial pass.
 
-## User test result so far
+## Last confirmed v2.4.4 user result
 
-David reported v2.4.4 made a big difference and speed control finally changed behavior, but the player still acts like a ball and keeps rolling after releasing controls.
+David reported v2.4.4 made a big difference and speed control finally changed behavior. David also clarified that **exit did NOT crash the game**. The player still acts like a ball and keeps rolling after releasing controls.
 
 Status = 🟨 NEEDS TEST / PARTIAL
+
+## Important correction
+
+Do not report v2.4.4 as an exit-crash failure. The correct result is:
+
+```text
+Exit car crash = no / did not crash
+K panel opens = yes
+C crouch = duplicate/conflict shown in bindings, but crouch itself works
+Left Alt prone = yes
+Movement profiles = all usable, but rolling/coasting remains the blocker
+```
 
 ## Important finding
 
@@ -50,15 +62,15 @@ setSpeedCoef
 playerController
 ```
 
-## Current likely next fix
+## Current likely next fix / current test focus
 
-Next build should add real anti-roll / FPS-stop behavior inside the guarded player controller branch.
+v2.4.5 should test real anti-roll / FPS-stop behavior inside the guarded player controller branch.
 
-Suggested next build name:
+Current test build name:
 
 `43_RedFoxUnicycleWeapons_v2_4_5_idle_brake_antiball_fps_stop.zip`
 
-Recommended new settings:
+New/target settings:
 
 ```text
 Idle Brake Strength
@@ -94,13 +106,13 @@ settings/redfox/43_unicycle_player_movement_settings.json
 
 ```text
 K = RedFox Player Movement Lab panel
-C = crouch
+C = stock Unicycle crouch preferred
 Left Alt = fake prone
 Left Shift = sprint
 W/A/S/D = movement
 ```
 
-Do not use `M` for the panel because `M` is BeamNG map.
+Do not use `M` for the panel because `M` is BeamNG map. Avoid adding a RedFox default C crouch binding if stock `[Unicycle] Crouch` already uses C.
 
 ## Movement profiles currently exposed
 
@@ -112,7 +124,7 @@ Source Heavy
 Experimental Pawn
 ```
 
-David found the profiles, but they did not feel different enough until the guarded `playerController.lua` branch was introduced.
+David found the profiles. The guarded `playerController.lua` branch made the first real speed/control difference, but rolling/coasting remains.
 
 ## Do not resume weapon expansion yet
 
@@ -138,7 +150,8 @@ v2.4.0_control_profile_selector = gravity-gun control-feel profiles.
 v2.4.1_player_movement_lab = first movement lab, weapons paused.
 v2.4.2_panel_key_rebind_hotfix = panel key changed M -> K.
 v2.4.3_speed_bridge_prone_hotfix = added prone key and attempted speed bridge.
-v2.4.4_guarded_playercontroller_override_test = real speed difference, still rolling/ball issue.
+v2.4.4_guarded_playercontroller_override_test = real speed difference, no exit crash reported, still rolling/ball issue.
+v2.4.5_idle_brake_antiball_fps_stop = anti-roll/FPS-stop test build; needs BeamNG testing.
 ```
 
 ## Important risk
