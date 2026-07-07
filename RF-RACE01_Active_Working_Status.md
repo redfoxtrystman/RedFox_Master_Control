@@ -1,6 +1,6 @@
 # RF-RACE01 Active Working Status
 
-Timestamp = 2026-07-06 19:58 America/Los_Angeles
+Timestamp = 2026-07-06 20:25 America/Los_Angeles
 Chat ID = RF-RACE01
 Chat Name = Project 37 RaceBuilder Chat
 Message type = STATUS / ACTIVE COORDINATION
@@ -17,16 +17,16 @@ This is not a handoff. RF-RACE01 is still the active RaceBuilder chat. This file
 37_racebuilder_v0_4_16_7_race_catalog_core_index_preview.zip
 ```
 
-## Current paired Hub
+## Current paired Hub test build
 
 ```text
-1-RedFox_GarageHub_v0_5_8_RememberDockedModules.zip
+1-RedFox_GarageHub_v0_5_11_RaceManagerLinkFix.zip
 ```
 
-Optional temporary overlay if Hub scan crashes:
+This was built from David-uploaded:
 
 ```text
-1-RedFox_GarageHub_v0_5_8_1_ModuleScannerMsgHotfix_OVERLAY.zip
+1-RedFox_GarageHub_v0_5_10_SpawnerBridgeFix.zip
 ```
 
 ## Active objective
@@ -35,21 +35,33 @@ Focus on RaceBuilder catalog core before AI spawning or trailer-race gameplay ex
 
 The catalog must show saved races, filter them, favorite them, load/edit/replace/save-as-new, and store race metadata/assets per map.
 
-## Current Hub blocker
+## Current fix made in this chat
 
-David reported a Hub scanner Fatal Lua Error during scan:
+David reported RaceBuilder could not be opened/found from Hub. Inspection showed RaceBuilder v0.4.16.7 manifest was already Hub-compliant enough to be discovered, but Hub v0.5.10 had two Hub-side problems:
+
+1. `scanRedFoxModules()` called `msg()` before the local `msg` upvalue was in scope, causing a nil global call.
+2. The existing Race/Event top-bar buttons were still mostly placeholder actions and were not wired to RaceBuilder bridge functions.
+
+Created local test artifact:
 
 ```text
-lua/ge/extensions/redfox/modulesHub.lua:483: attempt to call global 'msg' (a nil value)
+1-RedFox_GarageHub_v0_5_11_RaceManagerLinkFix.zip
 ```
 
-This is Hub-side. The screenshot showed the scan found:
+Changes:
 
-```text
-lua/ge/extensions/redfox/modules/redfox_race_manager/redfox_module.json
-```
-
-So RaceBuilder is discoverable before the Hub scanner crashes. RF-HUB01 should fix `scanRedFoxModules` by defining/guarding/replacing `msg()`.
+- Fixed `msg()` scoping by declaring it before scanner/menu helper functions and removing the later shadowing local declaration.
+- Added `ensureRaceManagerLoaded()` and `callRaceCommand()`.
+- Linked Race/Event menu actions to RedFox Race Manager bridge functions:
+  - Open RaceBuilder UI
+  - Stage Players
+  - Start Race Lights
+  - Start Countdown / Race
+  - Stop / Reset Race
+  - Show Scoreboard
+- Preserved Spawner bridge behavior from v0.5.10.
+- No RaceBuilder gameplay was moved into Hub.
+- No RaceBuilder ZIP was changed in this patch.
 
 ## What other chats need to know
 
@@ -61,21 +73,34 @@ So RaceBuilder is discoverable before the Hub scanner crashes. RF-HUB01 should f
 
 ## What David should test next
 
-With duplicates disabled:
+With duplicates disabled, use:
+
+```text
+1-RedFox_GarageHub_v0_5_11_RaceManagerLinkFix.zip
+37_racebuilder_v0_4_16_7_race_catalog_core_index_preview.zip
+```
+
+Test Hub/RaceBuilder link first:
 
 1. Hub opens.
-2. RaceBuilder opens.
-3. Set Start / CP / Finish still works.
-4. Lights and scoreboard still work.
-5. Create Trailer Figure-8 metadata/preset.
-6. Save race.
-7. Refresh/rebuild catalog.
-8. Confirm race appears.
-9. Search/filter/favorite it.
-10. Load it.
-11. Edit one gate.
-12. Replace saved race.
-13. Save as new copy.
+2. Hub Scan Modules does not crash.
+3. Race/Event -> Open RaceBuilder UI opens RaceBuilder.
+4. Race/Event -> Start Race Lights opens/stages RaceBuilder lights.
+5. Race/Event -> Show Scoreboard opens scorecard.
+
+Then test RaceBuilder catalog:
+
+1. Set Start / CP / Finish still works.
+2. Lights and scoreboard still work.
+3. Create Trailer Figure-8 metadata/preset.
+4. Save race.
+5. Refresh/rebuild catalog.
+6. Confirm race appears.
+7. Search/filter/favorite it.
+8. Load it.
+9. Edit one gate.
+10. Replace saved race.
+11. Save as new copy.
 
 ## Next RaceBuilder build if v0.4.16.7 passes
 
