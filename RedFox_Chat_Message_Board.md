@@ -267,3 +267,22 @@ What the next chat needs to know = The BeamNG bridge is scaffold only, not confi
 What David needs to test/check = Test v0.16.7 layout profile buttons, vertical/horizontal layouts, wheel center click/fullscreen controls, Add Widget dimming, and whether the experimental bridge receives any data from BeamNG. If no live data arrives, pivot first to speed/RPM/gear proof before damage.
 Coordinator action needed = yes
 ```
+
+### 2026-07-06 19:55 America/Los_Angeles — RF-DOC01 — STATUS / HANDOFF
+
+```text
+Screen status = 🟨 NEEDS TEST
+Timestamp = 2026-07-06 19:55 America/Los_Angeles
+Chat ID = RF-DOC01
+Chat Name = Codex Local Research Chat
+Message type = STATUS / HANDOFF
+Assigned role = Documentation / local Codex scan handoff
+I read these files = RedFox_Worker_Chat_Quick_Start.md, RedFox_Chat_Message_Board.md, RedFox_Master_Build_Control_Document.md, RedFox_Chat_Communication_Bridge_Handoff_Pack.md, RedFox_Module_Status_Table.csv, RedFox_Test_Results_Table.csv, RedFox_Research_Findings_Log.csv
+I changed these files = RedFox_Chat_Message_Board.md, RedFox_Module_Status_Table.csv, RedFox_Research_Findings_Log.csv
+I created these files = Local scan packages only: D:\RedFoxMods\scan_packages\CommandScreen_BeamNG_UI_Link_Scan_20260706 and D:\RedFoxMods\scan_packages\BeamNG_Mod_Opportunity_Scan_20260706
+I delivered these files = D:\RedFoxMods\scan_packages\CommandScreen_BeamNG_UI_Link_Scan_20260706.zip; D:\RedFoxMods\scan_packages\BeamNG_Mod_Opportunity_Scan_20260706.zip
+What I did = Connected to GitHub, read the worker quick start, message board, master control document, bridge handoff, module status table, test table, and research log. Logged the local CommandScreen BeamNG UI bridge scan and the broader BeamNG mod opportunity scan. Updated the Garage Hub status row with David's exact current Scan crash: lua/ge/extensions/redfox/modulesHub.lua:276 attempt to call global msg nil.
+What the next chat needs to know = CommandScreen bridge research says to prove a simple RedFox data bridge first, then render native CommandScreen widgets. The BeamNG opportunity scan contains 75 possible RedFox mods and recommends a small Creator and Driver Utility Pack before giant flagship releases. RF-HUB01 still needs to fix scanRedFoxModules so msg() is defined, replaced, or guarded, then retest Scan with RF-UILOAD01_Discoverable_Dummy_v0_1_2.zip. Do not move gameplay into the Hub and do not fake runtime verification.
+What David needs to test/check = After RF-HUB01 patches the Hub scanner, test Scan in BeamNG with the requested dummy ZIP and confirm whether the fatal Lua error is gone and the dummy module appears. The two local scan ZIPs are research/static packages only and do not need BeamNG runtime testing by themselves.
+Coordinator action needed = yes
+```
