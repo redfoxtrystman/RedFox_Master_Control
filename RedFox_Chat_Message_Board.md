@@ -210,3 +210,41 @@ What the next chat needs to know = RF-HUB01 should search the entire Hub ZIP for
 What David needs to test/check = Stop testing Hub v0.6.2 in Career until RF-HUB01 removes/guards the stale redfox_modulesHub call. UI Load Tester v0.1.2 remains ready for discovery testing after Hub scanner is fixed.
 Coordinator action needed = yes
 ```
+
+### 2026-07-06 19:52 America/Los_Angeles — RF-MOD43 — STATUS / HANDOFF
+
+```text
+Timestamp = 2026-07-06 19:52 America/Los_Angeles
+Chat ID = RF-MOD43
+Chat Name = Project 43 RedFox Unicycle Weapons / Player Movement Chat
+Message type = STATUS / HANDOFF
+Screen status = 🟨 NEEDS TEST
+Assigned role = Project 43 individual mod chat / player movement and weapon foundation owner
+I read these files = RedFox_Worker_Chat_Quick_Start.md, RedFox_Chat_Message_Board.md, RedFox_Module_Status_Table.csv, RedFox_Test_Results_Table.csv, RedFox_Research_Findings_Log.csv
+I changed these files = RedFox_Chat_Message_Board.md, RedFox_Module_Status_Table.csv, RedFox_Test_Results_Table.csv, RedFox_Research_Findings_Log.csv
+I created these files = Project43_RedFoxUnicycleWeapons_Status_Handoff.md
+I delivered these files = 43_RedFoxUnicycleWeapons_v2_4_4_guarded_playercontroller_override_test.zip in chat; Project43_RedFoxUnicycleWeapons_Status_Handoff.md in repo
+What I did = Updated the repo with Project 43 status. Weapons are paused. Current priority is player movement/control feel. v2.4.4 restored a guarded patched playerController.lua override while keeping gameplay/walk.lua deactivated. David reported the build made a big difference and speed now changes, but the player still rolls/coasts like a ball after input release.
+What the next chat needs to know = Next Project 43 build should be v2.4.5 idle brake / anti-roll / FPS-stop pass. Add no-input counter-force/counter-torque and settings such as Idle Brake Strength, Stop Roll Damping, Counter Torque Brake, Auto Stop Below Speed, Ball Lock Spring/Damping, and Ground Stick Assist. Do not resume Wabbajack, Attach Tool, inventory, body/weapon slot merge, or weapon picker until movement is acceptable. Do not restore lua/ge/extensions/gameplay/walk.lua unless explicitly approved because that was the exit-crash risk path.
+What David needs to test/check = Test v2.4.4 only if not already done fully: exit car crash, K panel, speed differences, sprint, crouch, prone, and rolling after release. For v2.4.5, specifically test whether releasing W/A/S/D stops the player quickly without jitter or crash.
+Coordinator action needed = yes
+```
+
+### 2026-07-06 19:52 America/Los_Angeles — RF-MOD43 — HUB CONTEXT FOR RF-HUB01
+
+```text
+Timestamp = 2026-07-06 19:52 America/Los_Angeles
+Chat ID = RF-MOD43
+Chat Name = Project 43 RedFox Unicycle Weapons / Player Movement Chat
+Message type = HANDOFF
+Screen status = 🟧 BLOCKED
+Assigned role = Project 43 chat passing David's Hub context to shared board
+I read these files = RedFox_Worker_Chat_Quick_Start.md, RedFox_Chat_Message_Board.md, RedFox_Module_Status_Table.csv
+I changed these files = RedFox_Chat_Message_Board.md, RedFox_Research_Findings_Log.csv
+I created these files = None
+I delivered these files = Hub error context for RF-HUB01
+What I did = Posted David's current Hub blocker context. Hub loads in Career after rollback, but clicking Scan causes lua/ge/extensions/redfox/modulesHub.lua:276 attempt to call global 'msg' (a nil value).
+What the next chat needs to know = RF-HUB01 should fix scanRedFoxModules so msg() is defined, replaced, or guarded. Then retest Scan with RF-UILOAD01_Discoverable_Dummy_v0_1_2.zip. This is a Hub-side scanner helper problem, separate from Project 43 movement.
+What David needs to test/check = After RF-HUB01 patches Hub scan, install the requested Hub build plus RF-UILOAD01_Discoverable_Dummy_v0_1_2.zip and press Scan. Confirm whether the dummy module appears without fatal Lua error.
+Coordinator action needed = yes
+```
