@@ -1,14 +1,14 @@
 # Project 43 — RedFox Unicycle Weapons / Player Movement Handoff
 
-Timestamp = 2026-07-06 19:52 America/Los_Angeles  
+Timestamp = 2026-07-07 16:20 America/Los_Angeles  
 Chat ID = RF-MOD43  
 Chat Name = Project 43 RedFox Unicycle Weapons / Player Movement Chat
 
 ## Current priority
 
-Weapons are paused. The active priority is player movement/control feel.
+Movement is good enough to begin the next foundation step, but keep movement/anti-roll available for tuning. Active priority is now the **native Backpack / Weapon Select foundation** before real inventory/weapons return.
 
-David's target is a BeamNG-native FPS-style player core before inventory/weapons return:
+David's target is a BeamNG-native FPS-style player core before full weapon expansion:
 
 - smoother walking
 - true walk/sprint speed control
@@ -16,18 +16,19 @@ David's target is a BeamNG-native FPS-style player core before inventory/weapons
 - less rolling/ball behavior after key release
 - crouch
 - fake prone first, true prone later if possible
+- backpack / quickbar / weapon selector
 - visible body/gun later
-- inventory and weapons after movement is acceptable
+- weapon routing after selection foundation is stable
 
 ## Latest delivered build in chat
 
-`43_RedFoxUnicycleWeapons_v2_4_5_idle_brake_antiball_fps_stop.zip`
+`43_RedFoxUnicycleWeapons_v2_4_6_backpack_weapon_select_foundation.zip`
 
-This build adds the anti-roll / FPS-stop test pass on top of the guarded `playerController.lua` branch. It should be tested after v2.4.4 partial pass.
+This build starts the Backpack / Weapon Select foundation using native ImGui only. It intentionally does **not** add a GM UI app because the old v2.3.3 GM weapon picker was suspected to break BeamNG UI Apps/Grid Selector.
 
-## Last confirmed v2.4.4 user result
+## Last confirmed movement result
 
-David reported v2.4.4 made a big difference and speed control finally changed behavior. David also clarified that **exit did NOT crash the game**. The player still acts like a ball and keeps rolling after releasing controls.
+David reported v2.4.4 made a big difference and speed control finally changed behavior. David also clarified that **exit did NOT crash the game**. The player still acts somewhat like a ball and keeps rolling after releasing controls, but David said the mod is in a good place and ready to begin backpack/weapon selection.
 
 Status = 🟨 NEEDS TEST / PARTIAL
 
@@ -40,56 +41,89 @@ Exit car crash = no / did not crash
 K panel opens = yes
 C crouch = duplicate/conflict shown in bindings, but crouch itself works
 Left Alt prone = yes
-Movement profiles = all usable, but rolling/coasting remains the blocker
+Movement profiles = all usable, but rolling/coasting remains a tuning issue
+```
+
+## v2.4.6 new files
+
+```text
+lua/ge/extensions/core/redfoxInventoryWeapons.lua
+lua/ge/extensions/core/input/actions/redfoxInventoryWeapons.json
+settings/inputmaps/keyboard_redfox_inventory_weapons.json
+_redfox_dev_notes/ROADMAP_v2_4_6.md
+_redfox_dev_notes/DIFF_REPORT_v2_4_5_to_v2_4_6.md
+_redfox_dev_notes/DIFF_REPORT_v2_4_5_to_v2_4_6.patch
+```
+
+## v2.4.6 changed files
+
+```text
+lua/ge/extensions/core/redfoxGravityWeapon.lua
+_redfox_dev_notes/CHANGELOG.md
+_redfox_dev_notes/TEST_RESULTS.md
+_redfox_dev_notes/TODO_NEXT_BUILD.md
+_redfox_dev_notes/CODE_LOCATION_INDEX.md
+```
+
+`redfoxGravityWeapon.lua` now exposes:
+
+```text
+releaseSilent()
+setRequireSelectedWeapon(value)
+```
+
+These are used by the inventory foundation so selecting Empty Hands or non-gravity slots can stop inventory-routed Gravity Gun selection.
+
+## v2.4.6 controls to test
+
+```text
+B = RedFox Backpack / Weapon Select
+1-6 = select first six backpack/weapon slots
+[ = previous slot
+] = next slot
+Backspace = Empty Hands
+K = Movement Lab still opens
+G = Gravity Tool still opens
+```
+
+## Current slots
+
+```text
+1 Gravity Gun = working/gated
+2 Attach Tool = placeholder
+3 PW2 Gun Bridge = placeholder
+4 Minigun = parts fallback placeholder
+5 Bazooka = parts fallback placeholder
+6 Wabbajack Tribute = planned placeholder
+7 Empty Hands = safe slot
 ```
 
 ## Important finding
 
-The earlier v2.4.1–v2.4.3 movement lab was mostly an assist layer. It changed feel but did not fully own the stock walking speed because BeamNG/unicycle walking speed is controlled inside `playerController.lua`.
+BeamNG supports mod-provided regular input actions in `lua/ge/extensions/core/input/actions/*.json` and vehicle-specific actions in `vehicles/<vehicle>/input_actions*.json`; use unique action names/file names and keep action snippets short. The Backpack uses regular GE Lua actions with unique `redfoxInventory...` names and calls the new GE extension.
 
-The scanned BeamNG/user files pointed to these important movement constants/functions:
-
-```text
-movementSpeedNormal
-movementSpeedSprint
-maxAllowedBallAVNormal
-maxAllowedBallAVSprint
-maxBallTorque
-ballPressureCrouch
-walkUpDownRaw
-walkLeftRightRaw
-setSpeedCoef
-playerController
-```
+BeamNG UI apps are AngularJS app folders with `app.js`, `app.json`, and `app.png`, but v2.4.6 avoids adding any `ui/modules/apps` content until the native state machine passes testing.
 
 ## Current likely next fix / current test focus
 
-v2.4.5 should test real anti-roll / FPS-stop behavior inside the guarded player controller branch.
-
-Current test build name:
-
-`43_RedFoxUnicycleWeapons_v2_4_5_idle_brake_antiball_fps_stop.zip`
-
-New/target settings:
+Test v2.4.6 in BeamNG:
 
 ```text
-Idle Brake Strength
-Idle Brake Delay
-Stop Roll Damping
-Counter Torque Brake
-Auto Stop Below Speed
-Ball Lock Spring
-Ball Lock Damping
-Ground Stick Assist
-Air Control Strength
-Camera Relative Strafe Strength
+v2.4.6 test:
+Backpack opens with B:
+Quickbar visible:
+1-6 slot select works:
+[ and ] cycle works:
+Backspace Empty Hands works:
+Gravity Gun works when selected:
+Gravity is blocked or released when Empty Hands selected:
+K Movement Lab still opens:
+G Gravity Tool still opens:
+UI Apps/Grid Selector still works:
+Any Lua errors:
 ```
 
-Main goal:
-
-```text
-When W/A/S/D are released, actively fight leftover movement and ball spin so the player stops like an FPS character instead of coasting like a physics ball.
-```
+If this passes, v2.4.7 should wire selected item state into real primary/alt actions and decide whether to keep native-only or add a tiny optional GM quickbar later.
 
 ## File paths to protect
 
@@ -100,45 +134,22 @@ lua/ge/extensions/core/input/actions/redfoxPlayerMovementLab.json
 settings/inputmaps/keyboard_redfox_player_movement_lab.json
 lua/vehicle/controller/playerController.lua
 settings/redfox/43_unicycle_player_movement_settings.json
+lua/ge/extensions/core/redfoxInventoryWeapons.lua
+lua/ge/extensions/core/input/actions/redfoxInventoryWeapons.json
+settings/inputmaps/keyboard_redfox_inventory_weapons.json
 ```
 
-## Controls as of latest movement builds
+## Do not fully resume weapon expansion yet
 
-```text
-K = RedFox Player Movement Lab panel
-C = stock Unicycle crouch preferred
-Left Alt = fake prone
-Left Shift = sprint
-W/A/S/D = movement
-```
+Still paused except for placeholder selection/routing foundation:
 
-Do not use `M` for the panel because `M` is BeamNG map. Avoid adding a RedFox default C crouch binding if stock `[Unicycle] Crouch` already uses C.
-
-## Movement profiles currently exposed
-
-```text
-Stock Safe
-Modern Smooth
-Fast Arcade
-Source Heavy
-Experimental Pawn
-```
-
-David found the profiles. The guarded `playerController.lua` branch made the first real speed/control difference, but rolling/coasting remains.
-
-## Do not resume weapon expansion yet
-
-Paused features:
-
-- Gravity Gun polish
-- Attach Tool
-- Wabbajack tribute weapon
-- weapon picker UI
-- inventory
+- real Attach Tool behavior
+- Wabbajack tribute effects
+- runtime minigun/bazooka firing bridge
 - body + weapon slot merge
 - AI occupants/dummies
 
-These should wait until movement is acceptable.
+These should wait until Backpack selection is stable.
 
 ## Earlier Project 43 notes
 
@@ -152,6 +163,7 @@ v2.4.2_panel_key_rebind_hotfix = panel key changed M -> K.
 v2.4.3_speed_bridge_prone_hotfix = added prone key and attempted speed bridge.
 v2.4.4_guarded_playercontroller_override_test = real speed difference, no exit crash reported, still rolling/ball issue.
 v2.4.5_idle_brake_antiball_fps_stop = anti-roll/FPS-stop test build; needs BeamNG testing.
+v2.4.6_backpack_weapon_select_foundation = native ImGui backpack/weapon selection foundation; needs BeamNG testing.
 ```
 
 ## Important risk
