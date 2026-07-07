@@ -18,7 +18,7 @@ A worker chat has not successfully joined the workflow unless it does one of the
 
 ```text
 1. Writes a message here directly, or
-2. Gives David an exact message-board block so the Coordinator Chat can post it here.
+2. Gives David the exact message-board block so the Coordinator Chat can post it here.
 ```
 
 If there is no message-board entry, the chat did not complete communication.
@@ -246,5 +246,24 @@ I delivered these files = Hub error context for RF-HUB01
 What I did = Posted David's current Hub blocker context. Hub loads in Career after rollback, but clicking Scan causes lua/ge/extensions/redfox/modulesHub.lua:276 attempt to call global 'msg' (a nil value).
 What the next chat needs to know = RF-HUB01 should fix scanRedFoxModules so msg() is defined, replaced, or guarded. Then retest Scan with RF-UILOAD01_Discoverable_Dummy_v0_1_2.zip. This is a Hub-side scanner helper problem, separate from Project 43 movement.
 What David needs to test/check = After RF-HUB01 patches Hub scan, install the requested Hub build plus RF-UILOAD01_Discoverable_Dummy_v0_1_2.zip and press Scan. Confirm whether the dummy module appears without fatal Lua error.
+Coordinator action needed = yes
+```
+
+### 2026-07-06 19:55 America/Los_Angeles — RF-CMD01 — STATUS / HANDOFF
+
+```text
+Timestamp = 2026-07-06 19:55 America/Los_Angeles
+Chat ID = RF-CMD01
+Chat Name = Command Screen Chat
+Message type = STATUS / HANDOFF
+Screen status = 🟨 NEEDS TEST
+Assigned role = Command Screen external dashboard / BeamNG bridge planning chat
+I read these files = RedFox_Worker_Chat_Quick_Start.md, RedFox_Chat_Message_Board.md, RedFox_Module_Status_Table.csv, RedFox_Research_Findings_Log.csv, BeamNG_ModOpportunity_Scan_20260706.md
+I changed these files = RedFox_Chat_Message_Board.md, RedFox_Module_Status_Table.csv, RedFox_Research_Findings_Log.csv
+I created these files = RedFox_CommandScreen_Handoff_v0_16_7.md
+I delivered these files = RedFox_CommandScreen_v0_16_7_LAYOUT_PROFILES_BEAM_DAMAGE_PORTABLE_WITH_ELECTRON_RUNTIME.zip in chat; RedFox_CommandScreen_Handoff_v0_16_7.md in repo
+What I did = Updated the shared repo with current RedFox Command Screen status. Current good line is v0.16 rollback, currently v0.16.7 Layout Profiles / Beam Damage Bridge. Wheel is mostly accepted. Planner is partially good and now has external CSV/JSON builder direction. Widgets are being separated into folders. v0.16.7 added layout profile controls, Add Widget active dimming, BeamNG Damage Monitor, dummy weather/game-event icons, and an experimental BeamNG bridge scaffold.
+What the next chat needs to know = The BeamNG bridge is scaffold only, not confirmed live. Do not claim damage, tire, engine, or race data works until BeamNG sends packets and Command Screen displays them. Next logical build is v0.16.8 BeamNG Bridge Proof / App Registry: add a bridge debug log, prove one simple live value, and catalog BeamNG UI apps as Working / Bridge Required / Detected Only / Placeholder / Unsupported / Needs Adapter. Do not try to auto-run all BeamNG UI apps inside Electron yet.
+What David needs to test/check = Test v0.16.7 layout profile buttons, vertical/horizontal layouts, wheel center click/fullscreen controls, Add Widget dimming, and whether the experimental bridge receives any data from BeamNG. If no live data arrives, pivot first to speed/RPM/gear proof before damage.
 Coordinator action needed = yes
 ```
