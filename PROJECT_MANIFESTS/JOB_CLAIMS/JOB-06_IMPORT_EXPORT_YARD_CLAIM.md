@@ -8,12 +8,19 @@
 
 **Repository:** `redfoxtrystman/RedFox_Master_Control`
 
+**Governing directive:** `PROJECT_MANIFESTS/REDFOX_FOXNET_START_ORDER_SHARED_ARCHITECTURE_DIRECTIVE_2026-07-13.md`
+
+**Directive commit reviewed:** `a05e06829548ddc4e7f5e39ac4a060eb57a0ef70`
+
+**Rollcall/board correction commit reviewed:** `4475437092b7e6012b6174d880210685a1eab928`
+
 ## Hello to the other RedFox chats
 
 Hi fellow RedFox rebuild chats. This chat has claimed exactly one job: **JOB-06 — Import / Export Yard**. I own only the Import / Export app/page and its future gameplay plan. I will use the shared platform, Store, and Career/RLS contracts published by their owners; I will not copy, replace, or modify those systems or any other app.
 
 ## Phase 1 scope owned by JOB-06
 
+- One isolated, removable Import / Export add-on mod with unique paths and IDs.
 - An installable online Import / Export vehicle app/page.
 - Decent import/export vehicles rather than pure scrap inventory.
 - Buy-now listings only; no auction behavior.
@@ -92,6 +99,21 @@ JOB-06 will not patch `vehicleShopping` at startup, call Career/RLS internals di
 
 JOB-06 will ask on GitHub and wait rather than inventing a substitute for a missing shared contract.
 
+## Contract commit ledger
+
+No implementation contract is in use yet. JOB-06 remains inspection/planning only.
+
+Before editing runtime app files, this claim or its implementation handoff must record the exact commit SHA used for:
+
+- JOB-00 approved baseline selection.
+- JOB-01 app manifest, canonical route, registration, and phone/PC host contract.
+- JOB-02 Career/RLS bridge contract.
+- JOB-03 Store/manifest contract only if JOB-03 is active and required.
+- JOB-11 testing, logging, and evidence contract.
+- Any JOB-04 or JOB-09 delivery/deep-link handoff used by future phases.
+
+A branch name, file name, or verbal description is not a contract version. The exact Git commit is required.
+
 ## Phase 1 verification plan
 
 Before any JOB-06 release, this chat will verify:
@@ -100,14 +122,18 @@ Before any JOB-06 release, this chat will verify:
 2. Only the dedicated JOB-06 app files are changed.
 3. Every local `href`, `src`, script, stylesheet, image, and font reference resolves from the final packaged paths.
 4. The JOB-06 manifest validates against the final JOB-01/JOB-03 schema and declares only approved permissions.
-5. Phone and PC open the same registered app and use the same JOB-02 backend message contract.
-6. Buy buttons are buy-now only and request the existing stock/RLS purchase flow through the shared bridge.
-7. No auction logic, direct Career/RLS patch, custom money/inventory/garage/storage path, startup Career module, or fake purchase-success spawn exists.
-8. No stolen/traffic sale, physical yard trigger, hotlist payout, sightings runtime, or delivery runtime ships in Phase 1.
-9. Page-specific listing filters and details do not rewrite or fabricate authoritative Career/RLS purchase data.
-10. The final ZIP is reopened and checked for integrity, correct BeamNG root depth, exact file inventory, duplicate shared cores, stale files, and forbidden paths.
-11. Required TXT, HTML, JSON, CSV, file-tree, scope, logging, and verification reports are present.
-12. Static checks are labeled static. Runtime remains unproven until David tests the exact package in BeamNG.
+5. Phone and PC open the same canonical registered destination and use the same JOB-02 backend message contract; only responsive presentation may differ.
+6. The page and route are tested on West Coast USA and at least one supported non-West-Coast map.
+7. No West Coast-only shop, facility, dealer, parking, garage, route, or map ID is hard-coded. If a required RLS/BeamNG service is unavailable on a map, the page reports the exact unavailable dependency instead of substituting data or faking success.
+8. Buy buttons are buy-now only and request the existing stock/RLS purchase flow through the shared bridge.
+9. No auction logic, direct Career/RLS patch, custom money/inventory/garage/storage path, startup Career module, or fake purchase-success spawn exists.
+10. No stolen/traffic sale, physical yard trigger, hotlist payout, sightings runtime, or delivery runtime ships in Phase 1.
+11. Page-specific listing filters and details do not rewrite or fabricate authoritative Career/RLS purchase data.
+12. No mockup, decorative control, or placeholder is included unless David explicitly approves it and it is labeled `MOCKUP / PLACEHOLDER — NOT FUNCTIONAL`. Otherwise the feature is reported as BLOCKED or PARTIAL.
+13. The final ZIP is reopened and checked for integrity, correct BeamNG root depth, exact file inventory, duplicate shared cores, stale files, and forbidden paths.
+14. Required TXT, HTML, JSON, CSV, file-tree, scope, logging, and verification reports are present.
+15. The exact contract commit SHAs used are recorded in the verification report.
+16. Static checks are labeled static. Runtime remains unproven until David tests the exact package in BeamNG. Phrases such as “working,” “fixed,” “done,” and “should work” are not used as proof.
 
 If any required check fails, JOB-06 stops and reports the failure instead of shipping a mostly-passed ZIP.
 
