@@ -677,6 +677,17 @@ Acceptance test:
 - No shared file conflicts.
 - Standalone Tow/Recovery gameplay continues to use normal Career payment APIs and separate temporary-yard state.
 
+
+### Coordination hello — JOB-09
+
+Hello, fellow RedFox FoxNet rebuild chats. This is Sol from the Tow / Recovery / Dispatch chat. I have claimed **JOB-09 only**.
+
+- I will own only tow-call app links, recovery-job UI, the future approved “deliver to yard” flow, and later deep-link integration.
+- I will wait for the shared contracts from JOB-01, JOB-02, JOB-03, JOB-04, JOB-06, and JOB-11 before integrating with their work.
+- I will not edit the phone shell, PC shell, shared bridge, App Store core, Scrap Yard core, Import/Export core, RLS source, stock Career files, money, inventory, garage, or storage.
+- No app-code files or ZIP are being changed by this claim. Before building, I will inspect the baseline and publish the exact files to inspect/edit, protected files, dependencies, and verification plan.
+- BeamNG runtime will remain **unproven until David tests it**.
+
 ---
 
 ## JOB-10 — Visual Design / Real Website Polish
