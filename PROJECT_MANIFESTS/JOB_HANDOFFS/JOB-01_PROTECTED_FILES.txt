@@ -1,0 +1,40 @@
+JOB-01 PROTECTED FILES AND AUTHORITIES
+
+DO NOT COPY, REPLACE, OR PATCH IN JOB-01:
+- lua/ge/extensions/gameplay/phone.lua
+- lua/ge/extensions/overrides/career/modules/computer.lua
+- lua/ge/extensions/overrides/career/modules/vehicleShopping.lua
+- lua/ge/extensions/career/modules/inventory.lua
+- lua/ge/extensions/career/modules/garageManager.lua
+- lua/ge/extensions/overrides/career/modules/insurance/insurance.lua
+- lua/ge/extensions/career/saveSystem.lua
+- lua/ge/extensions/overrides/career/saveSystem.lua
+- lua/ge/extensions/overrides/career/career.lua
+- lua/ge/extensions/overrides/freeroam/facilities.lua
+- RLS mission, reward, delivery, logistics, loan, banking, marketplace, business,
+  tutorial, recovery, painting, tuning, and ownership modules
+- all Better Career phone, computer, bank, garage, ownership, sales, contracts,
+  PlanEx, mission, facilities, recovery, save, and override modules
+- every individual RedFox app/site tree owned by another job
+- the JOB-02 bridge implementation
+
+PINNED COMPATIBILITY EXCEPTION:
+- ui/ui-vue/dist/index.js
+- lua/ge/extensions/ui/phone/layout.lua
+
+The exception is limited to exact RLS 2.6.6. The builder verifies the entire
+input ZIP SHA-256, applies four exact Vue anchors and two exact layout anchors,
+and aborts on any mismatch. This exception does not transfer ownership of those
+RLS files to JOB-01.
+
+PROHIBITED JOB-01 OPERATIONS:
+- money changes;
+- vehicle spawn-as-purchase;
+- inventory/ownership creation or removal;
+- garage/storage capacity decisions;
+- insurance changes;
+- mission completion or reward grants;
+- purchase/sale finalization;
+- Career save mutations;
+- map facility replacement;
+- a second phone controller or second Career system.

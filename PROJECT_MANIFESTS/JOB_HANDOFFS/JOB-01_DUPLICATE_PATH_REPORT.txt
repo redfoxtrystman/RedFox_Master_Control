@@ -1,0 +1,38 @@
+JOB-01 DUPLICATE PATH REPORT
+Date: 2026-07-13
+
+RLS 2.6.6 vs current all-in-one FoxNet — file collisions:
+1. lua/ge/extensions/ui/phone/layout.lua
+2. ui/ui-vue/dist/index.js
+
+These are the only two RLS compatibility targets in JOB-01 v0.1. The build
+script refuses every RLS baseline except the recorded SHA-256 and refuses any
+anchor that is absent or duplicated.
+
+RLS 2.6.6 vs Better Career v0.5.0 — dangerous file collisions:
+1. gameplay/domains/logistics/skills/delivery/info.json
+2. gameplay/domains/logistics/skills/vehicleDelivery/info.json
+3. lua/ge/extensions/career/modules/garageManager.lua
+4. lua/ge/extensions/overrides/career/career.lua
+5. lua/ge/extensions/overrides/career/modules/computer.lua
+6. lua/ge/extensions/overrides/career/modules/delivery/generator.lua
+7. lua/ge/extensions/overrides/career/modules/delivery/tutorial.lua
+8. lua/ge/extensions/overrides/career/modules/painting.lua
+9. lua/ge/extensions/overrides/career/modules/playerDriving.lua
+10. lua/ge/extensions/overrides/career/modules/speedTraps.lua
+11. lua/ge/extensions/overrides/career/modules/valueCalculator.lua
+12. lua/ge/extensions/overrides/career/modules/vehicleShopping.lua
+13. lua/ge/extensions/overrides/career/saveSystem.lua
+14. lua/ge/extensions/overrides/core/recoveryPrompt.lua
+15. lua/ge/extensions/overrides/freeroam/facilities.lua
+16. lua/ge/extensions/overrides/gameplay/traffic/roles/police.lua
+17. ui/ui-vue/dist/index.css
+18. ui/ui-vue/dist/index.html
+19. ui/ui-vue/dist/index.js
+
+JOB-01 v0.1 copies none of the Better Career collision paths or source.
+
+Within the generated JOB-01 ZIP:
+- duplicate archive names are a build failure;
+- app/site trees are excluded;
+- no platform file may be repeated inside an app folder.

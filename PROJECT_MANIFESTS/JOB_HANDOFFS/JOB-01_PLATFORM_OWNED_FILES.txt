@@ -1,0 +1,23 @@
+JOB-01 PLATFORM-OWNED FILES — v0.1
+
+RedFox-owned runtime files:
+scripts/redfox_icefox_platform_core/modScript.lua
+lua/ge/extensions/redfoxPlatformCore.lua
+mod_info/redfox_icefox_platform_core/info.json
+ui/modModules/redfoxPlatformCore/assets/icefox.svg
+ui/modModules/redfoxPlatformCore/shared/platform.css
+ui/modModules/redfoxPlatformCore/shared/platform.js
+ui/modModules/redfoxPlatformCore/phone/index.html
+ui/modModules/redfoxPlatformCore/pc/index.html
+
+Exact RLS 2.6.6 compatibility outputs generated at build time:
+ui/ui-vue/dist/index.js
+lua/ge/extensions/ui/phone/layout.lua
+
+Build/report files:
+JOB-01_PLATFORM_CORE_SOURCE/tools/build_rls_2_6_6_patch.py
+docs/JOB-01_VERIFICATION_REPORT.txt
+docs/JOB-01_VERIFICATION_REPORT.html
+
+JOB-01 does not own individual app/site UI, app business logic, or the JOB-02
+Career/RLS bridge implementation.
