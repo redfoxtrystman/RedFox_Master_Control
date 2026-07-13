@@ -3,57 +3,45 @@
 **Date:** 2026-07-13  
 **Owner:** David / Captain  
 **Repo:** `redfoxtrystman/RedFox_Master_Control`  
-**Purpose:** Coordinate multiple ChatGPT chats so the RedFox phone, PC, web pages, app store, and RLS/career pages are rebuilt in the correct order without each chat hijacking the others.
+**Purpose:** This is the single coordination page for rebuilding RedFox FoxNet / IceFox for BeamNG without the chats fighting each other, hijacking the phone/PC, breaking RLS, or shipping unverified ZIPs.
 
 ---
 
-# NUMBERING FIX — READ THIS FIRST
+# READ THIS FIRST — OFFICIAL JOB IDS
 
-The first version mixed two numbering systems:
+The only official job numbers are `JOB-00` through `JOB-11`.
 
-- human chat count: `1, 2, 3...12`
-- job IDs: `JOB-00, JOB-01, JOB-02...JOB-11`
+Do **not** translate `JOB-09` into “the ninth chat.”  
+Do **not** renumber jobs based on how many chats David opens.
 
-That was wrong and confusing.
+## Official job map
 
-## Canonical rule
+| Job ID | Job name | Status | Owner / notes |
+|---|---|---|---|
+| JOB-00 | Coordinator / Integration / Verification | AVAILABLE | Assigns jobs, verifies integration |
+| JOB-01 | Phone + PC Platform Core | AVAILABLE | Owns phone/PC app/page shells |
+| JOB-02 | Shared RLS / Career Bridge | AVAILABLE | Owns shared bridge contract only |
+| JOB-03 | RedFox App Store / Play Store | AVAILABLE | Owns install/enable/open/update app store |
+| JOB-04 | Scrap Yard / Wrecking Yard | AVAILABLE | Online buy/sell page first |
+| JOB-05 | BeamBook Marketplace | AVAILABLE | BeamBook social/marketplace storefront |
+| JOB-06 | Import / Export Yard | AVAILABLE | Import/export online page first |
+| JOB-07 | Classics / Collector Exchange | AVAILABLE | Buy-now collector/classic page |
+| JOB-08 | Insurance / Finance / Garage / Storage Pages | AVAILABLE | Support/status pages only |
+| JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED | Claimed by Tow/Recovery/Dispatch chat |
+| JOB-10 | Visual Design / Real Website Polish | AVAILABLE | CSS/layout/art only |
+| JOB-11 | QA / Logging / Failure Triage | AVAILABLE | Logging, testing matrix, failure reports |
 
-**Only the `JOB-00` through `JOB-11` IDs are official.**
-
-Do not translate `JOB-09` into “the 9th chat” or “item 9 in a human list.”
-
-## Canonical job map
-
-| Job ID | Job name | Status |
-|---|---|---|
-| JOB-00 | Coordinator / Integration / Verification | AVAILABLE |
-| JOB-01 | Phone + PC Platform Core | AVAILABLE |
-| JOB-02 | Shared RLS / Career Bridge | AVAILABLE |
-| JOB-03 | RedFox App Store / Play Store | AVAILABLE |
-| JOB-04 | Scrap Yard / Wrecking Yard | AVAILABLE |
-| JOB-05 | BeamBook Marketplace | AVAILABLE |
-| JOB-06 | Import / Export Yard | AVAILABLE |
-| JOB-07 | Classics / Collector Exchange | AVAILABLE |
-| JOB-08 | Insurance / Finance / Garage / Storage Pages | AVAILABLE |
-| JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED |
-| JOB-10 | Visual Design / Real Website Polish | AVAILABLE |
-| JOB-11 | QA / Logging / Failure Triage | AVAILABLE |
-
-## Direct answer: what is JOB-09?
-
-**JOB-09 is Tow / Recovery / Dispatch Integration.**
-
-It is currently claimed by the Tow/Recovery/Dispatch chat. It must not edit Scrap Yard core, phone core, PC core, bridge core, App Store core, RLS source, stock Career files, money, inventory, garage, or storage.
+**Direct answer:** `JOB-09` is **Tow / Recovery / Dispatch Integration**.
 
 ---
 
-# How many chats are needed?
+# HOW MANY CHATS ARE NEEDED?
 
 ## Minimum workable setup: 8 chats
 
-The minimum 8 chats are not consecutive job numbers. QA/logging is JOB-11 but is still needed early.
+The minimum eight chats are not consecutive job IDs. QA/logging is `JOB-11`, but it is needed early.
 
-Use these 8 first:
+Use these first:
 
 1. `JOB-00` — Coordinator / Integration / Verification
 2. `JOB-01` — Phone + PC Platform Core
@@ -66,13 +54,9 @@ Use these 8 first:
 
 ## Ideal full setup: 12 chats
 
-Use all official job IDs:
+Use all official job IDs from `JOB-00` through `JOB-11`.
 
-```text
-JOB-00 through JOB-11
-```
-
-The extra four beyond the minimum are:
+The four extra beyond the minimum are:
 
 - `JOB-07` — Classics / Collector Exchange
 - `JOB-08` — Insurance / Finance / Garage / Storage Pages
@@ -81,188 +65,176 @@ The extra four beyond the minimum are:
 
 ---
 
-# Current rebuild decision
+# COPY/PASTE MESSAGE FOR EVERY NEW CHAT
 
-We are starting again from a clean plan.
+Send each new chat this exact message:
 
-The phone and PC must work like real devices:
+```text
+We are rebuilding RedFox FoxNet / IceFox for BeamNG. Read this GitHub job board first:
 
-- **Phone:** real app launcher, installable apps, notifications/messages where useful, apps open in phone-sized UI.
-- **PC:** real browser/desktop pages, pages open in PC-sized UI.
-- **Both:** use the same shared backend/bridge rules for career data, buying, selling, inventory, logging, and app registration.
-- **Apps/pages:** install into the existing phone and PC systems like real apps/pages. Do **not** replace or hijack the whole phone/PC shell.
-- **Store:** create a RedFox app store/play store style app where RedFox apps can be discovered, installed/enabled, disabled, updated, and opened.
+PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md
 
----
+Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a ZIP until you inspect the baseline, list exact files to edit, list protected files, and explain your verification plan.
 
-# Claim protocol for each chat
-
-When a chat starts, send it this file and tell it:
-
-> Read `PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md`. Pick exactly one AVAILABLE job. Do not edit outside that job. Update the job row or leave a GitHub note saying what you claimed, what files you will touch, and what files you will not touch.
-
-Each chat must report:
-
-- Job ID chosen.
-- Exact files/folders it will inspect.
-- Exact files/folders it may edit.
-- Exact files/folders it must not touch.
-- Whether it needs another chat's output before building.
-- Verification steps it will run.
-
-No chat should build a final ZIP until its job is stable and the Coordinator approves integration.
+Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
+```
 
 ---
 
-# Global hard rules
+# CLAIM PROTOCOL
 
-These rules apply to every job below.
+Each chat must do this before building anything:
 
-1. **Inspect first. Edit second.**
-2. **Do not replace the phone or PC shell.** Add apps/pages into them.
-3. **Do not create startup career modules unless specifically approved.** Previous Scrap Yard Direct career-module builds caused severe loading/freezing risk.
-4. **Do not hand-roll BeamNG/RLS money, inventory, garage, insurance, or storage.** Use the existing game/RLS functions.
-5. **Do not patch `vehicleShopping` at startup.** Career/shop data must be requested only when a page/app opens or when the approved bridge requests it.
-6. **Only one FoxNet/Web Ecosystem ZIP may be installed during tests.** Duplicate zips with the same `ui/modModules/redfoxCareerWeb/` paths are invalid tests.
-7. **Phone and PC must share the same bridge contract.** No separate guesswork bridge for PC.
-8. **Every build must include TXT + HTML verification reports.** JSON alone is not enough.
-9. **Runtime is unproven until David tests in BeamNG.** Do not write “fixed” unless the game test proves it.
-10. **If a check fails, stop. Do not ship.**
+1. Read this file.
+2. Pick exactly one `AVAILABLE` job.
+3. Say hello to the other chats on this page or in a GitHub handoff note.
+4. Report:
+   - chosen Job ID,
+   - files/folders it will inspect,
+   - files/folders it may edit,
+   - protected files/folders it will not touch,
+   - dependencies on other jobs,
+   - verification plan,
+   - expected output.
+5. Do **not** edit outside the claimed job.
+6. Do **not** build an integrated ZIP until `JOB-00` approves integration.
+
+If a chat needs a shared file from another job, it must ask on GitHub and wait. It must not invent its own copy.
 
 ---
 
-# Known working / known bad facts
+# RULES OF OPERATIONS — EVERY CHAT MUST FOLLOW
+
+## 1. Inspect first, edit second
+
+No chat may jump straight to building. It must inspect the baseline and list exact planned edits first.
+
+## 2. One job, one scope
+
+A chat owns only its job. It may not fix phone, PC, bridge, app store, Scrap Yard, BeamBook, Import/Export, Classics, QA, or visuals unless that is its claimed job.
+
+## 3. Do not hijack the phone or PC
+
+Apps/pages must install into the existing phone and PC systems like real apps/pages. Do not replace the whole phone, PC, launcher, or browser shell.
+
+## 4. Phone and PC share one backend contract
+
+Phone and PC layout can differ, but backend messages must be the same. Do not make a separate guesswork PC bridge.
+
+## 5. Use the game/RLS systems, not fake systems
+
+Do not hand-roll:
+
+- money,
+- inventory,
+- garage,
+- storage,
+- insurance,
+- vehicle ownership,
+- fake vehicle spawning as purchase success.
+
+Use existing BeamNG/RLS functions only after inspection proves the correct path.
+
+## 6. No startup career modules for Scrap Yard
+
+Do not create or package:
+
+```text
+lua/ge/extensions/career/modules/redfoxScrapYardDirect.lua
+```
+
+or any startup-loaded Scrap Yard career module. Previous versions caused severe load/freezing risk.
+
+## 7. Do not patch `vehicleShopping` at startup
+
+Career/shop data must be requested only when an approved app/page opens or when the shared bridge asks for it. No automatic marketplace patch at map load.
+
+## 8. No duplicate FoxNet ZIPs during tests
+
+Only one FoxNet/Web Ecosystem ZIP may be installed at a time. Duplicate zips can mix old and new files.
+
+## 9. Reports are mandatory
+
+Every build must include:
+
+- `CHANGE_SCOPE_*.txt`
+- `OPEN_THIS_VERIFICATION_REPORT_*.txt`
+- `OPEN_THIS_VERIFICATION_REPORT_*.html`
+- `VERIFY_*.json`
+- `VERIFY_*_FILE_INVENTORY.csv`
+- `FILE_TREE_*.txt`
+- `LOGGING_AND_TESTING_README.txt`
+- `LOGGING_AND_TESTING_README.html`
+
+JSON alone is not acceptable.
+
+## 10. Runtime is unproven until David tests it
+
+Static checks do not prove BeamNG runtime. Do not write “fixed,” “working,” “done,” or “safe” unless David tested it in BeamNG.
+
+## 11. If a check fails, stop
+
+Do not ship a “mostly passed” ZIP. If a required check fails, stop and report failure.
+
+---
+
+# KNOWN WORKING / KNOWN BAD FACTS
 
 ## Working or partially working
 
-- The phone path can request RLS/BeamNG vehicle shopping data and open purchase flow from the FoxNet page.
-- v0.10.3.1 phone side was the last known useful Scrap Yard/FoxNet baseline.
-- BeamBook works as a standalone private-seller style injection pattern, but it lacks proper BeamBook branding/storefront polish.
-- RLS PC marketplace can browse and buy cars using the game’s own marketplace flow.
+- The phone path in the v0.10.3.1 family could request RLS/BeamNG vehicle shop data and open purchase flow.
+- RLS PC marketplace can browse/buy cars using the game’s own PC marketplace flow.
+- BeamBook works as a standalone private-seller style system, but it needs real BeamBook branding/storefront polish.
 
-## Broken / unsafe
+## Broken / unsafe — do not use as base
 
-Do not use these as a base:
+```text
+RedFox_ScrapYard_Direct_v0_1_0.zip
+RedFox_ScrapYard_Direct_v0_1_1_ONLINE_ONLY_SAFE.zip
+RedFox_ScrapYard_Direct_v0_1_2_NO_EARLY_DEP_SAFE_TEST.zip
+```
 
-- `RedFox_ScrapYard_Direct_v0_1_0.zip`
-- `RedFox_ScrapYard_Direct_v0_1_1_ONLINE_ONLY_SAFE.zip`
-- `RedFox_ScrapYard_Direct_v0_1_2_NO_EARLY_DEP_SAFE_TEST.zip`
-
-They tried to create a Scrap Yard career module and caused severe loading/freezing risk.
+These tried to create a Scrap Yard career module and caused severe loading/freezing risk.
 
 ## Duplicate install warning
 
 Do not install multiple versions of these at the same time:
 
-- `zzzz_RedFox_FoxNet_Web_Ecosystem_v0_10_3_1...zip`
-- `zzzz_RedFox_FoxNet_Web_Ecosystem_v0_10_3_7...zip`
-- any other `zzzz_RedFox_FoxNet_Web_Ecosystem...zip`
+```text
+zzzz_RedFox_FoxNet_Web_Ecosystem_v0_10_3_1...zip
+zzzz_RedFox_FoxNet_Web_Ecosystem_v0_10_3_7...zip
+any other zzzz_RedFox_FoxNet_Web_Ecosystem...zip
+```
 
-They contain overlapping paths and can mix old/new files.
+They contain overlapping paths such as:
 
----
+```text
+ui/modModules/redfoxCareerWeb/
+ui/ui-vue/dist/index.js
+assets/js/icefox_front.js
+sites/scrap_yard/
+```
 
-# Important incident reports / history
-
-Chats must read these before editing anything related to Scrap Yard, phone, PC, or RLS bridge:
-
-- `INCIDENT_REPORTS/2026-07-11_ScrapYard_Direct_RLS_Path_Ignored_Custom_Bridge_Failure.md`
-- `INCIDENT_REPORTS/2026-07-07_IceFox_Web_ScrapYard_BeamBook_Order_Of_Operations_Failure.md`
-- `INCIDENT_REPORTS/2026-07-07_CommandScreen_Order_Of_Operations_Failure.md`
-- `INCIDENT_REPORTS/ALL_REDFOX_CHATS_AUDIT_DIRECTIVE_2026-07-07.md`
-
----
-
-# Job Details
-
-## JOB-00 — Coordinator / Integration / Verification
-
-**Status:** AVAILABLE
-
-### Owns
-
-- This job board.
-- Integration order.
-- Final ZIP selection.
-- Verification reports.
-- Failure reports.
-- Deciding when the rebuild can start or must stop.
-
-### May edit
-
-- `PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md`
-- `PROJECT_MANIFESTS/*FoxNet*`
-- `INCIDENT_REPORTS/*`
-- final handoff/readme files
-
-### Must not edit
-
-- App code unless doing final approved integration.
-
-### Acceptance test
-
-- Every job has one owner.
-- No two jobs claim the same code without coordination.
-- Every final package has TXT + HTML verification reports and a file tree.
+Mixed installs are invalid tests.
 
 ---
 
-## JOB-01 — Phone + PC Platform Core
+# INCIDENT REPORTS / HISTORY THAT CHATS MUST READ
 
-**Status:** AVAILABLE
+Before editing phone, PC, Scrap Yard, bridge, RLS, or app store code, read:
 
-### Goal
-
-Make the phone and PC use the same app/page registration model and the same shared bridge contract.
-
-### Owns
-
-- Phone shell/app launcher.
-- PC shell/browser/homepage.
-- App/page registry.
-- Shared navigation rules.
-- Responsive phone-vs-PC layout rules.
-
-### May edit
-
-- `ui/modModules/redfoxCareerWeb/phone/`
-- `ui/modModules/redfoxCareerWeb/assets/js/icefox_front.js`
-- `assets/js/icefox_front.js`
-- shared registry files created for RedFox apps/pages
-
-### Must not edit
-
-- Scrap Yard page logic.
-- BeamBook page logic.
-- RLS marketplace logic.
-- Career modules.
-
-### Acceptance test
-
-- Phone and PC list the same registered apps/pages where enabled.
-- Phone layout and PC layout can differ, but backend messages are the same.
-- Adding a new app should mean adding a manifest/registry entry, not editing five unrelated files.
+```text
+INCIDENT_REPORTS/2026-07-11_ScrapYard_Direct_RLS_Path_Ignored_Custom_Bridge_Failure.md
+INCIDENT_REPORTS/2026-07-07_IceFox_Web_ScrapYard_BeamBook_Order_Of_Operations_Failure.md
+INCIDENT_REPORTS/2026-07-07_CommandScreen_Order_Of_Operations_Failure.md
+INCIDENT_REPORTS/ALL_REDFOX_CHATS_AUDIT_DIRECTIVE_2026-07-07.md
+```
 
 ---
 
-## JOB-02 — Shared RLS / Career Bridge
+# SHARED BRIDGE CONTRACT TARGET
 
-**Status:** AVAILABLE
-
-### Goal
-
-Create one safe bridge contract that both phone and PC use.
-
-### Owns
-
-- Career data requests.
-- Vehicle shopping data requests.
-- Open stock purchase menu requests.
-- Inventory/owned vehicle listing requests.
-- Online sell requests.
-- Logging prefixes.
-
-### Required bridge messages
+`JOB-02` owns the final bridge, but all app/page jobs must design around this message set:
 
 ```text
 RedFoxRequestCareerData
@@ -276,7 +248,7 @@ RedFoxSellInventoryVehicleResult
 RedFoxLogEvent
 ```
 
-### Must use existing game/RLS functions
+Known game/RLS functions to inspect and use when appropriate:
 
 ```text
 career_modules_vehicleShopping.updateVehicleList(true)
@@ -287,328 +259,13 @@ career_modules_inventory.sellVehicleFromInventory(inventoryId)
 career_modules_inventory.sellVehicle(inventoryId)
 ```
 
-### Must not do
-
-- No fake money.
-- No fake storage insert.
-- No hand-rolled vehicle spawn.
-- No custom Scrap Yard career module.
-- No startup marketplace patch.
-
-### Acceptance test
-
-- Same Scrap Yard page can run from phone or PC and receive the same data shape.
-- Logs clearly say whether message came from PHONE, PC, VUE, BUY, SELL, or BRIDGE.
+Do not invent alternative bridge names unless `JOB-02` changes the shared contract on this board.
 
 ---
 
-## JOB-03 — RedFox App Store / Play Store
+# LOGGING RULES
 
-**Status:** AVAILABLE
-
-### Goal
-
-Create a RedFox Play Store style app where apps/pages can be installed/enabled/disabled/opened.
-
-### Owns
-
-- App Store web page/app.
-- App manifests.
-- Installed/enabled state.
-- Store categories.
-- App cards, install/open/update buttons.
-- Safe app fingerprinting rules.
-
-### Store categories
-
-- Vehicle Markets
-- Services
-- Jobs / Towing
-- Garage / Storage
-- Insurance / Finance
-- Social / Messages
-- Tools
-- Games / Fun
-- Experimental
-
-### Required app manifest example
-
-```json
-{
-  "id": "redfox.scrapyard",
-  "name": "RedFox Scrap Yard",
-  "version": "0.1.0",
-  "category": "Vehicle Markets",
-  "description": "Online salvage and wrecking yard store.",
-  "phoneEnabled": true,
-  "pcEnabled": true,
-  "entry": "sites/scrap_yard/index.html",
-  "icon": "assets/icons/scrapyard.png",
-  "permissions": ["vehicleShopping", "inventorySell"],
-  "status": "experimental"
-}
-```
-
-### Acceptance test
-
-- Phone can open Store.
-- PC can open Store.
-- Store shows Scrap Yard, BeamBook, Import/Export, Classics as apps.
-- Disabled apps do not appear in normal launcher unless store says enabled.
-
----
-
-## JOB-04 — Scrap Yard / Wrecking Yard
-
-**Status:** AVAILABLE
-
-### Goal
-
-Build the realistic Scrap Yard / Wrecking Yard page as an online store first, with future physical sell-point support.
-
-### Owns
-
-- Scrap Yard web page.
-- Realistic wrecking-yard UI.
-- Online buy listings.
-- Online sell owned vehicles.
-- Future sell-zone UI placeholder.
-
-### Current required behavior
-
-- Buy cars online from existing RLS/BeamNG shop data.
-- Sell owned career inventory vehicles online.
-- Use stock purchase/sell paths only.
-- No startup career module.
-- No map load work.
-- No parking spot generation.
-
-### Future sell-point idea
-
-Any building can become a Scrap Yard sell point by placing a sell-circle prop/marker. Player drags/tows/trailers a vehicle into the circle, opens the Scrap Yard app, sees vehicles inside/above the circle, chooses which vehicle to sell.
-
-Do not build the prop runtime until the web-only buy/sell path is stable.
-
-### Acceptance test
-
-- Phone page opens.
-- PC page opens.
-- Buy button opens stock/RLS purchase flow.
-- Sell Online lists owned vehicles.
-- Sell button calls stock inventory sell function.
-- No old `redfoxScrapYardDirect` module exists in package.
-
----
-
-## JOB-05 — BeamBook Marketplace
-
-**Status:** AVAILABLE
-
-### Goal
-
-Turn BeamBook into a real Facebook/marketplace-style app and storefront without breaking its working core.
-
-### Must preserve
-
-BeamBook’s working order of operations:
-
-- `util_configListGenerator.getEligibleVehicles()`
-- `util_configListGenerator.getRandomVehicleInfos()`
-- `career_modules_vehicleShopping.getVehiclesInShop()`
-- `career_modules_vehicleShopping.getShoppingData()` patch pattern, only if proven safe in BeamBook itself
-
-### Acceptance test
-
-- BeamBook still works as before.
-- Storefront says BeamBook Marketplace.
-- Page looks social/marketplace style.
-- Does not break stock purchase/storage flow.
-
----
-
-## JOB-06 — Import / Export Yard
-
-**Status:** AVAILABLE
-
-### Goal
-
-Create Import/Export as its own app/page first, then later a yard runtime.
-
-### Phase 1
-
-- Online import/export vehicle page.
-- Decent vehicles, not pure scrap.
-- Buy-now, not auction.
-- Uses shared bridge and stock purchase path.
-
-### Future gameplay
-
-- Physical export yard sell point.
-- Hotlist of 10 target vehicles like a Gone in 60 Seconds board.
-- Sightings/notifications.
-- Bring target vehicle to export yard.
-- Sell/export for payout.
-
-### Acceptance test
-
-- Page exists as an installable app.
-- No stolen/traffic sell logic until runtime is designed safely.
-- Uses shared bridge only.
-
----
-
-## JOB-07 — Classics / Collector Exchange
-
-**Status:** AVAILABLE
-
-### Goal
-
-Convert Classics from auction style into a buy-now collector dealer page.
-
-### Rules
-
-- Old vehicles.
-- Classics/muscle/collector/luxury/rare trims.
-- Higher price, cleaner than Scrap Yard.
-- No auction behavior for now.
-- Uses stock purchase path.
-
-### Acceptance test
-
-- Page is buy-now.
-- Page does not use Copart/auction flow.
-- Page uses shared bridge and stock purchase.
-
----
-
-## JOB-08 — Insurance / Finance / Garage / Storage Pages
-
-**Status:** AVAILABLE
-
-### Goal
-
-Make the supporting pages that make buying/selling feel complete.
-
-### Owns
-
-- Insurance links/pages.
-- Finance/loans/payments pages.
-- Garage/storage status pages.
-- Purchase flow help pages.
-
-### Must not do
-
-- Do not replace stock insurance/storage behavior.
-- Do not fake garage inventory.
-
-### Acceptance test
-
-- Pages explain/status the real game/RLS state.
-- Links flow naturally from vehicle buy/sell pages.
-
----
-
-## JOB-09 — Tow / Recovery / Dispatch Integration
-
-**Status:** CLAIMED  
-**Claimed by:** RedFox Tow & Recovery Dispatch chat (Sol)  
-**Claim date:** 2026-07-13
-
-### Hello to the other RedFox chats
-
-Hello, fellow RedFox chats. JOB-09 here. I own only tow/recovery/dispatch app links, recovery-job UI, and the future approved deliver-to-yard connection. I will not touch the phone/PC shell, shared Career bridge, App Store core, Scrap Yard core, Import/Export core, RLS files, or stock Career files. Please publish stable contracts and approved paths on this board; I will integrate against them only after the owning jobs are ready.
-
-### Owns
-
-- Tow call app links.
-- Recovery job UI.
-- Future “deliver to yard” flow.
-- Integration planning for catalog mod 19, permanent module ID `redfox_tow_recovery_dispatch`.
-
-### Files and folders this job may edit
-
-- Standalone catalog-19 Tow/Recovery mod files only, including its own Lua, input actions, manifest, metadata, docs, and verification reports.
-- A new job-scoped Tow/Recovery app directory only after JOB-01 and JOB-03 publish the approved registry and path. Expected scope: `ui/modModules/redfoxCareerWeb/sites/tow_recovery/`.
-- A Tow/Recovery app manifest entry only at the exact path and schema published by JOB-03.
-- This JOB-09 claim/status block in the job board.
-
-### Protected files and folders this job must not edit
-
-- Phone shell/app launcher files owned by JOB-01.
-- PC shell/browser/homepage files owned by JOB-01.
-- Shared bridge implementation files owned by JOB-02.
-- App Store core, shared registry implementation, and other apps' manifests owned by JOB-03.
-- Scrap Yard page/core files owned by JOB-04.
-- BeamBook files owned by JOB-05.
-- Import/Export page/core files owned by JOB-06.
-- Classics, insurance, finance, garage, storage, and shared visual-theme files.
-- RLS source, stock Career files, `career_modules_inventory`, or `career_modules_vehicleShopping`.
-- Any startup-loaded Scrap Yard or Tow career module.
-
-### Dependencies before building
-
-- JOB-01 must publish the shared phone/PC app registration and navigation contract.
-- JOB-02 must publish the shared RLS/Career bridge messages and data shapes.
-- JOB-03 must publish the app manifest/permissions/install contract.
-- JOB-04 and JOB-06 must define any approved yard delivery or deep-link endpoints.
-- JOB-11 must publish the shared logging and failure-report format.
-- No integrated FoxNet ZIP will be built until these dependencies are stable and JOB-00 approves integration.
-
-### Acceptance test
-
-- App/page exists and can deep-link later.
-- No shared file conflicts.
-- Standalone Tow/Recovery gameplay continues to use normal Career payment APIs and separate temporary-yard state.
-- Phone and PC links use the same shared contract without modifying either shell.
-
----
-
-## JOB-10 — Visual Design / Real Website Polish
-
-**Status:** AVAILABLE
-
-### Goal
-
-Make the pages look like real web pages, not debug panels.
-
-### Owns
-
-- CSS theme.
-- Realistic page layouts.
-- Icons/cards/buttons.
-- Phone vs PC responsive appearance.
-- App Store visual polish.
-
-### Must not do
-
-- Do not change bridge logic.
-- Do not change purchase/sell behavior.
-- Do not replace FoxFax art or other user-fixed assets unless specifically asked.
-
-### Acceptance test
-
-- Realistic phone and PC page mockups.
-- No functional code broken.
-
----
-
-## JOB-11 — QA / Logging / Failure Triage
-
-**Status:** AVAILABLE
-
-### Goal
-
-Make testing and failure reporting simple.
-
-### Owns
-
-- Logging instructions.
-- In-game debug page.
-- Test matrix.
-- Failure report template.
-- How to collect BeamNG logs.
-
-### Required log prefixes
+Every job must log with clear prefixes:
 
 ```text
 [RedFox][PHONE]
@@ -621,11 +278,11 @@ Make testing and failure reporting simple.
 [RedFox][BEAMBOOK]
 [RedFox][IMPORT_EXPORT]
 [RedFox][CLASSICS]
+[RedFox][TOW]
+[RedFox][QA]
 ```
 
-### BeamNG log path
-
-Current user path seen in logs:
+BeamNG log path seen in David’s setup:
 
 ```text
 D:\Games\Steam\steamapps\common\----new mods folder-----\current\beamng.log
@@ -640,7 +297,7 @@ beamng.3.log
 beamng-launcher.log
 ```
 
-### Search terms
+Search terms:
 
 ```text
 RedFox
@@ -665,32 +322,11 @@ no active vehicle
 dependencies not resolved
 ```
 
-### Acceptance test
-
-- Every build includes `LOGGING_AND_TESTING_README.txt` and `.html`.
-- Tester can tell phone vs PC failures apart.
-- Tester can prove which ZIPs were installed.
-
 ---
 
-# Integration order
+# APP STORE / PLAY STORE TARGET
 
-1. JOB-00 Coordinator starts job assignment.
-2. JOB-11 QA/logging creates shared test format.
-3. JOB-01 Platform and JOB-02 Bridge define shared app/page contract.
-4. JOB-03 Store creates app registry and store page.
-5. JOB-04 Scrap Yard builds on shared bridge.
-6. JOB-05 BeamBook builds on shared bridge/store.
-7. JOB-06 Import/Export builds page only.
-8. JOB-07 Classics builds page only.
-9. JOB-08 and JOB-09 connect support pages and tow links.
-10. JOB-10 polishes visuals after functions are stable.
-
----
-
-# App Store / Play Store target behavior
-
-The RedFox Store should feel like a real phone app store.
+The RedFox Store should feel like a real phone app store and PC app/page manager.
 
 ## Store tabs
 
@@ -704,7 +340,7 @@ The RedFox Store should feel like a real phone app store.
 - Experimental
 - Developer / Logs
 
-## App card buttons
+## App buttons
 
 - Install
 - Enable
@@ -716,32 +352,312 @@ The RedFox Store should feel like a real phone app store.
 
 ## App permissions
 
-Apps must declare permissions before using them:
+Apps declare permissions before using them:
 
-- `careerData`
-- `vehicleShopping`
-- `inventorySell`
-- `notifications`
-- `mapLocation`
-- `yardSellZone`
-- `experimentalProps`
+```text
+careerData
+vehicleShopping
+inventorySell
+notifications
+mapLocation
+yardSellZone
+experimentalProps
+```
 
-## Phone/PC behavior
+## App manifest example
 
-- Phone Store installs/enables phone apps.
-- PC Store installs/enables PC pages.
-- Same app can support both.
-- A disabled app should stay installed but hidden from launcher/home unless Store shows it.
+```json
+{
+  "id": "redfox.scrapyard",
+  "name": "RedFox Scrap Yard",
+  "version": "0.1.0",
+  "category": "Vehicle Markets",
+  "description": "Online salvage and wrecking yard store.",
+  "phoneEnabled": true,
+  "pcEnabled": true,
+  "entry": "sites/scrap_yard/index.html",
+  "icon": "assets/icons/scrapyard.png",
+  "permissions": ["vehicleShopping", "inventorySell"],
+  "status": "experimental"
+}
+```
 
 ---
 
-# Testing checklist for all future ZIPs
+# JOB DETAILS
 
-Before David tests a ZIP, the build report must say:
+## JOB-00 — Coordinator / Integration / Verification
+
+**Status:** AVAILABLE
+
+Owns assignment, this board, integration order, final ZIP selection, failure reports, and final verification.
+
+May edit:
+
+```text
+PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md
+PROJECT_MANIFESTS/*FoxNet*
+INCIDENT_REPORTS/*
+final handoff/readme files
+```
+
+Must not edit app code unless doing final approved integration.
+
+Acceptance:
+
+- Every job has one owner.
+- No two jobs claim the same files.
+- Final ZIP has TXT + HTML reports, file tree, and logging readme.
+
+---
+
+## JOB-01 — Phone + PC Platform Core
+
+**Status:** AVAILABLE
+
+Owns phone shell, PC shell, app/page launcher, shared registry loading, responsive phone-vs-PC behavior.
+
+May edit:
+
+```text
+ui/modModules/redfoxCareerWeb/phone/
+ui/modModules/redfoxCareerWeb/assets/js/icefox_front.js
+assets/js/icefox_front.js
+shared app/page registry files
+```
+
+Must not edit Scrap Yard, BeamBook, Import/Export, Classics page logic, bridge logic, or career modules.
+
+Acceptance:
+
+- Phone and PC list the same enabled apps/pages.
+- Adding an app uses a registry/manifest entry.
+- Phone and PC do not use separate backend message contracts.
+
+---
+
+## JOB-02 — Shared RLS / Career Bridge
+
+**Status:** AVAILABLE
+
+Owns shared bridge messages and data shapes for phone and PC.
+
+Must not create startup career modules, fake money, fake storage, fake garage, or custom Scrap Yard career modules.
+
+Acceptance:
+
+- Same page can run from phone or PC and receive the same data shape.
+- Logs identify PHONE, PC, BRIDGE, BUY, SELL, VUE/CEF path.
+
+---
+
+## JOB-03 — RedFox App Store / Play Store
+
+**Status:** AVAILABLE
+
+Owns store page/app, app manifests, installed/enabled state, app cards, permissions, install/open/update/disable buttons.
+
+Acceptance:
+
+- Store opens on phone and PC.
+- Store lists Scrap Yard, BeamBook, Import/Export, Classics.
+- Disabled apps hide from launcher/home but remain visible in Store.
+
+---
+
+## JOB-04 — Scrap Yard / Wrecking Yard
+
+**Status:** AVAILABLE
+
+Owns realistic wrecking-yard page, online buy listings, online sell owned vehicles, and future sell-zone UI placeholder.
+
+Current required behavior:
+
+- Online store first.
+- Buy from existing RLS/BeamNG shop data.
+- Sell owned career inventory vehicles online.
+- Use stock purchase/sell paths only.
+- No startup career module.
+- No map-load work.
+- No parking spot generation.
+
+Future sell point:
+
+Any building can become a Scrap Yard sell point by placing a sell-circle prop/marker. Player drags/tows/trailers a vehicle into the circle, opens the Scrap Yard app, sees vehicles inside/above the circle, and chooses which vehicle to sell.
+
+Do not build the prop runtime until web-only buy/sell path and shared bridge are stable.
+
+Acceptance:
+
+- Phone Scrap Yard opens.
+- PC Scrap Yard opens.
+- Buy button opens stock/RLS purchase flow.
+- Sell Online lists owned vehicles.
+- Sell button calls stock inventory sell function.
+- No `redfoxScrapYardDirect` career module exists in the ZIP.
+
+---
+
+## JOB-05 — BeamBook Marketplace
+
+**Status:** AVAILABLE
+
+Owns BeamBook social/Facebook-style page and marketplace storefront.
+
+Must preserve BeamBook’s working order of operations and avoid breaking stock purchase/storage.
+
+Acceptance:
+
+- BeamBook still works.
+- Page says BeamBook Marketplace.
+- Listings feel like posts/sellers instead of generic Private Seller only.
+
+---
+
+## JOB-06 — Import / Export Yard
+
+**Status:** AVAILABLE
+
+Phase 1 only:
+
+- Online import/export vehicle page.
+- Decent vehicles, not pure scrap.
+- Buy-now, not auction.
+- Uses shared bridge and stock purchase path.
+
+Future:
+
+- Physical export yard sell point.
+- Hotlist of 10 target vehicles like a Gone in 60 Seconds board.
+- Sightings/notifications.
+- Bring target vehicle to export yard.
+- Sell/export for payout.
+
+Acceptance:
+
+- Page exists as installable app.
+- No stolen/traffic sell logic until runtime is designed safely.
+- Uses shared bridge only.
+
+---
+
+## JOB-07 — Classics / Collector Exchange
+
+**Status:** AVAILABLE
+
+Convert Classics from auction style into a buy-now collector dealer page.
+
+Rules:
+
+- Old vehicles.
+- Classics/muscle/collector/luxury/rare trims.
+- Higher price, cleaner than Scrap Yard.
+- No auction behavior for now.
+- Uses stock purchase path.
+
+Acceptance:
+
+- Page is buy-now.
+- Page does not use Copart/auction flow.
+- Page uses shared bridge and stock purchase.
+
+---
+
+## JOB-08 — Insurance / Finance / Garage / Storage Pages
+
+**Status:** AVAILABLE
+
+Owns supporting pages that explain or show real game/RLS state for insurance, finance, garage, and storage.
+
+Must not replace stock insurance/storage behavior or fake garage inventory.
+
+Acceptance:
+
+- Pages link naturally from vehicle buy/sell pages.
+- Pages do not fake game state.
+
+---
+
+## JOB-09 — Tow / Recovery / Dispatch Integration
+
+**Status:** CLAIMED  
+**Claimed by:** RedFox Tow & Recovery Dispatch chat  
+**Claim date:** 2026-07-13
+
+Owns tow call app links, recovery job UI, and future approved deliver-to-yard connection.
+
+Must not edit Scrap Yard core, phone shell, PC shell, bridge core, app store core, RLS source, stock Career files, money, inventory, garage, storage, or startup career modules.
+
+Dependencies before building integrated FoxNet work:
+
+- `JOB-01` publishes app/page registration.
+- `JOB-02` publishes bridge contract.
+- `JOB-03` publishes app manifest/store rules.
+- `JOB-04` and `JOB-06` publish approved delivery/deep-link endpoints.
+- `JOB-11` publishes logging/test format.
+
+Acceptance:
+
+- App/page exists and can deep-link later.
+- No shared file conflicts.
+- No fake money or inventory insertion.
+
+---
+
+## JOB-10 — Visual Design / Real Website Polish
+
+**Status:** AVAILABLE
+
+Owns CSS theme, realistic layouts, icons/cards/buttons, phone vs PC visual polish, and Store polish.
+
+Must not change bridge logic, purchase/sell behavior, or user-fixed FoxFax art unless David specifically asks.
+
+Acceptance:
+
+- Pages look like real web pages.
+- No functional code broken.
+
+---
+
+## JOB-11 — QA / Logging / Failure Triage
+
+**Status:** AVAILABLE
+
+Owns test matrix, log instructions, failure report template, debug/log page, and install-cleanliness checklist.
+
+Acceptance:
+
+- Every build includes logging readme TXT + HTML.
+- Tester can tell phone vs PC failures apart.
+- Tester can prove which ZIPs were installed.
+
+---
+
+# INTEGRATION ORDER
+
+Do not build everything at once.
+
+1. `JOB-00` assigns/coordinates.
+2. `JOB-11` defines logging and failure-report format.
+3. `JOB-01` and `JOB-02` publish shared phone/PC registration and bridge contracts.
+4. `JOB-03` builds Store/app manifest system.
+5. `JOB-04` builds Scrap Yard using shared bridge.
+6. `JOB-05` builds BeamBook using shared bridge/store.
+7. `JOB-06` builds Import/Export page using shared bridge/store.
+8. `JOB-07` builds Classics page using shared bridge/store.
+9. `JOB-08` and `JOB-09` connect support pages and tow links after core contracts are stable.
+10. `JOB-10` polishes visuals after functions are stable.
+
+---
+
+# BUILD TEST CHECKLIST FOR EVERY ZIP
+
+Every build report must state:
 
 ```text
 ZIP name:
 Baseline ZIP:
+Job ID:
 Files edited:
 Files protected:
 ZIP integrity:
@@ -758,26 +674,17 @@ Expected BeamNG log prefixes:
 Known unproven runtime items:
 ```
 
-David should test with only one FoxNet/Web Ecosystem ZIP installed at a time.
-
 ---
 
-# Current first message to send to every new chat
+# STOP CONDITIONS
 
-Copy/paste this:
+Stop immediately if any chat:
 
-```text
-We are rebuilding RedFox FoxNet / IceFox for BeamNG. Read this GitHub job board first:
-
-PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md
-
-Pick exactly one AVAILABLE job. Do not edit outside your job. Do not build a ZIP until you inspect the baseline, list exact files to edit, list protected files, and explain your verification plan.
-
-Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports.
-```
-
----
-
-# Current stop condition
-
-If any chat tries to add a new `lua/ge/extensions/career/modules/redfoxScrapYardDirect.lua` or any startup-loaded Scrap Yard career module, stop that chat. That approach already caused severe loading/freezing risk.
+- adds `lua/ge/extensions/career/modules/redfoxScrapYardDirect.lua`,
+- adds a startup-loaded Scrap Yard career module,
+- patches `vehicleShopping` at startup,
+- hand-rolls money/storage/garage/insurance,
+- edits outside its claimed job,
+- ships without TXT + HTML reports,
+- claims runtime success without David testing in BeamNG,
+- packages duplicate old FoxNet paths without explaining migration.
