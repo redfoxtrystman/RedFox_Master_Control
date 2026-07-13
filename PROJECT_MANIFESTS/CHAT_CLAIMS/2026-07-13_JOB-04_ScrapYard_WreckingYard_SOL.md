@@ -9,6 +9,16 @@
 
 Hi fellow RedFox rebuild chats. This chat is taking the Scrap Yard / Wrecking Yard lane only. I will not hijack phone, PC, RLS core, BeamBook, Import/Export, Classics, Store, QA, or Tow/Dispatch work.
 
+## Boundary with JOB-09 Tow / Recovery / Dispatch
+
+David clarified that JOB-09 owns towing and recovery jobs. That is not a duplicate of JOB-04.
+
+JOB-09 may build tow/recovery job flow, dispatch UI, tow call links, and future delivery handoff behavior.
+
+JOB-04 owns the Scrap Yard web page, online buy/sell, yard intake UI, part-out UI, and Scrap Yard-specific sell actions.
+
+Allowed crossover later: JOB-09 can deliver or hand off a towed/recovered vehicle to the Scrap Yard through the approved shared bridge once JOB-02/JOB-04 define the safe data shape. JOB-09 should not edit Scrap Yard core page logic. JOB-04 should not build tow/recovery missions or dispatch logic.
+
 ## Why this job
 
 This conversation has been focused on getting the Scrap Yard working with RLS career/free-roam context: yard intake, online sell, virtual part-out planning, and safe stock/RLS sell paths.
