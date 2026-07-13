@@ -26,6 +26,7 @@ Central-board rule: do not write “this chat / Sol” as an owner without the e
 ```text
 JOB-01 — Phone + PC Platform Core
 JOB-02 — Shared RLS / Career Bridge
+JOB-03 — RedFox App Store / Play Store
 JOB-04 — Scrap Yard / Wrecking Yard
 JOB-05 — BeamBook Marketplace
 JOB-06 — Import / Export Yard
@@ -41,17 +42,16 @@ JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 
 ```text
 JOB-00 — Coordinator / Integration / Verification
-JOB-03 — RedFox App Store / Play Store
 ```
 
 ### Historical claim corrections
 
 - JOB-00 was temporarily claimed in commit `2d220d6`, then explicitly released/corrected back to AVAILABLE in commit `4a7d831`.
 - JOB-01 has two historical claim commits (`006f840` and `9106d3f`). The board recognizes one active JOB-01 lane only. Any chat later reassigned to JOB-02 or another job must not also work JOB-01.
-- JOB-03 has a claim file from a temporary reassignment, but commit `4a7d831` corrected that chat back to JOB-04 and restored JOB-03 to AVAILABLE.
+- JOB-03's earlier temporary claim was released, but David later assigned a dedicated JOB-03 chat. Active claim record: `PROJECT_MANIFESTS/JOB_CLAIMS/JOB-03_REDFOX_APP_STORE_PLAY_STORE_CLAIM.md`; claim commit: `cdd7d875dd053caa73b4ea1ebc253d07518bab2a`.
 - JOB-04 had temporary assignment changes; commit `4a7d831` establishes the active Scrap Yard chat.
 - JOB-05 is claimed by the exact chat title `5 — JOB-05 — BeamBook Marketplace`. Claim record: `PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_CLAIM.md`; claim commit: `6426a95d0d058d0c12c1f63a0b37732b13b5d596`.
-- Git shows one active claim each for JOB-02, JOB-04, JOB-05, JOB-06, JOB-07, JOB-08, JOB-09, JOB-10, JOB-11, and JOB-12.
+- Git shows one active claim each for JOB-02, JOB-03, JOB-04, JOB-05, JOB-06, JOB-07, JOB-08, JOB-09, JOB-10, JOB-11, and JOB-12.
 - No active double ownership is authorized. If two chats believe they own the same job, both stop until David resolves it.
 
 ---
@@ -79,7 +79,7 @@ Do **not** renumber jobs based on how many chats David opens.
 | JOB-00 | Coordinator / Integration / Verification | AVAILABLE | Needs one dedicated coordinator chat now. |
 | JOB-01 | Phone + PC Platform Core | CLAIMED | One active Phone + PC Platform Core chat; historical duplicate claim is not a second active owner. |
 | JOB-02 | Shared RLS / Career Bridge | CLAIMED | Claimed by Shared RLS / Career Bridge chat / Sol. |
-| JOB-03 | RedFox App Store / Play Store | AVAILABLE | Optional/deferred until the platform registry works. |
+| JOB-03 | RedFox App Store / Play Store | CLAIMED | Claimed by JOB-03 App Store chat; implementation remains deferred until JOB-01 publishes the platform registry. |
 | JOB-04 | Scrap Yard / Wrecking Yard | CLAIMED | Claimed by this Scrap Yard / Wrecking Yard chat / Sol. |
 | JOB-05 | BeamBook Marketplace | CLAIMED | Claimed by `5 — JOB-05 — BeamBook Marketplace`; implementation waits for the frozen baseline and JOB-01/JOB-02/JOB-11 contracts. |
 | JOB-06 | Import / Export Yard | CLAIMED | Claimed by Import / Export Yard chat / Sol. |
@@ -95,6 +95,7 @@ Do **not** renumber jobs based on how many chats David opens.
 ```text
 JOB-01 — Phone + PC Platform Core
 JOB-02 — Shared RLS / Career Bridge
+JOB-03 — RedFox App Store / Play Store
 JOB-04 — Scrap Yard / Wrecking Yard
 JOB-05 — BeamBook Marketplace
 JOB-06 — Import / Export Yard
@@ -110,7 +111,6 @@ JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 
 ```text
 JOB-00 — Coordinator / Integration / Verification
-JOB-03 — RedFox App Store / Play Store
 ```
 
 ---
@@ -127,7 +127,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-Already claimed: JOB-01 Phone + PC Platform Core, JOB-02 Shared RLS / Career Bridge, JOB-04 Scrap Yard / Wrecking Yard, JOB-05 BeamBook Marketplace, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, JOB-11 QA / Logging / Failure Triage, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
+Already claimed: JOB-01 Phone + PC Platform Core, JOB-02 Shared RLS / Career Bridge, JOB-03 RedFox App Store / Play Store, JOB-04 Scrap Yard / Wrecking Yard, JOB-05 BeamBook Marketplace, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, JOB-11 QA / Logging / Failure Triage, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -544,6 +544,14 @@ Required directive:
 PROJECT_MANIFESTS/REDFOX_FOXNET_START_ORDER_SHARED_ARCHITECTURE_DIRECTIVE_2026-07-13.md
 ```
 
+Immediate owner handoff:
+
+```text
+PROJECT_MANIFESTS/JOB_HANDOFFS/OWNER_TO_JOB-01_PHONE_PC_FIRST_WORKING_MILESTONE_2026-07-13.md
+```
+
+JOB-01 must follow this handoff for baseline intake, shared phone/PC destination design, PC IceFox registration, map-independent routing, deliverables, and the first acceptance gate.
+
 ---
 
 ## JOB-02 — Shared RLS / Career Bridge
@@ -574,9 +582,20 @@ JOB-01 owns the phone/PC/browser/navigation/registry platform. JOB-02 owns the s
 
 ## JOB-03 — RedFox App Store / Play Store
 
-**Status:** AVAILABLE
+**Status:** CLAIMED  
+**Owner:** JOB-03 — RedFox App Store / Play Store chat / Sol  
+**Claim date:** 2026-07-13  
+**Implementation status:** BLOCKED/DEFERRED until JOB-01 publishes the canonical platform registry and route contract.
 
-Owns App Store web page/app, app manifests, installed/enabled state, store categories, app cards, install/open/update buttons, and safe app fingerprinting rules.
+Claim record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-03_REDFOX_APP_STORE_PLAY_STORE_CLAIM.md
+```
+
+JOB-03 owns the Store page/app, manifest schema, installed/enabled state, categories, app cards, install/enable/disable/open/update controls, permissions display, and Store-specific verification.
+
+JOB-03 must consume JOB-01's registry and launcher contract. It must not create a competing launcher and must not block the first phone/PC IceFox milestone.
 
 ---
 
