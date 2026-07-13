@@ -91,7 +91,7 @@ Do **not** renumber jobs based on how many chats David opens.
 | JOB-08 | Insurance / Finance / Garage / Storage Pages | CLAIMED | Claimed by Insurance / Finance / Garage / Storage Pages chat / Sol. |
 | JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED | Claimed by Tow/Recovery/Dispatch chat. |
 | JOB-10 | Visual Design / Real Website Polish | CLAIMED | Claimed by Visual Design / Real Website Polish chat / Sol. |
-| JOB-11 | QA / Logging / Failure Triage | AVAILABLE | Logging, testing matrix, failure reports. |
+| JOB-11 | QA / Logging / Failure Triage | CLAIMED | Claimed by QA / Logging / Failure Triage chat / Sol. |
 | JOB-12 | SponsorHub / FoxMail / FoxText / Sponsor Rewards | CLAIMED | Claimed by Sponsor System chat. |
 
 ## Taken right now
@@ -104,6 +104,7 @@ JOB-07 — Classics / Collector Exchange
 JOB-08 — Insurance / Finance / Garage / Storage Pages
 JOB-09 — Tow / Recovery / Dispatch Integration
 JOB-10 — Visual Design / Real Website Polish
+JOB-11 — QA / Logging / Failure Triage
 JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 ```
 
@@ -114,7 +115,6 @@ JOB-00 — Coordinator / Integration / Verification
 JOB-01 — Phone + PC Platform Core
 JOB-03 — RedFox App Store / Play Store
 JOB-05 — BeamBook Marketplace
-JOB-11 — QA / Logging / Failure Triage
 ```
 
 ---
@@ -130,7 +130,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-Already claimed: JOB-02 Shared RLS / Career Bridge, JOB-04 Scrap Yard / Wrecking Yard, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
+Already claimed: JOB-02 Shared RLS / Career Bridge, JOB-04 Scrap Yard / Wrecking Yard, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, JOB-11 QA / Logging / Failure Triage, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -734,9 +734,70 @@ JOB-05 owns BeamBook marketplace behavior and safe functional integration. JOB-1
 
 ## JOB-11 — QA / Logging / Failure Triage
 
-**Status:** AVAILABLE
+**Status:** CLAIMED  
+**Owner:** QA / Logging / Failure Triage chat / Sol  
+**Claim date:** 2026-07-13
 
-Owns logging instructions, in-game debug page, test matrix, failure report template, and how to collect BeamNG logs.
+### Hello to the other RedFox chats
+
+Hello, fellow RedFox chats. `JOB-11` owns only shared QA, logging standards, test matrices, package/collision checks, and failure-triage evidence. I will not edit your platform, bridge, Store, app/page, Career/RLS, or visual implementation. I will identify the first provable failing layer and hand the evidence to the job that owns it.
+
+### Purpose
+
+JOB-11 is the project's crash investigator and release-quality checkpoint. It makes failures reproducible, separates phone failures from PC/platform/bridge/app/Career/RLS failures, verifies that packages obey ownership boundaries, and stops a candidate build when a required check fails.
+
+JOB-11 does **not** fix another job's code or claim that runtime works. Runtime remains unproven until David tests it in BeamNG.
+
+### Owns
+
+- Shared logging instructions and prefix format.
+- Static and BeamNG runtime test matrices.
+- Failure-report and evidence templates.
+- ZIP integrity, file-collision, duplicate-ID, forbidden-file, and required-report checks.
+- Installed-package fingerprint instructions.
+- BeamNG log collection/filtering instructions.
+- A future JOB-11-owned debug/log viewer only after JOB-01 and JOB-03 publish the plugin contract.
+
+### May edit
+
+~~~text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-11_QA_LOGGING_FAILURE_TRIAGE_CLAIM.md
+JOB-11-owned QA/logging/test/failure documentation
+a dedicated QA_LOGGING/ or docs/qa/ folder after repository inspection
+a dedicated JOB-11 debug-app folder only after JOB-01/JOB-03 publish its path
+this board only for JOB-11 status and links requested by David
+~~~
+
+### Protected
+
+JOB-11 must not edit the phone shell, PC shell, browser core, navigation, platform registry, shared bridge implementation, Store implementation, any individual app/page, stock Career/RLS modules, money, inventory, garage, storage, insurance, vehicle ownership, or another job's branch/files.
+
+### Required handoff and contract checks
+
+JOB-11 must enforce the platform/app boundaries already recorded in:
+
+~~~text
+PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-02_TO_JOB-01_AND_APP_CHATS_PLATFORM_BOUNDARIES.md
+~~~
+
+That includes testing that apps register into the existing phone/PC, do not bundle copied platform cores, use the shared event API, and use the same versioned JOB-02 backend contract on phone and PC.
+
+### Claim record
+
+~~~text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-11_QA_LOGGING_FAILURE_TRIAGE_CLAIM.md
+~~~
+
+### Initial verification plan
+
+1. Confirm exact ZIP, version, baseline, and installed mod list.
+2. Detect overlapping FoxNet ZIPs and shared file collisions.
+3. Verify required reports and protected-file rules.
+4. Test phone, PC, registry/platform, app UI, shared events, JOB-02 bridge, and stock/RLS functions as separate layers.
+5. Collect timestamps and BeamNG logs for reproducible failures.
+6. Report expected result, actual result, first provable failing layer, evidence, severity, and owning job.
+7. Mark the result PASS, FAIL/STOP, BLOCKED, or RUNTIME UNPROVEN.
+8. Never mark runtime fixed until David's BeamNG test proves it.
 
 ---
 
