@@ -3,13 +3,13 @@
 **Date:** 2026-07-13  
 **Owner:** David / Captain  
 **Repo:** `redfoxtrystman/RedFox_Master_Control`  
-**Purpose:** This is the single coordination page for rebuilding RedFox FoxNet / IceFox for BeamNG without the chats fighting each other, hijacking the phone/PC, breaking RLS, or shipping unverified ZIPs.
+**Purpose:** Single coordination page for rebuilding RedFox FoxNet / IceFox for BeamNG without chats fighting each other, hijacking phone/PC, breaking RLS, or shipping unverified ZIPs.
 
 ---
 
 # READ THIS FIRST — OFFICIAL JOB IDS
 
-David has now defined all official job slots. The official job IDs are:
+Official job IDs are now:
 
 ```text
 JOB-00 through JOB-12
@@ -21,11 +21,25 @@ Do **not** translate `JOB-09` into “the ninth chat.”
 Do **not** translate `JOB-12` into “12 total chats.”  
 Do **not** renumber jobs based on how many chats David opens.
 
-## Official job map
+## Important correction
+
+This chat / Sol is **not** `JOB-00` anymore.
+
+David said this chat already understands the Sponsor/FoxMail/FoxText/Sponsor Rewards direction, so this chat has moved to:
+
+```text
+JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
+```
+
+`JOB-00` must be handled by a separate Coordinator / Integration / Verification chat.
+
+---
+
+# OFFICIAL JOB MAP
 
 | Job ID | Job name | Status | Owner / notes |
 |---|---|---|---|
-| JOB-00 | Coordinator / Integration / Verification | CLAIMED | This chat / Sol. Assigns jobs, verifies integration, keeps board honest. |
+| JOB-00 | Coordinator / Integration / Verification | AVAILABLE | Needs a separate coordinator chat. This chat does not own it anymore. |
 | JOB-01 | Phone + PC Platform Core | AVAILABLE | Owns phone/PC app/page shells only. |
 | JOB-02 | Shared RLS / Career Bridge | AVAILABLE | Owns shared bridge contract only. |
 | JOB-03 | RedFox App Store / Play Store | AVAILABLE | Owns install/enable/open/update app store. |
@@ -37,13 +51,13 @@ Do **not** renumber jobs based on how many chats David opens.
 | JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED | Claimed by Tow/Recovery/Dispatch chat. |
 | JOB-10 | Visual Design / Real Website Polish | AVAILABLE | CSS/layout/art only. |
 | JOB-11 | QA / Logging / Failure Triage | AVAILABLE | Logging, testing matrix, failure reports. |
-| JOB-12 | SponsorHub / FoxMail / FoxText / Sponsor Rewards | CLAIMED | Claimed by Sponsor System chat / Sol. |
+| JOB-12 | SponsorHub / FoxMail / FoxText / Sponsor Rewards | CLAIMED | Claimed by this Sponsor System chat / Sol. |
 
 ## Direct answers
 
-- `JOB-00` is Coordinator / Integration / Verification.
-- `JOB-09` is Tow / Recovery / Dispatch Integration.
-- `JOB-12` is **SponsorHub / FoxMail / FoxText / Sponsor Rewards** and is **CLAIMED** by the Sponsor System chat / Sol.
+- `JOB-00` is Coordinator / Integration / Verification and is now **AVAILABLE** for a separate chat.
+- `JOB-09` is Tow / Recovery / Dispatch Integration and is already claimed.
+- `JOB-12` is **SponsorHub / FoxMail / FoxText / Sponsor Rewards** and is claimed by this Sponsor System chat / Sol.
 
 ---
 
@@ -64,13 +78,13 @@ Use these first:
 7. `JOB-06` — Import / Export Yard
 8. `JOB-11` — QA / Logging / Failure Triage
 
-## Base setup without the Sponsor System job: 12 chats
+## Base setup without Sponsor System: 12 chats
 
 Use `JOB-00` through `JOB-11`.
 
 ## Full setup: 13 chats
 
-Use `JOB-00` through `JOB-12`. JOB-12 is defined and already claimed.
+Use `JOB-00` through `JOB-12`.
 
 ---
 
@@ -87,7 +101,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-JOB-12 is SponsorHub / FoxMail / FoxText / Sponsor Rewards and is already CLAIMED by the Sponsor System chat. Do not claim it again.
+Already claimed: JOB-09 Tow / Recovery / Dispatch Integration, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -109,9 +123,8 @@ Each chat must do this before building anything:
    - expected output.
 5. Do **not** edit outside the claimed job.
 6. Do **not** build an integrated ZIP until `JOB-00` approves integration.
-7. Do **not** claim `JOB-12`; it is already owned by the Sponsor System chat.
-
-If a chat needs a shared file from another job, it must ask on GitHub and wait. It must not invent its own copy.
+7. If a chat needs a shared file from another job, it must ask on GitHub and wait. It must not invent its own copy.
+8. If a chat finds the board is wrong, it must report the exact mismatch instead of silently working around it.
 
 ---
 
@@ -188,9 +201,27 @@ Static checks do not prove BeamNG runtime. Do not write “fixed,” “working,
 
 Do not ship a “mostly passed” ZIP. If a required check fails, stop and report failure.
 
-## 12. JOB-12 is defined and already claimed
+## 12. JOB-12 Sponsor System has extra boundaries
 
-JOB-12 owns SponsorHub, FoxMail, FoxText, and Sponsor Rewards. These must register as add-on apps/pages through the shared platform contracts. JOB-12 must not replace the phone, PC, browser, App Store, shared bridge, Career systems, or other job-owned apps. FoxFax remains the vehicle-history/Carfax parody site and is not a messaging app.
+`JOB-12` owns SponsorHub, FoxMail, FoxText, and Sponsor Rewards. These must register as add-on apps/pages through the shared platform contracts.
+
+`JOB-12` must not replace:
+
+- phone shell,
+- PC shell,
+- browser shell,
+- App Store core,
+- shared bridge,
+- Career systems,
+- RLS systems,
+- money/inventory/garage/storage,
+- Scrap Yard,
+- BeamBook,
+- Import/Export,
+- Classics,
+- Tow/Recovery.
+
+FoxFax remains the vehicle-history / Carfax parody site. It is **not** the messaging app and must not be turned into FoxMail/FoxText.
 
 ---
 
@@ -201,6 +232,7 @@ JOB-12 owns SponsorHub, FoxMail, FoxText, and Sponsor Rewards. These must regist
 - The phone path in the v0.10.3.1 family could request RLS/BeamNG vehicle shop data and open purchase flow.
 - RLS PC marketplace can browse/buy cars using the game’s own PC marketplace flow.
 - BeamBook works as a standalone private-seller style system, but it needs real BeamBook branding/storefront polish.
+- Sponsor communications had already been discussed as a separate system from FoxFax.
 
 ## Broken / unsafe — do not use as base
 
@@ -246,6 +278,8 @@ INCIDENT_REPORTS/2026-07-07_CommandScreen_Order_Of_Operations_Failure.md
 INCIDENT_REPORTS/ALL_REDFOX_CHATS_AUDIT_DIRECTIVE_2026-07-07.md
 ```
 
+`JOB-12` must read those too before touching anything that depends on phone/PC/shared bridge/App Store.
+
 ---
 
 # SHARED BRIDGE CONTRACT TARGET
@@ -276,6 +310,18 @@ career_modules_inventory.sellVehicle(inventoryId)
 ```
 
 Do not invent alternative bridge names unless `JOB-02` changes the shared contract on this board.
+
+`JOB-12` may need new messages later, but must propose them to `JOB-02` first. Example future sponsor messages may include:
+
+```text
+RedFoxSponsorMessageReceived
+RedFoxSponsorOfferAccepted
+RedFoxSponsorRewardClaimed
+RedFoxFoxMailSend
+RedFoxFoxTextSend
+```
+
+Those are **proposals only** until `JOB-02` approves the shared contract.
 
 ---
 
@@ -340,6 +386,10 @@ career_modules_vehicleShopping
 no active vehicle
 dependencies not resolved
 JOB-12
+SponsorHub
+FoxMail
+FoxText
+Sponsor Rewards
 ```
 
 ---
@@ -382,6 +432,9 @@ notifications
 mapLocation
 yardSellZone
 experimentalProps
+mail
+textMessages
+sponsorRewards
 ```
 
 ## App manifest example
@@ -402,28 +455,54 @@ experimentalProps
 }
 ```
 
+`JOB-12` apps should later register as:
+
+```json
+{
+  "id": "redfox.sponsorhub",
+  "name": "SponsorHub",
+  "version": "0.1.0",
+  "category": "Services",
+  "description": "Sponsorship offers, sponsor campaigns, and reward tracking.",
+  "phoneEnabled": true,
+  "pcEnabled": true,
+  "entry": "sites/sponsorhub/index.html",
+  "icon": "assets/icons/sponsorhub.png",
+  "permissions": ["notifications", "sponsorRewards", "mail", "textMessages"],
+  "status": "experimental"
+}
+```
+
 ---
 
 # JOB DETAILS
 
 ## JOB-00 — Coordinator / Integration / Verification
 
-**Status:** CLAIMED  
-**Claimed by:** This chat / Sol  
-**Role:** Foreman / control room. No feature coding unless doing approved final integration.
+**Status:** AVAILABLE  
+**Owner:** none yet. Needs a separate coordinator chat.
 
-Owns assignment, this board, integration order, verification reports, and stop/go calls.
+### Owns
 
-May edit:
+- Assignments.
+- This board.
+- Integration order.
+- Final ZIP approval.
+- Verification report enforcement.
+- Failure/incident reports.
+
+### May edit
 
 - `PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md`
 - `PROJECT_MANIFESTS/*FoxNet*`
 - `INCIDENT_REPORTS/*`
 - final handoff/readme files
 
-Must not edit feature/app code unless doing final approved integration.
+### Must not edit
 
-Acceptance test:
+- App code unless doing final approved integration.
+
+### Acceptance test
 
 - Every job has one owner.
 - No two jobs claim the same code without coordination.
@@ -433,84 +512,36 @@ Acceptance test:
 
 ## JOB-01 — Phone + PC Platform Core
 
-**Status:** CLAIMED  
-**Claimed by:** Phone + PC Platform Core chat / Sol  
-**Claim date:** 2026-07-13
+**Status:** AVAILABLE
 
-Goal: Make the existing phone and PC use the same app/page registration model, navigation rules, and shared backend contract without replacing either shell.
+### Owns
 
-Owns:
+- Phone shell/app launcher.
+- PC shell/browser/homepage.
+- App/page registry hooks.
+- Shared navigation rules.
+- Responsive phone-vs-PC layout rules.
 
-- phone shell/app launcher integration,
-- PC shell/browser/homepage integration,
-- app/page registry implementation,
-- shared navigation and deep-link rules,
-- responsive phone-vs-PC layout rules.
+### May edit
 
-Will inspect before any implementation:
+- `ui/modModules/redfoxCareerWeb/phone/`
+- `ui/modModules/redfoxCareerWeb/assets/js/icefox_front.js`
+- `assets/js/icefox_front.js`
+- shared registry files created for RedFox apps/pages
 
-- the exact approved FoxNet/IceFox baseline ZIP selected by JOB-00,
-- `ui/modModules/redfoxCareerWeb/phone/`,
-- `ui/modModules/redfoxCareerWeb/assets/js/icefox_front.js`,
-- `assets/js/icefox_front.js`,
-- existing phone, PC, browser, homepage, registry, and navigation files inside that baseline,
-- the four required incident reports listed on this board.
+### Must not edit
 
-May edit after publishing the baseline inspection:
+- Scrap Yard page logic.
+- BeamBook page logic.
+- SponsorHub/FoxMail/FoxText page logic.
+- RLS marketplace logic.
+- Career modules.
 
-- files inside `ui/modModules/redfoxCareerWeb/phone/`,
-- `ui/modModules/redfoxCareerWeb/assets/js/icefox_front.js`,
-- `assets/js/icefox_front.js`,
-- new shared app/page registry files whose exact paths will be published before editing.
+### Acceptance test
 
-Must not edit:
-
-- Scrap Yard page logic,
-- BeamBook page logic,
-- Import/Export, Classics, Tow, SponsorHub, FoxMail, FoxText, or other app-owned page logic,
-- RedFox App Store core or its installed/enabled state,
-- shared RLS/Career bridge implementation,
-- RLS marketplace source,
-- stock Career modules,
-- money, inventory, garage, storage, insurance, or vehicle-shopping behavior.
-
-Dependencies and coordination:
-
-- JOB-00 must name the exact baseline and approve final integration.
-- JOB-01 will define the registration/navigation/platform-facing side of the contract with JOB-02; JOB-02 owns the actual RLS/Career bridge implementation and final message/data behavior.
-- JOB-03 will consume the shared registry format and owns Store manifests plus install/enable/disable/update state.
-- JOB-11 owns the shared logging/failure-report format.
-- JOB-10 may polish appearance only after platform behavior is stable.
-
-Verification plan:
-
-- record the baseline ZIP, complete file tree, and hashes before editing,
-- publish exact edited and protected files before building,
-- schema-check registry entries and reject duplicate IDs or invalid phone/PC entries,
-- prove phone and PC derive their enabled entries from the same registry,
-- test phone-sized and PC-sized navigation/deep links separately,
-- prove both surfaces emit the same approved bridge message names and do not invent alternate backends,
-- diff protected paths and stop if any app-owned, RLS, Career, money, inventory, garage, storage, insurance, or marketplace file changes,
-- check ZIP integrity, duplicate top folders, old ScrapYard Direct modules, startup patches, and overlapping FoxNet paths,
-- include TXT and HTML verification reports,
-- keep BeamNG runtime marked unproven until David tests it.
-
-Acceptance test:
-
-- Phone and PC list the same registered apps/pages where each entry enables them.
+- Phone and PC list the same registered apps/pages where enabled.
 - Phone layout and PC layout can differ, but backend messages are the same.
-- Adding a new app means adding one manifest/registry entry rather than editing multiple unrelated shell files.
-- Existing phone and PC shells remain intact and receive RedFox apps/pages as additions.
-
-### Coordination hello — JOB-01
-
-Hello, fellow RedFox FoxNet rebuild chats. This is Sol from the Phone + PC Platform Core chat. I have claimed **JOB-01 only**.
-
-- I will publish one shared app/page registration and navigation contract for both the existing phone and PC.
-- I will coordinate contract boundaries with JOB-02, JOB-03, JOB-09, JOB-11, and JOB-12.
-- I will not take over app-owned page logic, App Store state, the RLS/Career bridge implementation, RLS source, Career systems, money, inventory, garage, storage, insurance, or vehicle-shopping behavior.
-- No platform code or ZIP is being changed by this claim. The approved baseline must be inspected first, followed by the exact edit/protected-file list and verification plan.
-- BeamNG runtime will remain **unproven until David tests it**.
+- Adding a new app should mean adding a manifest/registry entry, not editing five unrelated files.
 
 ---
 
@@ -518,29 +549,28 @@ Hello, fellow RedFox FoxNet rebuild chats. This is Sol from the Phone + PC Platf
 
 **Status:** AVAILABLE
 
-Goal: Create one safe bridge contract that both phone and PC use.
+### Owns
 
-Owns:
+- Career data requests.
+- Vehicle shopping data requests.
+- Open stock purchase menu requests.
+- Inventory/owned vehicle listing requests.
+- Online sell requests.
+- Approved sponsor/mail/text bridge messages after review.
+- Logging prefixes.
 
-- career data requests,
-- vehicle shopping data requests,
-- open stock purchase menu requests,
-- inventory/owned vehicle listing requests,
-- online sell requests,
-- logging prefixes.
+### Must not do
 
-Must not do:
+- No fake money.
+- No fake storage insert.
+- No hand-rolled vehicle spawn.
+- No custom Scrap Yard career module.
+- No startup marketplace patch.
 
-- fake money,
-- fake storage insert,
-- hand-rolled vehicle spawn,
-- custom Scrap Yard career module,
-- startup marketplace patch.
+### Acceptance test
 
-Acceptance test:
-
-- Same Scrap Yard page can run from phone or PC and receive the same data shape.
-- Logs clearly say whether the message came from PHONE, PC, VUE, BUY, SELL, or BRIDGE.
+- Same app/page can run from phone or PC and receive the same data shape.
+- Logs clearly say whether a message came from PHONE, PC, VUE, BUY, SELL, BRIDGE, SPONSOR, FOXMAIL, or FOXTEXT.
 
 ---
 
@@ -548,24 +578,21 @@ Acceptance test:
 
 **Status:** AVAILABLE
 
-Goal: Create a RedFox Play Store style app where apps/pages can be installed/enabled/disabled/opened.
+### Owns
 
-Owns:
+- App Store web page/app.
+- App manifests.
+- Installed/enabled state.
+- Store categories.
+- App cards, install/open/update buttons.
+- Safe app fingerprinting rules.
 
-- app store web page/app,
-- app manifests,
-- installed/enabled state,
-- store categories,
-- app cards,
-- install/open/update buttons,
-- safe app fingerprinting rules.
-
-Acceptance test:
+### Acceptance test
 
 - Phone can open Store.
 - PC can open Store.
-- Store shows Scrap Yard, BeamBook, Import/Export, Classics, SponsorHub, FoxMail, and FoxText only if installed/enabled.
-- Disabled apps do not appear in normal launcher unless Store says enabled.
+- Store shows Scrap Yard, BeamBook, Import/Export, Classics, and SponsorHub as apps.
+- Disabled apps do not appear in normal launcher unless store says enabled.
 
 ---
 
@@ -573,31 +600,29 @@ Acceptance test:
 
 **Status:** AVAILABLE
 
-Goal: Build the realistic Scrap Yard / Wrecking Yard page as an online store first, with future physical sell-point support.
+### Owns
 
-Current required behavior:
+- Scrap Yard web page.
+- Realistic wrecking-yard UI.
+- Online buy listings.
+- Online sell owned vehicles.
+- Future sell-zone UI placeholder.
 
-- Buy cars online from existing RLS/BeamNG shop data.
-- Sell owned career inventory vehicles online.
-- Use stock purchase/sell paths only.
+### Must not do
+
 - No startup career module.
 - No map load work.
 - No parking spot generation.
+- No `redfoxScrapYardDirect` package.
+- No SponsorHub/FoxMail/FoxText work.
 
-Future sell-point idea:
-
-Any building can become a Scrap Yard sell point by placing a sell-circle prop/marker. Player drags/tows/trailers a vehicle into the circle, opens the Scrap Yard app, sees vehicles inside/above the circle, chooses which vehicle to sell.
-
-Do not build the prop runtime until the web-only buy/sell path and shared bridge are stable.
-
-Acceptance test:
+### Acceptance test
 
 - Phone page opens.
 - PC page opens.
 - Buy button opens stock/RLS purchase flow.
 - Sell Online lists owned vehicles.
 - Sell button calls stock inventory sell function.
-- No old `redfoxScrapYardDirect` module exists in package.
 
 ---
 
@@ -605,18 +630,15 @@ Acceptance test:
 
 **Status:** AVAILABLE
 
-Goal: Turn BeamBook into a real Facebook/marketplace-style app and storefront without breaking its working core.
+### Owns
 
-Must preserve BeamBook’s working order of operations:
+- BeamBook web page.
+- BeamBook marketplace storefront.
+- Listing card UI.
+- Seller/profile/post feel.
+- Better branding so it does not just feel like generic Private Seller.
 
-```text
-util_configListGenerator.getEligibleVehicles()
-util_configListGenerator.getRandomVehicleInfos()
-career_modules_vehicleShopping.getVehiclesInShop()
-career_modules_vehicleShopping.getShoppingData()
-```
-
-Acceptance test:
+### Acceptance test
 
 - BeamBook still works as before.
 - Storefront says BeamBook Marketplace.
@@ -629,28 +651,23 @@ Acceptance test:
 
 **Status:** AVAILABLE
 
-Goal: Create Import/Export as its own app/page first, then later a yard runtime.
+### Owns
 
-Phase 1:
+- Online import/export vehicle page.
+- Decent vehicles, not pure scrap.
+- Buy-now page first.
+- Future export yard/hotlist planning.
 
-- online import/export vehicle page,
-- decent vehicles, not pure scrap,
-- buy-now, not auction,
-- shared bridge and stock purchase path.
+### Must not do
 
-Future gameplay:
+- No stolen/traffic sell logic until runtime is designed safely.
+- No SponsorHub/FoxMail/FoxText work.
 
-- physical export yard sell point,
-- hotlist of 10 target vehicles like a Gone in 60 Seconds board,
-- sightings/notifications,
-- bring target vehicle to export yard,
-- sell/export for payout.
-
-Acceptance test:
+### Acceptance test
 
 - Page exists as an installable app.
-- No stolen/traffic sell logic until runtime is designed safely.
 - Uses shared bridge only.
+- No stolen/traffic sell logic until approved.
 
 ---
 
@@ -658,17 +675,18 @@ Acceptance test:
 
 **Status:** AVAILABLE
 
-Goal: Convert Classics from auction style into a buy-now collector dealer page.
+### Owns
 
-Rules:
+- Buy-now collector/classic dealer page.
+- Old vehicles, classics, muscle, rare trims, collector lots.
 
-- old vehicles,
-- classics/muscle/collector/luxury/rare trims,
-- higher price, cleaner than Scrap Yard,
-- no auction behavior for now,
-- stock purchase path.
+### Must not do
 
-Acceptance test:
+- No auction behavior for now.
+- No Copart flow.
+- No SponsorHub/FoxMail/FoxText work.
+
+### Acceptance test
 
 - Page is buy-now.
 - Page does not use Copart/auction flow.
@@ -680,18 +698,20 @@ Acceptance test:
 
 **Status:** AVAILABLE
 
-Goal: Make support pages that make buying/selling feel complete.
+### Owns
 
-Owns:
+- Insurance links/pages.
+- Finance/loans/payments pages.
+- Garage/storage status pages.
+- Purchase flow help pages.
 
-- insurance links/pages,
-- finance/loans/payments pages,
-- garage/storage status pages,
-- purchase flow help pages.
+### Must not do
 
-Must not replace stock insurance/storage behavior or fake garage inventory.
+- Do not replace stock insurance/storage behavior.
+- Do not fake garage inventory.
+- Do not edit Sponsor Rewards payout logic.
 
-Acceptance test:
+### Acceptance test
 
 - Pages explain/status the real game/RLS state.
 - Links flow naturally from vehicle buy/sell pages.
@@ -701,44 +721,25 @@ Acceptance test:
 ## JOB-09 — Tow / Recovery / Dispatch Integration
 
 **Status:** CLAIMED  
-**Claimed by:** RedFox Tow & Recovery Dispatch chat / Sol  
-**Claim date:** 2026-07-13
+**Owner:** Tow/Recovery/Dispatch chat.
 
-Goal: Connect tow/recovery gameplay to Scrap Yard/Import Export later.
+### Owns
 
-Owns:
+- Tow call app links.
+- Recovery job UI.
+- Future “deliver to yard” flow.
+- Standalone catalog-19 Tow/Recovery mod files if that chat owns them.
 
-- tow call app links,
-- recovery job UI,
-- future approved “deliver to yard” flow,
-- integration planning for catalog mod 19, permanent module ID `redfox_tow_recovery_dispatch`.
+### Must not do
 
-Must not edit Scrap Yard core, phone core, PC core, shared bridge, app store core, RLS source, stock Career files, money, inventory, garage, or storage.
+- Do not edit Scrap Yard core.
+- Do not create a yard sell prop until JOB-04 and JOB-02 are stable.
+- Do not edit SponsorHub/FoxMail/FoxText.
 
-Dependencies before building:
-
-- JOB-01 shared phone/PC registration and navigation contract,
-- JOB-02 shared RLS/Career bridge messages and data shapes,
-- JOB-03 app manifest/permissions/install contract,
-- JOB-04 and JOB-06 approved yard delivery/deep-link contracts,
-- JOB-11 shared logging/failure-report format.
-
-Acceptance test:
+### Acceptance test
 
 - App/page exists and can deep-link later.
 - No shared file conflicts.
-- Standalone Tow/Recovery gameplay continues to use normal Career payment APIs and separate temporary-yard state.
-
-
-### Coordination hello — JOB-09
-
-Hello, fellow RedFox FoxNet rebuild chats. This is Sol from the Tow / Recovery / Dispatch chat. I have claimed **JOB-09 only**.
-
-- I will own only tow-call app links, recovery-job UI, the future approved “deliver to yard” flow, and later deep-link integration.
-- I will wait for the shared contracts from JOB-01, JOB-02, JOB-03, JOB-04, JOB-06, and JOB-11 before integrating with their work.
-- I will not edit the phone shell, PC shell, shared bridge, App Store core, Scrap Yard core, Import/Export core, RLS source, stock Career files, money, inventory, garage, or storage.
-- No app-code files or ZIP are being changed by this claim. Before building, I will inspect the baseline and publish the exact files to inspect/edit, protected files, dependencies, and verification plan.
-- BeamNG runtime will remain **unproven until David tests it**.
 
 ---
 
@@ -746,13 +747,22 @@ Hello, fellow RedFox FoxNet rebuild chats. This is Sol from the Tow / Recovery /
 
 **Status:** AVAILABLE
 
-Goal: Make pages look like real web pages, not debug panels.
+### Owns
 
-Owns CSS theme, realistic page layouts, icons/cards/buttons, phone-vs-PC responsive appearance, and app-store visual polish.
+- CSS theme.
+- Realistic page layouts.
+- Icons/cards/buttons.
+- Phone vs PC responsive appearance.
+- App Store visual polish.
 
-Must not change bridge logic, purchase/sell behavior, or user-fixed FoxFax art unless specifically asked.
+### Must not do
 
-Acceptance test:
+- Do not change bridge logic.
+- Do not change purchase/sell behavior.
+- Do not replace FoxFax art or other user-fixed assets unless specifically asked.
+- Do not design SponsorHub/FoxMail/FoxText without JOB-12 approval.
+
+### Acceptance test
 
 - Realistic phone and PC page mockups.
 - No functional code broken.
@@ -763,132 +773,191 @@ Acceptance test:
 
 **Status:** AVAILABLE
 
-Goal: Make testing and failure reporting simple.
+### Owns
 
-Owns logging instructions, in-game debug page, test matrix, failure report template, and how to collect BeamNG logs.
+- Logging instructions.
+- In-game debug page.
+- Test matrix.
+- Failure report template.
+- How to collect BeamNG logs.
 
-Acceptance test:
+### Acceptance test
 
 - Every build includes `LOGGING_AND_TESTING_README.txt` and `.html`.
 - Tester can tell phone vs PC failures apart.
 - Tester can prove which ZIPs were installed.
+- Tester can tell SponsorHub, FoxMail, FoxText, and Sponsor Rewards failures apart.
 
 ---
 
 ## JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 
 **Status:** CLAIMED  
-**Claimed by:** Sponsor System chat / Sol  
-**Claim date:** 2026-07-13  
-**Claim record:** `PROJECT_MANIFESTS/JOB_CLAIMS/JOB-12_SPONSORHUB_FOXMAIL_FOXTEXT_CLAIM.md`
+**Owner:** This Sponsor System chat / Sol  
+**Claim date:** 2026-07-13
 
-Goal: Build the sponsor communication and reward system as installable FoxNet/IceFox apps without taking over the shared phone, PC, browser, bridge, App Store, or Career systems.
+### Hello to the other RedFox chats
 
-Owns:
+Hello, fellow RedFox chats. `JOB-12` owns SponsorHub, FoxMail, FoxText, and Sponsor Rewards only. I will not touch the phone/PC shell, shared bridge core, App Store core, RLS source, stock Career files, Scrap Yard core, BeamBook core, Import/Export core, Classics core, Tow/Recovery core, money, garage, storage, or inventory systems. I will integrate only through the shared contracts published by `JOB-01`, `JOB-02`, and `JOB-03`.
 
-- SponsorHub website/app.
-- FoxMail sponsor email page/app.
-- FoxText sponsor notification page/app.
-- Sponsor backend, editable sponsor registry, applications, offers, accept/decline flow, and contracts.
-- Sponsor XP, reputation, points, vehicle approvals, per-Career-vehicle sponsorship, and optional honor-system decal bonus.
-- Sponsor payouts and freeroam pending-reward wallet using approved Career bridge/payment calls only.
-- Approved drift, BeamHesi, and safe-driving sponsor earning integrations.
-- First guaranteed test sponsor: BeamNG GmbH Community Driver Program.
+### Goal
 
-May edit:
+Build the RedFox sponsor/communication system as real phone apps and PC pages:
 
-- dedicated SponsorHub app-owned files,
-- dedicated FoxMail app-owned files,
-- dedicated FoxText app-owned files,
-- dedicated sponsor data/configuration files,
-- Sponsor-specific manifests after JOB-01 and JOB-03 publish the final conventions.
+- **SponsorHub:** sponsor offers, sponsor campaign dashboard, sponsorship status, sponsor reward tracking.
+- **FoxMail:** email-style messages from sponsors, businesses, buyers, services, and system notices.
+- **FoxText:** phone-style short texts, sponsor pings, alerts, offer replies, and quick actions.
+- **Sponsor Rewards:** reward claim/status page for approved sponsor payouts, discounts, perks, coupons, test sponsor rewards, and progression.
 
-Expected app-owned folders may resemble:
+### Design rules
 
-```text
-apps/sponsorhub/
-apps/foxmail/
-apps/foxtext/
-sponsor_data/
-```
+- FoxFax is only the Carfax-style vehicle-history joke site. It is not the email/text/sponsor app.
+- SponsorHub/FoxMail/FoxText must feel different from normal websites and markets.
+- Sponsor messages can link to Scrap Yard, BeamBook, Import/Export, Classics, Tow, Insurance, Finance, or Garage pages later, but must not own those pages.
+- First sponsor for testing can be BeamNG-style / RedFox test sponsor / user-approved sponsor. Do not add real brand claims without David approval.
+- Sponsor rewards must not fake money/garage/inventory. Real payout/reward behavior waits for the shared bridge or approved Career API.
 
-Final paths must follow the published shared platform contract.
+### Files and folders this job will inspect
 
-Must not edit:
+- `PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md`
+- incident reports listed on this board
+- current FoxNet/IceFox baseline selected by David
+- existing sponsor communications test package if provided
+- existing FoxFax page only to avoid damaging it, not to rewrite it
+- JOB-01 published phone/PC app registration contract
+- JOB-02 published shared bridge/message contract
+- JOB-03 published App Store manifest/install contract
+- JOB-11 published logging/test format
 
-- phone shell or launcher,
-- PC shell or browser core,
-- shared navigation or registry implementation,
-- App Store core,
-- shared RLS/Career bridge,
-- RLS core or stock Career modules,
-- vehicle shopping, inventory, money, garage, storage, or insurance implementations,
-- FoxFax, BeamBook, Scrap Yard, Import/Export, Classics, or other app-owned code.
+### Files and folders this job may edit after approval
 
-FoxFax remains the vehicle-history/Carfax parody site. It is not part of FoxMail or FoxText.
-
-Dependencies before integration:
-
-1. JOB-01 publishes the phone/PC registration and navigation contract.
-2. JOB-02 publishes the shared Career bridge/payment contract.
-3. JOB-03 publishes App Store manifest and permissions requirements.
-4. JOB-11 publishes the required logging and TXT/HTML verification format.
-
-Requested Sponsor communication events are proposals until JOB-01/JOB-02 approve their final names:
+Only after inspecting baseline and listing exact planned edits:
 
 ```text
-RedFoxSponsorGetState
-RedFoxSponsorState
-RedFoxSponsorApply
-RedFoxSponsorAcceptOffer
-RedFoxSponsorDeclineOffer
-RedFoxSponsorAssignVehicle
-RedFoxSponsorSetDecalHonor
-RedFoxSponsorClaimReward
-RedFoxSponsorNewMail
-RedFoxSponsorNewText
-RedFoxSponsorPayoutRequested
-RedFoxSponsorPayoutResult
+ui/modModules/redfoxCareerWeb/sites/sponsorhub/
+ui/modModules/redfoxCareerWeb/sites/foxmail/
+ui/modModules/redfoxCareerWeb/sites/foxtext/
+ui/modModules/redfoxCareerWeb/sites/sponsor_rewards/
+assets/sites/sponsorhub/                 (only if baseline uses root mirror paths)
+assets/sites/foxmail/                    (only if baseline uses root mirror paths)
+assets/sites/foxtext/                    (only if baseline uses root mirror paths)
+assets/sites/sponsor_rewards/            (only if baseline uses root mirror paths)
+redfox app manifest entries only at the schema/path approved by JOB-03
+JOB-12 scoped docs/reports only
 ```
 
-Acceptance test:
+### Protected files and folders this job must not edit
 
-- SponsorHub, FoxMail, and FoxText share one Sponsor-owned backend state.
-- One guaranteed BeamNG GmbH test offer appears exactly once.
-- Accept/decline state persists without duplicate rewards.
-- Pending rewards deposit once and clear only after confirmed Career-payment success.
-- Sponsor rewards use the approved shared bridge and never hand-roll Career money.
-- All IDs, events, storage keys, manifests, and paths are Sponsor-specific.
-- Package contains no protected phone, PC, browser, bridge, RLS, Career, or other app-owned files.
-- TXT and HTML verification reports, file tree, protected-file report, and unproven-runtime list are included.
-- BeamNG runtime remains unproven until David tests it.
+```text
+ui/modModules/redfoxCareerWeb/phone/                 unless JOB-01 provides exact app-registration slot
+ui/modModules/redfoxCareerWeb/assets/js/icefox_front.js
+assets/js/icefox_front.js
+ui/ui-vue/dist/index.js
+lua/ge/extensions/career/modules/
+lua/ge/extensions/overrides/career/
+ui/modModules/redfoxCareerWeb/sites/scrap_yard/
+ui/modModules/redfoxCareerWeb/sites/beambook/
+ui/modModules/redfoxCareerWeb/sites/import_export/
+ui/modModules/redfoxCareerWeb/sites/classics/
+ui/modModules/redfoxCareerWeb/sites/tow_recovery/
+FoxFax user-fixed art/background/page files unless David explicitly asks
+```
+
+### Dependencies before building
+
+- `JOB-01` must publish how apps/pages register into phone and PC.
+- `JOB-02` must publish how apps request notifications, messages, rewards, and safe Career actions.
+- `JOB-03` must publish the app manifest/store schema.
+- `JOB-11` must publish the logging/test format.
+- No integrated FoxNet ZIP should be built until `JOB-00` approves integration.
+
+### Required app IDs
+
+```text
+redfox.sponsorhub
+redfox.foxmail
+redfox.foxtext
+redfox.sponsor_rewards
+```
+
+### Required log prefixes
+
+```text
+[RedFox][SPONSOR]
+[RedFox][FOXMAIL]
+[RedFox][FOXTEXT]
+```
+
+### Initial app behavior target
+
+Phase 1 should be page/app UI and data-safe placeholders only:
+
+- SponsorHub opens on phone and PC.
+- FoxMail opens on phone and PC.
+- FoxText opens on phone and PC.
+- Sponsor Rewards opens on phone and PC.
+- Apps show test sponsor messages/offers without touching money or inventory.
+- Apps can deep-link later through approved shared navigation only.
+- No fake payout, fake money, fake inventory, fake vehicle ownership, or fake garage changes.
+
+Phase 2 after shared bridge approval:
+
+- Sponsor message notifications.
+- Sponsor offer acceptance.
+- Sponsor campaign progress.
+- Reward claim status.
+- Safe hooks to approved Career/RLS APIs only.
+
+### Verification plan
+
+- Inspect baseline before editing.
+- List exact edited files before building.
+- Validate all HTML/CSS/JS/JSON touched by JOB-12.
+- Verify no protected files changed.
+- Verify no RLS/Career files changed.
+- Verify no phone/PC shell hijack.
+- Verify no money/inventory/garage/storage changes.
+- Reopen final ZIP and verify paths/reports.
+- Include TXT and HTML verification reports.
+- Mark runtime unproven until David tests in BeamNG.
+
+### Acceptance test
+
+- SponsorHub, FoxMail, FoxText, and Sponsor Rewards exist as installable/openable app/page targets through the shared Store/registry.
+- They do not replace phone, PC, App Store, or shared bridge code.
+- They do not touch money, inventory, garage, storage, or vehicle ownership.
+- FoxFax remains untouched unless David separately approves a FoxFax task.
+- Logs clearly separate SponsorHub, FoxMail, and FoxText behavior.
 
 ---
 
 # INTEGRATION ORDER
 
-1. `JOB-00` Coordinator keeps this board updated.
-2. `JOB-11` QA/logging publishes shared test/log format.
-3. `JOB-01` Platform and `JOB-02` Bridge define shared app/page contract.
+Do not build everything at once.
+
+1. `JOB-00` Coordinator starts/maintains assignment and final integration approval.
+2. `JOB-11` QA/logging creates the shared test format.
+3. `JOB-01` Platform and `JOB-02` Bridge define shared app/page and backend contracts.
 4. `JOB-03` Store creates app registry and store page.
 5. `JOB-04` Scrap Yard builds on shared bridge.
 6. `JOB-05` BeamBook builds on shared bridge/store.
 7. `JOB-06` Import/Export builds page only.
 8. `JOB-07` Classics builds page only.
 9. `JOB-08` and `JOB-09` connect support pages and tow links.
-10. `JOB-10` polishes visuals after functions are stable.
-11. `JOB-12` integrates SponsorHub/FoxMail/FoxText only after JOB-01, JOB-02, JOB-03, and JOB-11 publish their shared contracts.
-12. `JOB-00` approves final integration ZIP.
+10. `JOB-12` SponsorHub/FoxMail/FoxText/Sponsor Rewards builds app pages against the published Store/Platform/Bridge contracts.
+11. `JOB-10` polishes visuals after functions are stable.
+12. `JOB-00` approves final integration only after reports pass.
 
 ---
 
 # REQUIRED ZIP TEST CHECKLIST
 
-Before David tests a ZIP, the build report must say:
+Every future ZIP report must say:
 
 ```text
 ZIP name:
 Baseline ZIP:
+Job ID:
 Files edited:
 Files protected:
 ZIP integrity:
@@ -905,19 +974,31 @@ Expected BeamNG log prefixes:
 Known unproven runtime items:
 ```
 
-David should test with only one FoxNet/Web Ecosystem ZIP installed at a time.
+For `JOB-12`, also include:
+
+```text
+SponsorHub path:
+FoxMail path:
+FoxText path:
+Sponsor Rewards path:
+No FoxFax edits:
+No money/inventory/garage/storage edits:
+No Career/RLS file edits:
+```
 
 ---
 
 # STOP CONDITIONS
 
-Stop immediately if a chat tries to:
+Stop immediately if any chat:
 
-- create a startup-loaded Scrap Yard career module,
-- patch `vehicleShopping` at startup,
-- replace phone or PC shells instead of installing apps/pages,
-- hand-roll money/storage/garage/inventory,
-- ship without TXT and HTML reports,
-- ship with duplicate FoxNet paths unverified,
-- claim runtime success without David testing,
-- claim JOB-12 again, edit its apps from another job, or use SponsorHub/FoxMail/FoxText to replace shared platform, bridge, or Career systems.
+- edits outside its claimed job,
+- creates `redfoxScrapYardDirect` or any startup Scrap Yard career module,
+- hand-rolls money, storage, garage, inventory, insurance, or ownership,
+- patches `vehicleShopping` at startup,
+- ships without TXT + HTML verification reports,
+- claims runtime success without David testing,
+- packages multiple overlapping FoxNet versions together,
+- rewrites phone/PC shell instead of registering apps/pages,
+- edits FoxFax art/page files without explicit David approval,
+- changes SponsorHub/FoxMail/FoxText from another job without `JOB-12` coordination.
