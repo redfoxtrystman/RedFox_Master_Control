@@ -581,26 +581,63 @@ Acceptance:
 ## JOB-09 — Tow / Recovery / Dispatch Integration
 
 **Status:** CLAIMED  
-**Claimed by:** RedFox Tow & Recovery Dispatch chat  
-**Claim date:** 2026-07-13
+**Claimed by:** RedFox Tow & Recovery Dispatch chat (Sol)  
+**Claim date:** 2026-07-13  
+**Current work state:** Standalone catalog-19 v0.2.0 prototype built; live BeamNG/RLS test pending; FoxNet integration blocked until the shared contracts below are published.
 
-Owns tow call app links, recovery job UI, and future approved deliver-to-yard connection.
+### Current standalone baseline
 
-Must not edit Scrap Yard core, phone shell, PC shell, bridge core, app store core, RLS source, stock Career files, money, inventory, garage, storage, or startup career modules.
+- ZIP: `19-RedFox_TowRecoveryDispatch_v0_2_0_CallChooserYard.zip`
+- Permanent module ID: `redfox_tow_recovery_dispatch`
+- Current functions: selectable standard car tow, rolled-car recovery, semi-rollover recovery, multi-vehicle accident cleanup, abandoned-vehicle recovery, normal Career-account payments, and separate per-map temporary tow-yard storage.
+- Runtime status: statically verified only; David's in-game BeamNG/RLS test is still required.
 
-Dependencies before building integrated FoxNet work:
+### What JOB-09 is doing
 
-- `JOB-01` publishes app/page registration.
-- `JOB-02` publishes bridge contract.
-- `JOB-03` publishes app manifest/store rules.
+- Stabilize the standalone tow/recovery dispatcher without replacing stock Career or RLS files.
+- Keep rewards on the normal BeamNG/RLS Career payment path.
+- Keep temporary recovered-vehicle storage separate from house/garage capacity.
+- Build a job-scoped Tow/Recovery phone/PC app page only after JOB-01 and JOB-03 publish the approved app registration and path.
+- Use the same shared bridge contract on phone and PC after JOB-02 publishes it.
+- Add future approved deep links and deliver-to-yard connections only after JOB-04 Scrap Yard and JOB-06 Import/Export publish their endpoints.
+- Follow JOB-11 logging and failure-report requirements.
+- Provide baseline comparison, colored diff, ZIP inspection, and TXT + HTML verification reports for every future build.
+
+### JOB-09 may edit
+
+- Its own standalone catalog-19 Lua extension, input actions, module manifest, settings/state handling, metadata, documentation, and verification reports.
+- A new Tow/Recovery app directory and manifest entry only at the exact paths and schema published by JOB-01 and JOB-03.
+- JOB-09 status/notes in this board.
+
+### JOB-09 must not edit
+
+- Scrap Yard core.
+- Import/Export core.
+- Phone shell or PC shell.
+- Shared bridge core.
+- App Store core or shared registry implementation.
+- RLS source or stock Career files.
+- Stock money, inventory, garage, insurance, or storage systems.
+- Any startup-loaded Scrap Yard or Tow career module.
+- Any other chat's job-scoped files.
+
+### Dependencies before building integrated FoxNet work
+
+- `JOB-01` publishes app/page registration and navigation.
+- `JOB-02` publishes the shared bridge contract and data shapes.
+- `JOB-03` publishes app manifest, permissions, install, and update rules.
 - `JOB-04` and `JOB-06` publish approved delivery/deep-link endpoints.
 - `JOB-11` publishes logging/test format.
+- `JOB-00` approves final integration order and package selection.
 
-Acceptance:
+### Acceptance
 
-- App/page exists and can deep-link later.
+- Standalone Tow/Recovery remains functional after integration.
+- App/page installs into the existing phone/PC system and can deep-link without replacing either shell.
+- Phone and PC use the same shared contract.
 - No shared file conflicts.
-- No fake money or inventory insertion.
+- No fake money, fake storage, or Career inventory insertion.
+- No runtime claim is marked fixed until David proves it in BeamNG.
 
 ---
 
