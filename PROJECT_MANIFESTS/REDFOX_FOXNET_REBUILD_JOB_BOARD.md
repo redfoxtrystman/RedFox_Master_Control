@@ -9,33 +9,54 @@
 
 # ROLLCALL / CURRENT ASSIGNMENT CORRECTION
 
-David confirmed the current control-room chat is:
+David corrected the current chat assignment.
 
-```text
-JOB-00 — Coordinator / Integration / Verification
-```
-
-This chat / Sol is now treated as `JOB-00` for assignment tracking, GitHub board maintenance, integration order, verification enforcement, and failure triage.
-
-The mod work this chat was doing before the reset was mostly:
-
-```text
-Scrap Yard / Wrecking Yard
-phone buying
-PC page broken
-RLS marketplace bridge
-garage/storage purchase problem
-online sell owned vehicles
-bad ScrapYard Direct career-module cleanup
-```
-
-That technical work now belongs to:
+This chat / Sol is:
 
 ```text
 JOB-04 — Scrap Yard / Wrecking Yard
 ```
 
-Important: `JOB-00` should **not** keep building Scrap Yard code. `JOB-00` preserves the history, coordinates the handoff, blocks bad architecture, and verifies future outputs. A separate `JOB-04` chat should claim Scrap Yard if David wants the rebuild split cleanly.
+This chat is **not** `JOB-00`. This chat should keep working on the same Scrap Yard / Wrecking Yard direction it had already been working on.
+
+`JOB-04` owns only Scrap Yard / Wrecking Yard page work, online buy/sell UI, Scrap Yard-specific handoff notes, and Scrap Yard-specific verification.
+
+`JOB-04` must not take over:
+
+```text
+JOB-00 Coordinator / Integration / Verification
+JOB-01 Phone + PC Platform Core
+JOB-02 Shared RLS / Career Bridge
+JOB-03 RedFox App Store / Play Store
+JOB-05 BeamBook Marketplace
+JOB-06 Import / Export Yard
+JOB-07 Classics / Collector Exchange
+JOB-08 Insurance / Finance / Garage / Storage Pages
+JOB-09 Tow / Recovery / Dispatch Integration
+JOB-10 Visual Design / Real Website Polish
+JOB-11 QA / Logging / Failure Triage
+JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards
+```
+
+A separate chat may claim:
+
+```text
+JOB-00 — Coordinator / Integration / Verification
+```
+
+The technical work this chat was doing before the reset was Scrap Yard-related:
+
+```text
+Scrap Yard page
+phone buying
+PC page broken
+RLS marketplace bridge dependency
+garage/storage purchase problem
+online sell owned vehicles
+bad ScrapYard Direct career-module cleanup
+```
+
+That history now stays with this `JOB-04` chat.
 
 ---
 
@@ -59,15 +80,15 @@ Do **not** renumber jobs based on how many chats David opens.
 
 | Job ID | Job name | Status | Owner / notes |
 |---|---|---|---|
-| JOB-00 | Coordinator / Integration / Verification | CLAIMED | Claimed by this control-room Coordinator chat / Sol. |
+| JOB-00 | Coordinator / Integration / Verification | AVAILABLE | Needs a separate coordinator chat. This chat is not JOB-00. |
 | JOB-01 | Phone + PC Platform Core | AVAILABLE | Owns phone/PC app/page shells only. |
 | JOB-02 | Shared RLS / Career Bridge | CLAIMED | Claimed by Shared RLS / Career Bridge chat / Sol. |
 | JOB-03 | RedFox App Store / Play Store | AVAILABLE | Owns install/enable/open/update app store. |
-| JOB-04 | Scrap Yard / Wrecking Yard | AVAILABLE | Online buy/sell page first. This is the work we were doing before reset, but it now needs its own job chat. |
+| JOB-04 | Scrap Yard / Wrecking Yard | CLAIMED | Claimed by this Scrap Yard / Wrecking Yard chat / Sol. |
 | JOB-05 | BeamBook Marketplace | AVAILABLE | BeamBook social/marketplace storefront. |
-| JOB-06 | Import / Export Yard | CLAIMED | Claimed by Import / Export Yard chat / Sol. Import/export online page first. |
+| JOB-06 | Import / Export Yard | CLAIMED | Claimed by Import / Export Yard chat / Sol. |
 | JOB-07 | Classics / Collector Exchange | CLAIMED | Claimed by Classics / Collector Exchange chat / Sol. |
-| JOB-08 | Insurance / Finance / Garage / Storage Pages | CLAIMED | Claimed by Insurance / Finance / Garage / Storage Pages chat / Sol. Start as one Vehicle Services portal with four separable internal sections. |
+| JOB-08 | Insurance / Finance / Garage / Storage Pages | CLAIMED | Claimed by Insurance / Finance / Garage / Storage Pages chat / Sol. |
 | JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED | Claimed by Tow/Recovery/Dispatch chat. |
 | JOB-10 | Visual Design / Real Website Polish | CLAIMED | Claimed by Visual Design / Real Website Polish chat / Sol. |
 | JOB-11 | QA / Logging / Failure Triage | AVAILABLE | Logging, testing matrix, failure reports. |
@@ -76,8 +97,8 @@ Do **not** renumber jobs based on how many chats David opens.
 ## Taken right now
 
 ```text
-JOB-00 — Coordinator / Integration / Verification
 JOB-02 — Shared RLS / Career Bridge
+JOB-04 — Scrap Yard / Wrecking Yard
 JOB-06 — Import / Export Yard
 JOB-07 — Classics / Collector Exchange
 JOB-08 — Insurance / Finance / Garage / Storage Pages
@@ -89,9 +110,9 @@ JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 ## Available right now
 
 ```text
+JOB-00 — Coordinator / Integration / Verification
 JOB-01 — Phone + PC Platform Core
 JOB-03 — RedFox App Store / Play Store
-JOB-04 — Scrap Yard / Wrecking Yard
 JOB-05 — BeamBook Marketplace
 JOB-11 — QA / Logging / Failure Triage
 ```
@@ -109,7 +130,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-02 Shared RLS / Career Bridge, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
+Already claimed: JOB-02 Shared RLS / Career Bridge, JOB-04 Scrap Yard / Wrecking Yard, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -123,7 +144,7 @@ Each chat must do this before building anything:
 3. Say hello to the other chats on this page or in a GitHub handoff note.
 4. Report chosen Job ID, files/folders it will inspect, files/folders it may edit, protected files/folders it will not touch, dependencies on other jobs, verification plan, and expected output.
 5. Do **not** edit outside the claimed job.
-6. Do **not** build an integrated ZIP until `JOB-00` approves integration.
+6. Do **not** build an integrated ZIP until `JOB-00` approves integration, unless David explicitly tells that individual job chat to make a standalone inspection/test package.
 7. If a chat needs a shared file from another job, it must ask on GitHub and wait. It must not invent its own copy.
 8. If a chat finds the board is wrong, it must report the exact mismatch instead of silently working around it.
 
@@ -228,7 +249,7 @@ FoxFax remains the vehicle-history / Carfax parody site. It is **not** the messa
 
 ## What the previous active work was
 
-Before the job-board reset, the active technical work in the Coordinator chat was mostly Scrap Yard / Wrecking Yard related:
+Before the job-board reset, the active technical work in this chat was Scrap Yard / Wrecking Yard related:
 
 ```text
 Scrap Yard page
@@ -241,13 +262,11 @@ online sell owned vehicles
 bad ScrapYard Direct career-module cleanup
 ```
 
-That work is now assigned to:
+That work belongs to:
 
 ```text
 JOB-04 — Scrap Yard / Wrecking Yard
 ```
-
-`JOB-00` keeps the failure history and coordinates the handoff. `JOB-04` should do future Scrap Yard implementation.
 
 ## Broken / unsafe — do not use as base
 
@@ -453,15 +472,12 @@ sponsorRewards
 
 ## JOB-00 — Coordinator / Integration / Verification
 
-**Status:** CLAIMED  
-**Owner:** this control-room Coordinator chat / Sol  
-**Role:** foreman/control room, not feature mechanic.
+**Status:** AVAILABLE  
+**Owner:** none assigned here. This chat is JOB-04, not JOB-00.
 
-### Owns
+Owns assignments, this board, integration order, final ZIP approval, verification report enforcement, failure/incident reports, and blocking chats that edit outside scope.
 
-Assignments, this board, integration order, final ZIP approval, verification report enforcement, failure/incident reports, blocking chats that edit outside scope, and preserving history from the failed Scrap Yard attempts.
-
-### May edit
+May edit:
 
 ```text
 PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md
@@ -470,9 +486,7 @@ INCIDENT_REPORTS/*
 final handoff/readme files
 ```
 
-### Must not edit
-
-App code unless doing final approved integration. Scrap Yard implementation files except to inspect/report or final integration after approval.
+Must not edit app code unless doing final approved integration.
 
 ---
 
@@ -522,16 +536,104 @@ Owns App Store web page/app, app manifests, installed/enabled state, store categ
 
 ## JOB-04 — Scrap Yard / Wrecking Yard
 
-**Status:** AVAILABLE  
-**Important handoff:** this is the technical work that was active before the reset.
+**Status:** CLAIMED  
+**Owner:** this Scrap Yard / Wrecking Yard chat / Sol  
+**Claim date:** 2026-07-13
 
-Owns Scrap Yard web page, realistic wrecking-yard UI, online buy listings, online sell owned vehicles, and future sell-zone UI placeholder.
+### Hello to the other RedFox chats
 
-`JOB-04` must inspect the baseline and report exact planned edits before touching code. It must read the Scrap Yard incident report and this board first.
+Hello, fellow RedFox chats. `JOB-04` owns only the Scrap Yard / Wrecking Yard app/page work. I will not touch the phone/PC platform, shared bridge core, App Store core, BeamBook, Import/Export, Classics, Tow, SponsorHub/FoxMail/FoxText, RLS source, stock Career files, money, garage, storage, inventory, insurance, or visual-polish-only files outside my scope. I will use the contracts published by `JOB-01`, `JOB-02`, and `JOB-03`.
 
-Must not create startup career module, map load work, parking spot generation, `redfoxScrapYardDirect` package, SponsorHub/FoxMail/FoxText work, fake money/storage/garage/inventory.
+### Owns
 
-Acceptance test: phone page opens, PC page opens, buy button opens stock/RLS purchase flow, Sell Online lists owned vehicles, sell button calls stock inventory sell function, runtime success is not claimed until David tests.
+- Scrap Yard web page.
+- Realistic wrecking-yard UI.
+- Online buy listings UI.
+- Online sell owned vehicles UI.
+- Future physical sell-zone UI placeholder only.
+- Scrap Yard-specific reports and handoff notes.
+
+### Must inspect before editing
+
+- Current selected FoxNet/IceFox baseline ZIP.
+- Last useful phone-working v0.10.3.1 family behavior.
+- Shared bridge handoff from `JOB-02`.
+- Phone/PC app registration handoff from `JOB-01`.
+- App Store manifest handoff from `JOB-03`.
+- Scrap Yard incident report:
+
+```text
+INCIDENT_REPORTS/2026-07-11_ScrapYard_Direct_RLS_Path_Ignored_Custom_Bridge_Failure.md
+```
+
+### May edit after approval
+
+Only after inspecting baseline and listing exact planned edits:
+
+```text
+ui/modModules/redfoxCareerWeb/sites/scrap_yard/
+sites/scrap_yard/                         only if baseline mirrors root site paths
+Scrap Yard app manifest entry             only at the path/schema approved by JOB-03
+JOB-04 scoped docs/reports
+```
+
+### Protected files/folders
+
+```text
+ui/modModules/redfoxCareerWeb/phone/       owned by JOB-01 unless it exposes an app-registration slot
+ui/modModules/redfoxCareerWeb/assets/js/icefox_front.js
+assets/js/icefox_front.js
+ui/ui-vue/dist/index.js                    bridge/platform owned by JOB-01/JOB-02
+lua/ge/extensions/career/modules/
+lua/ge/extensions/overrides/career/
+ui/modModules/redfoxCareerWeb/sites/beambook/
+ui/modModules/redfoxCareerWeb/sites/import_export/
+ui/modModules/redfoxCareerWeb/sites/classics/
+ui/modModules/redfoxCareerWeb/sites/tow_recovery/
+ui/modModules/redfoxCareerWeb/sites/sponsorhub/
+ui/modModules/redfoxCareerWeb/sites/foxmail/
+ui/modModules/redfoxCareerWeb/sites/foxtext/
+FoxFax user-fixed art/background/page files unless David explicitly asks
+```
+
+### Must not do
+
+- No startup Career module.
+- No map-load work.
+- No parking spot generation.
+- No `redfoxScrapYardDirect` package.
+- No fake money.
+- No fake garage insert.
+- No fake storage insert.
+- No fake vehicle ownership.
+- No hand-rolled purchase success.
+- No SponsorHub/FoxMail/FoxText work.
+
+### First stable target
+
+```text
+Online Scrap Yard page
+Phone page opens
+PC page opens
+Buy button opens stock/RLS purchase flow through the approved shared bridge
+Sell Online lists owned career inventory vehicles
+Sell button calls stock inventory sell function through the approved shared bridge
+Future physical sell-zone appears only as a disabled/placeholder UI note until approved
+```
+
+### Verification plan
+
+- Inspect baseline before editing.
+- List exact edited files before building.
+- Validate all HTML/CSS/JS/JSON touched by JOB-04.
+- Verify no protected files changed.
+- Verify no RLS/Career files changed.
+- Verify no phone/PC shell hijack.
+- Verify no money/inventory/garage/storage changes.
+- Verify no `redfoxScrapYardDirect` or startup Scrap Yard career module.
+- Reopen final ZIP and verify paths/reports.
+- Include TXT and HTML verification reports.
+- Mark runtime unproven until David tests in BeamNG.
 
 ---
 
@@ -545,10 +647,8 @@ Owns BeamBook web page, marketplace storefront, listing card UI, seller/profile/
 
 ## JOB-06 — Import / Export Yard
 
-**Status:** CLAIMED
-
-**Owner:** Import / Export Yard chat / Sol
-
+**Status:** CLAIMED  
+**Owner:** Import / Export Yard chat / Sol  
 **Claim date:** 2026-07-13
 
 Owns online import/export vehicle page, decent vehicles, buy-now page first, and future export yard/hotlist planning.
@@ -583,11 +683,11 @@ JOB-07 will wait for the JOB-01 registration contract, JOB-02 shared purchase/da
 
 ## JOB-08 — Insurance / Finance / Garage / Storage Pages
 
-**Status:** CLAIMED
-**Owner:** Insurance / Finance / Garage / Storage Pages chat / Sol
+**Status:** CLAIMED  
+**Owner:** Insurance / Finance / Garage / Storage Pages chat / Sol  
 **Claim date:** 2026-07-13
 
-Owns insurance links/pages, finance/loans/payments pages, garage/storage status pages, and purchase flow help pages. The first design is one Vehicle Services portal with four internally separated sections so David can keep it unified or split it later without rewriting the backend integration.
+Owns insurance links/pages, finance/loans/payments pages, garage/storage status pages, and purchase flow help pages. The first design is one Vehicle Services portal with four internally separated sections so David can keep it unified or split it later without rewriting backend integration.
 
 Must not fake money, financing, debt, payments, insurance, ownership, garage inventory/capacity, storage inventory/capacity, or purchase success. Must use the published JOB-01 platform, JOB-02 Career/RLS bridge, and JOB-03 manifest contracts rather than editing their cores or guessing private paths.
 
@@ -752,4 +852,4 @@ Stop immediately if any chat:
 - rewrites phone/PC shell instead of registering apps/pages,
 - edits FoxFax art/page files without explicit David approval,
 - changes SponsorHub/FoxMail/FoxText from another job without `JOB-12` coordination,
-- lets `JOB-00` keep building feature code instead of coordinating and verifying.
+- lets `JOB-04` edit phone/PC/bridge/App Store/RLS core instead of using the published contracts.
