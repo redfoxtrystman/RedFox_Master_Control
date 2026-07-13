@@ -7,56 +7,52 @@
 
 ---
 
-# ROLLCALL / CURRENT ASSIGNMENT CORRECTION
+# OWNER START DIRECTIVE / NEUTRAL ROLLCALL
 
-David corrected the current chat assignment.
-
-This chat / Sol is:
+The active owner directive is:
 
 ```text
+PROJECT_MANIFESTS/REDFOX_FOXNET_START_ORDER_SHARED_ARCHITECTURE_DIRECTIVE_2026-07-13.md
+```
+
+Every chat must read that directive before new implementation work. It defines the shared IceFox phone/PC architecture, same-destination rule, all-map requirement, isolated app-mod packaging, real Scrap Yard ownership/storage requirement, exact build order, honest status labels, and permission boundaries.
+
+Central-board rule: do not write “this chat / Sol” as an owner without the exact job/chat title. Per-chat identity belongs in a unique claim file. This board must remain neutral.
+
+## Git claim audit — 2026-07-13
+
+### Active claimed jobs
+
+```text
+JOB-01 — Phone + PC Platform Core
+JOB-02 — Shared RLS / Career Bridge
 JOB-04 — Scrap Yard / Wrecking Yard
+JOB-06 — Import / Export Yard
+JOB-07 — Classics / Collector Exchange
+JOB-08 — Insurance / Finance / Garage / Storage Pages
+JOB-09 — Tow / Recovery / Dispatch Integration
+JOB-10 — Visual Design / Real Website Polish
+JOB-11 — QA / Logging / Failure Triage
+JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 ```
 
-This chat is **not** `JOB-00`. This chat should keep working on the same Scrap Yard / Wrecking Yard direction it had already been working on.
-
-`JOB-04` owns only Scrap Yard / Wrecking Yard page work, online buy/sell UI, Scrap Yard-specific handoff notes, and Scrap Yard-specific verification.
-
-`JOB-04` must not take over:
-
-```text
-JOB-00 Coordinator / Integration / Verification
-JOB-01 Phone + PC Platform Core
-JOB-02 Shared RLS / Career Bridge
-JOB-03 RedFox App Store / Play Store
-JOB-05 BeamBook Marketplace
-JOB-06 Import / Export Yard
-JOB-07 Classics / Collector Exchange
-JOB-08 Insurance / Finance / Garage / Storage Pages
-JOB-09 Tow / Recovery / Dispatch Integration
-JOB-10 Visual Design / Real Website Polish
-JOB-11 QA / Logging / Failure Triage
-JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards
-```
-
-A separate chat may claim:
+### Unclaimed jobs
 
 ```text
 JOB-00 — Coordinator / Integration / Verification
+JOB-03 — RedFox App Store / Play Store
+JOB-05 — BeamBook Marketplace
 ```
 
-The technical work this chat was doing before the reset was Scrap Yard-related:
+### Historical claim corrections
 
-```text
-Scrap Yard page
-phone buying
-PC page broken
-RLS marketplace bridge dependency
-garage/storage purchase problem
-online sell owned vehicles
-bad ScrapYard Direct career-module cleanup
-```
-
-That history now stays with this `JOB-04` chat.
+- JOB-00 was temporarily claimed in commit `2d220d6`, then explicitly released/corrected back to AVAILABLE in commit `4a7d831`.
+- JOB-01 has two historical claim commits (`006f840` and `9106d3f`). The board recognizes one active JOB-01 lane only. Any chat later reassigned to JOB-02 or another job must not also work JOB-01.
+- JOB-03 has a claim file from a temporary reassignment, but commit `4a7d831` corrected that chat back to JOB-04 and restored JOB-03 to AVAILABLE.
+- JOB-04 had temporary assignment changes; commit `4a7d831` establishes the active Scrap Yard chat.
+- JOB-05 has no completed Git claim.
+- Git shows one active claim each for JOB-02, JOB-04, JOB-06, JOB-07, JOB-08, JOB-09, JOB-10, JOB-11, and JOB-12.
+- No active double ownership is authorized. If two chats believe they own the same job, both stop until David resolves it.
 
 ---
 
@@ -80,12 +76,12 @@ Do **not** renumber jobs based on how many chats David opens.
 
 | Job ID | Job name | Status | Owner / notes |
 |---|---|---|---|
-| JOB-00 | Coordinator / Integration / Verification | AVAILABLE | Needs a separate coordinator chat. This chat is not JOB-00. |
-| JOB-01 | Phone + PC Platform Core | AVAILABLE | Owns phone/PC app/page shells only. |
+| JOB-00 | Coordinator / Integration / Verification | AVAILABLE | Needs one dedicated coordinator chat now. |
+| JOB-01 | Phone + PC Platform Core | CLAIMED | One active Phone + PC Platform Core chat; historical duplicate claim is not a second active owner. |
 | JOB-02 | Shared RLS / Career Bridge | CLAIMED | Claimed by Shared RLS / Career Bridge chat / Sol. |
-| JOB-03 | RedFox App Store / Play Store | AVAILABLE | Owns install/enable/open/update app store. |
+| JOB-03 | RedFox App Store / Play Store | AVAILABLE | Optional/deferred until the platform registry works. |
 | JOB-04 | Scrap Yard / Wrecking Yard | CLAIMED | Claimed by this Scrap Yard / Wrecking Yard chat / Sol. |
-| JOB-05 | BeamBook Marketplace | AVAILABLE | BeamBook social/marketplace storefront. |
+| JOB-05 | BeamBook Marketplace | AVAILABLE | BeamBook chat has not completed a Git claim. |
 | JOB-06 | Import / Export Yard | CLAIMED | Claimed by Import / Export Yard chat / Sol. |
 | JOB-07 | Classics / Collector Exchange | CLAIMED | Claimed by Classics / Collector Exchange chat / Sol. |
 | JOB-08 | Insurance / Finance / Garage / Storage Pages | CLAIMED | Claimed by Insurance / Finance / Garage / Storage Pages chat / Sol. |
@@ -97,6 +93,7 @@ Do **not** renumber jobs based on how many chats David opens.
 ## Taken right now
 
 ```text
+JOB-01 — Phone + PC Platform Core
 JOB-02 — Shared RLS / Career Bridge
 JOB-04 — Scrap Yard / Wrecking Yard
 JOB-06 — Import / Export Yard
@@ -112,7 +109,6 @@ JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 
 ```text
 JOB-00 — Coordinator / Integration / Verification
-JOB-01 — Phone + PC Platform Core
 JOB-03 — RedFox App Store / Play Store
 JOB-05 — BeamBook Marketplace
 ```
@@ -122,15 +118,16 @@ JOB-05 — BeamBook Marketplace
 # COPY/PASTE MESSAGE FOR EVERY NEW CHAT
 
 ```text
-We are rebuilding RedFox FoxNet / IceFox for BeamNG. Read this GitHub job board first:
+We are rebuilding RedFox FoxNet / IceFox for BeamNG. Read both owner documents first:
 
 PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md
+PROJECT_MANIFESTS/REDFOX_FOXNET_START_ORDER_SHARED_ARCHITECTURE_DIRECTIVE_2026-07-13.md
 
 Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a ZIP until you inspect the baseline, list exact files to edit, list protected files, and explain your verification plan.
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-Already claimed: JOB-02 Shared RLS / Career Bridge, JOB-04 Scrap Yard / Wrecking Yard, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, JOB-11 QA / Logging / Failure Triage, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
+Already claimed: JOB-01 Phone + PC Platform Core, JOB-02 Shared RLS / Career Bridge, JOB-04 Scrap Yard / Wrecking Yard, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, JOB-11 QA / Logging / Failure Triage, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -209,7 +206,20 @@ JSON alone is not acceptable.
 
 ## 10. Runtime is unproven until David tests it
 
-Static checks do not prove BeamNG runtime. Do not write “fixed,” “working,” “done,” or “safe” unless David tested it in BeamNG.
+Static checks do not prove BeamNG runtime. Do not write “fixed,” “working,” “done,” or “safe” unless David tested the exact build in BeamNG.
+
+Required status labels are:
+
+```text
+DAVID-TESTED WORKING
+BUILT — RUNTIME UNTESTED
+PARTIAL
+BLOCKED
+FAILED — STOPPED
+MOCKUP / PLACEHOLDER — NOT FUNCTIONAL (only with David's approval)
+```
+
+Do not say “should work.” A spawned vehicle is not a completed purchase when ownership/storage still requires a developer cheat.
 
 ## 11. If a check fails, stop
 
@@ -235,6 +245,25 @@ Future physical sell-zone placeholder only, not runtime yet
 `JOB-12` must not replace phone shell, PC shell, browser shell, App Store core, shared bridge, Career systems, RLS systems, money/inventory/garage/storage, Scrap Yard, BeamBook, Import/Export, Classics, or Tow/Recovery.
 
 FoxFax remains the vehicle-history / Carfax parody site. It is **not** the messaging app and must not be turned into FoxMail/FoxText.
+
+
+## 14. Same destination and all-map rule
+
+Phone and PC must use one canonical page identity, one canonical destination, and the same backend contract. Presentation may differ, but business logic and data/action messages may not.
+
+All RedFox page routes must open on every map. No app may hard-code West Coast-only shop, dealer, facility, parking, mission, garage, or storage assumptions.
+
+## 15. Separate app-mod rule
+
+The IceFox/FoxNet platform core is the shared front door. Each app/page is developed as an isolated add-on mod with unique paths and IDs. App mods must not copy shared phone, PC, browser, registry, bridge, or another app's files.
+
+A combined release is assembled only after individual verification and JOB-00 approval.
+
+## 16. App Store and future-games rule
+
+JOB-03 is optional for the first working milestone. The existing phone IceFox entry and new PC IceFox entry may use the shared registry without an App Store UI.
+
+Snake and other small games are future backlog only. No chat may build them now without David's permission.
 
 ---
 
@@ -492,11 +521,28 @@ Must not edit app code unless doing final approved integration.
 
 ## JOB-01 — Phone + PC Platform Core
 
-**Status:** AVAILABLE
+**Status:** CLAIMED  
+**Owner:** one active Phone + PC Platform Core chat / Sol  
+**Claim evidence:** commits `006f840` and `9106d3f`; only one active owner is authorized.
 
-Owns phone shell/app launcher, PC shell/browser/homepage, app/page registry hooks, shared navigation rules, and responsive phone-vs-PC layout rules.
+Owns the existing-phone integration, new PC IceFox entry, canonical app/page manifest and route contract, shared navigation rules, native-page deep links, and responsive phone-versus-PC host behavior.
 
-Must not edit Scrap Yard page logic, BeamBook page logic, SponsorHub/FoxMail/FoxText page logic, RLS marketplace logic, or Career modules.
+Immediate owner-directed target:
+
+- preserve the working phone IceFox icon,
+- add IceFox to the existing PC without replacing the PC,
+- make both entries open the same canonical IceFox destination,
+- publish the manifest/route/owned-file contract,
+- ensure routes are not West Coast-specific,
+- consume JOB-02's bridge rather than implementing a competing Career/RLS bridge.
+
+Must not edit Scrap Yard page logic, BeamBook page logic, SponsorHub/FoxMail/FoxText page logic, App Store business logic, RLS marketplace logic, money/inventory/garage/storage logic, or Career modules.
+
+Required directive:
+
+```text
+PROJECT_MANIFESTS/REDFOX_FOXNET_START_ORDER_SHARED_ARCHITECTURE_DIRECTIVE_2026-07-13.md
+```
 
 ---
 
@@ -921,20 +967,17 @@ Required log prefixes:
 
 # INTEGRATION ORDER
 
-Do not build everything at once.
+Do not build everything at once. Full requirements are in `PROJECT_MANIFESTS/REDFOX_FOXNET_START_ORDER_SHARED_ARCHITECTURE_DIRECTIVE_2026-07-13.md`.
 
-1. `JOB-00` Coordinator starts/maintains assignment and final integration approval.
-2. `JOB-11` QA/logging creates the shared test format.
-3. `JOB-01` Platform and `JOB-02` Bridge define shared app/page and backend contracts.
-4. `JOB-03` Store creates app registry and store page.
-5. `JOB-04` Scrap Yard builds on shared bridge.
-6. `JOB-05` BeamBook builds on shared bridge/store.
-7. `JOB-06` Import/Export builds page only.
-8. `JOB-07` Classics builds page only.
-9. `JOB-08` and `JOB-09` connect support pages and tow links.
-10. `JOB-12` SponsorHub/FoxMail/FoxText/Sponsor Rewards builds app pages against the published Store/Platform/Bridge contracts.
-11. `JOB-10` polishes visuals after functions are stable.
-12. `JOB-00` approves final integration only after reports pass.
+1. Claim `JOB-00` and freeze one exact baseline.
+2. `JOB-11` publishes the shared test matrix and truth-status evidence rules.
+3. `JOB-01` and `JOB-02` publish the shared platform/route and Career/RLS bridge contracts.
+4. Build the first functional slice: existing phone IceFox + new PC IceFox → the same canonical destination on West Coast and a non-West-Coast map.
+5. `JOB-04` repairs Scrap Yard phone/PC/all-map purchasing through the stock/RLS ownership and storage path with no developer cheat.
+6. `JOB-05`, `JOB-06`, `JOB-07`, `JOB-08`, `JOB-09`, and `JOB-12` build isolated add-on mods against the published contracts.
+7. `JOB-03` App Store is optional/deferred and must consume the JOB-01 registry rather than create a competing launcher.
+8. `JOB-10` polishes visuals after function is stable.
+9. `JOB-00` integrates only independently verified mods with no duplicate shared paths.
 
 ---
 
