@@ -7,7 +7,81 @@
 
 ---
 
-## Current decision
+# NUMBERING FIX — READ THIS FIRST
+
+The first version mixed two numbering systems:
+
+- human chat count: `1, 2, 3...12`
+- job IDs: `JOB-00, JOB-01, JOB-02...JOB-11`
+
+That was wrong and confusing.
+
+## Canonical rule
+
+**Only the `JOB-00` through `JOB-11` IDs are official.**
+
+Do not translate `JOB-09` into “the 9th chat” or “item 9 in a human list.”
+
+## Canonical job map
+
+| Job ID | Job name | Status |
+|---|---|---|
+| JOB-00 | Coordinator / Integration / Verification | AVAILABLE |
+| JOB-01 | Phone + PC Platform Core | AVAILABLE |
+| JOB-02 | Shared RLS / Career Bridge | AVAILABLE |
+| JOB-03 | RedFox App Store / Play Store | AVAILABLE |
+| JOB-04 | Scrap Yard / Wrecking Yard | AVAILABLE |
+| JOB-05 | BeamBook Marketplace | AVAILABLE |
+| JOB-06 | Import / Export Yard | AVAILABLE |
+| JOB-07 | Classics / Collector Exchange | AVAILABLE |
+| JOB-08 | Insurance / Finance / Garage / Storage Pages | AVAILABLE |
+| JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED |
+| JOB-10 | Visual Design / Real Website Polish | AVAILABLE |
+| JOB-11 | QA / Logging / Failure Triage | AVAILABLE |
+
+## Direct answer: what is JOB-09?
+
+**JOB-09 is Tow / Recovery / Dispatch Integration.**
+
+It is currently claimed by the Tow/Recovery/Dispatch chat. It must not edit Scrap Yard core, phone core, PC core, bridge core, App Store core, RLS source, stock Career files, money, inventory, garage, or storage.
+
+---
+
+# How many chats are needed?
+
+## Minimum workable setup: 8 chats
+
+The minimum 8 chats are not consecutive job numbers. QA/logging is JOB-11 but is still needed early.
+
+Use these 8 first:
+
+1. `JOB-00` — Coordinator / Integration / Verification
+2. `JOB-01` — Phone + PC Platform Core
+3. `JOB-02` — Shared RLS / Career Bridge
+4. `JOB-03` — RedFox App Store / Play Store
+5. `JOB-04` — Scrap Yard / Wrecking Yard
+6. `JOB-05` — BeamBook Marketplace
+7. `JOB-06` — Import / Export Yard
+8. `JOB-11` — QA / Logging / Failure Triage
+
+## Ideal full setup: 12 chats
+
+Use all official job IDs:
+
+```text
+JOB-00 through JOB-11
+```
+
+The extra four beyond the minimum are:
+
+- `JOB-07` — Classics / Collector Exchange
+- `JOB-08` — Insurance / Finance / Garage / Storage Pages
+- `JOB-09` — Tow / Recovery / Dispatch Integration
+- `JOB-10` — Visual Design / Real Website Polish
+
+---
+
+# Current rebuild decision
 
 We are starting again from a clean plan.
 
@@ -21,36 +95,7 @@ The phone and PC must work like real devices:
 
 ---
 
-## How many chats are needed?
-
-### Minimum workable setup: **8 chats**
-
-1. **Coordinator / Integration / Verification**
-2. **Phone + PC Platform Core**
-3. **Shared RLS/Career Bridge**
-4. **RedFox App Store / Play Store**
-5. **Scrap Yard / Wrecking Yard**
-6. **BeamBook Marketplace**
-7. **Import / Export Yard**
-8. **QA / Logging / Failure Triage**
-
-### Better setup: **12 chats**
-
-Add these four extra focused chats:
-
-9. **Classics / Collector Exchange**
-10. **Insurance / Finance / Garage / Storage Pages**
-11. **Tow / Recovery / Dispatch Integration**
-12. **Visual Design / Theme / Real Website Polish**
-
-### Best rule
-
-Use **8 chats minimum**, **12 chats ideal**.  
-Do not create 20 random chats. Too many chats will cause more conflicts unless the Coordinator keeps the job board updated.
-
----
-
-## Claim protocol for each chat
+# Claim protocol for each chat
 
 When a chat starts, send it this file and tell it:
 
@@ -69,7 +114,7 @@ No chat should build a final ZIP until its job is stable and the Coordinator app
 
 ---
 
-## Global hard rules
+# Global hard rules
 
 These rules apply to every job below.
 
@@ -86,24 +131,26 @@ These rules apply to every job below.
 
 ---
 
-## Known working / known bad facts
+# Known working / known bad facts
 
-### Working or partially working
+## Working or partially working
 
 - The phone path can request RLS/BeamNG vehicle shopping data and open purchase flow from the FoxNet page.
 - v0.10.3.1 phone side was the last known useful Scrap Yard/FoxNet baseline.
 - BeamBook works as a standalone private-seller style injection pattern, but it lacks proper BeamBook branding/storefront polish.
 - RLS PC marketplace can browse and buy cars using the game’s own marketplace flow.
 
-### Broken / unsafe
+## Broken / unsafe
+
+Do not use these as a base:
 
 - `RedFox_ScrapYard_Direct_v0_1_0.zip`
 - `RedFox_ScrapYard_Direct_v0_1_1_ONLINE_ONLY_SAFE.zip`
 - `RedFox_ScrapYard_Direct_v0_1_2_NO_EARLY_DEP_SAFE_TEST.zip`
 
-Do not use those as a base. They tried to create a Scrap Yard career module and caused severe loading/freezing risk.
+They tried to create a Scrap Yard career module and caused severe loading/freezing risk.
 
-### Duplicate install warning
+## Duplicate install warning
 
 Do not install multiple versions of these at the same time:
 
@@ -115,9 +162,9 @@ They contain overlapping paths and can mix old/new files.
 
 ---
 
-## Important incident reports / history
+# Important incident reports / history
 
-Chats should read these before editing anything related to Scrap Yard, phone, PC, or RLS bridge:
+Chats must read these before editing anything related to Scrap Yard, phone, PC, or RLS bridge:
 
 - `INCIDENT_REPORTS/2026-07-11_ScrapYard_Direct_RLS_Path_Ignored_Custom_Bridge_Failure.md`
 - `INCIDENT_REPORTS/2026-07-07_IceFox_Web_ScrapYard_BeamBook_Order_Of_Operations_Failure.md`
@@ -126,21 +173,11 @@ Chats should read these before editing anything related to Scrap Yard, phone, PC
 
 ---
 
-# Job Board
-
-Status values:
-
-- `AVAILABLE`
-- `CLAIMED`
-- `BLOCKED`
-- `READY_FOR_INTEGRATION`
-- `DONE`
-- `FAILED_STOPPED`
+# Job Details
 
 ## JOB-00 — Coordinator / Integration / Verification
 
-**Status:** AVAILABLE  
-**Recommended chat:** 1 dedicated coordinator chat
+**Status:** AVAILABLE
 
 ### Owns
 
@@ -200,23 +237,6 @@ Make the phone and PC use the same app/page registration model and the same shar
 - RLS marketplace logic.
 - Career modules.
 
-### Required output
-
-A shared registry format like:
-
-```json
-{
-  "id": "redfox.scrapyard",
-  "name": "RedFox Scrap Yard",
-  "type": "webapp",
-  "phoneEnabled": true,
-  "pcEnabled": true,
-  "phonePath": "sites/scrap_yard/index.html",
-  "pcPath": "sites/scrap_yard/index.html",
-  "permissions": ["careerData", "vehicleShopping", "inventorySell"]
-}
-```
-
 ### Acceptance test
 
 - Phone and PC list the same registered apps/pages where enabled.
@@ -257,8 +277,6 @@ RedFoxLogEvent
 ```
 
 ### Must use existing game/RLS functions
-
-Known target functions to inspect and use when available:
 
 ```text
 career_modules_vehicleShopping.updateVehicleList(true)
@@ -313,7 +331,7 @@ Create a RedFox Play Store style app where apps/pages can be installed/enabled/d
 - Games / Fun
 - Experimental
 
-### Required app manifest fields
+### Required app manifest example
 
 ```json
 {
@@ -330,19 +348,6 @@ Create a RedFox Play Store style app where apps/pages can be installed/enabled/d
   "status": "experimental"
 }
 ```
-
-### Safe fingerprinting rule
-
-Use safe metadata only:
-
-- `redfox_store/manifest.json`
-- `info.json`
-- `mod_info.json`
-- ZIP comment
-- preview PNG/JPG metadata
-- harmless comments in files
-
-Do not fingerprint by editing physics, controllers, JBeam behavior, or game-critical runtime files.
 
 ### Acceptance test
 
@@ -402,14 +407,6 @@ Do not build the prop runtime until the web-only buy/sell path is stable.
 ### Goal
 
 Turn BeamBook into a real Facebook/marketplace-style app and storefront without breaking its working core.
-
-### Owns
-
-- BeamBook web page.
-- BeamBook marketplace storefront.
-- Listing card UI.
-- Seller/profile/post feel.
-- Better branding so it does not just feel like generic Private Seller.
 
 ### Must preserve
 
@@ -521,10 +518,6 @@ Make the supporting pages that make buying/selling feel complete.
 
 Hello, fellow RedFox chats. JOB-09 here. I own only tow/recovery/dispatch app links, recovery-job UI, and the future approved deliver-to-yard connection. I will not touch the phone/PC shell, shared Career bridge, App Store core, Scrap Yard core, Import/Export core, RLS files, or stock Career files. Please publish stable contracts and approved paths on this board; I will integrate against them only after the owning jobs are ready.
 
-### Goal
-
-Connect tow/recovery gameplay to Scrap Yard/Import Export later.
-
 ### Owns
 
 - Tow call app links.
@@ -532,20 +525,9 @@ Connect tow/recovery gameplay to Scrap Yard/Import Export later.
 - Future “deliver to yard” flow.
 - Integration planning for catalog mod 19, permanent module ID `redfox_tow_recovery_dispatch`.
 
-### Files and folders this job will inspect
-
-- `PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md`
-- The four incident reports listed in this board before any FoxNet edit.
-- The selected catalog-19 Tow/Recovery baseline and its verification reports.
-- JOB-01 phone/PC registration contract when published.
-- JOB-02 shared RLS/Career bridge contract when published.
-- JOB-03 app manifest/store registration contract when published.
-- JOB-04 Scrap Yard and JOB-06 Import/Export approved delivery/deep-link contracts when published.
-- JOB-11 logging/test format when published.
-
 ### Files and folders this job may edit
 
-- Standalone catalog-19 Tow/Recovery mod files only, including `lua/ge/extensions/redfoxTowRecoveryDispatch.lua`, its own input actions, its own RedFox module manifest, metadata, documentation, and verification reports.
+- Standalone catalog-19 Tow/Recovery mod files only, including its own Lua, input actions, manifest, metadata, docs, and verification reports.
 - A new job-scoped Tow/Recovery app directory only after JOB-01 and JOB-03 publish the approved registry and path. Expected scope: `ui/modModules/redfoxCareerWeb/sites/tow_recovery/`.
 - A Tow/Recovery app manifest entry only at the exact path and schema published by JOB-03.
 - This JOB-09 claim/status block in the job board.
@@ -571,25 +553,6 @@ Connect tow/recovery gameplay to Scrap Yard/Import Export later.
 - JOB-04 and JOB-06 must define any approved yard delivery or deep-link endpoints.
 - JOB-11 must publish the shared logging and failure-report format.
 - No integrated FoxNet ZIP will be built until these dependencies are stable and JOB-00 approves integration.
-
-### Must not do
-
-- Do not edit Scrap Yard core.
-- Do not create a yard sell prop until JOB-04 and JOB-02 are stable.
-- Do not hijack or replace the phone, PC, shared bridge, RLS, money, inventory, garage, or storage systems.
-- Do not hand-roll Career money or ownership for FoxNet integration.
-- Do not claim live runtime success until David tests it in BeamNG.
-
-### Verification plan
-
-- Inspect and record the exact baseline before editing.
-- Produce a colored side-by-side baseline diff.
-- Scan all changed paths against the protected-file list.
-- Parse Lua with Lua 5.1 grammar and validate every JSON/manifest.
-- Verify permanent module ID, input actions, settings/state paths, and required Hub functions.
-- Verify no startup Career module, stock/RLS override, fake money, or Career-inventory insertion is packaged.
-- Reopen the final ZIP and verify root structure, file tree, duplicate paths, and required reports.
-- Include TXT and HTML verification reports and clearly list unproven runtime items.
 
 ### Acceptance test
 
@@ -711,8 +674,6 @@ dependencies not resolved
 ---
 
 # Integration order
-
-Do not build everything at once.
 
 1. JOB-00 Coordinator starts job assignment.
 2. JOB-11 QA/logging creates shared test format.
