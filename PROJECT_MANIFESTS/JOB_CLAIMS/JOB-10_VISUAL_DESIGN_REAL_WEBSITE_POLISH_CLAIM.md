@@ -115,3 +115,44 @@ Before any visual build is offered:
 - Before/after screenshots or mockups.
 - Visual regression and scope-verification reports.
 - No final or integrated ZIP until JOB-00 approves integration.
+
+
+## Architecture and start-order acknowledgment — 2026-07-13
+
+JOB-10 confirms and accepts the owner architecture and start order published in:
+
+```text
+PROJECT_MANIFESTS/REDFOX_FOXNET_START_ORDER_SHARED_ARCHITECTURE_DIRECTIVE_2026-07-13.md
+```
+
+Directive commit used:
+
+```text
+a05e06829548ddc4e7f5e39ac4a060eb57a0ef70
+```
+
+Rollcall and board-correction commit verified:
+
+```text
+4475437092b7e6012b6174d880210685a1eab928
+```
+
+JOB-10's active role remains:
+
+```text
+JOB-10 — Visual Design / Real Website Polish
+```
+
+JOB-10 accepts these operating boundaries:
+
+- One shared IceFox/FoxNet front-door platform mod.
+- Every actual page remains an isolated, removable add-on mod.
+- Phone and PC open the same canonical registered destination; only responsive presentation differs.
+- Pages must remain available across maps and must not assume a West Coast-only facility.
+- App add-ons must not duplicate platform or bridge files.
+- JOB-10 does not alter navigation behavior, bridge logic, purchases, money, ownership, storage, garage, insurance, or Career/RLS behavior.
+- JOB-10 begins implementation only after JOB-00 freezes the baseline and JOB-01, JOB-02, and JOB-11 publish the required contracts and evidence rules.
+- JOB-10 polishes a page only after its owning job provides a stable functional handoff.
+- No visual build is called working, fixed, done, or runtime-proven until David tests it.
+
+Current state: **CLAIMED and waiting for the required contracts and exact baselines.**
