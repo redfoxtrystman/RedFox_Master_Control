@@ -433,32 +433,84 @@ Acceptance test:
 
 ## JOB-01 — Phone + PC Platform Core
 
-**Status:** AVAILABLE
+**Status:** CLAIMED  
+**Claimed by:** Phone + PC Platform Core chat / Sol  
+**Claim date:** 2026-07-13
 
-Goal: Make phone and PC use the same app/page registration model and shared backend contract.
+Goal: Make the existing phone and PC use the same app/page registration model, navigation rules, and shared backend contract without replacing either shell.
 
 Owns:
 
-- phone shell/app launcher,
-- PC shell/browser/homepage,
-- app/page registry,
-- shared navigation rules,
+- phone shell/app launcher integration,
+- PC shell/browser/homepage integration,
+- app/page registry implementation,
+- shared navigation and deep-link rules,
 - responsive phone-vs-PC layout rules.
 
-May edit:
+Will inspect before any implementation:
 
-- `ui/modModules/redfoxCareerWeb/phone/`
-- `ui/modModules/redfoxCareerWeb/assets/js/icefox_front.js`
-- `assets/js/icefox_front.js`
-- shared registry files created for RedFox apps/pages.
+- the exact approved FoxNet/IceFox baseline ZIP selected by JOB-00,
+- `ui/modModules/redfoxCareerWeb/phone/`,
+- `ui/modModules/redfoxCareerWeb/assets/js/icefox_front.js`,
+- `assets/js/icefox_front.js`,
+- existing phone, PC, browser, homepage, registry, and navigation files inside that baseline,
+- the four required incident reports listed on this board.
 
-Must not edit Scrap Yard page logic, BeamBook page logic, RLS marketplace logic, or career modules.
+May edit after publishing the baseline inspection:
+
+- files inside `ui/modModules/redfoxCareerWeb/phone/`,
+- `ui/modModules/redfoxCareerWeb/assets/js/icefox_front.js`,
+- `assets/js/icefox_front.js`,
+- new shared app/page registry files whose exact paths will be published before editing.
+
+Must not edit:
+
+- Scrap Yard page logic,
+- BeamBook page logic,
+- Import/Export, Classics, Tow, SponsorHub, FoxMail, FoxText, or other app-owned page logic,
+- RedFox App Store core or its installed/enabled state,
+- shared RLS/Career bridge implementation,
+- RLS marketplace source,
+- stock Career modules,
+- money, inventory, garage, storage, insurance, or vehicle-shopping behavior.
+
+Dependencies and coordination:
+
+- JOB-00 must name the exact baseline and approve final integration.
+- JOB-01 will define the registration/navigation/platform-facing side of the contract with JOB-02; JOB-02 owns the actual RLS/Career bridge implementation and final message/data behavior.
+- JOB-03 will consume the shared registry format and owns Store manifests plus install/enable/disable/update state.
+- JOB-11 owns the shared logging/failure-report format.
+- JOB-10 may polish appearance only after platform behavior is stable.
+
+Verification plan:
+
+- record the baseline ZIP, complete file tree, and hashes before editing,
+- publish exact edited and protected files before building,
+- schema-check registry entries and reject duplicate IDs or invalid phone/PC entries,
+- prove phone and PC derive their enabled entries from the same registry,
+- test phone-sized and PC-sized navigation/deep links separately,
+- prove both surfaces emit the same approved bridge message names and do not invent alternate backends,
+- diff protected paths and stop if any app-owned, RLS, Career, money, inventory, garage, storage, insurance, or marketplace file changes,
+- check ZIP integrity, duplicate top folders, old ScrapYard Direct modules, startup patches, and overlapping FoxNet paths,
+- include TXT and HTML verification reports,
+- keep BeamNG runtime marked unproven until David tests it.
 
 Acceptance test:
 
-- Phone and PC list the same registered apps/pages where enabled.
+- Phone and PC list the same registered apps/pages where each entry enables them.
 - Phone layout and PC layout can differ, but backend messages are the same.
-- Adding a new app means adding a manifest/registry entry, not editing five unrelated files.
+- Adding a new app means adding one manifest/registry entry rather than editing multiple unrelated shell files.
+- Existing phone and PC shells remain intact and receive RedFox apps/pages as additions.
+
+### Coordination hello — JOB-01
+
+Hello, fellow RedFox FoxNet rebuild chats. This is Sol from the Phone + PC Platform Core chat. I have claimed **JOB-01 only**.
+
+- I will publish one shared app/page registration and navigation contract for both the existing phone and PC.
+- I will coordinate contract boundaries with JOB-02, JOB-03, JOB-09, JOB-11, and JOB-12.
+- I will not take over app-owned page logic, App Store state, the RLS/Career bridge implementation, RLS source, Career systems, money, inventory, garage, storage, insurance, or vehicle-shopping behavior.
+- No platform code or ZIP is being changed by this claim. The approved baseline must be inspected first, followed by the exact edit/protected-file list and verification plan.
+- BeamNG runtime will remain **unproven until David tests it**.
 
 ---
 
