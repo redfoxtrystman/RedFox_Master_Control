@@ -67,7 +67,7 @@ Do **not** renumber jobs based on how many chats David opens.
 | JOB-05 | BeamBook Marketplace | AVAILABLE | BeamBook social/marketplace storefront. |
 | JOB-06 | Import / Export Yard | CLAIMED | Claimed by Import / Export Yard chat / Sol. Import/export online page first. |
 | JOB-07 | Classics / Collector Exchange | CLAIMED | Claimed by Classics / Collector Exchange chat / Sol. |
-| JOB-08 | Insurance / Finance / Garage / Storage Pages | AVAILABLE | Support/status pages only. |
+| JOB-08 | Insurance / Finance / Garage / Storage Pages | CLAIMED | Claimed by Insurance / Finance / Garage / Storage Pages chat / Sol. Start as one Vehicle Services portal with four separable internal sections. |
 | JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED | Claimed by Tow/Recovery/Dispatch chat. |
 | JOB-10 | Visual Design / Real Website Polish | CLAIMED | Claimed by Visual Design / Real Website Polish chat / Sol. |
 | JOB-11 | QA / Logging / Failure Triage | AVAILABLE | Logging, testing matrix, failure reports. |
@@ -80,6 +80,7 @@ JOB-00 — Coordinator / Integration / Verification
 JOB-02 — Shared RLS / Career Bridge
 JOB-06 — Import / Export Yard
 JOB-07 — Classics / Collector Exchange
+JOB-08 — Insurance / Finance / Garage / Storage Pages
 JOB-09 — Tow / Recovery / Dispatch Integration
 JOB-10 — Visual Design / Real Website Polish
 JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
@@ -92,7 +93,6 @@ JOB-01 — Phone + PC Platform Core
 JOB-03 — RedFox App Store / Play Store
 JOB-04 — Scrap Yard / Wrecking Yard
 JOB-05 — BeamBook Marketplace
-JOB-08 — Insurance / Finance / Garage / Storage Pages
 JOB-11 — QA / Logging / Failure Triage
 ```
 
@@ -109,7 +109,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-02 Shared RLS / Career Bridge, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
+Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-02 Shared RLS / Career Bridge, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -583,9 +583,21 @@ JOB-07 will wait for the JOB-01 registration contract, JOB-02 shared purchase/da
 
 ## JOB-08 — Insurance / Finance / Garage / Storage Pages
 
-**Status:** AVAILABLE
+**Status:** CLAIMED
+**Owner:** Insurance / Finance / Garage / Storage Pages chat / Sol
+**Claim date:** 2026-07-13
 
-Owns insurance links/pages, finance/loans/payments pages, garage/storage status pages, and purchase flow help pages. Must not fake garage inventory.
+Owns insurance links/pages, finance/loans/payments pages, garage/storage status pages, and purchase flow help pages. The first design is one Vehicle Services portal with four internally separated sections so David can keep it unified or split it later without rewriting the backend integration.
+
+Must not fake money, financing, debt, payments, insurance, ownership, garage inventory/capacity, storage inventory/capacity, or purchase success. Must use the published JOB-01 platform, JOB-02 Career/RLS bridge, and JOB-03 manifest contracts rather than editing their cores or guessing private paths.
+
+Claim and coordination record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-08_INSURANCE_FINANCE_GARAGE_STORAGE_CLAIM.md
+```
+
+JOB-08 will not edit runtime files or build a ZIP until the exact baseline and JOB-01/JOB-02/JOB-03 contracts are available and the claim record is amended with exact JOB-08-owned runtime paths.
 
 ---
 
