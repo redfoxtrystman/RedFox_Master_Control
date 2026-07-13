@@ -69,7 +69,7 @@ Do **not** renumber jobs based on how many chats David opens.
 | JOB-07 | Classics / Collector Exchange | CLAIMED | Claimed by Classics / Collector Exchange chat / Sol. |
 | JOB-08 | Insurance / Finance / Garage / Storage Pages | AVAILABLE | Support/status pages only. |
 | JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED | Claimed by Tow/Recovery/Dispatch chat. |
-| JOB-10 | Visual Design / Real Website Polish | AVAILABLE | CSS/layout/art only. |
+| JOB-10 | Visual Design / Real Website Polish | CLAIMED | Claimed by Visual Design / Real Website Polish chat / Sol. |
 | JOB-11 | QA / Logging / Failure Triage | AVAILABLE | Logging, testing matrix, failure reports. |
 | JOB-12 | SponsorHub / FoxMail / FoxText / Sponsor Rewards | CLAIMED | Claimed by Sponsor System chat. |
 
@@ -81,6 +81,7 @@ JOB-02 — Shared RLS / Career Bridge
 JOB-06 — Import / Export Yard
 JOB-07 — Classics / Collector Exchange
 JOB-09 — Tow / Recovery / Dispatch Integration
+JOB-10 — Visual Design / Real Website Polish
 JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 ```
 
@@ -92,7 +93,6 @@ JOB-03 — RedFox App Store / Play Store
 JOB-04 — Scrap Yard / Wrecking Yard
 JOB-05 — BeamBook Marketplace
 JOB-08 — Insurance / Finance / Garage / Storage Pages
-JOB-10 — Visual Design / Real Website Polish
 JOB-11 — QA / Logging / Failure Triage
 ```
 
@@ -109,7 +109,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-02 Shared RLS / Career Bridge, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-09 Tow / Recovery / Dispatch Integration, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
+Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-02 Shared RLS / Career Bridge, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -600,11 +600,23 @@ Owns tow call app links, recovery job UI, future deliver-to-yard flow, and stand
 
 ## JOB-10 — Visual Design / Real Website Polish
 
-**Status:** AVAILABLE
+**Status:** CLAIMED  
+**Owner:** Visual Design / Real Website Polish chat / Sol  
+**Claim date:** 2026-07-13
 
 Owns CSS theme, realistic page layouts, icons/cards/buttons, phone-vs-PC responsive appearance, and App Store visual polish.
 
+Current implementation gate: the control repository does not contain David's current Facebook-style website source or the working BeamBook-style reference mod. JOB-10 will not edit website/mod code or build a ZIP until both baselines are supplied or located, inspected, and followed by an exact edit manifest.
+
 Must not change bridge logic, purchase/sell behavior, or FoxFax art unless explicitly approved.
+
+Claim and coordination record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-10_VISUAL_DESIGN_REAL_WEBSITE_POLISH_CLAIM.md
+```
+
+JOB-05 owns BeamBook marketplace behavior and safe functional integration. JOB-10 owns approved Facebook-style presentation, responsive CSS/layout, cards, buttons, icons, and visual polish after the functional boundary is stable.
 
 ---
 
