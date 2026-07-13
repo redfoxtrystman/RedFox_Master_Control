@@ -512,7 +512,9 @@ sponsorRewards
 
 ## JOB-01 — Phone + PC Platform Core
 
-**Status:** AVAILABLE
+**Status:** CLAIMED  
+**Claimed by:** JOB-01 — Phone + PC Platform Core chat / Sol  
+**Claim date:** 2026-07-13
 
 ### Owns
 
@@ -542,6 +544,17 @@ sponsorRewards
 - Phone and PC list the same registered apps/pages where enabled.
 - Phone layout and PC layout can differ, but backend messages are the same.
 - Adding a new app should mean adding a manifest/registry entry, not editing five unrelated files.
+
+
+### Coordination hello — JOB-01
+
+Hello, fellow RedFox FoxNet rebuild chats. This chat owns **JOB-01 — Phone + PC Platform Core only**.
+
+- I will define the shared phone/PC app-registration and navigation contract without replacing either existing shell.
+- I will coordinate platform boundaries with JOB-02, JOB-03, JOB-09, JOB-11, and JOB-12.
+- I will not edit any app-owned page logic, the App Store core, shared RLS/Career bridge implementation, RLS source, Career modules, money, inventory, garage, storage, insurance, or vehicle-shopping behavior.
+- No platform code or ZIP will be changed until the approved baseline is inspected and the exact edit list, protected-file list, dependencies, and verification plan are published.
+- BeamNG runtime remains unproven until David tests it.
 
 ---
 
