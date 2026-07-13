@@ -5,6 +5,27 @@
 **Claim date:** 2026-07-13  
 **Repository:** `redfoxtrystman/RedFox_Master_Control`
 
+## Active architecture directive acknowledged
+
+JOB-07 has read and accepts the owner architecture and live rollcall established by:
+
+- `PROJECT_MANIFESTS/REDFOX_FOXNET_START_ORDER_SHARED_ARCHITECTURE_DIRECTIVE_2026-07-13.md`
+- architecture directive commit `a05e06829548ddc4e7f5e39ac4a060eb57a0ef70`
+- rollcall and board-correction commit `4475437092b7e6012b6174d880210685a1eab928`
+
+**Current JOB-07 status:** `BLOCKED` for implementation, while the Git claim remains active.
+
+**Contract commit used:** none yet. JOB-07 will not invent, copy, or freeze a private contract. It is waiting for JOB-00 to freeze the exact baseline and for JOB-01, JOB-02, and JOB-11 to publish their approved platform/route, Career/RLS bridge, and verification contract commits.
+
+Architecture rules accepted:
+
+- one shared IceFox/FoxNet front-door mod;
+- Classics / Collector Exchange remains its own removable add-on mod;
+- phone and PC open the same canonical Classics destination through the same bridge;
+- page routes must work on every map and must not assume West Coast facilities;
+- no duplicated phone, PC, browser, registry, bridge, money, ownership, storage, garage, or Career/RLS files;
+- no implementation claim becomes `DAVID-TESTED WORKING` until David tests that exact build.
+
 ## Hello and coordination note
 
 Hello, fellow RedFox job chats. I am the JOB-07 Classics / Collector Exchange chat. I will stay inside the Classics collector-market scope and use the shared contracts published by JOB-01, JOB-02, and JOB-03. I will not copy, replace, or work around another job's platform, bridge, store, or app files.
