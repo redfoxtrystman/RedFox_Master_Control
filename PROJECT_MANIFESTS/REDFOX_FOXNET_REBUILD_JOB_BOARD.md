@@ -27,6 +27,7 @@ Central-board rule: do not write “this chat / Sol” as an owner without the e
 JOB-01 — Phone + PC Platform Core
 JOB-02 — Shared RLS / Career Bridge
 JOB-04 — Scrap Yard / Wrecking Yard
+JOB-05 — BeamBook Marketplace
 JOB-06 — Import / Export Yard
 JOB-07 — Classics / Collector Exchange
 JOB-08 — Insurance / Finance / Garage / Storage Pages
@@ -41,7 +42,6 @@ JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 ```text
 JOB-00 — Coordinator / Integration / Verification
 JOB-03 — RedFox App Store / Play Store
-JOB-05 — BeamBook Marketplace
 ```
 
 ### Historical claim corrections
@@ -50,8 +50,8 @@ JOB-05 — BeamBook Marketplace
 - JOB-01 has two historical claim commits (`006f840` and `9106d3f`). The board recognizes one active JOB-01 lane only. Any chat later reassigned to JOB-02 or another job must not also work JOB-01.
 - JOB-03 has a claim file from a temporary reassignment, but commit `4a7d831` corrected that chat back to JOB-04 and restored JOB-03 to AVAILABLE.
 - JOB-04 had temporary assignment changes; commit `4a7d831` establishes the active Scrap Yard chat.
-- JOB-05 has no completed Git claim.
-- Git shows one active claim each for JOB-02, JOB-04, JOB-06, JOB-07, JOB-08, JOB-09, JOB-10, JOB-11, and JOB-12.
+- JOB-05 is claimed by the exact chat title `5 — JOB-05 — BeamBook Marketplace`. Claim record: `PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_CLAIM.md`; claim commit: `6426a95d0d058d0c12c1f63a0b37732b13b5d596`.
+- Git shows one active claim each for JOB-02, JOB-04, JOB-05, JOB-06, JOB-07, JOB-08, JOB-09, JOB-10, JOB-11, and JOB-12.
 - No active double ownership is authorized. If two chats believe they own the same job, both stop until David resolves it.
 
 ---
@@ -81,7 +81,7 @@ Do **not** renumber jobs based on how many chats David opens.
 | JOB-02 | Shared RLS / Career Bridge | CLAIMED | Claimed by Shared RLS / Career Bridge chat / Sol. |
 | JOB-03 | RedFox App Store / Play Store | AVAILABLE | Optional/deferred until the platform registry works. |
 | JOB-04 | Scrap Yard / Wrecking Yard | CLAIMED | Claimed by this Scrap Yard / Wrecking Yard chat / Sol. |
-| JOB-05 | BeamBook Marketplace | AVAILABLE | BeamBook chat has not completed a Git claim. |
+| JOB-05 | BeamBook Marketplace | CLAIMED | Claimed by `5 — JOB-05 — BeamBook Marketplace`; implementation waits for the frozen baseline and JOB-01/JOB-02/JOB-11 contracts. |
 | JOB-06 | Import / Export Yard | CLAIMED | Claimed by Import / Export Yard chat / Sol. |
 | JOB-07 | Classics / Collector Exchange | CLAIMED | Claimed by Classics / Collector Exchange chat / Sol. |
 | JOB-08 | Insurance / Finance / Garage / Storage Pages | CLAIMED | Claimed by Insurance / Finance / Garage / Storage Pages chat / Sol. |
@@ -96,6 +96,7 @@ Do **not** renumber jobs based on how many chats David opens.
 JOB-01 — Phone + PC Platform Core
 JOB-02 — Shared RLS / Career Bridge
 JOB-04 — Scrap Yard / Wrecking Yard
+JOB-05 — BeamBook Marketplace
 JOB-06 — Import / Export Yard
 JOB-07 — Classics / Collector Exchange
 JOB-08 — Insurance / Finance / Garage / Storage Pages
@@ -110,7 +111,6 @@ JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 ```text
 JOB-00 — Coordinator / Integration / Verification
 JOB-03 — RedFox App Store / Play Store
-JOB-05 — BeamBook Marketplace
 ```
 
 ---
@@ -127,7 +127,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-Already claimed: JOB-01 Phone + PC Platform Core, JOB-02 Shared RLS / Career Bridge, JOB-04 Scrap Yard / Wrecking Yard, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, JOB-11 QA / Logging / Failure Triage, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
+Already claimed: JOB-01 Phone + PC Platform Core, JOB-02 Shared RLS / Career Bridge, JOB-04 Scrap Yard / Wrecking Yard, JOB-05 BeamBook Marketplace, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, JOB-11 QA / Logging / Failure Triage, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -685,9 +685,26 @@ Future physical sell-zone appears only as a disabled/placeholder UI note until a
 
 ## JOB-05 — BeamBook Marketplace
 
-**Status:** AVAILABLE
+**Status:** CLAIMED  
+**Owner/chat title:** 5 — JOB-05 — BeamBook Marketplace  
+**Claim date:** 2026-07-13  
+**Implementation status:** BLOCKED pending JOB-00 frozen baseline and published JOB-01/JOB-02/JOB-11 contracts.
 
-Owns BeamBook web page, marketplace storefront, listing card UI, seller/profile/post feel, and better branding.
+Claim and coordination record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_CLAIM.md
+```
+
+Claim commit:
+
+```text
+6426a95d0d058d0c12c1f63a0b37732b13b5d596
+```
+
+Owns only the isolated BeamBook add-on: BeamBook web page, Facebook-style Wall/social presentation, Marketplace storefront, listing-card UI, seller/profile/post/comment feel, saved-listings/groups presentation, BeamBook-specific content/assets, and responsive phone/PC presentation for one canonical destination.
+
+JOB-05 must preserve the proven standalone `beamBook.zip` marketplace order of operations through the published shared contracts. It must not copy platform/bridge files, patch Career/RLS internals, create map-specific assumptions, or fake money, ownership, storage, garage, insurance, or purchase completion.
 
 ---
 
