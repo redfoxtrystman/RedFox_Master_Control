@@ -66,7 +66,7 @@ Do **not** renumber jobs based on how many chats David opens.
 | JOB-04 | Scrap Yard / Wrecking Yard | AVAILABLE | Online buy/sell page first. This is the work we were doing before reset, but it now needs its own job chat. |
 | JOB-05 | BeamBook Marketplace | AVAILABLE | BeamBook social/marketplace storefront. |
 | JOB-06 | Import / Export Yard | AVAILABLE | Import/export online page first. |
-| JOB-07 | Classics / Collector Exchange | AVAILABLE | Buy-now collector/classic page. |
+| JOB-07 | Classics / Collector Exchange | CLAIMED | Claimed by Classics / Collector Exchange chat / Sol. |
 | JOB-08 | Insurance / Finance / Garage / Storage Pages | AVAILABLE | Support/status pages only. |
 | JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED | Claimed by Tow/Recovery/Dispatch chat. |
 | JOB-10 | Visual Design / Real Website Polish | AVAILABLE | CSS/layout/art only. |
@@ -78,6 +78,7 @@ Do **not** renumber jobs based on how many chats David opens.
 ```text
 JOB-00 — Coordinator / Integration / Verification
 JOB-02 — Shared RLS / Career Bridge
+JOB-07 — Classics / Collector Exchange
 JOB-09 — Tow / Recovery / Dispatch Integration
 JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 ```
@@ -90,7 +91,6 @@ JOB-03 — RedFox App Store / Play Store
 JOB-04 — Scrap Yard / Wrecking Yard
 JOB-05 — BeamBook Marketplace
 JOB-06 — Import / Export Yard
-JOB-07 — Classics / Collector Exchange
 JOB-08 — Insurance / Finance / Garage / Storage Pages
 JOB-10 — Visual Design / Real Website Polish
 JOB-11 — QA / Logging / Failure Triage
@@ -109,7 +109,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-02 Shared RLS / Career Bridge, JOB-09 Tow / Recovery / Dispatch Integration, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
+Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-02 Shared RLS / Career Bridge, JOB-07 Classics / Collector Exchange, JOB-09 Tow / Recovery / Dispatch Integration, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -553,9 +553,19 @@ Owns online import/export vehicle page, decent vehicles, buy-now page first, and
 
 ## JOB-07 — Classics / Collector Exchange
 
-**Status:** AVAILABLE
+**Status:** CLAIMED  
+**Owner:** Classics / Collector Exchange chat / Sol  
+**Claim date:** 2026-07-13
 
 Owns buy-now collector/classic dealer page, old vehicles, classics, muscle, rare trims, and collector lots. No auction behavior for now.
+
+Claim and coordination record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-07_CLASSICS_COLLECTOR_EXCHANGE_CLAIM.md
+```
+
+JOB-07 will wait for the JOB-01 registration contract, JOB-02 shared purchase/data contract, JOB-03 manifest schema, and JOB-00 baseline approval before editing app code or building a ZIP.
 
 ---
 
