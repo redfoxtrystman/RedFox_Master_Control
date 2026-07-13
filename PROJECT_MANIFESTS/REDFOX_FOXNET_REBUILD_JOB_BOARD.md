@@ -9,7 +9,7 @@
 
 # READ THIS FIRST — OFFICIAL JOB IDS
 
-David has added a new job slot. The official job IDs are now:
+David has now defined all official job slots. The official job IDs are:
 
 ```text
 JOB-00 through JOB-12
@@ -37,13 +37,13 @@ Do **not** renumber jobs based on how many chats David opens.
 | JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED | Claimed by Tow/Recovery/Dispatch chat. |
 | JOB-10 | Visual Design / Real Website Polish | AVAILABLE | CSS/layout/art only. |
 | JOB-11 | QA / Logging / Failure Triage | AVAILABLE | Logging, testing matrix, failure reports. |
-| JOB-12 | Reserved New Job Slot / David Assignment Pending | BLOCKED | This is the new slot David said exists. Do not claim until David gives its exact scope/name. |
+| JOB-12 | SponsorHub / FoxMail / FoxText / Sponsor Rewards | CLAIMED | Claimed by Sponsor System chat / Sol. |
 
 ## Direct answers
 
 - `JOB-00` is Coordinator / Integration / Verification.
 - `JOB-09` is Tow / Recovery / Dispatch Integration.
-- `JOB-12` exists now, but it is **BLOCKED** until David names its scope. No chat may invent the scope of JOB-12.
+- `JOB-12` is **SponsorHub / FoxMail / FoxText / Sponsor Rewards** and is **CLAIMED** by the Sponsor System chat / Sol.
 
 ---
 
@@ -64,15 +64,13 @@ Use these first:
 7. `JOB-06` — Import / Export Yard
 8. `JOB-11` — QA / Logging / Failure Triage
 
-## Ideal setup before JOB-12 is named: 12 chats
+## Base setup without the Sponsor System job: 12 chats
 
 Use `JOB-00` through `JOB-11`.
 
-## Full setup after JOB-12 is named: 13 chats
+## Full setup: 13 chats
 
-Use `JOB-00` through `JOB-12`.
-
-Until David names `JOB-12`, it stays blocked and does not count as an assignable build job.
+Use `JOB-00` through `JOB-12`. JOB-12 is defined and already claimed.
 
 ---
 
@@ -89,7 +87,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-JOB-12 exists but is BLOCKED until David names its exact scope. Do not claim JOB-12 unless David explicitly assigns it.
+JOB-12 is SponsorHub / FoxMail / FoxText / Sponsor Rewards and is already CLAIMED by the Sponsor System chat. Do not claim it again.
 ```
 
 ---
@@ -111,7 +109,7 @@ Each chat must do this before building anything:
    - expected output.
 5. Do **not** edit outside the claimed job.
 6. Do **not** build an integrated ZIP until `JOB-00` approves integration.
-7. Do **not** claim `JOB-12` until David names its scope.
+7. Do **not** claim `JOB-12`; it is already owned by the Sponsor System chat.
 
 If a chat needs a shared file from another job, it must ask on GitHub and wait. It must not invent its own copy.
 
@@ -125,7 +123,7 @@ No chat may jump straight to building. It must inspect the baseline and list exa
 
 ## 2. One job, one scope
 
-A chat owns only its job. It may not fix phone, PC, bridge, app store, Scrap Yard, BeamBook, Import/Export, Classics, QA, visuals, tow, or future JOB-12 work unless that is its claimed job.
+A chat owns only its job. It may not fix phone, PC, bridge, app store, Scrap Yard, BeamBook, Import/Export, Classics, QA, visuals, tow, or SponsorHub/FoxMail/FoxText work unless that is its claimed job.
 
 ## 3. Do not hijack the phone or PC
 
@@ -190,9 +188,9 @@ Static checks do not prove BeamNG runtime. Do not write “fixed,” “working,
 
 Do not ship a “mostly passed” ZIP. If a required check fails, stop and report failure.
 
-## 12. JOB-12 is blocked until named
+## 12. JOB-12 is defined and already claimed
 
-No chat may make up what JOB-12 means. If David says the scope, `JOB-00` must update this board before any chat claims it.
+JOB-12 owns SponsorHub, FoxMail, FoxText, and Sponsor Rewards. These must register as add-on apps/pages through the shared platform contracts. JOB-12 must not replace the phone, PC, browser, App Store, shared bridge, Career systems, or other job-owned apps. FoxFax remains the vehicle-history/Carfax parody site and is not a messaging app.
 
 ---
 
@@ -297,8 +295,10 @@ Every job must log with clear prefixes:
 [RedFox][IMPORT_EXPORT]
 [RedFox][CLASSICS]
 [RedFox][TOW]
+[RedFox][SPONSOR]
+[RedFox][FOXMAIL]
+[RedFox][FOXTEXT]
 [RedFox][QA]
-[RedFox][JOB12]
 ```
 
 BeamNG log path seen in David’s setup:
@@ -512,7 +512,7 @@ Acceptance test:
 
 - Phone can open Store.
 - PC can open Store.
-- Store shows Scrap Yard, BeamBook, Import/Export, Classics, and future JOB-12 apps only if enabled.
+- Store shows Scrap Yard, BeamBook, Import/Export, Classics, SponsorHub, FoxMail, and FoxText only if installed/enabled.
 - Disabled apps do not appear in normal launcher unless Store says enabled.
 
 ---
@@ -723,25 +723,93 @@ Acceptance test:
 
 ---
 
-## JOB-12 — Reserved New Job Slot / David Assignment Pending
+## JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 
-**Status:** BLOCKED  
-**Reason:** David said there is now a job 12, but the exact scope/name was not defined in this board yet.
+**Status:** CLAIMED  
+**Claimed by:** Sponsor System chat / Sol  
+**Claim date:** 2026-07-13  
+**Claim record:** `PROJECT_MANIFESTS/JOB_CLAIMS/JOB-12_SPONSORHUB_FOXMAIL_FOXTEXT_CLAIM.md`
 
-This is an official job slot now, but it is not claimable until David gives it a name and scope.
+Goal: Build the sponsor communication and reward system as installable FoxNet/IceFox apps without taking over the shared phone, PC, browser, bridge, App Store, or Career systems.
 
-Rules for JOB-12:
+Owns:
 
-- Do not claim JOB-12 until David names it.
-- Do not invent its purpose.
-- Do not use JOB-12 as overflow work for another job.
-- Once David names it, JOB-00 must update this board with:
-  - goal,
-  - owns,
-  - may edit,
-  - must not edit,
-  - dependencies,
-  - acceptance test.
+- SponsorHub website/app.
+- FoxMail sponsor email page/app.
+- FoxText sponsor notification page/app.
+- Sponsor backend, editable sponsor registry, applications, offers, accept/decline flow, and contracts.
+- Sponsor XP, reputation, points, vehicle approvals, per-Career-vehicle sponsorship, and optional honor-system decal bonus.
+- Sponsor payouts and freeroam pending-reward wallet using approved Career bridge/payment calls only.
+- Approved drift, BeamHesi, and safe-driving sponsor earning integrations.
+- First guaranteed test sponsor: BeamNG GmbH Community Driver Program.
+
+May edit:
+
+- dedicated SponsorHub app-owned files,
+- dedicated FoxMail app-owned files,
+- dedicated FoxText app-owned files,
+- dedicated sponsor data/configuration files,
+- Sponsor-specific manifests after JOB-01 and JOB-03 publish the final conventions.
+
+Expected app-owned folders may resemble:
+
+```text
+apps/sponsorhub/
+apps/foxmail/
+apps/foxtext/
+sponsor_data/
+```
+
+Final paths must follow the published shared platform contract.
+
+Must not edit:
+
+- phone shell or launcher,
+- PC shell or browser core,
+- shared navigation or registry implementation,
+- App Store core,
+- shared RLS/Career bridge,
+- RLS core or stock Career modules,
+- vehicle shopping, inventory, money, garage, storage, or insurance implementations,
+- FoxFax, BeamBook, Scrap Yard, Import/Export, Classics, or other app-owned code.
+
+FoxFax remains the vehicle-history/Carfax parody site. It is not part of FoxMail or FoxText.
+
+Dependencies before integration:
+
+1. JOB-01 publishes the phone/PC registration and navigation contract.
+2. JOB-02 publishes the shared Career bridge/payment contract.
+3. JOB-03 publishes App Store manifest and permissions requirements.
+4. JOB-11 publishes the required logging and TXT/HTML verification format.
+
+Requested Sponsor communication events are proposals until JOB-01/JOB-02 approve their final names:
+
+```text
+RedFoxSponsorGetState
+RedFoxSponsorState
+RedFoxSponsorApply
+RedFoxSponsorAcceptOffer
+RedFoxSponsorDeclineOffer
+RedFoxSponsorAssignVehicle
+RedFoxSponsorSetDecalHonor
+RedFoxSponsorClaimReward
+RedFoxSponsorNewMail
+RedFoxSponsorNewText
+RedFoxSponsorPayoutRequested
+RedFoxSponsorPayoutResult
+```
+
+Acceptance test:
+
+- SponsorHub, FoxMail, and FoxText share one Sponsor-owned backend state.
+- One guaranteed BeamNG GmbH test offer appears exactly once.
+- Accept/decline state persists without duplicate rewards.
+- Pending rewards deposit once and clear only after confirmed Career-payment success.
+- Sponsor rewards use the approved shared bridge and never hand-roll Career money.
+- All IDs, events, storage keys, manifests, and paths are Sponsor-specific.
+- Package contains no protected phone, PC, browser, bridge, RLS, Career, or other app-owned files.
+- TXT and HTML verification reports, file tree, protected-file report, and unproven-runtime list are included.
+- BeamNG runtime remains unproven until David tests it.
 
 ---
 
@@ -757,7 +825,7 @@ Rules for JOB-12:
 8. `JOB-07` Classics builds page only.
 9. `JOB-08` and `JOB-09` connect support pages and tow links.
 10. `JOB-10` polishes visuals after functions are stable.
-11. `JOB-12` integrates only after David names it and the board is updated.
+11. `JOB-12` integrates SponsorHub/FoxMail/FoxText only after JOB-01, JOB-02, JOB-03, and JOB-11 publish their shared contracts.
 12. `JOB-00` approves final integration ZIP.
 
 ---
@@ -800,4 +868,4 @@ Stop immediately if a chat tries to:
 - ship without TXT and HTML reports,
 - ship with duplicate FoxNet paths unverified,
 - claim runtime success without David testing,
-- claim or define `JOB-12` without David’s exact scope.
+- claim JOB-12 again, edit its apps from another job, or use SponsorHub/FoxMail/FoxText to replace shared platform, bridge, or Career systems.
