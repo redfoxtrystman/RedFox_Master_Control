@@ -61,7 +61,7 @@ Do **not** renumber jobs based on how many chats David opens.
 |---|---|---|---|
 | JOB-00 | Coordinator / Integration / Verification | CLAIMED | Claimed by this control-room Coordinator chat / Sol. |
 | JOB-01 | Phone + PC Platform Core | AVAILABLE | Owns phone/PC app/page shells only. |
-| JOB-02 | Shared RLS / Career Bridge | AVAILABLE | Owns shared bridge contract only. |
+| JOB-02 | Shared RLS / Career Bridge | CLAIMED | Claimed by Shared RLS / Career Bridge chat / Sol. |
 | JOB-03 | RedFox App Store / Play Store | AVAILABLE | Owns install/enable/open/update app store. |
 | JOB-04 | Scrap Yard / Wrecking Yard | AVAILABLE | Online buy/sell page first. This is the work we were doing before reset, but it now needs its own job chat. |
 | JOB-05 | BeamBook Marketplace | AVAILABLE | BeamBook social/marketplace storefront. |
@@ -77,6 +77,7 @@ Do **not** renumber jobs based on how many chats David opens.
 
 ```text
 JOB-00 — Coordinator / Integration / Verification
+JOB-02 — Shared RLS / Career Bridge
 JOB-09 — Tow / Recovery / Dispatch Integration
 JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 ```
@@ -85,7 +86,6 @@ JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 
 ```text
 JOB-01 — Phone + PC Platform Core
-JOB-02 — Shared RLS / Career Bridge
 JOB-03 — RedFox App Store / Play Store
 JOB-04 — Scrap Yard / Wrecking Yard
 JOB-05 — BeamBook Marketplace
@@ -109,7 +109,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-09 Tow / Recovery / Dispatch Integration, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
+Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-02 Shared RLS / Career Bridge, JOB-09 Tow / Recovery / Dispatch Integration, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -488,11 +488,27 @@ Must not edit Scrap Yard page logic, BeamBook page logic, SponsorHub/FoxMail/Fox
 
 ## JOB-02 — Shared RLS / Career Bridge
 
-**Status:** AVAILABLE
+**Status:** CLAIMED  
+**Owner:** Shared RLS / Career Bridge chat / Sol  
+**Claim date:** 2026-07-13
 
 Owns career data requests, vehicle shopping data requests, open stock purchase menu requests, inventory/owned vehicle listing requests, online sell requests, approved sponsor/mail/text bridge messages after review, and logging prefixes.
 
 Must not create fake money, fake storage insert, hand-rolled vehicle spawn, custom Scrap Yard career module, or startup marketplace patch.
+
+Claim record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-02_SHARED_RLS_CAREER_BRIDGE_CLAIM.md
+```
+
+Required platform/app ownership handoff:
+
+```text
+PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-02_TO_JOB-01_AND_APP_CHATS_PLATFORM_BOUNDARIES.md
+```
+
+JOB-01 owns the phone/PC/browser/navigation/registry platform. JOB-02 owns the shared UI-to-Lua Career/RLS message contract. Individual app chats own only their assigned app/page and must use the published JOB-01 and JOB-02 contracts.
 
 ---
 
