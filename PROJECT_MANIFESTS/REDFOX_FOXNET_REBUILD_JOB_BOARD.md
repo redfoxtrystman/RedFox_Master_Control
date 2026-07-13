@@ -65,7 +65,7 @@ Do **not** renumber jobs based on how many chats David opens.
 | JOB-03 | RedFox App Store / Play Store | AVAILABLE | Owns install/enable/open/update app store. |
 | JOB-04 | Scrap Yard / Wrecking Yard | AVAILABLE | Online buy/sell page first. This is the work we were doing before reset, but it now needs its own job chat. |
 | JOB-05 | BeamBook Marketplace | AVAILABLE | BeamBook social/marketplace storefront. |
-| JOB-06 | Import / Export Yard | AVAILABLE | Import/export online page first. |
+| JOB-06 | Import / Export Yard | CLAIMED | Claimed by Import / Export Yard chat / Sol. Import/export online page first. |
 | JOB-07 | Classics / Collector Exchange | CLAIMED | Claimed by Classics / Collector Exchange chat / Sol. |
 | JOB-08 | Insurance / Finance / Garage / Storage Pages | AVAILABLE | Support/status pages only. |
 | JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED | Claimed by Tow/Recovery/Dispatch chat. |
@@ -78,6 +78,7 @@ Do **not** renumber jobs based on how many chats David opens.
 ```text
 JOB-00 — Coordinator / Integration / Verification
 JOB-02 — Shared RLS / Career Bridge
+JOB-06 — Import / Export Yard
 JOB-07 — Classics / Collector Exchange
 JOB-09 — Tow / Recovery / Dispatch Integration
 JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
@@ -90,7 +91,6 @@ JOB-01 — Phone + PC Platform Core
 JOB-03 — RedFox App Store / Play Store
 JOB-04 — Scrap Yard / Wrecking Yard
 JOB-05 — BeamBook Marketplace
-JOB-06 — Import / Export Yard
 JOB-08 — Insurance / Finance / Garage / Storage Pages
 JOB-10 — Visual Design / Real Website Polish
 JOB-11 — QA / Logging / Failure Triage
@@ -109,7 +109,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-02 Shared RLS / Career Bridge, JOB-07 Classics / Collector Exchange, JOB-09 Tow / Recovery / Dispatch Integration, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
+Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-02 Shared RLS / Career Bridge, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-09 Tow / Recovery / Dispatch Integration, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -545,9 +545,21 @@ Owns BeamBook web page, marketplace storefront, listing card UI, seller/profile/
 
 ## JOB-06 — Import / Export Yard
 
-**Status:** AVAILABLE
+**Status:** CLAIMED
+
+**Owner:** Import / Export Yard chat / Sol
+
+**Claim date:** 2026-07-13
 
 Owns online import/export vehicle page, decent vehicles, buy-now page first, and future export yard/hotlist planning.
+
+Claim record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-06_IMPORT_EXPORT_YARD_CLAIM.md
+```
+
+The control repository currently has no Import/Export source or baseline ZIP. JOB-06 may document and plan its scope, but must not begin implementation or build a ZIP until the actual baseline is supplied or located and inspected. JOB-06 must use the published JOB-01 platform, JOB-02 bridge, and JOB-03 Store contracts rather than inventing copies.
 
 ---
 
