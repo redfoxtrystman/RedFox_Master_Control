@@ -513,7 +513,13 @@ Make the supporting pages that make buying/selling feel complete.
 
 ## JOB-09 — Tow / Recovery / Dispatch Integration
 
-**Status:** AVAILABLE
+**Status:** CLAIMED  
+**Claimed by:** RedFox Tow & Recovery Dispatch chat (Sol)  
+**Claim date:** 2026-07-13
+
+### Hello to the other RedFox chats
+
+Hello, fellow RedFox chats. JOB-09 here. I own only tow/recovery/dispatch app links, recovery-job UI, and the future approved deliver-to-yard connection. I will not touch the phone/PC shell, shared Career bridge, App Store core, Scrap Yard core, Import/Export core, RLS files, or stock Career files. Please publish stable contracts and approved paths on this board; I will integrate against them only after the owning jobs are ready.
 
 ### Goal
 
@@ -524,16 +530,73 @@ Connect tow/recovery gameplay to Scrap Yard/Import Export later.
 - Tow call app links.
 - Recovery job UI.
 - Future “deliver to yard” flow.
+- Integration planning for catalog mod 19, permanent module ID `redfox_tow_recovery_dispatch`.
+
+### Files and folders this job will inspect
+
+- `PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md`
+- The four incident reports listed in this board before any FoxNet edit.
+- The selected catalog-19 Tow/Recovery baseline and its verification reports.
+- JOB-01 phone/PC registration contract when published.
+- JOB-02 shared RLS/Career bridge contract when published.
+- JOB-03 app manifest/store registration contract when published.
+- JOB-04 Scrap Yard and JOB-06 Import/Export approved delivery/deep-link contracts when published.
+- JOB-11 logging/test format when published.
+
+### Files and folders this job may edit
+
+- Standalone catalog-19 Tow/Recovery mod files only, including `lua/ge/extensions/redfoxTowRecoveryDispatch.lua`, its own input actions, its own RedFox module manifest, metadata, documentation, and verification reports.
+- A new job-scoped Tow/Recovery app directory only after JOB-01 and JOB-03 publish the approved registry and path. Expected scope: `ui/modModules/redfoxCareerWeb/sites/tow_recovery/`.
+- A Tow/Recovery app manifest entry only at the exact path and schema published by JOB-03.
+- This JOB-09 claim/status block in the job board.
+
+### Protected files and folders this job must not edit
+
+- Phone shell/app launcher files owned by JOB-01.
+- PC shell/browser/homepage files owned by JOB-01.
+- Shared bridge implementation files owned by JOB-02.
+- App Store core, shared registry implementation, and other apps' manifests owned by JOB-03.
+- Scrap Yard page/core files owned by JOB-04.
+- BeamBook files owned by JOB-05.
+- Import/Export page/core files owned by JOB-06.
+- Classics, insurance, finance, garage, storage, and shared visual-theme files.
+- RLS source, stock Career files, `career_modules_inventory`, or `career_modules_vehicleShopping`.
+- Any startup-loaded Scrap Yard or Tow career module.
+
+### Dependencies before building
+
+- JOB-01 must publish the shared phone/PC app registration and navigation contract.
+- JOB-02 must publish the shared RLS/Career bridge messages and data shapes.
+- JOB-03 must publish the app manifest/permissions/install contract.
+- JOB-04 and JOB-06 must define any approved yard delivery or deep-link endpoints.
+- JOB-11 must publish the shared logging and failure-report format.
+- No integrated FoxNet ZIP will be built until these dependencies are stable and JOB-00 approves integration.
 
 ### Must not do
 
 - Do not edit Scrap Yard core.
-- Do not create yard sell prop until JOB-04 and JOB-02 are stable.
+- Do not create a yard sell prop until JOB-04 and JOB-02 are stable.
+- Do not hijack or replace the phone, PC, shared bridge, RLS, money, inventory, garage, or storage systems.
+- Do not hand-roll Career money or ownership for FoxNet integration.
+- Do not claim live runtime success until David tests it in BeamNG.
+
+### Verification plan
+
+- Inspect and record the exact baseline before editing.
+- Produce a colored side-by-side baseline diff.
+- Scan all changed paths against the protected-file list.
+- Parse Lua with Lua 5.1 grammar and validate every JSON/manifest.
+- Verify permanent module ID, input actions, settings/state paths, and required Hub functions.
+- Verify no startup Career module, stock/RLS override, fake money, or Career-inventory insertion is packaged.
+- Reopen the final ZIP and verify root structure, file tree, duplicate paths, and required reports.
+- Include TXT and HTML verification reports and clearly list unproven runtime items.
 
 ### Acceptance test
 
 - App/page exists and can deep-link later.
 - No shared file conflicts.
+- Standalone Tow/Recovery gameplay continues to use normal Career payment APIs and separate temporary-yard state.
+- Phone and PC links use the same shared contract without modifying either shell.
 
 ---
 
