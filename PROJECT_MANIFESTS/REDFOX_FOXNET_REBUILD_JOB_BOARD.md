@@ -799,6 +799,95 @@ PROJECT_MANIFESTS/JOB_CLAIMS/JOB-11_QA_LOGGING_FAILURE_TRIAGE_CLAIM.md
 7. Mark the result PASS, FAIL/STOP, BLOCKED, or RUNTIME UNPROVEN.
 8. Never mark runtime fixed until David's BeamNG test proves it.
 
+### What JOB-11 needs from the other chats
+
+JOB-11 cannot test guesses. Every owning chat must publish its contract and an evidence handoff before asking JOB-11 to validate its work.
+
+| Job(s) | Required handoff to JOB-11 |
+|---|---|
+| JOB-00 — Coordinator | Name the canonical baseline and release candidate, integration order, acceptance criteria, blocked jobs, approved exceptions, and exact package that may advance. Resolve ownership disputes; JOB-11 reports them but does not decide them. |
+| JOB-01 — Phone + PC Platform Core | Publish the detected RLS/BeamNG phone and PC owners, protected core-file list, plugin/registration API, platform version, manifest-facing fields, navigation/theme/event APIs, removal behavior, expected log messages, and a minimal example app. |
+| JOB-02 — Shared RLS / Career Bridge | Publish the versioned message names, request/result payload schemas, validation and error codes, capability handshake, UI-to-Lua route, stock/RLS functions used, expected logs, and test fixtures. Phone and PC must use the same contract. |
+| JOB-03 — RedFox App Store / Play Store | Publish the manifest schema, permission meanings, app-ID rules, install/enable/disable/open/update state behavior, persistence locations, compatibility rules, removal behavior, and expected Store logs. |
+| JOB-04 through JOB-09 and JOB-12 — Feature/app jobs | Provide the exact Job ID, app/page ID, version, baseline, files changed, protected files, entry points, manifest, permissions, dependencies, messages/events used, expected phone and PC behavior, negative tests, removal test, known limitations, expected logs, and required reports. Do not include copied platform cores. |
+| JOB-10 — Visual Design / Real Website Polish | Identify exact CSS/assets/templates changed, supported phone/PC sizes, expected responsive results, before/after evidence, accessibility/contrast checks, and proof that IDs, events, bridge behavior, and app ownership were not changed. |
+
+### Required QA intake packet from every build-producing chat
+
+Before JOB-11 begins a full review, the owning chat must provide one GitHub handoff containing:
+
+~~~text
+Job ID and owner:
+Candidate name and version:
+Git commit/branch:
+Baseline package and version:
+Exact ZIP name, size, and SHA-256:
+Complete files added/changed/removed:
+Protected files confirmed untouched:
+App/site IDs and entry points:
+Manifest path and declared permissions:
+Platform API version required:
+Bridge API version required:
+Messages/events sent and received:
+Install, enable, disable, open, update, and removal instructions:
+Exact phone test and expected result:
+Exact PC test and expected result:
+Negative/error tests and expected result:
+Expected RedFox log prefixes/messages:
+Known limitations:
+Runtime-unproven items:
+Required TXT/HTML/JSON/CSV/file-tree report paths:
+~~~
+
+If a field does not apply, the chat must write `N/A` and explain why. Blank fields, “same as before,” and undocumented runtime changes are not valid evidence.
+
+### Shared test gates
+
+1. **Gate 0 — Ownership:** Job is claimed; files belong to that job; dependencies and protected files are named.
+2. **Gate 1 — Static/package:** ZIP opens; structure is correct; reports exist; hashes/file inventory match; no prohibited module, copied core, duplicate ID, or collision is found.
+3. **Gate 2 — Contract/integration:** Manifest, platform API, shared events, and JOB-02 messages match their published versions; removal does not overwrite or delete shared systems.
+4. **Gate 3 — BeamNG runtime:** David tests the exact candidate with one FoxNet/Web Ecosystem ZIP installed and returns steps, timestamps, result, and logs.
+5. **Gate 4 — Regression/removal:** Existing phone, PC, RLS apps, FoxNet sites, enable/disable/update, and clean removal still behave as expected.
+
+Allowed JOB-11 verdicts:
+
+~~~text
+PASS — all required static and supplied runtime checks passed
+FAIL/STOP — a required check failed; do not ship
+BLOCKED — required contract, artifact, dependency, or evidence is missing
+RUNTIME UNPROVEN — static checks passed but David has not proven runtime in BeamNG
+~~~
+
+`RUNTIME UNPROVEN` is not a failure and is not permission to call the feature fixed.
+
+### Failure return loop
+
+When JOB-11 finds a failure:
+
+1. JOB-11 records the candidate identity, reproduction steps, expected result, actual result, first provable failing layer, timestamps, log evidence, severity, and owning job.
+2. The owning job fixes only its own implementation and publishes a new version with a changelog.
+3. JOB-11 tests the new candidate from Gate 1 onward and repeats earlier regression checks affected by the change.
+4. JOB-00 alone decides whether the candidate advances to integration.
+
+JOB-11 will not silently patch another chat's code, approve an artifact with missing evidence, or move a failure to a different job without proof.
+
+### Current dependencies and blockers
+
+JOB-11 can create shared templates and static checks immediately. Complete integration testing is blocked until:
+
+- JOB-01 publishes the phone/PC platform and plugin-registration contract.
+- JOB-02 publishes the versioned Career/RLS bridge contract and expected logs.
+- JOB-03 publishes the Store manifest/install-state contract.
+- Each app/page job submits the required QA intake packet and test candidate.
+- David supplies BeamNG runtime results and logs for the exact candidate.
+
+These are normal dependencies, not permission for JOB-11 to take over another job.
+
+### JOB-11 verification and edit trail
+
+- **2026-07-13 13:10:04 PDT — Live verification:** Verified on GitHub `main` that the official JOB-11 row and JOB-11 section both say `CLAIMED`, owner is `QA / Logging / Failure Triage chat / Sol`, the job number remains `JOB-11`, and JOB-11 is not marked available. Verification read board blob `dd109404103c0d83441b39e03157ccbaa5aa99e8`.
+- **2026-07-13 13:10:04 PDT — Section-only documentation edit:** Added other-chat handoff requirements, the QA intake packet, test gates, failure return loop, and current dependencies inside JOB-11 only. No other job section, number, name, status, owner, or implementation file was changed. Reason: David requested a clear audit trail and the inputs JOB-11 needs to make the rebuild testable.
+
 ---
 
 ## JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
