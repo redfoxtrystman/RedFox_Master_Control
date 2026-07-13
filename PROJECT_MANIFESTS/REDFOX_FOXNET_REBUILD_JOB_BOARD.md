@@ -552,6 +552,15 @@ PROJECT_MANIFESTS/JOB_HANDOFFS/OWNER_TO_JOB-01_PHONE_PC_FIRST_WORKING_MILESTONE_
 
 JOB-01 must follow this handoff for baseline intake, shared phone/PC destination design, PC IceFox registration, map-independent routing, deliverables, and the first acceptance gate.
 
+New cross-chat source intake and Better Career/RLS assessment:
+
+```text
+PROJECT_MANIFESTS/REDFOX_FOXNET_REFERENCE_SOURCE_DROP_2026-07-13.md
+PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-01_BETTER_CAREER_PHONE_PC_RLS_REUSE_ASSESSMENT_2026-07-13.md
+```
+
+These records inventory David's supplied reference files, quarantine the corrupt Sponsor ZIP, flag public redistribution holds, and separate reusable phone/PC behavior from JOB-02-owned Career/RLS transactions and missions. They do not approve a runtime baseline or claim any mod works.
+
 ---
 
 ## JOB-02 — Shared RLS / Career Bridge
