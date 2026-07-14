@@ -24,6 +24,7 @@ Central-board rule: do not write “this chat / Sol” as an owner without the e
 ### Active claimed jobs
 
 ```text
+JOB-00 — Coordinator / Integration / Verification
 JOB-01 — Phone + PC Platform Core
 JOB-02 — Shared RLS / Career Bridge
 JOB-03 — RedFox App Store / Play Store
@@ -32,7 +33,6 @@ JOB-05 — BeamBook Marketplace
 JOB-06 — Import / Export Yard
 JOB-07 — Classics / Collector Exchange
 JOB-08 — Insurance / Finance / Garage / Storage Pages
-JOB-09 — Tow / Recovery / Dispatch Integration
 JOB-10 — Visual Design / Real Website Polish
 JOB-11 — QA / Logging / Failure Triage
 JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
@@ -41,17 +41,18 @@ JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 ### Unclaimed jobs
 
 ```text
-JOB-00 — Coordinator / Integration / Verification
+JOB-09 — Tow / Recovery / Dispatch Integration
 ```
 
 ### Historical claim corrections
 
-- JOB-00 was temporarily claimed in commit `2d220d6`, then explicitly released/corrected back to AVAILABLE in commit `4a7d831`.
+- JOB-00 was temporarily claimed in commit `2d220d6`, released in `4a7d831`, and is now officially claimed by the central coordination chat after David confirmed that coordinating this rebuild is this chat's actual job. Active claim record: `PROJECT_MANIFESTS/JOB_CLAIMS/JOB-00_COORDINATOR_INTEGRATION_VERIFICATION_CLAIM.md`; claim commit: `e6f4b2845f922c6dc8ba4a13a8ccccfea404f749`.
 - JOB-01 has two historical claim commits (`006f840` and `9106d3f`). The board recognizes one active JOB-01 lane only. Any chat later reassigned to JOB-02 or another job must not also work JOB-01.
 - JOB-03's earlier temporary claim was released, but David later assigned a dedicated JOB-03 chat. Active claim record: `PROJECT_MANIFESTS/JOB_CLAIMS/JOB-03_REDFOX_APP_STORE_PLAY_STORE_CLAIM.md`; claim commit: `cdd7d875dd053caa73b4ea1ebc253d07518bab2a`.
 - JOB-04 had temporary assignment changes; commit `4a7d831` establishes the active Scrap Yard chat.
 - JOB-05 is claimed by the exact chat title `5 — JOB-05 — BeamBook Marketplace`. Claim record: `PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_CLAIM.md`; claim commit: `6426a95d0d058d0c12c1f63a0b37732b13b5d596`.
-- Git shows one active claim each for JOB-02, JOB-03, JOB-04, JOB-05, JOB-06, JOB-07, JOB-08, JOB-09, JOB-10, JOB-11, and JOB-12.
+- JOB-09's earlier claim was released when David confirmed that the same chat is actually JOB-00. JOB-09 is AVAILABLE for a separate Tow / Recovery / Dispatch chat.
+- Git shows one active claim each for JOB-00, JOB-01, JOB-02, JOB-03, JOB-04, JOB-05, JOB-06, JOB-07, JOB-08, JOB-10, JOB-11, and JOB-12.
 - No active double ownership is authorized. If two chats believe they own the same job, both stop until David resolves it.
 
 ---
@@ -76,7 +77,7 @@ Do **not** renumber jobs based on how many chats David opens.
 
 | Job ID | Job name | Status | Owner / notes |
 |---|---|---|---|
-| JOB-00 | Coordinator / Integration / Verification | AVAILABLE | Needs one dedicated coordinator chat now. |
+| JOB-00 | Coordinator / Integration / Verification | CLAIMED | Claimed by the central RedFox FoxNet coordination chat / Sol. |
 | JOB-01 | Phone + PC Platform Core | CLAIMED | One active Phone + PC Platform Core chat; historical duplicate claim is not a second active owner. |
 | JOB-02 | Shared RLS / Career Bridge | CLAIMED | Claimed by Shared RLS / Career Bridge chat / Sol. |
 | JOB-03 | RedFox App Store / Play Store | CLAIMED | Claimed by JOB-03 App Store chat; implementation remains deferred until JOB-01 publishes the platform registry. |
@@ -85,7 +86,7 @@ Do **not** renumber jobs based on how many chats David opens.
 | JOB-06 | Import / Export Yard | CLAIMED | Claimed by Import / Export Yard chat / Sol. |
 | JOB-07 | Classics / Collector Exchange | CLAIMED | Claimed by Classics / Collector Exchange chat / Sol. |
 | JOB-08 | Insurance / Finance / Garage / Storage Pages | CLAIMED | Claimed by Insurance / Finance / Garage / Storage Pages chat / Sol. |
-| JOB-09 | Tow / Recovery / Dispatch Integration | CLAIMED | Claimed by Tow/Recovery/Dispatch chat. |
+| JOB-09 | Tow / Recovery / Dispatch Integration | AVAILABLE | Released when its former chat was confirmed as JOB-00; needs a dedicated Tow/Recovery chat. |
 | JOB-10 | Visual Design / Real Website Polish | CLAIMED | Claimed by Visual Design / Real Website Polish chat / Sol. |
 | JOB-11 | QA / Logging / Failure Triage | CLAIMED | Claimed by QA / Logging / Failure Triage chat / Sol. |
 | JOB-12 | SponsorHub / FoxMail / FoxText / Sponsor Rewards | CLAIMED | Claimed by Sponsor System chat. |
@@ -93,6 +94,7 @@ Do **not** renumber jobs based on how many chats David opens.
 ## Taken right now
 
 ```text
+JOB-00 — Coordinator / Integration / Verification
 JOB-01 — Phone + PC Platform Core
 JOB-02 — Shared RLS / Career Bridge
 JOB-03 — RedFox App Store / Play Store
@@ -101,7 +103,6 @@ JOB-05 — BeamBook Marketplace
 JOB-06 — Import / Export Yard
 JOB-07 — Classics / Collector Exchange
 JOB-08 — Insurance / Finance / Garage / Storage Pages
-JOB-09 — Tow / Recovery / Dispatch Integration
 JOB-10 — Visual Design / Real Website Polish
 JOB-11 — QA / Logging / Failure Triage
 JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
@@ -110,7 +111,7 @@ JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 ## Available right now
 
 ```text
-JOB-00 — Coordinator / Integration / Verification
+JOB-09 — Tow / Recovery / Dispatch Integration
 ```
 
 ---
@@ -127,7 +128,7 @@ Pick exactly one AVAILABLE job ID. Do not edit outside your job. Do not build a 
 
 Hard rules: phone and PC must use the same shared bridge contract; apps/pages install into existing phone/PC like real apps/pages; no startup career modules; no hand-rolled money/storage/garage; no duplicate FoxNet ZIPs; include TXT + HTML verification reports; log with the shared RedFox prefixes.
 
-Already claimed: JOB-01 Phone + PC Platform Core, JOB-02 Shared RLS / Career Bridge, JOB-03 RedFox App Store / Play Store, JOB-04 Scrap Yard / Wrecking Yard, JOB-05 BeamBook Marketplace, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-09 Tow / Recovery / Dispatch Integration, JOB-10 Visual Design / Real Website Polish, JOB-11 QA / Logging / Failure Triage, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
+Already claimed: JOB-00 Coordinator / Integration / Verification, JOB-01 Phone + PC Platform Core, JOB-02 Shared RLS / Career Bridge, JOB-03 RedFox App Store / Play Store, JOB-04 Scrap Yard / Wrecking Yard, JOB-05 BeamBook Marketplace, JOB-06 Import / Export Yard, JOB-07 Classics / Collector Exchange, JOB-08 Insurance / Finance / Garage / Storage Pages, JOB-10 Visual Design / Real Website Polish, JOB-11 QA / Logging / Failure Triage, and JOB-12 SponsorHub / FoxMail / FoxText / Sponsor Rewards. Do not claim those again.
 ```
 
 ---
@@ -501,21 +502,32 @@ sponsorRewards
 
 ## JOB-00 — Coordinator / Integration / Verification
 
-**Status:** AVAILABLE  
-**Owner:** none assigned here. This chat is JOB-04, not JOB-00.
+**Status:** CLAIMED  
+**Owner:** central RedFox FoxNet coordination chat / Sol  
+**Claim date:** 2026-07-13  
+**Previous assignment:** JOB-09 released; this chat does not hold two jobs.
 
-Owns assignments, this board, integration order, final ZIP approval, verification report enforcement, failure/incident reports, and blocking chats that edit outside scope.
+Claim record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-00_COORDINATOR_INTEGRATION_VERIFICATION_CLAIM.md
+```
+
+Owns neutral assignments, this board, baseline freeze, integration order, contract/handoff tracking, final ZIP approval, verification enforcement, failure/incident reports, truth-status enforcement, and blocking chats that edit outside scope.
 
 May edit:
 
 ```text
 PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md
+PROJECT_MANIFESTS/REDFOX_FOXNET_START_ORDER_SHARED_ARCHITECTURE_DIRECTIVE_2026-07-13.md
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-00_*
+PROJECT_MANIFESTS/JOB_HANDOFFS/OWNER_*
 PROJECT_MANIFESTS/*FoxNet*
 INCIDENT_REPORTS/*
-final handoff/readme files
+final integration handoff/readme/report files
 ```
 
-Must not edit app code unless doing final approved integration.
+Must not implement app/feature code unless David authorizes final integration work. JOB-00 is the foreman and verifier, not another feature mechanic.
 
 ---
 
@@ -785,10 +797,13 @@ JOB-08 will not edit runtime files or build a ZIP until the exact baseline and J
 
 ## JOB-09 — Tow / Recovery / Dispatch Integration
 
-**Status:** CLAIMED  
-**Owner:** Tow/Recovery/Dispatch chat.
+**Status:** AVAILABLE  
+**Owner:** none currently assigned  
+**Release date:** 2026-07-13
 
-Owns tow call app links, recovery job UI, future deliver-to-yard flow, and standalone catalog-19 Tow/Recovery mod files if that chat owns them.
+The earlier JOB-09 claim was released when David confirmed that its chat is actually the central JOB-00 Coordinator. Earlier JOB-09 notes remain historical only; no active Tow/Recovery implementation ownership transfers to JOB-00.
+
+A new JOB-09 chat must claim this job before working on tow call app links, recovery job UI, future deliver-to-yard flow, or catalog-19 Tow/Recovery integration.
 
 ---
 
@@ -1005,7 +1020,7 @@ Required log prefixes:
 
 Do not build everything at once. Full requirements are in `PROJECT_MANIFESTS/REDFOX_FOXNET_START_ORDER_SHARED_ARCHITECTURE_DIRECTIVE_2026-07-13.md`.
 
-1. Claim `JOB-00` and freeze one exact baseline.
+1. `JOB-00` freezes one exact baseline and maintains the neutral integration board.
 2. `JOB-11` publishes the shared test matrix and truth-status evidence rules.
 3. `JOB-01` and `JOB-02` publish the shared platform/route and Career/RLS bridge contracts.
 4. Build the first functional slice: existing phone IceFox + new PC IceFox → the same canonical destination on West Coast and a non-West-Coast map.
