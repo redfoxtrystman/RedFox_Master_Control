@@ -72,3 +72,23 @@ No runtime mod source, RLS files, phone/PC files, generated builds, or other job
 ## Audit trail rule
 
 Future updates must append dated notes or make traceable commits. Do not rewrite this incident into a generic outage note, remove the criticism, minimize the impact, or present the manual migration as ordinary planned work.
+
+## JOB-05 migration note — 2026-07-14 12:43 PDT
+
+**Job:** JOB-05 — BeamBook Marketplace  
+**Change:** Transferred active development ownership from the inaccessible Work chat to a replacement regular chat and created a job-specific recovery record.  
+**Why:** The original Work chat was inaccessible because of the separate Work-chat usage limit, so continuity had to be reconstructed from GitHub and limited available project context.  
+**Files affected:**
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_CLAIM.md
+PROJECT_MANIFESTS/JOB_HANDOFFS/OWNER_ALL_JOBS_REGULAR_CHAT_MIGRATION_STATUS_2026-07-14.md
+INCIDENT_REPORTS/2026-07-14_CHATGPT_WORK_CHAT_LIMIT_PROJECT_MIGRATION.md
+```
+
+**Current status:** MIGRATED TO REGULAR CHAT — STANDALONE v0.1.0 BUILT — RUNTIME UNTESTED.  
+**Known problems:** The shared link could not be fetched; complete chat-only context is not recovered; the exact candidate has no recorded BeamNG/RLS runtime test; shared IceFox phone/PC integration remains blocked.  
+**Required next step:** Test `PROJECT_RELEASE_CANDIDATES/JOB-05/5-RedFox_BeamBook_Standalone_v0_1_0_RUNTIME_UNTESTED.zip` with the original third-party `beamBook.zip` disabled, then preserve the `[RedFox][BEAMBOOK]` logs and screenshots of each discovery/purchase checkpoint.
+
+This note does not minimize the interruption. Manual migration was required because the project was unintentionally subject to the Work-chat usage limit, producing duplicate-work risk, loss-of-context risk, coordination problems, and unnecessary delay.
