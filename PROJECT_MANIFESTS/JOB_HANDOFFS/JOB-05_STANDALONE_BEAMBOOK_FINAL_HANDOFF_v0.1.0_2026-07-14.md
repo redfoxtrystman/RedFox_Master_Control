@@ -12,8 +12,8 @@
 5-RedFox_BeamBook_Standalone_v0_1_0_RUNTIME_UNTESTED.zip
 ```
 
-- Size: **5,098,718 bytes**
-- SHA-256: `f33b06ffb10246b596646e2e5a6a580a4bddce00410c3f7231501d2f25152349`
+- Size: **565,280 bytes**
+- SHA-256: `1ba7933b39f4897ca22158dc27ca591ad4ec5109b01bd05a1ca7d3072d2361d8`
 - Packaged files: **28**
 - ZIP integrity: **PASS**
 - Extracted inventory/hash comparison: **PASS**
@@ -43,7 +43,7 @@ GitHub candidate path:
 - explicit current-map private-seller inspection handoff;
 - clear no-purchase state for unmapped props/catalog posts;
 - required TXT, HTML, JSON, CSV, tree, logging, scope and provenance reports;
-- PC/phone static preview evidence.
+- PC/phone static preview evidence, compressed inside the mod so the exact verified ZIP can be mirrored as one GitHub file.
 
 ## Safety boundary
 
