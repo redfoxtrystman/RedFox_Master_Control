@@ -82,7 +82,7 @@ Do **not** renumber jobs based on how many chats David opens.
 | JOB-02 | Shared RLS / Career Bridge | CLAIMED | Claimed by Shared RLS / Career Bridge chat / Sol. |
 | JOB-03 | RedFox App Store / Play Store | CLAIMED | Claimed by JOB-03 App Store chat; implementation remains deferred until JOB-01 publishes the platform registry. |
 | JOB-04 | Scrap Yard / Wrecking Yard | CLAIMED | Claimed by this Scrap Yard / Wrecking Yard chat / Sol. |
-| JOB-05 | BeamBook Marketplace | CLAIMED — STANDALONE TEST IN PROGRESS | David authorized one isolated key-opened/WEUI standalone test on 2026-07-14; shared IceFox phone/PC integration still waits for JOB-01/JOB-02/JOB-11 contracts. |
+| JOB-05 | BeamBook Marketplace | CLAIMED — STANDALONE v0.1.0 BUILT — RUNTIME UNTESTED | Exact candidate SHA-256 `1ba7933b39f4897ca22158dc27ca591ad4ec5109b01bd05a1ca7d3072d2361d8`; awaiting David test. Shared IceFox phone/PC integration still waits for contracts. |
 | JOB-06 | Import / Export Yard | CLAIMED | Claimed by Import / Export Yard chat / Sol. |
 | JOB-07 | Classics / Collector Exchange | CLAIMED | Claimed by Classics / Collector Exchange chat / Sol. |
 | JOB-08 | Insurance / Finance / Garage / Storage Pages | CLAIMED | Claimed by Insurance / Finance / Garage / Storage Pages chat / Sol. |
@@ -122,6 +122,10 @@ David authorized JOB-05 to build one isolated temporary BeamBook test mod before
 Plan and evidence: `PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-05_STANDALONE_BEAMBOOK_TEST_PLAN_2026-07-14.md`
 
 This override does not approve integrated IceFox phone/PC routing. Runtime remains unproven until David tests the exact package.
+
+Final candidate: `PROJECT_RELEASE_CANDIDATES/JOB-05/5-RedFox_BeamBook_Standalone_v0_1_0_RUNTIME_UNTESTED.zip`  
+SHA-256: `1ba7933b39f4897ca22158dc27ca591ad4ec5109b01bd05a1ca7d3072d2361d8`  
+Final handoff: `PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-05_STANDALONE_BEAMBOOK_FINAL_HANDOFF_v0.1.0_2026-07-14.md`
 
 ---
 
@@ -725,7 +729,7 @@ Future physical sell-zone appears only as a disabled/placeholder UI note until a
 
 ## JOB-05 — BeamBook Marketplace
 
-**Status:** CLAIMED — OWNER-AUTHORIZED STANDALONE TEST IN PROGRESS — SHARED ICEFOX INTEGRATION BLOCKED  
+**Status:** CLAIMED — STANDALONE v0.1.0 BUILT — RUNTIME UNTESTED — SHARED ICEFOX INTEGRATION BLOCKED  
 **Owner/chat title:** 5 — JOB-05 — BeamBook Marketplace  
 **Claim date:** 2026-07-13  
 **Implementation status:** BLOCKED pending JOB-00 frozen baseline and published JOB-01/JOB-02/JOB-11 contracts.
