@@ -11,6 +11,32 @@ JOB-01 must read the shared directive, the main job board, JOB-02's platform/bri
 
 ---
 
+# Owner status update — first build reported
+
+**David report:** The first JOB-01 version has been built but has not been tested in BeamNG.
+
+**Official status:** **BUILT — RUNTIME UNTESTED / GIT BUILD HANDOFF MISSING**
+
+Git inspection found the JOB-01 claim and owner instructions, but no current JOB-01 build/source commit, build report, ZIP record, or test handoff.
+
+Before David tests, JOB-01 must commit:
+
+1. exact build/ZIP filename and version,
+2. exact baseline used,
+3. exact files added/changed,
+4. exact protected files confirmed unchanged,
+5. source or patch corresponding to the build,
+6. archive hash and file inventory,
+7. static verification results,
+8. installation instructions,
+9. removal/rollback instructions,
+10. exact first test steps and expected logs,
+11. every known limitation and unproven runtime item.
+
+JOB-01 must not mark the build working, fixed, done, or safe. The next status is determined only by David's BeamNG test.
+
+---
+
 # David's required outcome
 
 David currently has:
