@@ -40,7 +40,7 @@ BLOCKED — OLD LINK OR JOB ID MISSING
 | JOB-02 | Shared RLS / Career Bridge | NOT YET MIGRATED | Needs replacement regular chat, old share link, claim update, recovery report, and exact file request. |
 | JOB-03 | RedFox App Store / Play Store | NOT YET MIGRATED | Needs replacement regular chat, old share link, claim update, recovery report, and exact file request. |
 | JOB-04 | Scrap Yard / Wrecking Yard | NOT YET MIGRATED | Needs replacement regular chat, old share link, claim update, recovery report, and exact file request. |
-| JOB-05 | BeamBook Marketplace | NOT YET MIGRATED | Needs replacement regular chat, old share link, claim update, recovery report, and exact file request. Preserve the GitHub standalone v0.1.0 runtime-untested record. |
+| JOB-05 | BeamBook Marketplace | MIGRATED — GitHub claim and recovery record complete | Regular-chat takeover accepted 2026-07-14 12:43 PDT. Old link: `https://chatgpt.com/share/6a5690e6-a5fc-83e8-ab78-5ea80ad87da7`. Evidence: `PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_REGULAR_CHAT_TAKEOVER_2026-07-14.md`. Recovery: PARTIAL/GITHUB-RECOVERED. No binary reupload is required before testing the exact v0.1.0 candidate; next action is BeamNG/RLS runtime testing and logs. |
 | JOB-06 | Import / Export Yard | NOT YET MIGRATED | Needs replacement regular chat, old share link, claim update, recovery report, and exact file request. |
 | JOB-07 | Classics / Collector Exchange | NOT YET MIGRATED | Needs replacement regular chat, old share link, claim update, recovery report, and exact file request. |
 | JOB-08 | Insurance / Finance / Garage / Storage Pages | NOT YET MIGRATED | Needs replacement regular chat, old share link, claim update, recovery report, and exact file request. |
@@ -96,3 +96,4 @@ Do not mark a job migrated solely because a replacement chat was opened.
 
 - **2026-07-14 11:11 PDT — JOB-00:** Created the tracker after completing the JOB-00 regular-chat GitHub takeover.
 - **2026-07-14 11:11 PDT — JOB-09:** Recorded David's report that a replacement regular chat exists; GitHub takeover remains unverified and is not marked complete.
+- **2026-07-14 12:43 PDT — JOB-05:** Marked BeamBook Marketplace migrated after the regular chat accepted the exact job, created a recovery/takeover record, preserved standalone v0.1.0 as runtime untested, documented shared-link limitations, and identified the exact next runtime evidence.
