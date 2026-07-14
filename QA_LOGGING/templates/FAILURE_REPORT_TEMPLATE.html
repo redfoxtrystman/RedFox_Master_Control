@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RedFox/FoxNet JOB-11 Failure Report Template</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:1100px;margin:2rem auto;padding:0 1rem;line-height:1.45}h1,h2{line-height:1.15}section{border:1px solid #bbb;border-radius:.5rem;padding:1rem;margin:1rem 0}dl{display:grid;grid-template-columns:minmax(220px,32%) 1fr;gap:.45rem .8rem}dt{font-weight:700}dd{margin:0;min-height:1.5rem;border-bottom:1px dotted #999}pre{white-space:pre-wrap;border:1px solid #bbb;padding:.75rem;min-height:8rem}.warning{font-weight:700}footer{font-size:.9rem;border-top:1px solid #bbb;margin-top:2rem;padding-top:1rem}
+</style>
+</head>
+<body>
+<h1>RedFox/FoxNet JOB-11 Failure Report</h1>
+<p><strong>Template date:</strong> 2026-07-14<br><strong>Owner:</strong> JOB-11 — QA / Logging / Failure Triage<br><strong>Status:</strong> PUBLISHED v1</p>
+<p class="warning">Do not call a candidate fixed, working, safe, or done without exact-candidate BeamNG evidence. A static PASS is not a runtime PASS.</p>
+
+<section><h2>1. Test and candidate identity</h2><dl>
+<dt>Report ID</dt><dd></dd><dt>Test ID</dt><dd></dd><dt>Date/time/timezone</dt><dd></dd><dt>Tester</dt><dd></dd><dt>Owning JOB</dt><dd></dd><dt>Candidate name/version</dt><dd></dd><dt>Candidate ZIP filename</dt><dd></dd><dt>Candidate size</dt><dd></dd><dt>Candidate SHA-256</dt><dd></dd><dt>Git commit/branch</dt><dd></dd><dt>Baseline name/size/hash</dt><dd></dd><dt>Dependencies and hashes</dt><dd></dd><dt>BeamNG version</dt><dd></dd><dt>Mode/save/map</dt><dd></dd><dt>Resolution/UI scale</dt><dd></dd><dt>Installed-package fingerprint</dt><dd></dd>
+</dl></section>
+
+<section><h2>2. Scope and expectation</h2><dl>
+<dt>Feature/action</dt><dd></dd><dt>Destination/app/site/route ID</dt><dd></dd><dt>Platform API</dt><dd></dd><dt>Bridge API</dt><dd></dd><dt>Manifest schema</dt><dd></dd><dt>Expected result</dt><dd></dd><dt>Expected logs</dt><dd></dd><dt>Protected files</dt><dd></dd>
+</dl></section>
+
+<section><h2>3. Reproduction</h2><p><strong>Preconditions</strong></p><pre></pre><p><strong>Exact steps</strong></p><pre></pre><dl><dt>Consistent?</dt><dd>YES / NO / UNKNOWN</dd><dt>Attempts/results</dt><dd></dd></dl></section>
+
+<section><h2>4. Actual result</h2><dl>
+<dt>Visible result</dt><dd></dd><dt>Data/state result</dt><dd></dd><dt>Failure type</dt><dd></dd><dt>First failure timestamp</dt><dd></dd><dt>Last successful checkpoint</dt><dd></dd>
+</dl></section>
+
+<section><h2>5. Evidence</h2><dl>
+<dt>beamng.log range</dt><dd></dd><dt>Rotated log range</dt><dd></dd><dt>Launcher log range</dt><dd></dd><dt>Filtered RedFox log</dt><dd></dd><dt>Request/correlation ID</dt><dd></dd><dt>Screenshots/recording</dt><dd></dd><dt>Static audit report</dt><dd></dd><dt>File inventory</dt><dd></dd><dt>Other evidence</dt><dd></dd>
+</dl><p><strong>Relevant log excerpt with surrounding context</strong></p><pre></pre></section>
+
+<section><h2>6. Triage</h2><dl>
+<dt>First provable layer</dt><dd>PACKAGING / INSTALL-COLLISION / PHONE / PC / PLATFORM-REGISTRY / APP-UI / SHARED-EVENT-API / CAREER-RLS-BRIDGE / STOCK-RLS-GAME-FUNCTION / DATA-PAYLOAD / RUNTIME-UNKNOWN</dd><dt>Evidence</dt><dd></dd><dt>Owning JOB</dt><dd></dd><dt>Severity</dt><dd>BLOCKER / HIGH / MEDIUM / LOW</dd><dt>Data/save risk</dt><dd>YES / NO / UNKNOWN</dd><dt>Safe to retry</dt><dd>YES / NO / UNKNOWN</dd>
+</dl><p>Use <strong>RUNTIME-UNKNOWN</strong> rather than guessing.</p></section>
+
+<section><h2>7. Verdict</h2><dl>
+<dt>Verdict</dt><dd>PASS / FAIL-STOP / BLOCKED / RUNTIME-UNPROVEN</dd><dt>Reason</dt><dd></dd><dt>Advance to JOB-00?</dt><dd>YES / NO</dd><dt>Required owner action</dt><dd></dd><dt>Retest scope</dt><dd></dd><dt>Regressions to repeat</dt><dd></dd>
+</dl></section>
+
+<section><h2>8. Change and audit record</h2><dl>
+<dt>What changed</dt><dd></dd><dt>Why</dt><dd></dd><dt>Files affected/attached</dt><dd></dd><dt>Current status</dt><dd></dd><dt>Known problems</dt><dd></dd><dt>Required next steps</dt><dd></dd><dt>Work-chat migration relevance</dt><dd>Record any missing evidence caused by the July 14, 2026 Work-chat usage-limit lockout through the displayed July 20, 2026 return date.</dd>
+</dl></section>
+
+<footer>
+<p>JOB-11 reports evidence; the owning job fixes its own code. JOB-00 alone decides advancement. Preserve original logs; filtered copies are supplemental.</p>
+<p><strong>Change record:</strong> This HTML template was created by JOB-11 on 2026-07-14 13:08 PDT because the promised reusable failure-report templates were not committed before the original Work chat became inaccessible. File affected: <code>QA_LOGGING/templates/FAILURE_REPORT_TEMPLATE.html</code>. Current status: published, runtime unproven. Next step: copy this file for each candidate and complete every applicable field.</p>
+</footer>
+</body>
+</html>
