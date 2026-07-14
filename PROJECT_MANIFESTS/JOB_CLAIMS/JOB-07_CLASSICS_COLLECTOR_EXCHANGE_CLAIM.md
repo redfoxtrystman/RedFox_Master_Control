@@ -107,3 +107,68 @@ Before any JOB-07 deliverable is offered for integration:
 ## Expected output
 
 A JOB-07-scoped Classics / Collector Exchange page/app package and mandatory verification reports, ready for JOB-00 review and later integration. It will not be represented as runtime-tested until David confirms it in BeamNG.
+
+---
+
+## Regular-chat migration update — 2026-07-14 12:49 PDT
+
+**Active conversation owner:** JOB-07 — Classics / Collector Exchange regular-chat takeover / Sol, under David / Captain  
+**Original Work-chat link:** `https://chatgpt.com/share/6a569217-c020-83e8-83de-c947aa36c1ea`  
+**Recovery label:** `PARTIALLY RECOVERED FROM GITHUB AND AVAILABLE PROJECT CONTEXT`  
+**Current status:** `MIGRATED TO REGULAR CHAT — BLOCKED — BASELINE BINARY AND FINAL BRIDGE CONTRACT MISSING`
+
+Takeover record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-07_CLASSICS_COLLECTOR_EXCHANGE_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+```
+
+Takeover commit:
+
+```text
+d9c9b5d75dca04e1960c61a2426429723f8f2a13
+```
+
+### What changed
+
+- Transferred active conversation ownership from the inaccessible Work chat to the replacement regular chat without creating a duplicate JOB-07 claim.
+- Preserved the original scope, protected-file rules, dependencies, and blocked implementation status.
+- Recorded that the supplied shared link exposed no retrievable transcript or attachments.
+- Recorded that GitHub contains no JOB-07 branch, pull request, source tree, generated ZIP, release candidate, runtime log, screenshot set, or test report.
+- Identified the exact baseline binary required for the next inspection.
+
+### Why it changed
+
+The project chats were unintentionally created as ChatGPT Work chats. David / Captain was not aware that the coordinated project was subject to a separate Work-chat usage limit. On July 14, 2026, the original chats became inaccessible until July 20, 2026, interrupting development and forcing manual job-by-job migration. This creates duplicate-work risk, loss-of-context risk, coordination problems, missing-attachment risk, and unnecessary delays, and is preserved for the OpenAI incident report.
+
+### Files affected by this claim update
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-07_CLASSICS_COLLECTOR_EXCHANGE_CLAIM.md
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-07_CLASSICS_COLLECTOR_EXCHANGE_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+```
+
+No runtime mod source, shared platform files, Career/RLS files, page files, or another job's files were changed.
+
+### Known problems
+
+- The Work-chat transcript and attachments are unavailable.
+- The newest known IceFox ecosystem binary containing the existing Classics reference/placeholder page is not stored in GitHub.
+- It is unknown whether the locked chat held an uncommitted JOB-07 build or design package.
+- JOB-00 has not published a final baseline freeze.
+- JOB-01 platform v0.2 remains runtime untested.
+- JOB-02 has not published the final `job02.bridge.v1` contract required for real listings and buy-now actions.
+
+### Exact required reupload
+
+```text
+zzzz_RedFox_FoxNet_Web_Ecosystem_v0_10_3_7_ALL_IN_ONE_PC_PHONE_GARAGE_SELL_FIX(1).zip
+Size: 24,510,848 bytes
+SHA-256: 4dac614a4b14d423c069dccc8bdb5e0e511ee208f7414d3e6ed50a86a7903597
+```
+
+Conditional reuploads are any JOB-07-generated ZIP/source, screenshots/mockups, vehicle-filter rules, or test logs that existed only in the locked Work chat.
+
+### Required next action
+
+Inspect the exact IceFox ecosystem ZIP only for existing Classics/Collector paths, route, assets, naming, and behavior. Then publish a JOB-07 baseline inventory and exact planned-edit/protected-file report before changing code. Reuse `job01.platform.v1`; do not implement transaction behavior until JOB-02 publishes the final bridge contract.
