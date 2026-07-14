@@ -1,0 +1,26 @@
+BeamBook Starter Content Pack v0.1.0
+Recommended in-ZIP path: assets/config/beambook_posts.json
+
+Total posts: 187
+- Accident Report: 10
+- Community: 9
+- Drama: 10
+- Garage Talk: 14
+- Insurance: 2
+- Local: 13
+- Marketplace: 85
+- Police: 2
+- Public Notice: 5
+- Rants: 10
+- Road Closure: 11
+- Sponsored: 10
+- Wall: 6
+
+Implementation notes:
+- Editable JSON. Do not render post text as images.
+- linkType can route to marketplace, vehicleListing, business, insurance, storage, shop, map, profile, 404, or none.
+- Marketplace prop posts are intentionally generic so game-side code can map itemType/tags to actual prop spawn IDs.
+- Political content intentionally omitted.
+
+Next real scan step:
+To make one sale post for every exact BeamNG prop, scan the game/mod folders for .prefab, .dae, .jbeam, .json, and mission props, then map each prop ID to a BeamBook marketplace listing.
