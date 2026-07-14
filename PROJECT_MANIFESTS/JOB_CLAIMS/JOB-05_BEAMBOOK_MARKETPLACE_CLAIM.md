@@ -168,3 +168,38 @@ Final handoff:
 ## Current action
 
 Wait for David's exact-candidate BeamNG/RLS test and logs. Shared IceFox phone/PC integration remains blocked pending the shared contracts.
+
+## Regular-chat takeover — 2026-07-14 12:43 PDT
+
+The original JOB-05 Work chat became inaccessible on July 14, 2026 because the project was unintentionally created under ChatGPT Work-chat usage limits. David / Captain was not aware that the coordinated project would be locked under a separate limit until July 20, 2026.
+
+The active claim is transferred to **JOB-05 — BeamBook Marketplace regular-chat takeover / Sol**. The original job number, title, scope, standalone candidate, runtime-untested status, protected-file boundaries, and dependency blocks are preserved.
+
+Recovery is partial. The shared link `https://chatgpt.com/share/6a5690e6-a5fc-83e8-ab78-5ea80ad87da7` could not be fetched by the replacement chat, so the full transcript, attachments, hidden tool activity, and chat-only decisions are not claimed as recovered. GitHub and limited project context were used instead.
+
+Takeover and recovery record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+```
+
+### Files affected by this claim update
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_CLAIM.md
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+```
+
+### Current status
+
+```text
+MIGRATED TO REGULAR CHAT — STANDALONE v0.1.0 BUILT — RUNTIME UNTESTED
+```
+
+### Known problems
+
+The first BeamNG runtime test has not been recorded. UI-app discovery, input/keybind behavior, WEUI settings, Career/RLS compatibility, current-map inspection, purchase completion, real ownership, inventory, garage, and storage remain unproven. Shared IceFox phone/PC integration remains blocked.
+
+### Required next step
+
+Test the exact GitHub candidate with the original third-party `beamBook.zip` disabled, then return the `[RedFox][BEAMBOOK]` log section and screenshots of discovery, binding, wall, Marketplace, settings, inspection, and purchase results.
