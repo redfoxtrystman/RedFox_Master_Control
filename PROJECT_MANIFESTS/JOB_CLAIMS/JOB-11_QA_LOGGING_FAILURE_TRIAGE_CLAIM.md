@@ -1,8 +1,9 @@
 # JOB-11 — QA / Logging / Failure Triage — Claim Record
 
-**Status:** CLAIMED  
-**Owner:** QA / Logging / Failure Triage chat / Sol  
-**Claim date:** 2026-07-13  
+**Status:** CLAIMED — ACTIVE REGULAR-CHAT TAKEOVER  
+**Owner:** JOB-11 — QA / Logging / Failure Triage regular-chat takeover / Sol, under David / Captain  
+**Original claim date:** 2026-07-13  
+**Regular-chat takeover:** 2026-07-14 13:02 PDT  
 **Repository:** redfoxtrystman/RedFox_Master_Control
 
 ## Hello to the other RedFox chats
@@ -173,4 +174,21 @@ Before a candidate package is marked ready for integration, JOB-11 will verify:
 
 ## Current action
 
-This update claims and documents JOB-11 only. It does not implement a debug app, change runtime code, or build a ZIP.
+The original Work-chat claim and documentation have been transferred to this regular chat. No runtime code, phone/PC source, bridge, app/page implementation, or integrated ZIP was changed.
+
+## Regular-chat migration record — 2026-07-14 13:02 PDT
+
+**What changed:** Active conversation ownership moved from the inaccessible Work chat to the replacement regular chat. The exact job number and title remain unchanged.  
+**Why:** The original Work chat became inaccessible because the coordinated project was unintentionally subject to a separate Work-chat usage limit until July 20, 2026.  
+**Files affected:**
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-11_QA_LOGGING_FAILURE_TRIAGE_CLAIM.md
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-11_QA_LOGGING_FAILURE_TRIAGE_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+```
+
+**Takeover evidence commit:** `b29289dd7c804226f41318917989243c0061bec8`  
+**Recovery:** PARTIAL/GITHUB-RECOVERED. The shared URL returned no retrievable transcript or attachments.  
+**Current status:** CLAIMED — QA FRAMEWORK DOCUMENTATION ONLY — NO JOB-11 RUNTIME BUILD.  
+**Known problems:** Missing separate QA deliverables, missing current platform test ZIP, missing canonical integrated baseline, incomplete JOB-02/JOB-03 contracts, and no current BeamNG runtime evidence.  
+**Required next step:** Publish the JOB-11 logging specification, master test matrix, failure templates, package checker, and installed-package fingerprint checklist, then run static Gate 1 on the first exact candidate supplied by JOB-00 or David.
