@@ -1,0 +1,129 @@
+REDFOX/FOXNET JOB-11 FAILURE REPORT TEMPLATE
+
+Date created: 2026-07-14
+Template owner: JOB-11 — QA / Logging / Failure Triage
+Template status: PUBLISHED v1
+
+============================================================
+1. TEST AND CANDIDATE IDENTITY
+============================================================
+Report ID:
+Test ID:
+Date/time/timezone:
+Tester:
+Owning JOB:
+Candidate name/version:
+Candidate ZIP filename:
+Candidate size in bytes:
+Candidate SHA-256:
+Git commit/branch:
+Baseline ZIP filename/size/SHA-256:
+Dependency ZIP filenames/sizes/SHA-256:
+BeamNG version:
+Game mode:
+Career save identifier:
+Map:
+UI resolution:
+UI scale/text scale:
+Installed-package fingerprint attachment:
+
+============================================================
+2. SCOPE AND EXPECTATION
+============================================================
+Feature/action under test:
+Canonical destination/app/site/route ID:
+Platform API version required:
+Bridge API version required:
+Manifest schema version required:
+Expected result:
+Expected RedFox log events/codes:
+Protected files confirmed untouched:
+
+============================================================
+3. REPRODUCTION
+============================================================
+Preconditions:
+1.
+2.
+3.
+
+Exact steps:
+1.
+2.
+3.
+
+Reproduces consistently: YES / NO / UNKNOWN
+Attempts and results:
+
+============================================================
+4. ACTUAL RESULT
+============================================================
+Actual visible result:
+Actual data/state result:
+Any crash, freeze, timeout, blank page, wrong route, duplicate window, stale data, or fake success:
+First timestamp of failure:
+Last known successful checkpoint:
+
+============================================================
+5. EVIDENCE
+============================================================
+Unfiltered beamng.log path/range:
+Rotated log path/range:
+Launcher log path/range:
+Filtered RedFox log path/range:
+Request/correlation ID:
+Screenshots/recording filenames:
+Static audit report path:
+File inventory path:
+Other evidence:
+
+Relevant log excerpt (preserve surrounding context; do not replace the original log):
+
+============================================================
+6. TRIAGE
+============================================================
+First provable failing layer (choose one):
+PACKAGING / INSTALL-COLLISION / PHONE / PC / PLATFORM-REGISTRY / APP-UI /
+SHARED-EVENT-API / CAREER-RLS-BRIDGE / STOCK-RLS-GAME-FUNCTION /
+DATA-PAYLOAD / RUNTIME-UNKNOWN
+
+Evidence proving that layer:
+Owning JOB:
+Severity: BLOCKER / HIGH / MEDIUM / LOW
+Potential data-loss/save-risk: YES / NO / UNKNOWN
+Safe to retry: YES / NO / UNKNOWN
+
+Do not guess. Use RUNTIME-UNKNOWN when evidence is insufficient.
+
+============================================================
+7. VERDICT
+============================================================
+PASS / FAIL-STOP / BLOCKED / RUNTIME-UNPROVEN
+
+Reason:
+Candidate may advance to JOB-00 integration review: YES / NO
+Required owner action:
+Required retest scope:
+Regression tests to repeat:
+
+============================================================
+8. CHANGE AND AUDIT RECORD
+============================================================
+What changed in this report:
+Why the report was created/updated:
+Files affected or attached:
+Current status:
+Known problems:
+Required next steps:
+
+Work-chat migration relevance:
+Record whether any evidence, attachment, or test history may be missing because the original project Work chats became inaccessible on July 14, 2026 under the separate Work-chat usage limit until the displayed July 20, 2026 return date.
+
+============================================================
+RULES
+============================================================
+- Do not call a candidate fixed, working, safe, or done without exact-candidate BeamNG evidence.
+- A static PASS is not a runtime PASS.
+- JOB-11 reports the failure; the owning job fixes its own code.
+- JOB-00 alone decides whether a candidate advances.
+- Preserve original logs and attachments; filtered copies are supplemental.
