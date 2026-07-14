@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512">
+<rect width="512" height="512" rx="92" fill="#132946"/>
+<rect x="116" y="66" width="280" height="370" rx="22" fill="#f4f6f8"/>
+<text x="256" y="130" text-anchor="middle" font-family="Arial Black,Arial" font-size="42" fill="#1a2a3d">REPORT</text>
+<rect x="154" y="168" width="204" height="14" rx="7" fill="#bdc6d1"/>
+<rect x="154" y="208" width="188" height="14" rx="7" fill="#bdc6d1"/>
+<rect x="154" y="248" width="214" height="14" rx="7" fill="#bdc6d1"/>
+<path d="M178 328 L224 374 L340 258" stroke="#3db15f" stroke-width="28" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

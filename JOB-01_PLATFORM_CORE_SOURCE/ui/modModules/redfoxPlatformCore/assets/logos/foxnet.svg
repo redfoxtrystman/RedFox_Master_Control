@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512">
+<rect width="512" height="512" rx="92" fill="#102942"/>
+<path d="M122 334 C156 216 358 216 390 334 Z" fill="#eceff4"/>
+<rect x="166" y="196" width="184" height="72" rx="18" fill="#42566f"/>
+<circle cx="190" cy="346" r="40" fill="#0a0d11"/>
+<circle cx="330" cy="346" r="40" fill="#0a0d11"/>
+<text x="256" y="112" text-anchor="middle" font-family="Arial Black,Arial" font-size="58" fill="#fff">FOXNET</text>
+</svg>

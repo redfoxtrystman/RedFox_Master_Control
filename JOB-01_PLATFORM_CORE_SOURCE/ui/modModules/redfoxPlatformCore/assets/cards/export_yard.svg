@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b6688"/><stop offset="1" stop-color="#0e1218"/></linearGradient>
+<radialGradient id="glow" cx=".5" cy=".45" r=".7"><stop stop-color="#ffffff" stop-opacity=".16"/><stop offset="1" stop-color="#000000" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="640" height="360" fill="url(#g)"/>
+<rect width="640" height="360" fill="url(#glow)"/>
+<rect x="210" y="122" width="270" height="160" rx="12" fill="#187da5"/><path d="M258 122 V282 M314 122 V282 M370 122 V282 M426 122 V282" stroke="#0a5877" stroke-width="12"/><path d="M98 292 H540" stroke="#d0b35c" stroke-width="18" opacity=".24"/>
+</svg>

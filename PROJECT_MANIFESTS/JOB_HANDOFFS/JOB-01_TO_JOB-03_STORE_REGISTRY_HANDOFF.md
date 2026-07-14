@@ -1,6 +1,6 @@
 # JOB-01 to JOB-03 App Store Registry Handoff
 
-The App Store is deferred and does not block JOB-01 v0.1.
+The App Store is deferred and does not block JOB-01 v0.2.
 
 When JOB-03 resumes, it must treat `job01.platform.v1` as the installed runtime
 registry contract. The store may read an app's `app_manifest.json`, but install,

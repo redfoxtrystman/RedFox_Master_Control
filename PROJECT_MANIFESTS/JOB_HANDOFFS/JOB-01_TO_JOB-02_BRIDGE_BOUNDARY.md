@@ -27,7 +27,7 @@ destination ID and host (`phone` or `pc`) unchanged to the JOB-02 adapter.
 JOB-01 must never translate a failed or unavailable JOB-02 result into success.
 The app must receive the exact unavailable dependency or validation error.
 
-## v0.1 status
+## v0.2 status
 
 The initial icon/host build implements no Career action forwarding. It proves
 only the platform registry and launch surfaces. Apps that require Career data

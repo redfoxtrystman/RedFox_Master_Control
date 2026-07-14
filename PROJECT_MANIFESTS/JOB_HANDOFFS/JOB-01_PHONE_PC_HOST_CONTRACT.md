@@ -33,7 +33,7 @@ Baseline: RLS Career Overhaul 2.6.6 only
 
 ## Compatibility limitation
 
-RLS compiles phone manifests into its Vue distribution. v0.1 therefore ships a
+RLS compiles phone manifests into its Vue distribution. v0.2 therefore ships a
 two-file patch pinned to the exact RLS ZIP SHA-256. A different RLS build causes
 the builder to stop. A future RLS runtime manifest API should replace this
 pinned patch when available.

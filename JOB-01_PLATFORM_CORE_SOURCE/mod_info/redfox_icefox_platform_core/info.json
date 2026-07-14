@@ -1,7 +1,7 @@
 {
   "name": "RedFox IceFox Platform Core — RLS 2.6.6",
   "author": "RedFox / Captain David",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Shared IceFox phone and PC entry points plus the JOB-01 destination registry. Pinned to RLS Career Overhaul 2.6.6.",
   "type": "mod",
   "tag_line": "One IceFox registry on the RLS phone and computer.",

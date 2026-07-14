@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build JOB-01 v0.1 from an exact RLS Career Overhaul 2.6.6 baseline.
+"""Build JOB-01 v0.2 from an exact RLS Career Overhaul 2.6.6 baseline.
 
 The repository stores only RedFox-owned source and exact patch instructions.
 The user-supplied RLS bundle is read at build time and is not republished here.
@@ -40,7 +40,7 @@ def replace_once(source: str, old: str, new: str, label: str) -> str:
 
 HOST_COMPONENT = r"""redfox_platform_host_component=(src,frameId,host)=>({setup(){let router$1=useRouter();async function sendRegistry(){let f=document.getElementById(frameId);if(!f||!f.contentWindow)return;let payload={ok:!1,contract:`job01.platform.v1`,destinations:[],error:`redfoxPlatformCore unavailable`};try{let ext=Lua_default.extensions&&Lua_default.extensions.redfoxPlatformCore;if(!ext&&Lua_default.extensions&&Lua_default.extensions.load){await Lua_default.extensions.load(`redfoxPlatformCore`);ext=Lua_default.extensions.redfoxPlatformCore}if(ext&&ext.getRegistry)payload=await ext.getRegistry()}catch(e){payload={ok:!1,contract:`job01.platform.v1`,destinations:[],error:String(e)}}f.contentWindow.postMessage({type:`RedFoxPlatformRegistry`,payload},`*`)}function receive(e){let f=document.getElementById(frameId),d=e&&e.data?e.data:{};if(!f||e.source!==f.contentWindow)return;if(d.type===`RedFoxPlatformRequestRegistry`)sendRegistry();if(host===`phone`&&d.type===`RedFoxPlatformReturnToPhone`)router$1.back();if(host===`pc`&&d.type===`RedFoxPlatformReturnToComputer`){let ext=Lua_default.extensions&&Lua_default.extensions.redfoxPlatformCore;ext&&ext.returnToComputer?ext.returnToComputer():router$1.back()}if(d.type===`RedFoxPlatformClose`){let ext=Lua_default.extensions&&Lua_default.extensions.redfoxPlatformCore;ext&&ext.closePlatform?ext.closePlatform():router$1.back()}}onMounted(()=>{window.addEventListener(`message`,receive);setTimeout(sendRegistry,100)});onUnmounted(()=>window.removeEventListener(`message`,receive));return()=>(openBlock(),createElementBlock(`div`,{class:`redfox-platform-host`,style:`width:100%;height:100%;background:#07101e;overflow:hidden;`},[createBaseVNode(`iframe`,{id:frameId,src,style:`width:100%;height:100%;border:0;background:#07101e;display:block;`,onLoad:sendRegistry})]))}})"""
 
-MANIFEST_DECLARATION = r"""redfox_icefox_exports=__export({default:()=>redfox_icefox_default}),redfox_icefox_default={id:`redfox-icefox`,name:`IceFox`,icon:icons.globe||icons.computer||icons.info,iconTile:`/ui/modModules/redfoxPlatformCore/assets/icefox.svg`,route:`/career/phone-redfox-icefox`,color:`#0b6b88`,iconColor:`#ffffff`,category:`Web`,defaultPage:0,defaultPosition:13},"""
+MANIFEST_DECLARATION = r"""redfox_icefox_exports=__export({default:()=>redfox_icefox_default}),redfox_icefox_default={id:`redfox-icefox`,name:`IceFox`,icon:icons.globe||icons.computer||icons.info,iconTile:`/ui/modModules/redfoxPlatformCore/assets/brand/icefox_head.svg`,route:`/career/phone-redfox-icefox`,color:`#0b6b88`,iconColor:`#ffffff`,category:`Web`,defaultPage:0,defaultPosition:13},"""
 
 PHONE_ROUTE = r"""{path:`phone-redfox-icefox`,name:`phone-redfox-icefox`,component:redfox_platform_host_component(`/ui/modModules/redfoxPlatformCore/phone/index.html`,`redfox-phone-platform-frame`,`phone`)},"""
 
@@ -107,6 +107,8 @@ def static_report(output_name: str, patched_index: str, patched_layout: str) -> 
         ("PASS", "Saved RLS phone layouts migrate the redfox-icefox icon after Marketplace"),
         ("PASS", "PC entry uses RLS onComputerAddFunctions; computer.lua is not replaced"),
         ("PASS", "Phone and PC hosts request the same job01.platform.v1 registry"),
+        ("PASS", "RLS phone icon and both hosts use the original working-system IceFox fox-head logo"),
+        ("PASS", "PC and phone use one redesigned IceFox browser; phone styling is responsive rather than a second page contract"),
         ("PASS", "No money, inventory, ownership, storage, insurance, reward, purchase, mission, or save mutation is implemented by JOB-01"),
         ("UNPROVEN", "BeamNG/RLS runtime load, icon render, click navigation, controller navigation, and cross-map behavior require David's in-game test"),
     ]
@@ -114,6 +116,7 @@ def static_report(output_name: str, patched_index: str, patched_layout: str) -> 
         "redfox manifest": patched_index.count('id:`redfox-icefox`') == 1,
         "phone route": patched_index.count('path:`phone-redfox-icefox`') == 1,
         "PC route": patched_index.count('path:`redfox-icefox-desktop`') == 1,
+        "original IceFox icon path": patched_index.count('/assets/brand/icefox_head.svg') == 1,
         "phone layout id": patched_layout.count('"redfox-icefox"') == 2,
     }
     for label, passed in assertions.items():
@@ -121,7 +124,7 @@ def static_report(output_name: str, patched_index: str, patched_layout: str) -> 
             raise RuntimeError(f"static assertion failed: {label}")
 
     lines = [
-        "REDFOX FOXNET / ICEFOX — JOB-01 v0.1 STATIC VERIFICATION",
+        "REDFOX FOXNET / ICEFOX — JOB-01 v0.2 STATIC VERIFICATION",
         "Status: BUILT — RUNTIME UNTESTED",
         f"Output: {output_name}",
         f"Platform contract: {CONTRACT}",
@@ -144,9 +147,9 @@ def static_report(output_name: str, patched_index: str, patched_layout: str) -> 
     )
     html_report = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JOB-01 v0.1 Verification</title>
+<title>JOB-01 v0.2 Verification</title>
 <style>body{{font:16px system-ui;background:#07101e;color:#edf9ff;max-width:980px;margin:auto;padding:28px}}h1{{color:#7be2ff}}.status{{border-left:4px solid #ff5538;padding:12px;background:#10243d}}table{{width:100%;border-collapse:collapse}}td,th{{padding:10px;border:1px solid #31506a;text-align:left}}code{{color:#7be2ff}}</style></head>
-<body><h1>JOB-01 v0.1 Static Verification</h1><p class="status"><strong>BUILT — RUNTIME UNTESTED</strong></p>
+<body><h1>JOB-01 v0.2 Static Verification</h1><p class="status"><strong>BUILT — RUNTIME UNTESTED</strong></p>
 <p>Output: <code>{html.escape(output_name)}</code><br>Contract: <code>{CONTRACT}</code><br>RLS baseline: <code>{RLS_SHA256}</code></p>
 <table><thead><tr><th>Status</th><th>Check</th></tr></thead><tbody>{rows}</tbody></table>
 <p>Runtime icon render, navigation, controller use, and cross-map behavior must be tested by David before anyone says working, fixed, or done.</p></body></html>"""
@@ -154,7 +157,7 @@ def static_report(output_name: str, patched_index: str, patched_layout: str) -> 
 
 
 def install_readme(output_name: str) -> str:
-    return f"""REDFOX ICEFOX PLATFORM CORE v0.1 — INSTALL AND TEST
+    return f"""REDFOX ICEFOX PLATFORM CORE v0.2 — INSTALL AND TEST
 
 STATUS: BUILT — RUNTIME UNTESTED
 FILE: {output_name}

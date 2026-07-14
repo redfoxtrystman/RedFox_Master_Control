@@ -35,7 +35,7 @@ Destinations default to both phone and PC. An app may set `phone=false` or
 service availability must be reported inside the app using the JOB-02 result;
 the platform must not fake success or silently switch to a different service.
 
-## Current v0.1 registry
+## Current v0.2 registry
 
 Only `redfox.home` is built in. Other destinations appear only when their
 separate add-on mods register successfully.

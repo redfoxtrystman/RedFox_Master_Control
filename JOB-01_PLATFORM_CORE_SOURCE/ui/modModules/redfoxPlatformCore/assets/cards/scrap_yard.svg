@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+<defs>
+<linearGradient id="rust" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#41210c"/><stop offset=".48" stop-color="#7b3513"/><stop offset="1" stop-color="#15100c"/></linearGradient>
+<radialGradient id="dust" cx=".55" cy=".28" r=".8"><stop stop-color="#d88a36" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="640" height="360" fill="url(#rust)"/>
+<rect width="640" height="360" fill="url(#dust)"/>
+<path d="M0 278 C120 230 250 250 360 222 C470 194 548 224 640 190 V360 H0 Z" fill="#23190f"/>
+<path d="M74 284 L160 178 L218 250 L276 132 L394 284 Z" fill="#c56419"/>
+<path d="M92 298 H518 V340 H92 Z" fill="#3a2415"/>
+<circle cx="180" cy="318" r="34" fill="#090806"/>
+<circle cx="404" cy="318" r="34" fill="#090806"/>
+<path d="M450 88 L520 160 L492 176 L422 104 Z" fill="#8a8a80" opacity=".7"/>
+<path d="M500 160 L548 118" stroke="#c28b43" stroke-width="18"/>
+</svg>

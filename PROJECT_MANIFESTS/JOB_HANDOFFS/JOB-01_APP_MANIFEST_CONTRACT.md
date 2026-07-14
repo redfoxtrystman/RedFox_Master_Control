@@ -1,7 +1,7 @@
 # JOB-01 App Manifest Contract
 
 Contract ID: `job01.platform.v1`  
-Status: v0.1 frozen for app registration; BeamNG runtime untested
+Status: `job01.platform.v1` frozen for app registration; platform v0.2 runtime untested
 
 An app is a separate removable mod. It registers one or more destinations with
 the loaded `redfoxPlatformCore` extension. It never edits the RLS phone bundle,
@@ -74,7 +74,7 @@ the platform.
 ## JSON documentation form
 
 Apps may ship the same data as `app_manifest.json` for the future App Store.
-In v0.1, the app registration extension remains the runtime authority.
+In platform v0.2, the app registration extension remains the runtime authority.
 
 ```json
 {

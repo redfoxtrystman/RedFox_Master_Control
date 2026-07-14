@@ -4,28 +4,43 @@
   const CONTRACT = "job01.platform.v1";
   const host = document.body.dataset.host === "pc" ? "pc" : "phone";
   const root = document.getElementById("app");
+  const ASSET = "/ui/modModules/redfoxPlatformCore/assets";
+  const ICEFOX_LOGO = ASSET + "/brand/icefox_head.svg";
+
   const fallbackDestination = {
     id: "redfox.home",
     owner: "JOB-01",
-    name: "IceFox Home",
-    description: "Shared RedFox FoxNet front door.",
-    category: "Platform",
-    iconPath: "/ui/modModules/redfoxPlatformCore/assets/icefox.svg",
+    name: "IceFox",
+    description: "RedFox legal network and shared browser home.",
+    category: "Home",
+    iconPath: ICEFOX_LOGO,
     entryPath: "internal:redfox.home",
     order: 0,
-    version: "0.1.0",
+    version: "0.2.0",
     phone: true,
     pc: true,
     enabled: true,
     permissions: [],
   };
 
+  const previewListings = [
+    ["bruckell_bastion.svg", "2020 Bruckell Bastion", "$17,250"],
+    ["gavril_dseries.svg", "2017 Gavril D-Series", "$12,900"],
+    ["ibishu_hopper.svg", "2015 Ibishu Hopper", "$6,300"],
+    ["civetta_scintilla.svg", "2018 Civetta Scintilla", "$24,750"],
+    ["etk_kseries.svg", "2016 ETK K-Series", "$11,100"],
+  ];
+
   const state = {
     browserOpen: host === "phone",
     activeId: "redfox.home",
     history: [],
+    forward: [],
     registry: [fallbackDestination],
-    registryStatus: "Waiting for the platform registry",
+    registryStatus: "Connecting to the RedFox registry",
+    theme: localStorage.getItem("redfox.icefox.theme") === "light" ? "light" : "dark",
+    favorite: localStorage.getItem("redfox.icefox.favorite") === "true",
+    reloadKey: 0,
   };
 
   function escapeHtml(value) {
@@ -54,7 +69,7 @@
       name: String(value.name || value.id),
       description: String(value.description || ""),
       category: String(value.category || "Other"),
-      iconPath: safeAssetPath(value.iconPath, fallbackDestination.iconPath),
+      iconPath: safeAssetPath(value.iconPath, ICEFOX_LOGO),
       entryPath,
       order: Number.isFinite(Number(value.order)) ? Number(value.order) : 9999,
       version: String(value.version || "0.0.0"),
@@ -70,7 +85,7 @@
 
   function setRegistry(payload) {
     if (!payload || payload.contract !== CONTRACT || !Array.isArray(payload.destinations)) {
-      state.registryStatus = "Registry response rejected: expected " + CONTRACT;
+      state.registryStatus = "Registry response rejected — expected " + CONTRACT;
       render();
       return;
     }
@@ -80,7 +95,7 @@
       .filter((item) => item.enabled && item[host])
       .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
     state.registry = items.length ? items : [fallbackDestination];
-    state.registryStatus = "Shared registry connected · " + state.registry.length + " destination(s)";
+    state.registryStatus = "Secure connection · " + state.registry.length + " destination(s) installed";
     if (!state.registry.some((item) => item.id === state.activeId)) state.activeId = "redfox.home";
     render();
   }
@@ -96,13 +111,18 @@
   function openBrowser() {
     state.browserOpen = true;
     state.activeId = "redfox.home";
+    state.history = [];
+    state.forward = [];
     render();
     requestRegistry();
   }
 
   function openDestination(id, saveHistory) {
     if (!state.registry.some((item) => item.id === id)) return;
-    if (saveHistory !== false && state.activeId !== id) state.history.push(state.activeId);
+    if (saveHistory !== false && state.activeId !== id) {
+      state.history.push(state.activeId);
+      state.forward = [];
+    }
     state.activeId = id;
     state.browserOpen = true;
     render();
@@ -110,6 +130,7 @@
 
   function goBack() {
     if (state.history.length) {
+      state.forward.push(state.activeId);
       state.activeId = state.history.pop();
       render();
       return;
@@ -121,6 +142,19 @@
     leaveHost();
   }
 
+  function goForward() {
+    if (!state.forward.length) return;
+    state.history.push(state.activeId);
+    state.activeId = state.forward.pop();
+    render();
+  }
+
+  function reloadPage() {
+    state.reloadKey += 1;
+    render();
+    requestRegistry();
+  }
+
   function leaveHost() {
     if (host === "phone") {
       window.parent.postMessage({ type: "RedFoxPlatformReturnToPhone", contract: CONTRACT }, "*");
@@ -128,6 +162,7 @@
       state.browserOpen = false;
       state.activeId = "redfox.home";
       state.history = [];
+      state.forward = [];
       render();
     }
   }
@@ -136,45 +171,105 @@
     window.parent.postMessage({ type: "RedFoxPlatformReturnToComputer", contract: CONTRACT }, "*");
   }
 
-  function appCards() {
+  function toggleTheme() {
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    localStorage.setItem("redfox.icefox.theme", state.theme);
+    render();
+  }
+
+  function toggleFavorite() {
+    state.favorite = !state.favorite;
+    localStorage.setItem("redfox.icefox.favorite", String(state.favorite));
+    render();
+  }
+
+  function searchInstalled(value) {
+    const query = String(value || "").trim().toLowerCase();
+    if (!query) return;
+    const normalized = query.replace(/^https?:\/\//, "").replace(/^icefox:\/\//, "");
+    const match = state.registry.find((item) =>
+      item.id.toLowerCase() === normalized ||
+      item.id.toLowerCase().includes(normalized) ||
+      item.name.toLowerCase().includes(normalized),
+    );
+    if (match) openDestination(match.id);
+    else {
+      state.registryStatus = "No installed RedFox destination matched “" + query + "”";
+      render();
+    }
+  }
+
+  function navTabs() {
     return state.registry
-      .map(
-        (item) => `
-          <button class="destination-card" type="button" data-destination="${escapeHtml(item.id)}">
-            <img src="${escapeHtml(item.iconPath)}" alt="">
-            <span class="destination-copy">
-              <strong>${escapeHtml(item.name)}</strong>
-              <small>${escapeHtml(item.category)} · ${escapeHtml(item.owner)}</small>
-              <span>${escapeHtml(item.description)}</span>
-            </span>
-          </button>`,
-      )
+      .map((item) => `
+        <button class="favorite-tab ${item.id === state.activeId ? "active" : ""}" type="button" data-destination="${escapeHtml(item.id)}">
+          <img src="${escapeHtml(item.iconPath)}" alt=""><span>${escapeHtml(item.name)}</span>
+        </button>`)
+      .join("");
+  }
+
+  function destinationCards() {
+    return state.registry
+      .map((item) => `
+        <button class="quick-card" type="button" data-destination="${escapeHtml(item.id)}">
+          <span class="quick-card-image"><img src="${escapeHtml(item.iconPath)}" alt=""></span>
+          <strong>${escapeHtml(item.name)}</strong>
+          <small>${escapeHtml(item.category)}</small>
+        </button>`)
+      .join("");
+  }
+
+  function listingCards() {
+    return previewListings
+      .map((item) => `
+        <article class="listing-card">
+          <img src="${ASSET}/vehicles/${item[0]}" alt="">
+          <div><span>${escapeHtml(item[1])}</span><strong>${escapeHtml(item[2])}</strong></div>
+        </article>`)
       .join("");
   }
 
   function homeContent() {
     return `
       <section class="icefox-home">
-        <div class="hero-mark">
-          <img src="${fallbackDestination.iconPath}" alt="">
-          <div><span>REDFOX NETWORK</span><h1>ICEFOX</h1><p>One front door. The same registered destinations on phone and PC.</p></div>
-        </div>
-        <div class="contract-line"><strong>${CONTRACT}</strong><span>${escapeHtml(state.registryStatus)}</span></div>
-        <section class="destination-section">
-          <div class="section-heading"><h2>Registered destinations</h2><button id="refreshRegistry" type="button">Refresh</button></div>
-          <div class="destination-grid">${appCards()}</div>
+        <section class="hero-panel">
+          <div class="hero-copy">
+            <h1>ICE<span>FOX</span></h1>
+            <p>Your portal for legal services, auctions, and more.</p>
+            <form id="heroSearch" class="hero-search">
+              <input id="heroSearchInput" autocomplete="off" placeholder="Search IceFox or type an installed destination">
+              <button type="submit">Search</button>
+            </form>
+          </div>
+          <img class="hero-car" src="${ASSET}/vehicles/hero_car.svg" alt="">
+          <div class="hero-brand-card"><img src="${ICEFOX_LOGO}" alt="IceFox"><strong>ICEFOX</strong><span>REDFOX LEGAL NETWORK</span></div>
+          <aside class="weather-card"><small>Leaf Springs, CA</small><strong>☀ 72°F</strong><span>Sunny<br>H 74° · L 55°</span></aside>
+          <aside class="news-card"><strong>RedFox News Feed</strong><ul><li>IceFox platform core online.</li><li>${escapeHtml(state.registry.length)} destinations installed.</li><li>Phone and PC share one registry.</li></ul></aside>
         </section>
-        <aside class="boundary-note">
-          <strong>Platform boundary</strong>
-          <span>IceFox handles registration and navigation. Career transactions remain with RLS through the JOB-02 bridge.</span>
-        </aside>
+
+        <section class="content-panel quick-panel">
+          <div class="panel-heading"><h2>Quick Access</h2><span>${escapeHtml(state.registryStatus)}</span></div>
+          <div class="quick-grid">${destinationCards()}</div>
+        </section>
+
+        <section class="advert-row" aria-label="RedFox network advertising previews">
+          <img class="loan-ad" src="${ASSET}/ads/top/loan_banner.svg" alt="RedFox Finance preview">
+          <img class="listing-ad" src="${ASSET}/ads/sidebar/list_ride.svg" alt="Vehicle listing preview">
+        </section>
+
+        <section class="content-panel listings-panel">
+          <div class="panel-heading"><h2>Featured Listings — FoxNet Preview</h2><span>Visual preview only · JOB-02 transactions not connected</span></div>
+          <div class="listing-grid">${listingCards()}</div>
+        </section>
       </section>`;
   }
 
   function destinationContent() {
     const item = activeDestination();
     if (item.entryPath === "internal:redfox.home") return homeContent();
-    return `<iframe class="destination-frame" src="${escapeHtml(item.entryPath)}" title="${escapeHtml(item.name)}"></iframe>`;
+    const separator = item.entryPath.includes("?") ? "&" : "?";
+    const src = item.entryPath + separator + "redfoxReload=" + state.reloadKey;
+    return `<iframe class="destination-frame" src="${escapeHtml(src)}" title="${escapeHtml(item.name)}"></iframe>`;
   }
 
   function browserWindow() {
@@ -182,64 +277,103 @@
     return `
       <section class="browser-window ${host === "phone" ? "phone-browser" : "pc-browser"}">
         <header class="browser-titlebar">
-          <div class="browser-brand"><img src="${fallbackDestination.iconPath}" alt=""><strong>IceFox</strong></div>
+          <div class="browser-brand"><img src="${ICEFOX_LOGO}" alt=""><strong>ICEFOX</strong></div>
           <div class="window-actions">
-            ${host === "pc" ? '<button id="minimizeBrowser" type="button" aria-label="Minimize">—</button>' : ""}
-            <button id="closeBrowser" type="button" aria-label="Close">×</button>
+            ${host === "pc" ? '<button id="minimizeBrowser" type="button" aria-label="Minimize">—</button><button type="button" aria-label="Maximize">□</button>' : ""}
+            <button id="closeBrowser" class="close-window" type="button" aria-label="Close">×</button>
           </div>
         </header>
-        <nav class="browser-toolbar">
-          <button id="browserBack" type="button" aria-label="Back">←</button>
+        <div class="browser-toolbar">
+          <button id="browserBack" type="button" aria-label="Back" ${state.history.length ? "" : "disabled"}>←</button>
+          <button id="browserForward" type="button" aria-label="Forward" ${state.forward.length ? "" : "disabled"}>→</button>
+          <button id="browserReload" type="button" aria-label="Reload">↻</button>
           <button id="browserHome" type="button" aria-label="Home">⌂</button>
-          <div class="address-field"><span>◆</span><code>icefox://${escapeHtml(item.id)}</code></div>
-          <span class="host-pill">${host.toUpperCase()}</span>
-        </nav>
+          <form id="addressForm" class="address-field"><span>🔒</span><input id="addressInput" value="https://icefox.redfox/${escapeHtml(item.id)}" aria-label="IceFox address"></form>
+          <button id="favoriteButton" class="favorite-button ${state.favorite ? "selected" : ""}" type="button" aria-label="Favorite">★</button>
+          <button type="button" aria-label="Privacy">🛡</button>
+          <button id="themeButton" type="button" aria-label="Theme">${state.theme === "dark" ? "☾" : "☀"}</button>
+          <button type="button" aria-label="Menu">☰</button>
+        </div>
+        <nav class="favorites-row"><button class="home-tab active-home" id="navHome" type="button">⌂ Home</button>${navTabs()}</nav>
         <main class="browser-content">${destinationContent()}</main>
       </section>`;
+  }
+
+  function desktopCards() {
+    return state.registry
+      .map((item) => `
+        <button class="desktop-launch-card" type="button" data-destination="${escapeHtml(item.id)}">
+          <img src="${escapeHtml(item.iconPath)}" alt="">
+          <strong>${escapeHtml(item.name)}</strong>
+          <small>${escapeHtml(item.description)}</small>
+        </button>`)
+      .join("");
   }
 
   function desktop() {
     return `
       <main class="desktop-shell">
-        <header class="desktop-menubar"><strong>RedFox Workstation</strong><span>RLS Career · JOB-01</span></header>
-        <section class="desktop-icons">
-          <button id="icefoxDesktopIcon" class="desktop-icon" type="button">
-            <img src="${fallbackDestination.iconPath}" alt="">
-            <span>IceFox</span>
-          </button>
+        <header class="desktop-menubar"><div><img src="${ICEFOX_LOGO}" alt=""><strong>REDFOX WORKSTATION</strong></div><span>${escapeHtml(state.registryStatus)}</span></header>
+        <section class="start-screen">
+          <header><h1>Welcome back, Driver</h1><p>What are we doing today?</p></header>
+          <div class="desktop-launch-grid">${desktopCards()}</div>
+          <footer><span>RED FOX INTERNET SYSTEMS</span><span>v0.2</span><strong>● Secure Connection</strong></footer>
         </section>
         ${state.browserOpen ? browserWindow() : ""}
         <footer class="desktop-taskbar">
-          <button id="startIceFox" type="button"><img src="${fallbackDestination.iconPath}" alt="">IceFox</button>
+          <button id="startIceFox" type="button"><img src="${ICEFOX_LOGO}" alt="">IceFox</button>
           <span class="taskbar-spacer"></span>
           <button id="returnComputer" type="button">Return to RLS Computer</button>
         </footer>
       </main>`;
   }
 
-  function wireBrowser() {
-    const back = document.getElementById("browserBack");
-    const home = document.getElementById("browserHome");
-    const close = document.getElementById("closeBrowser");
-    const minimize = document.getElementById("minimizeBrowser");
-    const refresh = document.getElementById("refreshRegistry");
-    if (back) back.addEventListener("click", goBack);
-    if (home) home.addEventListener("click", () => openDestination("redfox.home"));
-    if (close) close.addEventListener("click", leaveHost);
-    if (minimize) minimize.addEventListener("click", leaveHost);
-    if (refresh) refresh.addEventListener("click", requestRegistry);
+  function wireDestinationButtons() {
     document.querySelectorAll("[data-destination]").forEach((button) => {
-      button.addEventListener("click", () => openDestination(button.dataset.destination));
+      button.addEventListener("click", () => {
+        state.browserOpen = true;
+        openDestination(button.dataset.destination);
+      });
     });
   }
 
+  function wireBrowser() {
+    const actions = {
+      browserBack: goBack,
+      browserForward: goForward,
+      browserReload: reloadPage,
+      browserHome: () => openDestination("redfox.home"),
+      navHome: () => openDestination("redfox.home"),
+      closeBrowser: leaveHost,
+      minimizeBrowser: leaveHost,
+      favoriteButton: toggleFavorite,
+      themeButton: toggleTheme,
+    };
+    Object.entries(actions).forEach(([id, action]) => {
+      const element = document.getElementById(id);
+      if (element) element.addEventListener("click", action);
+    });
+
+    const address = document.getElementById("addressForm");
+    if (address) address.addEventListener("submit", (event) => {
+      event.preventDefault();
+      searchInstalled(document.getElementById("addressInput").value);
+    });
+
+    const hero = document.getElementById("heroSearch");
+    if (hero) hero.addEventListener("submit", (event) => {
+      event.preventDefault();
+      searchInstalled(document.getElementById("heroSearchInput").value);
+    });
+    wireDestinationButtons();
+  }
+
   function render() {
+    document.body.classList.toggle("light-theme", state.theme === "light");
     if (host === "pc") {
       root.innerHTML = desktop();
-      const desktopIcon = document.getElementById("icefoxDesktopIcon");
       const start = document.getElementById("startIceFox");
       const returnButton = document.getElementById("returnComputer");
-      if (desktopIcon) desktopIcon.addEventListener("click", openBrowser);
       if (start) start.addEventListener("click", openBrowser);
       if (returnButton) returnButton.addEventListener("click", returnToComputer);
     } else {

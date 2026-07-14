@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512">
+<rect width="512" height="512" rx="92" fill="#0d5a2f"/>
+<path d="M256 70 L390 124 V250 C390 338 324 404 256 442 C188 404 122 338 122 250 V124 Z" fill="#f5fff8"/>
+<text x="256" y="234" text-anchor="middle" font-family="Arial Black,Arial" font-size="98" fill="#0d5a2f">XXX</text>
+<text x="256" y="308" text-anchor="middle" font-family="Arial Black,Arial" font-size="38" fill="#0d5a2f">INSURANCE</text>
+</svg>

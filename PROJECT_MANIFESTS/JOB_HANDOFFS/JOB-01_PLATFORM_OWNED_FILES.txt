@@ -1,10 +1,15 @@
-JOB-01 PLATFORM-OWNED FILES — v0.1
+JOB-01 PLATFORM-OWNED FILES — v0.2
 
 RedFox-owned runtime files:
 scripts/redfox_icefox_platform_core/modScript.lua
 lua/ge/extensions/redfoxPlatformCore.lua
 mod_info/redfox_icefox_platform_core/info.json
-ui/modModules/redfoxPlatformCore/assets/icefox.svg
+ui/modModules/redfoxPlatformCore/assets/brand/icefox_head.svg
+ui/modModules/redfoxPlatformCore/assets/backgrounds/coastal_highway.svg
+ui/modModules/redfoxPlatformCore/assets/cards/*.svg
+ui/modModules/redfoxPlatformCore/assets/vehicles/*.svg
+ui/modModules/redfoxPlatformCore/assets/ads/**/*.svg
+ui/modModules/redfoxPlatformCore/assets/logos/*.svg
 ui/modModules/redfoxPlatformCore/shared/platform.css
 ui/modModules/redfoxPlatformCore/shared/platform.js
 ui/modModules/redfoxPlatformCore/phone/index.html

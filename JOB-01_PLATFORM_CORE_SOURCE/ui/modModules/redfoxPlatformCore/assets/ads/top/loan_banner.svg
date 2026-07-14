@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="728" height="90">
+<defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#0b0e14"/><stop offset=".5" stop-color="#2b0507"/><stop offset="1" stop-color="#0d2238"/></linearGradient></defs>
+<rect width="728" height="90" fill="url(#g)"/>
+<rect x="18" y="16" width="126" height="58" rx="8" fill="#1a1d22"/>
+<rect x="35" y="31" width="84" height="28" rx="12" fill="#111"/>
+<circle cx="52" cy="66" r="10" fill="#080808"/><circle cx="105" cy="66" r="10" fill="#080808"/>
+<text x="176" y="38" font-family="Arial Black,Arial" font-size="24" fill="#fff">NEED A LOAN?</text>
+<text x="176" y="66" font-family="Arial Black,Arial" font-size="21" fill="#fff">FAST CASH. LOW RATES.</text>
+<text x="176" y="84" font-family="Arial Black,Arial" font-size="13" fill="#e02026">REDFOX FINANCE</text>
+<rect x="540" y="22" width="148" height="46" rx="8" fill="#c12624"/>
+<text x="614" y="52" text-anchor="middle" font-family="Arial Black,Arial" font-size="18" fill="#fff">APPLY NOW</text>
+<text x="650" y="83" font-family="Arial" font-size="10" fill="#aaa">ADVERTISEMENT</text>
+</svg>

@@ -30,9 +30,9 @@ better_career_mod_v050.zip
 - Unsafe for RLS integration: second phone controller, second computer/desktop,
   Career overrides, banking, garages, ownership, transactions, missions,
   delivery/tutorial overrides, facilities, recovery, and save authority.
-- No Better Career source is copied into JOB-01 v0.1.
+- No Better Career source is copied into JOB-01 v0.2.
 
-JOB-01 v0.1 TARGET
+JOB-01 v0.2 TARGET
 - RLS 2.6.6 remains the only phone and Career authority.
 - A pinned two-file RLS UI compatibility patch registers one IceFox phone app
   and one IceFox PC route.
