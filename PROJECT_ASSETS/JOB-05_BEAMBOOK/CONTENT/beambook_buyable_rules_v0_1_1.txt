@@ -1,0 +1,33 @@
+BeamBook buy button rule:
+
+if post.purchaseEnabled == true and post.buyable == true:
+    show Buy button
+    route by post.purchaseAction
+else:
+    hide Buy button or show disabled badge:
+    "Post Only" / "Joke Listing" / "Not Buyable"
+
+Fallback safety:
+- Missing purchaseEnabled = false
+- Missing buyable = false
+- Missing itemType = not buyable
+- Missing price = not buyable
+- linkType 404 = never buyable
+
+Recommended fields per post:
+{
+  "buyable": true,
+  "purchaseEnabled": true,
+  "purchaseAction": "buy_item",
+  "uiBadge": "Buyable",
+  "availability": "available"
+}
+
+For fake/joke posts:
+{
+  "buyable": false,
+  "purchaseEnabled": false,
+  "purchaseAction": "none",
+  "uiBadge": "Joke Listing",
+  "availability": "not_for_sale"
+}
