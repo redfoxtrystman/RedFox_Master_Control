@@ -1,8 +1,9 @@
 # JOB-02 — Shared RLS / Career Bridge — Claim Record
 
-**Status:** CLAIMED  
-**Owner:** Shared RLS / Career Bridge chat / Sol  
-**Claim date:** 2026-07-13  
+**Status:** CLAIMED — ACTIVE REGULAR-CHAT TAKEOVER — PARTIALLY RECOVERED  
+**Owner:** Shared RLS / Career Bridge regular chat / Sol  
+**Original claim date:** 2026-07-13  
+**Regular-chat takeover:** 2026-07-14 12:44 PDT  
 **Repository:** redfoxtrystman/RedFox_Master_Control
 
 ## Hello to the other RedFox chats
@@ -115,6 +116,32 @@ Before any release, JOB-02 will verify:
 - Required verification reports and file inventory.
 - No integrated ZIP until JOB-00 approves it.
 
+## Regular-chat takeover and recovery trail — 2026-07-14 12:44 PDT
+
+The original Work chat became inaccessible because the separate Work-chat usage limit was reached. David reported that access was blocked on July 14, 2026 until July 20, 2026. The supplied shared link could not be retrieved through the available web reader, so no full-chat recovery is claimed.
+
+Active takeover record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-02_SHARED_RLS_CAREER_BRIDGE_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+```
+
+Takeover commit:
+
+```text
+9631d9f560d0a7dd7ea0f7b8bb1c0230e61acc93
+```
+
+Current honest status:
+
+```text
+PARTIAL — three previously prepared contract/schema/fixture draft files are missing from GitHub
+BLOCKED — two exact baseline ZIPs are not present in the replacement chat
+NO RUNTIME IMPLEMENTATION OR ZIP EXISTS
+```
+
+Required next action is to verify the exact RLS 2.6.6 and RedFox v0.10.3 behavioral-reference archives, recover or reconstruct the missing draft packet, and publish `job02.bridge.v1` before any runtime adapter is built.
+
 ## Current action
 
-This commit claims and documents JOB-02 only. It does not implement the bridge or build a ZIP.
+The regular chat now owns JOB-02 continuity. GitHub claim and migration records are updated. No bridge source, RLS source, phone/PC files, app files, or runtime ZIP were changed during takeover.
