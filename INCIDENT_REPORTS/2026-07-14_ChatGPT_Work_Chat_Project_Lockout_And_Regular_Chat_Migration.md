@@ -129,3 +129,58 @@ Signed,
 
 **Sol — JOB-00 Coordinator / Integration / Verification regular-chat takeover**  
 **2026-07-14 11:11 PDT**
+
+---
+
+## JOB-07 migration trail — 2026-07-14 12:49 PDT
+
+**JOB:** JOB-07 — Classics / Collector Exchange  
+**Replacement chat:** JOB-07 — Classics / Collector Exchange regular-chat takeover / Sol  
+**Original Work-chat link:** `https://chatgpt.com/share/6a569217-c020-83e8-83de-c947aa36c1ea`  
+**Status:** MIGRATED TO REGULAR CHAT — BLOCKED — BASELINE BINARY AND FINAL BRIDGE CONTRACT MISSING
+
+### What changed
+
+- Created `PROJECT_MANIFESTS/JOB_CLAIMS/JOB-07_CLASSICS_COLLECTOR_EXCHANGE_REGULAR_CHAT_TAKEOVER_2026-07-14.md` in commit `d9c9b5d75dca04e1960c61a2426429723f8f2a13`.
+- Updated the existing JOB-07 claim without deleting its original scope or history.
+- Updated the all-jobs migration tracker to mark JOB-07 migrated.
+- Recorded the exact missing baseline and current blockers.
+
+### Why it changed
+
+The original JOB-07 Work chat became inaccessible on July 14, 2026 because the separate Work-chat usage limit was reached, with access shown as unavailable until July 20, 2026. David was not aware that the entire coordinated project would be subject to that separate limit. Manual migration was required to preserve ownership and continue development.
+
+### Recovery result
+
+The supplied shared URL exposed no retrievable transcript, attachments, hidden tool activity, or generated files. GitHub recovered the JOB-07 claim, scope, dependencies, and architecture rules, but no JOB-07 branch, pull request, source tree, generated ZIP, release candidate, screenshots, logs, or runtime test was found.
+
+### Files affected
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-07_CLASSICS_COLLECTOR_EXCHANGE_CLAIM.md
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-07_CLASSICS_COLLECTOR_EXCHANGE_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+PROJECT_MANIFESTS/JOB_HANDOFFS/OWNER_ALL_JOBS_REGULAR_CHAT_MIGRATION_STATUS_2026-07-14.md
+INCIDENT_REPORTS/2026-07-14_ChatGPT_Work_Chat_Project_Lockout_And_Regular_Chat_Migration.md
+```
+
+No runtime mod source, shared platform code, Career/RLS files, page code, or another job's files were changed.
+
+### Known problems
+
+- Existing Classics/Collector page files cannot be inspected until the current IceFox ecosystem binary is supplied.
+- Any uncommitted JOB-07 build or chat-only design material may be lost or require reupload.
+- JOB-00 has not published the final baseline freeze.
+- JOB-01 platform v0.2 remains runtime untested.
+- JOB-02 has not published the final `job02.bridge.v1` contract required for real vehicle listings and buy-now actions.
+
+### Exact required input
+
+```text
+zzzz_RedFox_FoxNet_Web_Ecosystem_v0_10_3_7_ALL_IN_ONE_PC_PHONE_GARAGE_SELL_FIX(1).zip
+Size: 24,510,848 bytes
+SHA-256: 4dac614a4b14d423c069dccc8bdb5e0e511ee208f7414d3e6ed50a86a7903597
+```
+
+### Required next step
+
+Inspect only the existing Classics/Collector page paths, route, assets, naming, and behavior in that exact baseline. Then publish a JOB-07 baseline inventory and exact planned-edit/protected-file report. Do not implement transaction logic before JOB-02 publishes the final bridge contract.
