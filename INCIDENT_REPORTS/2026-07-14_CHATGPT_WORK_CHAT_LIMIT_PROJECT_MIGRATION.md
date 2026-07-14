@@ -92,3 +92,23 @@ INCIDENT_REPORTS/2026-07-14_CHATGPT_WORK_CHAT_LIMIT_PROJECT_MIGRATION.md
 **Required next step:** Test `PROJECT_RELEASE_CANDIDATES/JOB-05/5-RedFox_BeamBook_Standalone_v0_1_0_RUNTIME_UNTESTED.zip` with the original third-party `beamBook.zip` disabled, then preserve the `[RedFox][BEAMBOOK]` logs and screenshots of each discovery/purchase checkpoint.
 
 This note does not minimize the interruption. Manual migration was required because the project was unintentionally subject to the Work-chat usage limit, producing duplicate-work risk, loss-of-context risk, coordination problems, and unnecessary delay.
+
+## JOB-10 migration note — 2026-07-14 12:52 PDT
+
+**Job:** JOB-10 — Visual Design / Real Website Polish  
+**Change:** Transferred active development ownership from the inaccessible Work chat to a replacement regular chat, created a JOB-10 recovery record, updated the active JOB-10 claim, and marked the job migrated in the owner tracker.  
+**Why:** The original Work chat was inaccessible because of the separate Work-chat usage limit. The supplied share link returned no retrievable transcript or attachments, so continuity had to be reconstructed from GitHub and limited available project context.  
+**Files affected:**
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-10_VISUAL_DESIGN_REAL_WEBSITE_POLISH_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-10_VISUAL_DESIGN_REAL_WEBSITE_POLISH_CLAIM.md
+PROJECT_MANIFESTS/JOB_HANDOFFS/OWNER_ALL_JOBS_REGULAR_CHAT_MIGRATION_STATUS_2026-07-14.md
+INCIDENT_REPORTS/2026-07-14_CHATGPT_WORK_CHAT_LIMIT_PROJECT_MIGRATION.md
+```
+
+**Current status:** MIGRATED TO REGULAR CHAT — CLAIMED — BLOCKED — NO JOB-10 VISUAL BUILD OR EDITABLE BASELINE RECOVERED.  
+**Known problems:** The complete old transcript and attachments are unavailable; the exact current IceFox/FoxNet ecosystem ZIP and third-party `beamBook.zip` are not stored in GitHub; any uncommitted JOB-10 source or mockups may be missing; related JOB-01 and JOB-05 candidates remain runtime untested; stable functional handoffs are incomplete.  
+**Required next step:** Reupload the exact current ecosystem ZIP and `beamBook.zip`, perform an inspection-only comparison against the nine committed BeamBook visual references and JOB-01 draft PR `#3`, then publish the exact editable/protected file manifest and viewport requirements before any visual code changes.
+
+This JOB-10 note preserves the criticism and impact. The manual transfer was not routine planned work; it was required because the project was unintentionally placed under a separate Work-chat usage limit, causing development interruption, duplicate-work risk, loss-of-context risk, coordination problems, and unnecessary delay.
