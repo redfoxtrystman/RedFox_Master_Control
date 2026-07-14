@@ -1,6 +1,6 @@
 # 5 — JOB-05 — BeamBook Marketplace — Claim Record
 
-**Status:** CLAIMED — IMPLEMENTATION BLOCKED PENDING SHARED CONTRACTS  
+**Status:** CLAIMED — OWNER-AUTHORIZED STANDALONE TEST IN PROGRESS — SHARED ICEFOX INTEGRATION STILL BLOCKED  
 **Owner/chat title:** 5 — JOB-05 — BeamBook Marketplace  
 **Claim date:** 2026-07-13  
 **Repository:** `redfoxtrystman/RedFox_Master_Control`
@@ -138,6 +138,18 @@ After dependencies are ready:
 - A versioned JOB-05 handoff for JOB-00 integration.
 - No integrated FoxNet ZIP until JOB-00 approves it.
 
+## Owner-authorized standalone test override — 2026-07-14
+
+David supplied the current IceFox ecosystem, the third-party BeamBook private-seller reference, FoxFax layout reference, two content packs, purchase rules, content notes, and nine Facebook group-wall screenshots.
+
+David explicitly authorized one temporary standalone BeamBook test package that opens by key and uses a WEUI / World Editor-style settings window. This is a limited override of the normal wait-for-shared-contract order. It does not authorize shared IceFox, phone, PC, registry, bridge, Career/RLS core, App Store, or other app edits.
+
+The exact plan, hashes, protected paths, screenshot interpretation, reference-asset policy, and verification plan are recorded here:
+
+`PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-05_STANDALONE_BEAMBOOK_TEST_PLAN_2026-07-14.md`
+
+The standalone test will lazy-load on BeamBook open. It will not auto-load a Career module or patch vehicle shopping at startup. The current IceFox BeamBook page is a placeholder/reference only. Shared phone/PC IceFox integration remains blocked until the JOB-01/JOB-02 contracts are published.
+
 ## Current action
 
-This claim completes the Git rollcall for JOB-05. It does not select a baseline, edit feature code, or build a ZIP.
+Build the isolated owner-authorized standalone test, preserve reference inputs on GitHub where distribution and repository-health rules allow, and report all runtime behavior as unproven until David tests the exact ZIP.
