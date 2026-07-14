@@ -112,3 +112,23 @@ INCIDENT_REPORTS/2026-07-14_CHATGPT_WORK_CHAT_LIMIT_PROJECT_MIGRATION.md
 **Required next step:** Reupload the exact current ecosystem ZIP and `beamBook.zip`, perform an inspection-only comparison against the nine committed BeamBook visual references and JOB-01 draft PR `#3`, then publish the exact editable/protected file manifest and viewport requirements before any visual code changes.
 
 This JOB-10 note preserves the criticism and impact. The manual transfer was not routine planned work; it was required because the project was unintentionally placed under a separate Work-chat usage limit, causing development interruption, duplicate-work risk, loss-of-context risk, coordination problems, and unnecessary delay.
+
+## JOB-11 migration note — 2026-07-14 13:02 PDT
+
+**Job:** JOB-11 — QA / Logging / Failure Triage  
+**Change:** Transferred active development ownership from the inaccessible Work chat to a replacement regular chat, created a JOB-11 recovery record, updated the active JOB-11 claim, and marked the job migrated in the owner tracker.  
+**Why:** The original Work chat was inaccessible because of the separate Work-chat usage limit. The supplied share link returned no retrievable transcript or attachments, so continuity had to be reconstructed from GitHub and limited available project context.  
+**Files affected:**
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-11_QA_LOGGING_FAILURE_TRIAGE_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-11_QA_LOGGING_FAILURE_TRIAGE_CLAIM.md
+PROJECT_MANIFESTS/JOB_HANDOFFS/OWNER_ALL_JOBS_REGULAR_CHAT_MIGRATION_STATUS_2026-07-14.md
+INCIDENT_REPORTS/2026-07-14_CHATGPT_WORK_CHAT_LIMIT_PROJECT_MIGRATION.md
+```
+
+**Current status:** MIGRATED TO REGULAR CHAT — CLAIMED — QA FRAMEWORK DOCUMENTATION ONLY — NO JOB-11 RUNTIME BUILD.  
+**Known problems:** The complete old transcript and attachments are unavailable; no separate logging specification, master test matrix, failure-template set, package checker, fingerprint checklist, JOB-11 branch, runtime build, or BeamNG test bundle exists in GitHub; JOB-01 and JOB-05 candidates remain runtime untested; the JOB-02/JOB-03 contracts and canonical integrated baseline remain incomplete.  
+**Required next step:** Publish the missing JOB-11-owned QA artifacts, then run static Gate 1 on the first exact candidate supplied by JOB-00 or David. Runtime must remain unproven until David tests the exact candidate in BeamNG and supplies logs, installed-mod fingerprints, timestamps, and screenshots.
+
+This JOB-11 note preserves the criticism and impact. The manual transfer was not routine planned work; it was required because the project was unintentionally placed under a separate Work-chat usage limit, causing development interruption, duplicate-work risk, loss-of-context risk, coordination problems, and unnecessary delay.
