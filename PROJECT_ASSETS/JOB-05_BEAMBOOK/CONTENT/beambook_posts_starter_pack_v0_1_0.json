@@ -1,0 +1,5812 @@
+{
+  "metadata": {
+    "packName": "BeamBook Starter Content Pack",
+    "version": "0.1.0",
+    "createdFor": "RedFox / BeamNG Career Beambook spoof",
+    "recommendedPath": "assets/config/beambook_posts.json",
+    "notes": [
+      "Editable JSON. Do not render post text as images.",
+      "linkType can route to marketplace, vehicleListing, business, insurance, storage, shop, map, profile, 404, or none.",
+      "Marketplace prop posts are intentionally generic so game-side code can map itemType/tags to actual prop spawn IDs.",
+      "Political content intentionally omitted."
+    ],
+    "storageTargets": {
+      "Home Garage": "personal vehicles",
+      "Tow Yard": "legal tow/recovery storage",
+      "Ice Box": "illegal/hot storage",
+      "Auction Lot": "vehicles for sale",
+      "Parts Inventory": "stripped parts"
+    },
+    "partsRule": {
+      "defaultDestination": "general parts inventory",
+      "allowedMarks": [
+        "Legal",
+        "Hot",
+        "Unknown",
+        "Cleaned"
+      ]
+    }
+  },
+  "posts": [
+    {
+      "id": "wall_0001",
+      "author": "Uncle Skeeter",
+      "category": "Wall",
+      "title": "Blinker Fluid Emergency",
+      "body": "Anybody got DOT-approved blinker fluid? Left side is blinking dry and the right side sounds crunchy.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "That is not a fluid system, Bob."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Then why does the parts store keep laughing when I ask?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Because you keep paying them."
+        }
+      ]
+    },
+    {
+      "id": "wall_0002",
+      "author": "Frankie Flatbed",
+      "category": "Wall",
+      "title": "Traction Upgrade Tested",
+      "body": "Put 38 drywall screws through my tires for winter grip. Works great until speed bumps start unscrewing the road.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "Please do not do that."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "I did roofing nails last year. Softer ride."
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "That explains the sparks on Route 5."
+        }
+      ]
+    },
+    {
+      "id": "wall_0003",
+      "author": "Linda Lugnut",
+      "category": "Local",
+      "title": "Lost Muffler",
+      "body": "Lost a muffler near the diner. If found, please return. It answers to 'BWAHHHHH'.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Linda Lugnut",
+          "body": "I saw it rolling east."
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "It passed me doing 45."
+        },
+        {
+          "author": "Big Hank",
+          "body": "That muffler has warrants."
+        }
+      ]
+    },
+    {
+      "id": "wall_0004",
+      "author": "Darla Diesel",
+      "category": "Community",
+      "title": "Not Stuck",
+      "body": "For the record, I was not stuck. I was simply parked vertically in a ditch for tactical reasons.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Cone Guy Carl",
+          "body": "Your hazard lights were spelling HELP."
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "That was Morse code for confidence."
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Tow bill says otherwise."
+        }
+      ]
+    },
+    {
+      "id": "wall_0005",
+      "author": "Nora Nitro",
+      "category": "Local",
+      "title": "Free Range Shopping Cart",
+      "body": "There is a shopping cart merging onto the highway again. Somebody come get your livestock.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Suspicious Steve",
+          "body": "That cart belongs to the mall."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Mall says it left for college."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "It has better lane discipline than most drivers."
+        }
+      ]
+    },
+    {
+      "id": "wall_0006",
+      "author": "Cletus McBlinker",
+      "category": "Garage Talk",
+      "title": "Garage Wisdom",
+      "body": "Mechanic said I need a new transfer case. I asked if we could just transfer the case to somebody else.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "That is fraud."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "That is budgeting."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "That is Belasco accounting."
+        }
+      ]
+    },
+    {
+      "id": "wall_0007",
+      "author": "Pete Parts",
+      "category": "Rants",
+      "title": "Noise Complaint",
+      "body": "Whoever is testing a horn at 2 AM, congratulations, it works. The whole valley heard it.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "That was my alarm system."
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "For what, aircraft?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "My truck dreams big."
+        }
+      ]
+    },
+    {
+      "id": "wall_0008",
+      "author": "Tow Yard Terry",
+      "category": "Local",
+      "title": "DIY Alignment",
+      "body": "Did my own alignment using string, a mailbox, and prayer. Truck now drives straight if the road agrees.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "The mailbox disagrees."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Mailbox filed a report."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Prayer was denied."
+        }
+      ]
+    },
+    {
+      "id": "wall_0009",
+      "author": "Nora Nitro",
+      "category": "Rants",
+      "title": "Fuel Economy Hack",
+      "body": "Removed my doors, hood, bumper, and common sense. Gained 0.4 MPG and 9 legal problems.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "Worth it."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "Not worth it."
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Depends on gas prices."
+        }
+      ]
+    },
+    {
+      "id": "wall_0010",
+      "author": "Randy Roadkill",
+      "category": "Garage Talk",
+      "title": "Professional Advice",
+      "body": "If your check engine light comes on, put tape over it. If it comes back, use better tape.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "No."
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "The black electrical tape is OEM quality."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "This is why inspections exist."
+        }
+      ]
+    },
+    {
+      "id": "wall_0011",
+      "author": "Cone Guy Carl",
+      "category": "Garage Talk",
+      "title": "Suspicious Cargo",
+      "body": "If anyone asks, the 14 traffic barrels in my driveway are decorative planters.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "They still say county road crew."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "That is the brand."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Sir, open your gate."
+        }
+      ]
+    },
+    {
+      "id": "wall_0012",
+      "author": "Billy No-Insurance",
+      "category": "Wall",
+      "title": "Driveway Jump",
+      "body": "Built a small driveway ramp. Mailman says it is not small. Ambulance says it is not a driveway anymore.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "marketplace",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Post video."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Do not post video."
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Post video after court."
+        }
+      ]
+    },
+    {
+      "id": "wall_0013",
+      "author": "Pete Parts",
+      "category": "Community",
+      "title": "Brake Scent",
+      "body": "Is it normal for brakes to smell like campfire and panic?",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "No."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Only downhill."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Stop towing a house with a hatchback."
+        }
+      ]
+    },
+    {
+      "id": "wall_0014",
+      "author": "Marge from Firwood",
+      "category": "Garage Talk",
+      "title": "New Tire Plan",
+      "body": "Rotated my tires front to neighbor's yard. Anybody got a jack and a believable story?",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Again?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Use the one from last time."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "The neighbor has cameras now."
+        }
+      ]
+    },
+    {
+      "id": "wall_0015",
+      "author": "Turbo Tim",
+      "category": "Local",
+      "title": "Insurance Question",
+      "body": "Hypothetically, if a deer hits your car while you are parked in a lake, is that comprehensive?",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "marketplace",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Marge from Firwood",
+          "body": "That is a confession."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Depends if the deer was insured."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Please call an adult."
+        }
+      ]
+    },
+    {
+      "id": "wall_0016",
+      "author": "Marge from Firwood",
+      "category": "Local",
+      "title": "Speed Bump Review",
+      "body": "New speed bumps downtown are too aggressive. One of them followed me home stuck to my frame.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "That was a curb."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Same energy."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Bring it back."
+        }
+      ]
+    },
+    {
+      "id": "wall_0017",
+      "author": "Bumper Brenda",
+      "category": "Garage Talk",
+      "title": "Quality Repair",
+      "body": "Replaced my bumper with a railroad tie. Now small crashes sound historical.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Suspicious Steve",
+          "body": "That cannot be legal."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "It is rustic."
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "It has splinters at highway speed."
+        }
+      ]
+    },
+    {
+      "id": "wall_0018",
+      "author": "Cletus McBlinker",
+      "category": "Garage Talk",
+      "title": "Tow Strap Etiquette",
+      "body": "Reminder: a tow strap is not a friendship bracelet for trucks. Stop hooking to mirrors.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Wanda Winchline",
+          "body": "But mirrors are convenient."
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Conveniently gone."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Ask me how I know."
+        }
+      ]
+    },
+    {
+      "id": "wall_0019",
+      "author": "Bumper Brenda",
+      "category": "Local",
+      "title": "Road Cone Mystery",
+      "body": "Why are there cones in my bed? Truck bed, not sleeping bed. This time.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "This time?"
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "BeamBook needs less context."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "I can buy them."
+        }
+      ]
+    },
+    {
+      "id": "wall_0020",
+      "author": "Turbo Tim",
+      "category": "Local",
+      "title": "Neighborhood Alert",
+      "body": "If your sedan is missing, check the roof of Big Hank's garage. He says the lift was 'calibrating.'",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "It was."
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Gravity helped."
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "I want my sedan back."
+        }
+      ]
+    },
+    {
+      "id": "wall_0021",
+      "author": "Cletus McBlinker",
+      "category": "Garage Talk",
+      "title": "Mud Test",
+      "body": "Went mudding. Mud won. Truck is now part of the landscape.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "Coordinates?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "I can hear it bubbling."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Do not sell it as waterfront property."
+        }
+      ]
+    },
+    {
+      "id": "wall_0022",
+      "author": "Linda Lugnut",
+      "category": "Rants",
+      "title": "Trailer Math",
+      "body": "A 2,000 lb trailer plus a 900 lb compact equals confidence until the hill starts asking questions.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Officer Dale",
+          "body": "The hill asked loudly."
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Your clutch answered smoke."
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Tow Yard Terry liked this."
+        }
+      ]
+    },
+    {
+      "id": "wall_0023",
+      "author": "Nora Nitro",
+      "category": "Community",
+      "title": "Washer Fluid Substitute",
+      "body": "Can I use sweet tea as washer fluid? Asking before I become famous.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Linda Lugnut",
+          "body": "No."
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Ants say yes."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Windshield says sticky."
+        }
+      ]
+    },
+    {
+      "id": "wall_0024",
+      "author": "Cone Guy Carl",
+      "category": "Garage Talk",
+      "title": "Strange Rattle",
+      "body": "Truck has a rattle that stops when I turn the radio up. Fixed?",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "marketplace",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Suspicious Steve",
+          "body": "Technically diagnosed."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Not fixed."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Emotionally fixed."
+        }
+      ]
+    },
+    {
+      "id": "wall_0025",
+      "author": "Linda Lugnut",
+      "category": "Garage Talk",
+      "title": "Curb Appeal",
+      "body": "Hit one curb and suddenly everybody says I 'should not drive the parade float.' Fake friends.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "You hit the mayor."
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "The mayor was on the float."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Details."
+        }
+      ]
+    },
+    {
+      "id": "wall_0026",
+      "author": "Sheriff Knox",
+      "category": "Wall",
+      "title": "Cheap Lift Kit",
+      "body": "Installed a homemade lift kit using hockey pucks and stubbornness. Rides like a shopping cart in a dryer.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "So normal?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "For you, yes."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Inspection station has entered the chat."
+        }
+      ]
+    },
+    {
+      "id": "wall_0027",
+      "author": "Bumper Brenda",
+      "category": "Local",
+      "title": "Bridge Height",
+      "body": "Box truck almost fit under the bridge. I feel like the sign should say 'probably not.'",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "marketplace",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Linda Lugnut",
+          "body": "It says 10 ft 6."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "My tape measure rounds down."
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "So did your roof."
+        }
+      ]
+    },
+    {
+      "id": "wall_0028",
+      "author": "Rusty Ray",
+      "category": "Rants",
+      "title": "Garage Sale Warning",
+      "body": "Selling used airbags. Some already deployed, some emotionally ready.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Suspicious Steve",
+          "body": "Absolutely not."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Do they come with stories?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Only the loud ones."
+        }
+      ]
+    },
+    {
+      "id": "wall_0029",
+      "author": "Turbo Tim",
+      "category": "Rants",
+      "title": "Legal Question",
+      "body": "Can a car be considered a boat if it is only floating briefly?",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "marketplace",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "No."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Depends on registration."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Stop testing at the marina."
+        }
+      ]
+    },
+    {
+      "id": "wall_0030",
+      "author": "Cone Guy Carl",
+      "category": "Garage Talk",
+      "title": "Tire Pressure",
+      "body": "Inflated tires to 90 PSI because more number means more better. Truck now corners like a scared balloon.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Linda Lugnut",
+          "body": "Let air out."
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Let ego out too."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "No promises."
+        }
+      ]
+    },
+    {
+      "id": "wall_0031",
+      "author": "Marge from Firwood",
+      "category": "Rants",
+      "title": "Horn Upgrade",
+      "body": "Installed train horn. Now the train waves back.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Wanda Winchline",
+          "body": "That was not a wave."
+        },
+        {
+          "author": "Big Hank",
+          "body": "It was a warning."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Same thing in Belasco."
+        }
+      ]
+    },
+    {
+      "id": "wall_0032",
+      "author": "Darla Diesel",
+      "category": "Community",
+      "title": "Country GPS",
+      "body": "GPS said turn left into a field. I trusted technology. Cow did not.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Darla Diesel",
+          "body": "Cow had right of way."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Cow posted dashcam."
+        },
+        {
+          "author": "Big Hank",
+          "body": "You owe milk money."
+        }
+      ]
+    },
+    {
+      "id": "wall_0033",
+      "author": "Officer Dale",
+      "category": "Rants",
+      "title": "Rust Prevention",
+      "body": "Covered my frame in bacon grease to prevent rust. Now dogs follow me to work.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "marketplace",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Linda Lugnut",
+          "body": "Rust gone?"
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "No, but morale improved."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Coyotes too."
+        }
+      ]
+    },
+    {
+      "id": "wall_0034",
+      "author": "Officer Dale",
+      "category": "Rants",
+      "title": "Career Advice",
+      "body": "Thinking about opening a mobile repair shop. Services include jump starts, bad advice, and removing evidence.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "marketplace",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Do not advertise the third one."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Too late."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "I need all three."
+        }
+      ]
+    },
+    {
+      "id": "wall_0035",
+      "author": "Suspicious Steve",
+      "category": "Community",
+      "title": "Light Bar Etiquette",
+      "body": "If your light bar can tan a deer at 200 yards, maybe aim it lower.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Linda Lugnut",
+          "body": "No."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Yes."
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "My retinas filed paperwork."
+        }
+      ]
+    },
+    {
+      "id": "wall_0036",
+      "author": "Tow Yard Terry",
+      "category": "Community",
+      "title": "Professional Driver",
+      "body": "I have driven this road 400 times. Today I learned there is a ditch.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "The ditch learned too."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Ditch undefeated."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Tow Yard Terry reacted with money."
+        }
+      ]
+    },
+    {
+      "id": "wall_0037",
+      "author": "Marty Mudflap",
+      "category": "Rants",
+      "title": "Mystery Button",
+      "body": "Pressed a button I found under the dash. Now the radio speaks Italian and the wipers salute.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "Factory option."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Do not press it again."
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Press it twice for pasta mode."
+        }
+      ]
+    },
+    {
+      "id": "wall_0038",
+      "author": "Linda Lugnut",
+      "category": "Community",
+      "title": "Auction Regret",
+      "body": "Bought a car listed as 'ran when parked.' Turns out it was parked in 1998 and ran from the police.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "Still counts."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Does it have keys?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "It has opinions."
+        }
+      ]
+    },
+    {
+      "id": "wall_0039",
+      "author": "Marty Mudflap",
+      "category": "Community",
+      "title": "Snow Chain Hack",
+      "body": "Used extension cords as snow chains. Power company is asking questions.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "No traction, but great lighting."
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Return my cords."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "This is why manuals exist."
+        }
+      ]
+    },
+    {
+      "id": "wall_0040",
+      "author": "Big Hank",
+      "category": "Garage Talk",
+      "title": "Farm Truck Pride",
+      "body": "My truck has three colors: primer, rust, and court evidence.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "Patriotic."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Regional camouflage."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Mostly rust."
+        }
+      ]
+    },
+    {
+      "id": "wall_0041",
+      "author": "Darla Diesel",
+      "category": "Garage Talk",
+      "title": "Tow Warning",
+      "body": "Do not tow from a plastic bumper. This message sponsored by half a bumper.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Wanda Winchline",
+          "body": "I have the other half."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "It blinked at me."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Marketplace listing incoming."
+        }
+      ]
+    },
+    {
+      "id": "wall_0042",
+      "author": "Earl E-Brake",
+      "category": "Local",
+      "title": "Garage Smell",
+      "body": "If a garage smells like gas, oil, and regret, is that bad ventilation or character?",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Officer Dale",
+          "body": "Yes."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "Character can explode."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Open a window."
+        }
+      ]
+    },
+    {
+      "id": "wall_0043",
+      "author": "Wanda Winchline",
+      "category": "Local",
+      "title": "Truck Bed Pool",
+      "body": "Filled my truck bed with water for the kids. Forgot tailgate gap. Street got a wave pool.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Cone Guy Carl",
+          "body": "City says thanks."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Fish moved in."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Is this zoning?"
+        }
+      ]
+    },
+    {
+      "id": "wall_0044",
+      "author": "Jenny Jbeam",
+      "category": "Community",
+      "title": "Police Scanner",
+      "body": "Whoever reported a UFO over the quarry, that was my hood after the jump.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Suspicious Steve",
+          "body": "It had lights."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "It was spinning."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Close enough."
+        }
+      ]
+    },
+    {
+      "id": "wall_0045",
+      "author": "Cletus McBlinker",
+      "category": "Wall",
+      "title": "Tow Yard Etiquette",
+      "body": "If your vehicle arrives at my yard upside down, storage fees still apply. Gravity is not a coupon.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Unfair."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Fair."
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Can I pay in cones?"
+        }
+      ]
+    },
+    {
+      "id": "wall_0046",
+      "author": "Sheriff Knox",
+      "category": "Garage Talk",
+      "title": "Mechanic Review",
+      "body": "Five stars to the mechanic who said 'wow' before giving me the estimate. Honest communication.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "That wow cost $900."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Cheap wow."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Mine was a whistle."
+        }
+      ]
+    },
+    {
+      "id": "wall_0047",
+      "author": "Linda Lugnut",
+      "category": "Rants",
+      "title": "Siren Confusion",
+      "body": "To the guy who followed the ambulance thinking it was a pace car: stop.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Darla Diesel",
+          "body": "But it had lights."
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "It had a patient."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "So did my truck."
+        }
+      ]
+    },
+    {
+      "id": "wall_0048",
+      "author": "Uncle Skeeter",
+      "category": "Garage Talk",
+      "title": "Roadside Picnic",
+      "body": "Broke down again. If anyone wants sandwiches, I am by mile marker 12 with a sedan and lowered expectations.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "marketplace",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "Turkey?"
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Bring tools."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Tools are just metal sandwiches."
+        }
+      ]
+    },
+    {
+      "id": "wall_0049",
+      "author": "Linda Lugnut",
+      "category": "Local",
+      "title": "Mudflap Debate",
+      "body": "Are mudflaps required if the whole vehicle is mud?",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "none",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "Philosophically no."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Legally yes."
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Aesthetically yes."
+        }
+      ]
+    },
+    {
+      "id": "wall_0050",
+      "author": "Marge from Firwood",
+      "category": "Wall",
+      "title": "Shopping List",
+      "body": "Need: one radiator, two headlights, three excuses, and a passenger who will stop screaming.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "I sell headlights."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "I sell excuses."
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Passenger unavailable."
+        }
+      ]
+    },
+    {
+      "id": "wall_0051",
+      "author": "Randy Roadkill",
+      "category": "Local",
+      "title": "Exhaust Recipe",
+      "body": "Trying to make my exhaust sound deeper. So far it just sounds divorced.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "404",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "That is a tone."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Needs more pipe."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Needs counseling."
+        }
+      ]
+    },
+    {
+      "id": "wall_0052",
+      "author": "The Real Belasco Mechanic",
+      "category": "Local",
+      "title": "Fender Bender",
+      "body": "Minor fender bender. Fender left. Bender stayed.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "marketplace",
+      "tags": [
+        "npc",
+        "joke",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Darla Diesel",
+          "body": "Poetry."
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Report filed."
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Marketplace soon."
+        }
+      ]
+    },
+    {
+      "id": "official_0001",
+      "author": "Fire & Rescue 7",
+      "category": "Accident Report",
+      "title": "Police Advisory: Quarry Road",
+      "body": "Multiple vehicles attempted to jump the construction trench. The trench remains undefeated. Expect delays and tow trucks.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "404",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Suspicious Steve",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0002",
+      "author": "Fire & Rescue 7",
+      "category": "Accident Report",
+      "title": "Belasco PD: Cone Theft",
+      "body": "We are aware of the missing road cones downtown. Returning them anonymously is better than using them as lawn flamingos.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "map",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0003",
+      "author": "Sheriff Knox",
+      "category": "Police",
+      "title": "Accident Report: Firwood Hill",
+      "body": "Two trucks, one trailer, and a piano were involved. No serious injuries. The piano is considered emotionally totaled.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "map",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0004",
+      "author": "County Roads Office",
+      "category": "Public Notice",
+      "title": "Road Closure: West Coast Bridge",
+      "body": "Bridge inspection underway after a box truck tried to become a convertible.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "map",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0005",
+      "author": "County Roads Office",
+      "category": "Accident Report",
+      "title": "Public Notice: Raceway Noise",
+      "body": "Reports of engine noise near the raceway have been confirmed to be the raceway.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "insurance",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0006",
+      "author": "County Roads Office",
+      "category": "Public Notice",
+      "title": "Sheriff Notice: Illegal Ramp",
+      "body": "The plywood ramp behind the grocery store is not county-approved infrastructure.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "none",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0007",
+      "author": "Belasco Police Department",
+      "category": "Road Closure",
+      "title": "Tow Notice: Lake Road",
+      "body": "Submerged vehicles will be charged wet storage fees. Tow Yard Terry says towels are not included.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "404",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0008",
+      "author": "Port Authority",
+      "category": "Public Notice",
+      "title": "Safety Reminder: Load Securement",
+      "body": "If your couch passes you on the highway, your tie-down strategy has failed.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "insurance",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Suspicious Steve",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0009",
+      "author": "Port Authority",
+      "category": "Road Closure",
+      "title": "Insurance Bulletin",
+      "body": "Driving into a decorative fountain is not 'hydro testing.'",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "map",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0010",
+      "author": "Fire & Rescue 7",
+      "category": "Road Closure",
+      "title": "County Roads: Fresh Gravel",
+      "body": "Fresh gravel has been placed. This is not an invitation to test drift angles.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "insurance",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0011",
+      "author": "County Roads Office",
+      "category": "Accident Report",
+      "title": "Belasco PD: Suspicious Trailer",
+      "body": "A trailer full of mannequins is legal. Creepy, but legal. Stop calling 911 unless they start driving.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "insurance",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Wanda Winchline",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0012",
+      "author": "Port Authority",
+      "category": "Accident Report",
+      "title": "Fire Dept Notice",
+      "body": "Do not extinguish brake fires with energy drinks. That is not science.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "map",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Cone Guy Carl",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0013",
+      "author": "Beam Insurance Claims",
+      "category": "Insurance",
+      "title": "DMV Notice",
+      "body": "A cracked windshield cannot be repaired with clear packing tape and optimism.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "none",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0014",
+      "author": "Sheriff Knox",
+      "category": "Accident Report",
+      "title": "Public Works",
+      "body": "Please stop moving detour signs to create shortcuts to your house.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "none",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0015",
+      "author": "Fire & Rescue 7",
+      "category": "Road Closure",
+      "title": "Police Advisory: Night Driving",
+      "body": "If you cannot see over your dashboard, remove the stack of unpaid parking tickets from it.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "404",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0016",
+      "author": "Sheriff Knox",
+      "category": "Accident Report",
+      "title": "Road Hazard",
+      "body": "Loose tire on Route 8. Tire appears confident and refuses to pull over.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "none",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0017",
+      "author": "Port Authority",
+      "category": "Insurance",
+      "title": "Tow Rotation Notice",
+      "body": "Recovered vehicles from the canyon will be processed by rotation. Vehicles found in trees require extra paperwork.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "none",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0018",
+      "author": "Sheriff Knox",
+      "category": "Road Closure",
+      "title": "Belasco PD: Noise Enforcement",
+      "body": "A muffler delete is not a musical instrument permit.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "insurance",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Wanda Winchline",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0019",
+      "author": "Sheriff Knox",
+      "category": "Road Closure",
+      "title": "County Notice: Mudslide",
+      "body": "Mudslide near old mine road. This is a hazard, not a free off-road park.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "insurance",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0020",
+      "author": "Port Authority",
+      "category": "Accident Report",
+      "title": "Insurance PSA",
+      "body": "A vehicle listed as 'lightly rolled' may still count as rolled.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "map",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Marge from Firwood",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0021",
+      "author": "County Roads Office",
+      "category": "Public Notice",
+      "title": "Garage Fire Update",
+      "body": "Small garage fire contained. Cause listed as 'experimental fuel economy device.'",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "none",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Officer Dale",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0022",
+      "author": "Fire & Rescue 7",
+      "category": "Accident Report",
+      "title": "Highway Patrol",
+      "body": "Do not race the AI traffic. The AI has no fear, no insurance, and no family to disappoint.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "none",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0023",
+      "author": "Beam Insurance Claims",
+      "category": "Road Closure",
+      "title": "City Alert: Roundabout",
+      "body": "The roundabout is not a carousel. Stop doing laps for applause.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "none",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Linda Lugnut",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0024",
+      "author": "Beam Insurance Claims",
+      "category": "Police",
+      "title": "Parking Notice",
+      "body": "Vehicles parked on top of other vehicles will be cited separately.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "map",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0025",
+      "author": "County Roads Office",
+      "category": "Road Closure",
+      "title": "Belasco PD: Found Property",
+      "body": "Recovered: one hood, blue; one bumper, red; one driver, confused.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "404",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0026",
+      "author": "Fire & Rescue 7",
+      "category": "Road Closure",
+      "title": "Rail Crossing Reminder",
+      "body": "The train has priority. The train also has mass. Please do not argue with either.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "map",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0027",
+      "author": "Fire & Rescue 7",
+      "category": "Accident Report",
+      "title": "Construction Notice",
+      "body": "Road crew barrels are not collectibles. Marketplace listings will be monitored.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "none",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0028",
+      "author": "Port Authority",
+      "category": "Road Closure",
+      "title": "Public Safety",
+      "body": "If your trailer starts steering, stop and rethink your afternoon.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "map",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Cone Guy Carl",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0029",
+      "author": "Fire & Rescue 7",
+      "category": "Public Notice",
+      "title": "Port Authority",
+      "body": "Dock ramps are slippery. That does not make them launch ramps.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "map",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "official_0030",
+      "author": "County Roads Office",
+      "category": "Road Closure",
+      "title": "Sheriff Knox Update",
+      "body": "We are still looking for the owner of a wheel found inside the courthouse fountain.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "none",
+      "tags": [
+        "official",
+        "lore",
+        "accident"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "I saw that happen."
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Tow truck was already waiting."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Nobody learned anything, did they?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0001",
+      "author": "Pete Parts",
+      "category": "Marketplace",
+      "title": "12 traffic cones for sale",
+      "body": "Safety orange. Mostly round. One has bite marks. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 45,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 12,
+      "tags": [
+        "marketplace",
+        "prop",
+        "traffic_cones"
+      ],
+      "comments": [
+        {
+          "author": "Marge from Firwood",
+          "body": "Still available?"
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0002",
+      "author": "Tow Yard Terry",
+      "category": "Marketplace",
+      "title": "6 barrels for sale",
+      "body": "Great for road work, parking drama, or pretending your driveway is official. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 80,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 6,
+      "tags": [
+        "marketplace",
+        "prop",
+        "barrels"
+      ],
+      "comments": [
+        {
+          "author": "Darla Diesel",
+          "body": "Still available?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0003",
+      "author": "Tow Yard Terry",
+      "category": "Marketplace",
+      "title": "4 plastic barricades for sale",
+      "body": "Lightweight. One says 'ROAD CLOSED' but it is emotionally open. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 120,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 4,
+      "tags": [
+        "marketplace",
+        "prop",
+        "plastic_barricades"
+      ],
+      "comments": [
+        {
+          "author": "Suspicious Steve",
+          "body": "Still available?"
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0004",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "3 concrete barriers for sale",
+      "body": "Heavy. Bring a trailer, not confidence. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 300,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 3,
+      "tags": [
+        "marketplace",
+        "prop",
+        "concrete_barriers"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "Still available?"
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0005",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "8 road signs for sale",
+      "body": "Stop, yield, detour, and one mystery sign that may be from Canada. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 160,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 8,
+      "tags": [
+        "marketplace",
+        "prop",
+        "road_signs"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Still available?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0006",
+      "author": "Pete Parts",
+      "category": "Marketplace",
+      "title": "5 construction lights for sale",
+      "body": "Blink sometimes. More reliable than Cletus. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 90,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 5,
+      "tags": [
+        "marketplace",
+        "prop",
+        "construction_lights"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "Still available?"
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0007",
+      "author": "Cone Guy Carl",
+      "category": "Marketplace",
+      "title": "25 sandbags for sale",
+      "body": "Used once during a flood, twice during a family argument. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 75,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 25,
+      "tags": [
+        "marketplace",
+        "prop",
+        "sandbags"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "Still available?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0008",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "20 wood pallets for sale",
+      "body": "Some broken, some splintery, all full of opportunity. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 50,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 20,
+      "tags": [
+        "marketplace",
+        "prop",
+        "wood_pallets"
+      ],
+      "comments": [
+        {
+          "author": "Suspicious Steve",
+          "body": "Still available?"
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0009",
+      "author": "Randy Roadkill",
+      "category": "Marketplace",
+      "title": "1 shipping container for sale",
+      "body": "Doors close if you ask politely and use a forklift. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 1200,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "shipping_container"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "Still available?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0010",
+      "author": "Cone Guy Carl",
+      "category": "Marketplace",
+      "title": "2 small ramps for sale",
+      "body": "For loading mowers or making terrible choices. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 250,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 2,
+      "tags": [
+        "marketplace",
+        "prop",
+        "small_ramps"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "Still available?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0011",
+      "author": "Pete Parts",
+      "category": "Marketplace",
+      "title": "10 tire stacks for sale",
+      "body": "Raceway leftovers. Smell like rubber and ambition. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 100,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 10,
+      "tags": [
+        "marketplace",
+        "prop",
+        "tire_stacks"
+      ],
+      "comments": [
+        {
+          "author": "Officer Dale",
+          "body": "Still available?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0012",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "14 hay bales for sale",
+      "body": "Dry, square, and judgmental. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 140,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 14,
+      "tags": [
+        "marketplace",
+        "prop",
+        "hay_bales"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Still available?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0013",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "3 picnic tables for sale",
+      "body": "One has initials carved in it. Might be haunted by lunch. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 210,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 3,
+      "tags": [
+        "marketplace",
+        "prop",
+        "picnic_tables"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Still available?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0014",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "4 benches for sale",
+      "body": "Town removed them. I removed them from being removed. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 180,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 4,
+      "tags": [
+        "marketplace",
+        "prop",
+        "benches"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Still available?"
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0015",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "2 dumpsters for sale",
+      "body": "Green. Empty-ish. Do not ask about the raccoon. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 400,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 2,
+      "tags": [
+        "marketplace",
+        "prop",
+        "dumpsters"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "Still available?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0016",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "7 mailboxes for sale",
+      "body": "Various dent levels. Good for decoration or impact testing. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 70,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 7,
+      "tags": [
+        "marketplace",
+        "prop",
+        "mailboxes"
+      ],
+      "comments": [
+        {
+          "author": "Cone Guy Carl",
+          "body": "Still available?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0017",
+      "author": "Pete Parts",
+      "category": "Marketplace",
+      "title": "2 street lamps for sale",
+      "body": "Tall, awkward, and technically not mine. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 500,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 2,
+      "tags": [
+        "marketplace",
+        "prop",
+        "street_lamps"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "Still available?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0018",
+      "author": "Randy Roadkill",
+      "category": "Marketplace",
+      "title": "12 fences for sale",
+      "body": "Wood sections. Comes with free nails and tetanus concern. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 220,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 12,
+      "tags": [
+        "marketplace",
+        "prop",
+        "fences"
+      ],
+      "comments": [
+        {
+          "author": "Linda Lugnut",
+          "body": "Still available?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0019",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "9 chain-link panels for sale",
+      "body": "Security fence pieces. Keeps people out unless they walk around it. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 260,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 9,
+      "tags": [
+        "marketplace",
+        "prop",
+        "chain-link_panels"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "Still available?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0020",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "2 portable toilets for sale",
+      "body": "Clean enough for a county fair. That is not a high bar. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 350,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 2,
+      "tags": [
+        "marketplace",
+        "prop",
+        "portable_toilets"
+      ],
+      "comments": [
+        {
+          "author": "Wanda Winchline",
+          "body": "Still available?"
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0021",
+      "author": "Pete Parts",
+      "category": "Marketplace",
+      "title": "2 water tanks for sale",
+      "body": "Good for farms, fire roads, or suspicious backyard science. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 650,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 2,
+      "tags": [
+        "marketplace",
+        "prop",
+        "water_tanks"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "Still available?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0022",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "4 propane tanks for sale",
+      "body": "Empty. Probably. I listened and heard nothing. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 180,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 4,
+      "tags": [
+        "marketplace",
+        "prop",
+        "propane_tanks"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "Still available?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0023",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "10 fuel cans for sale",
+      "body": "Red cans, mixed caps. Smell says at least one worked. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 95,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 10,
+      "tags": [
+        "marketplace",
+        "prop",
+        "fuel_cans"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "Still available?"
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0024",
+      "author": "Pete Parts",
+      "category": "Marketplace",
+      "title": "2 tool cabinets for sale",
+      "body": "Drawers stick, but so does loyalty. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 275,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 2,
+      "tags": [
+        "marketplace",
+        "prop",
+        "tool_cabinets"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Still available?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0025",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "3 engine crates for sale",
+      "body": "Mystery motors. One turns by hand, one turns by prayer. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 550,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 3,
+      "tags": [
+        "marketplace",
+        "prop",
+        "engine_crates"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "Still available?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0026",
+      "author": "Tow Yard Terry",
+      "category": "Marketplace",
+      "title": "1 car lifts for sale",
+      "body": "Garage lift. Works if bolted down and respected. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 1500,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "car_lifts"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "Still available?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0027",
+      "author": "Cone Guy Carl",
+      "category": "Marketplace",
+      "title": "1 tow dolly for sale",
+      "body": "Good tires, questionable straps, strong opinions. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 900,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "tow_dolly"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Still available?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0028",
+      "author": "Tow Yard Terry",
+      "category": "Marketplace",
+      "title": "1 flatbed trailer for sale",
+      "body": "Deck has character. Character is mostly dents. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 1800,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "flatbed_trailer"
+      ],
+      "comments": [
+        {
+          "author": "Darla Diesel",
+          "body": "Still available?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0029",
+      "author": "Cone Guy Carl",
+      "category": "Marketplace",
+      "title": "1 utility trailer for sale",
+      "body": "Lights work when they feel included. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 700,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "utility_trailer"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Still available?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0030",
+      "author": "Cone Guy Carl",
+      "category": "Marketplace",
+      "title": "1 camp trailer for sale",
+      "body": "Sleeps two, leaks near three corners, smells like 1987. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 2400,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "camp_trailer"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Still available?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0031",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "1 boat trailer for sale",
+      "body": "No boat. Previous boat made independent life choices. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 650,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "boat_trailer"
+      ],
+      "comments": [
+        {
+          "author": "Cone Guy Carl",
+          "body": "Still available?"
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0032",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "1 boat for sale",
+      "body": "Floats in theory. Bring pump, rope, and optimism. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 1200,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "boat"
+      ],
+      "comments": [
+        {
+          "author": "Suspicious Steve",
+          "body": "Still available?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0033",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "1 jet ski for sale",
+      "body": "Runs when it sees water. Trailer not included unless you argue well. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 800,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "jet_ski"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "Still available?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0034",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "1 forklift for sale",
+      "body": "Starts, lifts, complains. Perfect yard pet. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 3200,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "forklift"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Still available?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0035",
+      "author": "Cone Guy Carl",
+      "category": "Marketplace",
+      "title": "6 warehouse shelves for sale",
+      "body": "Industrial racks. Hold parts, secrets, and bad inventory choices. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 500,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 6,
+      "tags": [
+        "marketplace",
+        "prop",
+        "warehouse_shelves"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "Still available?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0036",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "9 office chairs for sale",
+      "body": "Most roll. One only rotates toward danger. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 90,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 9,
+      "tags": [
+        "marketplace",
+        "prop",
+        "office_chairs"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Still available?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0037",
+      "author": "Randy Roadkill",
+      "category": "Marketplace",
+      "title": "4 desks for sale",
+      "body": "Government surplus. Drawers contain dust and one paperclip. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 160,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 4,
+      "tags": [
+        "marketplace",
+        "prop",
+        "desks"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "Still available?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0038",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "5 computers for sale",
+      "body": "Old shop PCs. Great for fake internet, bad invoices, and BeamBook. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 300,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 5,
+      "tags": [
+        "marketplace",
+        "prop",
+        "computers"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Still available?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0039",
+      "author": "Tow Yard Terry",
+      "category": "Marketplace",
+      "title": "4 TVs for sale",
+      "body": "Screens mostly intact. One only shows weather from 2009. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 250,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 4,
+      "tags": [
+        "marketplace",
+        "prop",
+        "TVs"
+      ],
+      "comments": [
+        {
+          "author": "Marge from Firwood",
+          "body": "Still available?"
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0040",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "2 vending machines for sale",
+      "body": "One snack, one soda. Coin slots judge you. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 600,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 2,
+      "tags": [
+        "marketplace",
+        "prop",
+        "vending_machines"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "Still available?"
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0041",
+      "author": "Tow Yard Terry",
+      "category": "Marketplace",
+      "title": "1 ATMs for sale",
+      "body": "Prop ATM. Empty. I checked because I am thorough. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 1000,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "ATMs"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Still available?"
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0042",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "3 cash registers for sale",
+      "body": "Dings loudly. Makes every garage feel taxable. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 150,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 3,
+      "tags": [
+        "marketplace",
+        "prop",
+        "cash_registers"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Still available?"
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0043",
+      "author": "Cone Guy Carl",
+      "category": "Marketplace",
+      "title": "15 shopping carts for sale",
+      "body": "Herd of carts. Will migrate downhill if unsupervised. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 120,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 15,
+      "tags": [
+        "marketplace",
+        "prop",
+        "shopping_carts"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "Still available?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0044",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "40 cardboard boxes for sale",
+      "body": "Moving boxes. Mostly empty, except one emotional raccoon warning. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 60,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 40,
+      "tags": [
+        "marketplace",
+        "prop",
+        "cardboard_boxes"
+      ],
+      "comments": [
+        {
+          "author": "Marge from Firwood",
+          "body": "Still available?"
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0045",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "30 trash bags for sale",
+      "body": "Stage props. Do not open unless your nose is brave. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 45,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 30,
+      "tags": [
+        "marketplace",
+        "prop",
+        "trash_bags"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Still available?"
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0046",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "1 scrap metal pile for sale",
+      "body": "Mixed parts, beams, panels, and tetanus confetti. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 500,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "scrap_metal_pile"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "Still available?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0047",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "30 junk tires for sale",
+      "body": "Great for track barriers or making neighbors call zoning. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 180,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 30,
+      "tags": [
+        "marketplace",
+        "prop",
+        "junk_tires"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "Still available?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0048",
+      "author": "Randy Roadkill",
+      "category": "Marketplace",
+      "title": "20 rocks for sale",
+      "body": "Decorative boulders. Heavy. Bring equipment or three cousins. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 100,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 20,
+      "tags": [
+        "marketplace",
+        "prop",
+        "rocks"
+      ],
+      "comments": [
+        {
+          "author": "Darla Diesel",
+          "body": "Still available?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0049",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "12 logs for sale",
+      "body": "Fresh-ish logs. Great for cabins, barriers, or chaos. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 240,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 12,
+      "tags": [
+        "marketplace",
+        "prop",
+        "logs"
+      ],
+      "comments": [
+        {
+          "author": "Darla Diesel",
+          "body": "Still available?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0050",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "6 tree stumps for sale",
+      "body": "Stumps with roots. Look natural because they are stubborn. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 120,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 6,
+      "tags": [
+        "marketplace",
+        "prop",
+        "tree_stumps"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "Still available?"
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0051",
+      "author": "Tow Yard Terry",
+      "category": "Marketplace",
+      "title": "3 portable generators for sale",
+      "body": "Two start, one negotiates. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 450,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 3,
+      "tags": [
+        "marketplace",
+        "prop",
+        "portable_generators"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "Still available?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0052",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "2 light towers for sale",
+      "body": "Construction light towers. Night becomes day, neighbors become angry. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 900,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 2,
+      "tags": [
+        "marketplace",
+        "prop",
+        "light_towers"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "Still available?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0053",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "8 security cameras for sale",
+      "body": "Mostly fake. One might be real. That is security. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 240,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 8,
+      "tags": [
+        "marketplace",
+        "prop",
+        "security_cameras"
+      ],
+      "comments": [
+        {
+          "author": "Cone Guy Carl",
+          "body": "Still available?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0054",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "4 gate arms for sale",
+      "body": "Parking gate arms. Excellent for dramatic entrances. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 350,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 4,
+      "tags": [
+        "marketplace",
+        "prop",
+        "gate_arms"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Still available?"
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0055",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "8 parking meters for sale",
+      "body": "Old meters. May still accept quarters from 1996. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 320,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 8,
+      "tags": [
+        "marketplace",
+        "prop",
+        "parking_meters"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "Still available?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0056",
+      "author": "Cone Guy Carl",
+      "category": "Marketplace",
+      "title": "2 traffic lights for sale",
+      "body": "Red/yellow/green. Great shop decor. Bad bedroom lamp. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 850,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 2,
+      "tags": [
+        "marketplace",
+        "prop",
+        "traffic_lights"
+      ],
+      "comments": [
+        {
+          "author": "Darla Diesel",
+          "body": "Still available?"
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0057",
+      "author": "Cone Guy Carl",
+      "category": "Marketplace",
+      "title": "1 bus stop shelter for sale",
+      "body": "Glass panels mostly present. Comes with one gum ecosystem. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 950,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 1,
+      "tags": [
+        "marketplace",
+        "prop",
+        "bus_stop_shelter"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "Still available?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0058",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "2 billboard panels for sale",
+      "body": "Big signs. One side blank, one side legally confusing. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 1100,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 2,
+      "tags": [
+        "marketplace",
+        "prop",
+        "billboard_panels"
+      ],
+      "comments": [
+        {
+          "author": "Linda Lugnut",
+          "body": "Still available?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0059",
+      "author": "Pete Parts",
+      "category": "Marketplace",
+      "title": "10 garage signs for sale",
+      "body": "Old shop signs. Rusty letters, strong vibes. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 200,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 10,
+      "tags": [
+        "marketplace",
+        "prop",
+        "garage_signs"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "Still available?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0060",
+      "author": "Marge from Firwood",
+      "category": "Marketplace",
+      "title": "12 oil drums for sale",
+      "body": "Empty drums. Smell like oil, money, and liability. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 300,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 12,
+      "tags": [
+        "marketplace",
+        "prop",
+        "oil_drums"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "Still available?"
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0061",
+      "author": "Randy Roadkill",
+      "category": "Marketplace",
+      "title": "6 fire extinguishers for sale",
+      "body": "Some charged, some motivational. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 180,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 6,
+      "tags": [
+        "marketplace",
+        "prop",
+        "fire_extinguishers"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "Still available?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0062",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "10 cones with lights for sale",
+      "body": "Fancy cones. Blink like they know something. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 130,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 10,
+      "tags": [
+        "marketplace",
+        "prop",
+        "cones_with_lights"
+      ],
+      "comments": [
+        {
+          "author": "Wanda Winchline",
+          "body": "Still available?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0063",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "2 portable road arrows for sale",
+      "body": "Arrow boards. Point left, right, and occasionally into arguments. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 700,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 2,
+      "tags": [
+        "marketplace",
+        "prop",
+        "portable_road_arrows"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Still available?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0064",
+      "author": "Belasco Salvage",
+      "category": "Marketplace",
+      "title": "8 speed bumps for sale",
+      "body": "Rubber speed bumps. Makes friends drive slower and enemies swear. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 240,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 8,
+      "tags": [
+        "marketplace",
+        "prop",
+        "speed_bumps"
+      ],
+      "comments": [
+        {
+          "author": "Wanda Winchline",
+          "body": "Still available?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_prop_0065",
+      "author": "Tow Yard Terry",
+      "category": "Marketplace",
+      "title": "7 guardrail sections for sale",
+      "body": "Bent but proud. Perfect for track edges. Pickup only unless you pay extra and avoid asking paperwork questions.",
+      "price": 500,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "marketplace",
+      "itemType": "prop",
+      "quantity": 7,
+      "tags": [
+        "marketplace",
+        "prop",
+        "guardrail_sections"
+      ],
+      "comments": [
+        {
+          "author": "Officer Dale",
+          "body": "Still available?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Will this fit in a hatchback?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Do you take trade for slightly used tires?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0001",
+      "author": "Darla Diesel",
+      "category": "Marketplace",
+      "title": "D-Series farm truck - must see",
+      "body": "Runs if the battery is in a good mood. Bed has more holes than a fishing story. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 2600,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Jenny Jbeam",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0002",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "Covet hatchback - must see",
+      "body": "Good first car or last mistake. Manual windows, automatic regret. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 1200,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0003",
+      "author": "Belasco Auto Mart",
+      "category": "Marketplace",
+      "title": "Pessima sedan - must see",
+      "body": "Clean title, dirty floor mats, strong heater, weak dreams. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 1800,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0004",
+      "author": "Darla Diesel",
+      "category": "Marketplace",
+      "title": "Roamer SUV - must see",
+      "body": "Lifted, loud, family-friendly if your family wears helmets. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 3400,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Linda Lugnut",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0005",
+      "author": "Tow Yard Terry",
+      "category": "Marketplace",
+      "title": "H-Series van - must see",
+      "body": "Former delivery van. Still smells like boxes and one stressful summer. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 2900,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0006",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "Moonhawk - must see",
+      "body": "Classic muscle. Burns fuel and neighbor relationships. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 5200,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0007",
+      "author": "Pete Parts",
+      "category": "Marketplace",
+      "title": "Grand Marshal - must see",
+      "body": "Retired fleet car. Knows every donut shop in Belasco. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 2100,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Bumper Brenda",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0008",
+      "author": "Pete Parts",
+      "category": "Marketplace",
+      "title": "Burnside Special - must see",
+      "body": "Old, shiny, and dramatic. Brakes are more of a suggestion. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 7500,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Wanda Winchline",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0009",
+      "author": "Darla Diesel",
+      "category": "Marketplace",
+      "title": "ETK wagon - must see",
+      "body": "Fancy enough to disappoint you expensively. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 6200,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Marge from Firwood",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0010",
+      "author": "Rusty Ray",
+      "category": "Marketplace",
+      "title": "Pigeon - must see",
+      "body": "Three wheels, four emotions, zero shame. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 900,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0011",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "Wigeon - must see",
+      "body": "Tiny, loud, and legally a conversation starter. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 1100,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Bumper Brenda",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0012",
+      "author": "Belasco Auto Mart",
+      "category": "Marketplace",
+      "title": "T-Series semi - must see",
+      "body": "Big truck. Needs work, fuel, and a driver with a backup plan. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 12000,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Marge from Firwood",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0013",
+      "author": "Tow Yard Terry",
+      "category": "Marketplace",
+      "title": "school bus - must see",
+      "body": "Seats many. Stops slowly. Great for events or confusing your HOA. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 5000,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Suspicious Steve",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0014",
+      "author": "Darla Diesel",
+      "category": "Marketplace",
+      "title": "off-road buggy - must see",
+      "body": "Light, fast, and allergic to pavement. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 4300,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Tow Yard Terry",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0015",
+      "author": "Rusty Ray",
+      "category": "Marketplace",
+      "title": "tow truck - must see",
+      "body": "Makes money if it starts. Starts if you compliment it. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 8500,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0016",
+      "author": "Darla Diesel",
+      "category": "Marketplace",
+      "title": "flatbed hauler - must see",
+      "body": "Deck works. Winch works. Driver seat smells like old coffee. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 9700,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0017",
+      "author": "Tow Yard Terry",
+      "category": "Marketplace",
+      "title": "police cruiser clone - must see",
+      "body": "Not a real police car. Stop asking if the lights work. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 3600,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Marge from Firwood",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Big Hank",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0018",
+      "author": "Darla Diesel",
+      "category": "Marketplace",
+      "title": "race beater - must see",
+      "body": "Cage half done, tires half bald, dreams fully illegal. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 2200,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Officer Dale",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Big Hank",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0019",
+      "author": "Suspicious Steve",
+      "category": "Marketplace",
+      "title": "drift missile - must see",
+      "body": "Slides great. Straight line stability sold separately. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 3100,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Wanda Winchline",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "market_vehicle_0020",
+      "author": "Darla Diesel",
+      "category": "Marketplace",
+      "title": "parts car bundle - must see",
+      "body": "Three cars, one title, seven mysteries. Cash, trade, or reasonable tow work accepted. No lowballers; I know what I think I have.",
+      "price": 1500,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "vehicleListing",
+      "itemType": "vehicle",
+      "tags": [
+        "marketplace",
+        "vehicle"
+      ],
+      "comments": [
+        {
+          "author": "Cone Guy Carl",
+          "body": "Does it run?"
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "Define clean title."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "Would you trade for cones and a generator?"
+        }
+      ]
+    },
+    {
+      "id": "ad_0001",
+      "author": "Terry's Tow & Regret",
+      "category": "Sponsored",
+      "title": "Terry's Tow & Regret",
+      "body": "Fast towing, slow judgment. We recover cars from ditches, rooftops, lakes, and one time a billboard.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "insurance",
+      "tags": [
+        "ad",
+        "business",
+        "lore"
+      ],
+      "comments": [
+        {
+          "author": "Uncle Skeeter",
+          "body": "Do you have a website?"
+        },
+        {
+          "author": "Billy No-Insurance",
+          "body": "The website is a picture of a phone number."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "That is advanced for Belasco."
+        }
+      ]
+    },
+    {
+      "id": "ad_0002",
+      "author": "Belasco LegalNet",
+      "category": "Sponsored",
+      "title": "Belasco LegalNet",
+      "body": "Internet access for responsible citizens, suspicious citizens, and anyone who clicks the correct button.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "shop",
+      "tags": [
+        "ad",
+        "business",
+        "lore"
+      ],
+      "comments": [
+        {
+          "author": "Linda Lugnut",
+          "body": "Do you have a website?"
+        },
+        {
+          "author": "Turbo Tim",
+          "body": "The website is a picture of a phone number."
+        },
+        {
+          "author": "Frankie Flatbed",
+          "body": "That is advanced for Belasco."
+        }
+      ]
+    },
+    {
+      "id": "ad_0003",
+      "author": "IceFox Storage",
+      "category": "Sponsored",
+      "title": "IceFox Storage",
+      "body": "Cold storage for hot problems. Personal vehicles, tow yard overflow, and things nobody wants in the driveway.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "404",
+      "tags": [
+        "ad",
+        "business",
+        "lore"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "Do you have a website?"
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "The website is a picture of a phone number."
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "That is advanced for Belasco."
+        }
+      ]
+    },
+    {
+      "id": "ad_0004",
+      "author": "Pete Parts",
+      "category": "Sponsored",
+      "title": "Pete Parts",
+      "body": "Legal, hot, unknown, cleaned. We sort parts so you can pretend your garage has a process.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "business",
+      "tags": [
+        "ad",
+        "business",
+        "lore"
+      ],
+      "comments": [
+        {
+          "author": "Turbo Tim",
+          "body": "Do you have a website?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "The website is a picture of a phone number."
+        },
+        {
+          "author": "Darla Diesel",
+          "body": "That is advanced for Belasco."
+        }
+      ]
+    },
+    {
+      "id": "ad_0005",
+      "author": "BackAlley Motors",
+      "category": "Sponsored",
+      "title": "BackAlley Motors",
+      "body": "If the page loads, the deal is real. If it does not, the deal was never here.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "business",
+      "tags": [
+        "ad",
+        "business",
+        "lore"
+      ],
+      "comments": [
+        {
+          "author": "Frankie Flatbed",
+          "body": "Do you have a website?"
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "The website is a picture of a phone number."
+        },
+        {
+          "author": "Big Hank",
+          "body": "That is advanced for Belasco."
+        }
+      ]
+    },
+    {
+      "id": "ad_0006",
+      "author": "Beam Insurance",
+      "category": "Sponsored",
+      "title": "Beam Insurance",
+      "body": "We cover accidents, weather, theft, and questionable deer stories. We do not cover jumps described as 'content.'",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Automation Alley",
+      "linkType": "shop",
+      "tags": [
+        "ad",
+        "business",
+        "lore"
+      ],
+      "comments": [
+        {
+          "author": "Big Hank",
+          "body": "Do you have a website?"
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "The website is a picture of a phone number."
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "That is advanced for Belasco."
+        }
+      ]
+    },
+    {
+      "id": "ad_0007",
+      "author": "Darla's Detail Barn",
+      "category": "Sponsored",
+      "title": "Darla's Detail Barn",
+      "body": "We remove mud, smoke smell, and some evidence. Upholstery miracles cost extra.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "business",
+      "tags": [
+        "ad",
+        "business",
+        "lore"
+      ],
+      "comments": [
+        {
+          "author": "Tow Yard Terry",
+          "body": "Do you have a website?"
+        },
+        {
+          "author": "Uncle Skeeter",
+          "body": "The website is a picture of a phone number."
+        },
+        {
+          "author": "Wanda Winchline",
+          "body": "That is advanced for Belasco."
+        }
+      ]
+    },
+    {
+      "id": "ad_0008",
+      "author": "County Auction Lot",
+      "category": "Sponsored",
+      "title": "County Auction Lot",
+      "body": "Cars, trucks, trailers, mistakes. Bid now and regret on your schedule.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Belasco",
+      "linkType": "insurance",
+      "tags": [
+        "ad",
+        "business",
+        "lore"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "Do you have a website?"
+        },
+        {
+          "author": "Officer Dale",
+          "body": "The website is a picture of a phone number."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "That is advanced for Belasco."
+        }
+      ]
+    },
+    {
+      "id": "ad_0009",
+      "author": "RedFox Garage Hub",
+      "category": "Sponsored",
+      "title": "RedFox Garage Hub",
+      "body": "Manage your machines, parts, storage, and chaos from one place. Side effects include organization.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "shop",
+      "tags": [
+        "ad",
+        "business",
+        "lore"
+      ],
+      "comments": [
+        {
+          "author": "Billy No-Insurance",
+          "body": "Do you have a website?"
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "The website is a picture of a phone number."
+        },
+        {
+          "author": "Linda Lugnut",
+          "body": "That is advanced for Belasco."
+        }
+      ]
+    },
+    {
+      "id": "ad_0010",
+      "author": "Cletus Performance",
+      "category": "Sponsored",
+      "title": "Cletus Performance",
+      "body": "Blinker fluid flush, tire screw traction kits, and premium headlight grease. Cash only because banks are scared.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "East Coast",
+      "linkType": "insurance",
+      "tags": [
+        "ad",
+        "business",
+        "lore"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "Do you have a website?"
+        },
+        {
+          "author": "Jenny Jbeam",
+          "body": "The website is a picture of a phone number."
+        },
+        {
+          "author": "Cone Guy Carl",
+          "body": "That is advanced for Belasco."
+        }
+      ]
+    },
+    {
+      "id": "fight_0001",
+      "author": "Nora Nitro",
+      "category": "Drama",
+      "title": "My neighbor says my truck is too loud",
+      "body": "It is not too loud. His house is too close to my exhaust.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Derby County",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "argument",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I backed it up eventually."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "You backed into the ice machine."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "That ice machine had no spotter."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Everyone stop confessing in public."
+        }
+      ]
+    },
+    {
+      "id": "fight_0002",
+      "author": "Debbie Dashcam",
+      "category": "Drama",
+      "title": "Parking spot dispute",
+      "body": "Whoever parked sideways across four spots at the parts store, your confidence is bigger than your wheelbase.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "West Coast",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "argument",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I backed it up eventually."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "You backed into the ice machine."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "That ice machine had no spotter."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Everyone stop confessing in public."
+        }
+      ]
+    },
+    {
+      "id": "fight_0003",
+      "author": "Frankie Flatbed",
+      "category": "Drama",
+      "title": "Lift kit argument",
+      "body": "A 12-inch lift does not make your truck off-road capable if you are afraid of gravel.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Hirochi Raceway",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "argument",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I backed it up eventually."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "You backed into the ice machine."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "That ice machine had no spotter."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Everyone stop confessing in public."
+        }
+      ]
+    },
+    {
+      "id": "fight_0004",
+      "author": "Debbie Dashcam",
+      "category": "Drama",
+      "title": "Trailer backing challenge",
+      "body": "I watched Gary try to back a trailer for 17 minutes. The trailer aged visibly.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "argument",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I backed it up eventually."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "You backed into the ice machine."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "That ice machine had no spotter."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Everyone stop confessing in public."
+        }
+      ]
+    },
+    {
+      "id": "fight_0005",
+      "author": "Darla Diesel",
+      "category": "Drama",
+      "title": "Mechanic insult",
+      "body": "My mechanic said my wiring looks like spaghetti. Joke is on him. Spaghetti has structure.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "argument",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I backed it up eventually."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "You backed into the ice machine."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "That ice machine had no spotter."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Everyone stop confessing in public."
+        }
+      ]
+    },
+    {
+      "id": "fight_0006",
+      "author": "Marge from Firwood",
+      "category": "Drama",
+      "title": "Marketplace no-show",
+      "body": "If you say 'on my way' and never leave your couch, BeamBook should charge you emotional storage fees.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Johnson Valley",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "argument",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I backed it up eventually."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "You backed into the ice machine."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "That ice machine had no spotter."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Everyone stop confessing in public."
+        }
+      ]
+    },
+    {
+      "id": "fight_0007",
+      "author": "The Real Belasco Mechanic",
+      "category": "Drama",
+      "title": "Roundabout rage",
+      "body": "Blinkers exist. The roundabout is not a secret vote.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "argument",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I backed it up eventually."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "You backed into the ice machine."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "That ice machine had no spotter."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Everyone stop confessing in public."
+        }
+      ]
+    },
+    {
+      "id": "fight_0008",
+      "author": "The Real Belasco Mechanic",
+      "category": "Drama",
+      "title": "Tow bill fight",
+      "body": "You cannot pay a tow bill with 'exposure' unless the exposure is to cash.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Cliff Roads",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "argument",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I backed it up eventually."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "You backed into the ice machine."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "That ice machine had no spotter."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Everyone stop confessing in public."
+        }
+      ]
+    },
+    {
+      "id": "fight_0009",
+      "author": "Turbo Tim",
+      "category": "Drama",
+      "title": "Junkyard ethics",
+      "body": "Taking parts from a car in the yard is normal. Taking the whole gate is not.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Firwood",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "argument",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I backed it up eventually."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "You backed into the ice machine."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "That ice machine had no spotter."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Everyone stop confessing in public."
+        }
+      ]
+    },
+    {
+      "id": "fight_0010",
+      "author": "Debbie Dashcam",
+      "category": "Drama",
+      "title": "Garage zoning",
+      "body": "My yard has one camper, five trucks, and a forklift. That is not clutter. That is infrastructure.",
+      "price": null,
+      "currency": "beamBucks",
+      "location": "Utah",
+      "linkType": "profile",
+      "tags": [
+        "npc",
+        "argument",
+        "wall"
+      ],
+      "comments": [
+        {
+          "author": "Gary Gravel",
+          "body": "I backed it up eventually."
+        },
+        {
+          "author": "Marge from Firwood",
+          "body": "You backed into the ice machine."
+        },
+        {
+          "author": "Gary Gravel",
+          "body": "That ice machine had no spotter."
+        },
+        {
+          "author": "Officer Dale",
+          "body": "Everyone stop confessing in public."
+        }
+      ]
+    }
+  ]
+}
