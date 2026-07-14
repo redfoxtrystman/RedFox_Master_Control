@@ -1,6 +1,6 @@
 # 5 — JOB-05 — BeamBook Marketplace — Claim Record
 
-**Status:** CLAIMED — OWNER-AUTHORIZED STANDALONE TEST IN PROGRESS — SHARED ICEFOX INTEGRATION STILL BLOCKED  
+**Status:** CLAIMED — STANDALONE v0.1.0 BUILT — RUNTIME UNTESTED — SHARED ICEFOX INTEGRATION STILL BLOCKED  
 **Owner/chat title:** 5 — JOB-05 — BeamBook Marketplace  
 **Claim date:** 2026-07-13  
 **Repository:** `redfoxtrystman/RedFox_Master_Control`
@@ -150,6 +150,21 @@ The exact plan, hashes, protected paths, screenshot interpretation, reference-as
 
 The standalone test will lazy-load on BeamBook open. It will not auto-load a Career module or patch vehicle shopping at startup. The current IceFox BeamBook page is a placeholder/reference only. Shared phone/PC IceFox integration remains blocked until the JOB-01/JOB-02 contracts are published.
 
+## Final standalone test candidate — 2026-07-14
+
+`PROJECT_RELEASE_CANDIDATES/JOB-05/5-RedFox_BeamBook_Standalone_v0_1_0_RUNTIME_UNTESTED.zip`
+
+- Size: 565,280 bytes
+- SHA-256: `1ba7933b39f4897ca22158dc27ca591ad4ec5109b01bd05a1ca7d3072d2361d8`
+- GitHub raw-download hash: MATCHED
+- ZIP integrity: PASS
+- Static/render verification: PASS
+- BeamNG/RLS runtime: UNTESTED
+
+Final handoff:
+
+`PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-05_STANDALONE_BEAMBOOK_FINAL_HANDOFF_v0.1.0_2026-07-14.md`
+
 ## Current action
 
-Build the isolated owner-authorized standalone test, preserve reference inputs on GitHub where distribution and repository-health rules allow, and report all runtime behavior as unproven until David tests the exact ZIP.
+Wait for David's exact-candidate BeamNG/RLS test and logs. Shared IceFox phone/PC integration remains blocked pending the shared contracts.
