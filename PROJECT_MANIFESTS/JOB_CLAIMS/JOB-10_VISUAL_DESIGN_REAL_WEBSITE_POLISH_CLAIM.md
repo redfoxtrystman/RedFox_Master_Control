@@ -1,8 +1,9 @@
 # JOB-10 — Visual Design / Real Website Polish — Claim Record
 
-**Status:** CLAIMED  
-**Owner:** Visual Design / Real Website Polish chat / Sol  
-**Claim date:** 2026-07-13
+**Status:** CLAIMED — MIGRATED TO REGULAR CHAT — BLOCKED  
+**Owner:** JOB-10 — Visual Design / Real Website Polish regular-chat takeover / Sol, under David / Captain  
+**Original claim date:** 2026-07-13  
+**Regular-chat takeover date:** 2026-07-14 12:52 PDT
 
 ## Hello to the other RedFox job chats
 
@@ -23,12 +24,14 @@ icefox_front
 facebook
 ```
 
-No BeamBook source, FoxNet website source, CSS baseline, current Facebook-style site, or reference-mod source is present in this control repository.
+At the time of the original claim, no BeamBook source, FoxNet website source, CSS baseline, current Facebook-style site, or reference-mod source was present in the control repository.
 
-Therefore JOB-10 is claimed for coordination, but implementation is blocked until David supplies or identifies both baselines:
+GitHub now preserves nine BeamBook visual-reference screenshots, BeamBook content packs, exact baseline hashes/inventories, a JOB-05 standalone v0.1.0 runtime-untested candidate, and JOB-01 draft PR `#3` with shared IceFox phone/PC visual source. However, the exact current full IceFox/FoxNet ecosystem ZIP and the original third-party `beamBook.zip` reference binary are still not stored in GitHub.
 
-1. David's current Facebook-style website design/source.
-2. The working BeamBook-style reference mod.
+Therefore JOB-10 remains claimed for coordination, but implementation is blocked until David supplies or identifies both required binaries:
+
+1. David's current full IceFox/FoxNet website baseline.
+2. The working third-party BeamBook-style reference mod.
 
 Access to a reference mod is enough to inspect it. Any copied code or art must also be permitted for reuse.
 
@@ -36,16 +39,24 @@ Access to a reference mod is enough to inspect it. Any copied code or art must a
 
 ```text
 PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md
+PROJECT_MANIFESTS/REDFOX_FOXNET_START_ORDER_SHARED_ARCHITECTURE_DIRECTIVE_2026-07-13.md
 PROJECT_MANIFESTS/JOB_CLAIMS/JOB-10_VISUAL_DESIGN_REAL_WEBSITE_POLISH_CLAIM.md
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-10_VISUAL_DESIGN_REAL_WEBSITE_POLISH_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+PROJECT_ASSETS/JOB-05_BEAMBOOK/
+PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-05_STANDALONE_BEAMBOOK_FINAL_HANDOFF_v0.1.0_2026-07-14.md
+PROJECT_RELEASE_CANDIDATES/JOB-05/5-RedFox_BeamBook_Standalone_v0_1_0_RUNTIME_UNTESTED.zip
+JOB-01 draft PR #3 / branch agent/job01-platform-core-v0-1
 ```
 
 ## Files/folders JOB-10 may edit now
 
 ```text
 PROJECT_MANIFESTS/JOB_CLAIMS/JOB-10_VISUAL_DESIGN_REAL_WEBSITE_POLISH_CLAIM.md
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-10_VISUAL_DESIGN_REAL_WEBSITE_POLISH_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+JOB-10-owned visual documentation after baseline inspection
 ```
 
-The Coordinator-authorized JOB-10 status fields on the shared job board may be updated only to record this claim.
+The Coordinator-authorized JOB-10 status fields on shared coordination records may be updated only to record this claim, migration, dependencies, and status.
 
 No website or mod source file is authorized for editing yet. After both baselines are located and inspected, JOB-10 will publish a second scope record listing every exact HTML, CSS, icon, image, and layout file proposed for editing before implementation starts.
 
@@ -61,8 +72,8 @@ FoxFax art or FoxFax page files
 shared bridge message names or payloads
 purchase or sell behavior
 money, inventory, garage, storage, insurance, or ownership behavior
-phone shell, PC shell, browser shell, launcher, or registry behavior
-BeamBook marketplace generation or RLS integration logic
+phone shell, PC shell, browser shell, launcher, registry, or navigation behavior
+BeamBook marketplace generation, persistence, or RLS integration logic
 ```
 
 If an HTML or JavaScript component mixes layout and functional logic, JOB-10 must coordinate with the owning job and limit changes to approved presentation sections.
@@ -84,11 +95,12 @@ JOB-10 waits for:
 
 ```text
 JOB-00 — baseline approval and integration approval
-JOB-01 — phone/PC layout and registration boundaries
+JOB-01 — stable phone/PC layout and registration boundaries
 JOB-02 — shared bridge contract
 JOB-03 — stable App Store structure and states
 JOB-05 — stable BeamBook behavior and integration boundary
-David — current website baseline and BeamBook-style reference mod
+Other page owners — stable functional page handoffs
+David — current full ecosystem ZIP and third-party BeamBook reference ZIP
 ```
 
 JOB-10 may polish other app pages only after their owning job provides a stable page and exact coordination boundary.
@@ -97,7 +109,7 @@ JOB-10 may polish other app pages only after their owning job provides a stable 
 
 Before any visual build is offered:
 
-1. Record the exact baseline names and hashes.
+1. Record the exact baseline names, sizes, and hashes.
 2. Publish the exact file edit list and protected-file list.
 3. Verify the diff contains only approved presentation files or approved presentation-only sections.
 4. Confirm shared bridge messages and functional event handlers are unchanged.
@@ -115,7 +127,6 @@ Before any visual build is offered:
 - Before/after screenshots or mockups.
 - Visual regression and scope-verification reports.
 - No final or integrated ZIP until JOB-00 approves integration.
-
 
 ## Architecture and start-order acknowledgment — 2026-07-13
 
@@ -155,4 +166,53 @@ JOB-10 accepts these operating boundaries:
 - JOB-10 polishes a page only after its owning job provides a stable functional handoff.
 - No visual build is called working, fixed, done, or runtime-proven until David tests it.
 
-Current state: **CLAIMED and waiting for the required contracts and exact baselines.**
+## Regular-chat takeover update — 2026-07-14 12:52 PDT
+
+### What changed
+
+- Transferred active conversation ownership from the inaccessible Work chat to the replacement regular chat.
+- Preserved the exact JOB-10 number, title, scope, and protected boundaries.
+- Linked the job-specific recovery record.
+- Recorded the newly available GitHub visual references and the still-missing required binaries.
+- Kept implementation blocked and did not edit runtime or website source.
+
+### Why it changed
+
+The original Work chat became inaccessible because the project was unintentionally subject to a separate Work-chat usage limit. Manual migration is required to restore continuity and prevent duplicate or conflicting work.
+
+### Files affected
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-10_VISUAL_DESIGN_REAL_WEBSITE_POLISH_CLAIM.md
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-10_VISUAL_DESIGN_REAL_WEBSITE_POLISH_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+```
+
+### Current status
+
+```text
+MIGRATED TO REGULAR CHAT — CLAIMED — BLOCKED — EXACT EDITABLE BASELINES MISSING
+```
+
+### Known problems
+
+The shared chat is not retrievable; the current full IceFox/FoxNet ZIP and `beamBook.zip` are not stored in GitHub; any uncommitted JOB-10 work may be missing; related platform and BeamBook candidates remain runtime untested.
+
+### Required next steps
+
+1. Reupload the exact current ecosystem ZIP and `beamBook.zip` documented in the takeover record.
+2. Perform an inspection-only baseline comparison.
+3. Publish the exact editable/protected file manifest and target viewport requirements before code changes.
+
+Takeover record:
+
+```text
+PROJECT_MANIFESTS/JOB_CLAIMS/JOB-10_VISUAL_DESIGN_REAL_WEBSITE_POLISH_REGULAR_CHAT_TAKEOVER_2026-07-14.md
+```
+
+Takeover commit:
+
+```text
+1713002ab9344c766a3f8d80af821c8407320b8e
+```
+
+Current state: **MIGRATED TO REGULAR CHAT, CLAIMED, AND BLOCKED UNTIL THE EXACT EDITABLE BASELINES ARE INSPECTED.**
