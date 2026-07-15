@@ -5,13 +5,13 @@ on:
   push:
     paths:
       - "PROJECT_MANIFESTS/REDFOX_JOB_PIPELINE_MANIFEST.json"
-      - "PROJECT_MANIFESTS/**/REDFOX_JOB_HANDOFF.json"
+      - "**/REDFOX_JOB_HANDOFF.json"
       - "QA_LOGGING/validate_redfox_handoffs.py"
       - ".github/workflows/redfox-handoff-validation.yml"
   pull_request:
     paths:
       - "PROJECT_MANIFESTS/REDFOX_JOB_PIPELINE_MANIFEST.json"
-      - "PROJECT_MANIFESTS/**/REDFOX_JOB_HANDOFF.json"
+      - "**/REDFOX_JOB_HANDOFF.json"
       - "QA_LOGGING/validate_redfox_handoffs.py"
       - ".github/workflows/redfox-handoff-validation.yml"
 
