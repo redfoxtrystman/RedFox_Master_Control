@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0.0",
+  "job_id": "JOB-00",
+  "job_title": "REPLACE WITH EXACT JOB TITLE",
+  "owner_chat": "REPLACE WITH REGULAR CHAT TITLE",
+  "candidate": {
+    "name": "REPLACE",
+    "version": "REPLACE",
+    "status": "BUILT — RUNTIME UNTESTED",
+    "baseline": "REPLACE",
+    "git_commit_or_pr": "REPLACE",
+    "zip_name": "REPLACE",
+    "zip_size_bytes": 0,
+    "sha256": "REPLACE_WITH_64_HEX_CHARACTERS"
+  },
+  "ownership": {
+    "files_added": [],
+    "files_changed": [],
+    "files_removed": [],
+    "protected_files_confirmed_untouched": [],
+    "dependencies": []
+  },
+  "backend": {
+    "entry_points": [],
+    "service_functions": [],
+    "test_harness_type": "WEUI / native UI / console / other",
+    "test_harness_entry": "REPLACE",
+    "test_harness_release_disposition": "retained developer-only / hidden / disabled / separate test package / removed",
+    "backend_test_steps": [],
+    "backend_expected_results": [],
+    "backend_actual_results": [],
+    "known_backend_limitations": []
+  },
+  "website": {
+    "job10_source": "REPLACE OR N/A",
+    "app_or_site_id": "REPLACE",
+    "canonical_destination": "REPLACE",
+    "page_entry": "REPLACE",
+    "real_actions_connected": [],
+    "visual_only_actions_remaining": [],
+    "phone_expected_result": "REPLACE",
+    "pc_expected_result": "REPLACE"
+  },
+  "contracts": {
+    "job01_platform_version": "REPLACE OR N/A",
+    "job02_bridge_version": "REPLACE OR N/A",
+    "permissions": [],
+    "messages_sent": [],
+    "messages_received": [],
+    "expected_log_prefixes": []
+  },
+  "verification": {
+    "static_checks_passed": false,
+    "zip_reopened_and_checked": false,
+    "duplicate_paths_checked": false,
+    "forbidden_paths_checked": false,
+    "removal_tested": false,
+    "david_runtime_tested": false,
+    "runtime_test_maps": [],
+    "runtime_test_timestamp": "",
+    "runtime_result": "NOT TESTED",
+    "log_files": [],
+    "known_limitations": []
+  },
+  "reports": {
+    "change_scope_txt": "REPLACE",
+    "verification_txt": "REPLACE",
+    "verification_html": "REPLACE",
+    "verify_json": "REPLACE",
+    "file_inventory_csv": "REPLACE",
+    "file_tree_txt": "REPLACE",
+    "logging_readme_txt": "REPLACE",
+    "logging_readme_html": "REPLACE"
+  },
+  "next_action": "REPLACE"
+}
