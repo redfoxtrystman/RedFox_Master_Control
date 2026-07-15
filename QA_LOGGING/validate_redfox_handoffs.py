@@ -38,14 +38,20 @@ def load_json(path: Path) -> dict[str, Any]:
     return data
 
 
-def require(data: dict[str, Any], dotted: str, errors: list[str]) -> Any:
+def get_field(
+    data: dict[str, Any],
+    dotted: str,
+    errors: list[str],
+    *,
+    allow_empty: bool = False,
+) -> Any:
     value: Any = data
     for part in dotted.split("."):
         if not isinstance(value, dict) or part not in value:
             errors.append(f"missing required field: {dotted}")
             return None
         value = value[part]
-    if value is None or value == "" or value == []:
+    if not allow_empty and (value is None or value == "" or value == []):
         errors.append(f"empty required field: {dotted}")
     return value
 
@@ -107,7 +113,7 @@ def validate_handoff(path: Path, manifest: dict[str, Any]) -> list[str]:
     data = load_json(path)
     rel = path.relative_to(ROOT)
 
-    required = [
+    nonempty_fields = [
         "schema_version",
         "job_id",
         "job_title",
@@ -120,11 +126,7 @@ def validate_handoff(path: Path, manifest: dict[str, Any]) -> list[str]:
         "candidate.zip_name",
         "candidate.zip_size_bytes",
         "candidate.sha256",
-        "ownership.files_added",
-        "ownership.files_changed",
-        "ownership.files_removed",
         "ownership.protected_files_confirmed_untouched",
-        "ownership.dependencies",
         "backend.entry_points",
         "backend.service_functions",
         "backend.test_harness_type",
@@ -140,7 +142,6 @@ def validate_handoff(path: Path, manifest: dict[str, Any]) -> list[str]:
         "website.pc_expected_result",
         "contracts.job01_platform_version",
         "contracts.job02_bridge_version",
-        "contracts.permissions",
         "contracts.expected_log_prefixes",
         "verification.static_checks_passed",
         "verification.zip_reopened_and_checked",
@@ -158,7 +159,25 @@ def validate_handoff(path: Path, manifest: dict[str, Any]) -> list[str]:
         "reports.logging_readme_html",
         "next_action",
     ]
-    values = {field: require(data, field, errors) for field in required}
+    present_fields_allow_empty = [
+        "ownership.files_added",
+        "ownership.files_changed",
+        "ownership.files_removed",
+        "ownership.dependencies",
+        "backend.known_backend_limitations",
+        "website.real_actions_connected",
+        "website.visual_only_actions_remaining",
+        "contracts.permissions",
+        "contracts.messages_sent",
+        "contracts.messages_received",
+        "verification.runtime_test_maps",
+        "verification.log_files",
+        "verification.known_limitations",
+    ]
+
+    values = {field: get_field(data, field, errors) for field in nonempty_fields}
+    for field in present_fields_allow_empty:
+        values[field] = get_field(data, field, errors, allow_empty=True)
 
     job_id = values.get("job_id")
     jobs = manifest.get("jobs", {})
@@ -185,6 +204,34 @@ def validate_handoff(path: Path, manifest: dict[str, Any]) -> list[str]:
     sha256 = values.get("candidate.sha256")
     if not isinstance(sha256, str) or not SHA256_RE.match(sha256):
         errors.append("candidate.sha256 must be exactly 64 hexadecimal characters")
+
+    changed_sets = [
+        values.get("ownership.files_added"),
+        values.get("ownership.files_changed"),
+        values.get("ownership.files_removed"),
+    ]
+    if not any(isinstance(items, list) and items for items in changed_sets):
+        errors.append("at least one file must be listed as added, changed, or removed")
+
+    for field in (
+        "ownership.files_added",
+        "ownership.files_changed",
+        "ownership.files_removed",
+        "ownership.protected_files_confirmed_untouched",
+        "ownership.dependencies",
+        "backend.entry_points",
+        "backend.service_functions",
+        "backend.backend_test_steps",
+        "backend.backend_expected_results",
+        "backend.backend_actual_results",
+        "contracts.permissions",
+        "contracts.messages_sent",
+        "contracts.messages_received",
+        "contracts.expected_log_prefixes",
+    ):
+        value = values.get(field)
+        if not isinstance(value, list):
+            errors.append(f"{field} must be a list")
 
     for field in (
         "verification.static_checks_passed",
@@ -220,7 +267,7 @@ def validate_handoff(path: Path, manifest: dict[str, Any]) -> list[str]:
             "verification.runtime_test_timestamp",
             "verification.log_files",
         ):
-            require(data, field, errors)
+            get_field(data, field, errors)
     elif runtime_tested is True and status == "BUILT — RUNTIME UNTESTED":
         errors.append("runtime-tested candidate cannot remain labeled BUILT — RUNTIME UNTESTED")
 
