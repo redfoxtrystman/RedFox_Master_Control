@@ -1,0 +1,195 @@
+--- lua/ge/extensions/redfoxTowRecoveryDispatch.lua (v0.2.1)
++++ lua/ge/extensions/redfoxTowRecoveryDispatch.lua (v0.2.2)
+@@ -1,6 +1,6 @@
+ local M = {}
+ 
+--- RedFox Tow & Recovery Dispatch v0.2.1
++-- RedFox Tow & Recovery Dispatch v0.2.2
+ -- Standalone GE Lua extension. It intentionally does not override stock Career files.
+ 
+ local logTag = "redfoxTowRecoveryDispatch"
+@@ -450,7 +450,39 @@
+   return best
+ end
+ 
+-local function getEligibleVehicleInfo(preferSemi, allowFallback)
++local function vehicleInfoText(info)
++  if type(info) ~= "table" then return "", "" end
++  local model = tostring(info.model_key or info.model or ""):lower()
++  local description = table.concat({
++    tostring(info.Name or ""),
++    tostring(info.Configuration or ""),
++    tostring(info.key or info.config or "")
++  }, " "):lower()
++  return model, description
++end
++
++local function isSemiVehicleInfo(info)
++  local model, description = vehicleInfoText(info)
++  return model == "us_semi" or model == "semi" or description:find("t%-series") ~= nil
++end
++
++local accidentBlockedModelTokens = {
++  "trailer", "dryvan", "tanker", "dolly", "caravan", "camper",
++  "citybus", "schoolbus", "wentward", "bus", "container",
++  "boat", "aircraft", "plane", "train", "forklift", "excavator"
++}
++
++local function isAccidentPassengerVehicleInfo(info)
++  local model, description = vehicleInfoText(info)
++  if model == "" or isSemiVehicleInfo(info) then return false end
++  for _, token in ipairs(accidentBlockedModelTokens) do
++    if model:find(token, 1, true) then return false end
++  end
++  if description:find("standalone trailer", 1, true) or description:find("semi trailer", 1, true) then return false end
++  return true
++end
++
++local function getEligibleVehicleInfo(preferSemi, allowFallback, purpose)
+   local ok, generator = pcall(require, "util.configListGenerator")
+   if not ok or not generator then return nil end
+   local okList, list = pcall(generator.getEligibleVehicles, false, false)
+@@ -460,17 +492,51 @@
+     local model = info and (info.model_key or info.model)
+     local config = info and (info.key or info.config)
+     if model and config and model ~= "unicycle" then
+-      local isSemi = model == "us_semi" or model == "semi" or tostring(info.Name or ""):lower():find("t%-series") ~= nil
+-      if (preferSemi and isSemi) or (not preferSemi and not isSemi) then
+-        table.insert(filtered, info)
++      local accepted
++      if purpose == "accident_passenger" then
++        accepted = isAccidentPassengerVehicleInfo(info)
++      else
++        local isSemi = isSemiVehicleInfo(info)
++        accepted = (preferSemi and isSemi) or (not preferSemi and not isSemi)
+       end
++      if accepted then table.insert(filtered, info) end
+     end
+   end
+-  if #filtered == 0 and preferSemi and allowFallback ~= false then return getEligibleVehicleInfo(false, false) end
++  if #filtered == 0 and preferSemi and allowFallback ~= false and purpose ~= "accident_passenger" then
++    return getEligibleVehicleInfo(false, false, purpose)
++  end
+   if #filtered == 0 then return nil end
+   return filtered[math.random(#filtered)]
+ end
+ 
++local function chooseAccidentSpotCluster(spots, pickup, requestedCount)
++  if not pickup or not pickup.pos then return nil end
++  local candidates = {}
++  for _, spot in ipairs(spots or {}) do
++    if spot and spot.pos then
++      local d = distance(spot.pos, pickup.pos)
++      if d >= 2.4 and d <= 13.0 then
++        table.insert(candidates, {spot = spot, distance = d})
++      end
++    end
++  end
++  table.sort(candidates, function(a, b) return a.distance < b.distance end)
++
++  local selected = {pickup}
++  for _, candidate in ipairs(candidates) do
++    local separated = true
++    for _, existing in ipairs(selected) do
++      if distance(candidate.spot.pos, existing.pos) < 2.35 then
++        separated = false
++        break
++      end
++    end
++    if separated then table.insert(selected, candidate.spot) end
++    if #selected >= requestedCount then return selected end
++  end
++  return nil
++end
++
+ local function makeVehicleName(info)
+   local brand = tostring(info.Brand or info.Make or "")
+   local name = tostring(info.Name or info.Configuration or info.model_key or "Vehicle")
+@@ -913,16 +979,30 @@
+   return true
+ end
+ 
+-local function spawnProceduralTargets(event, eventType, pickup)
++local function spawnProceduralTargets(event, eventType, pickup, spots)
+   local targetCount = eventType == "accident" and math.random(2, 3) or 1
++  local accidentSpots
++  if eventType == "accident" then
++    accidentSpots = chooseAccidentSpotCluster(spots, pickup, targetCount)
++    if not accidentSpots and targetCount == 3 then
++      targetCount = 2
++      accidentSpots = chooseAccidentSpotCluster(spots, pickup, targetCount)
++    end
++    if not accidentSpots then
++      return false, "No group of adjacent parking spaces was large enough for a multi-vehicle accident"
++    end
++  end
++
+   local anchorRot = pickup.rot or quat(0, 0, 0, 1)
+   local anchorRotTable = quatToTable(anchorRot)
+   for i = 1, targetCount do
+     local forceSemi = eventType == "recovery_semi"
+-    local preferSemi = forceSemi or (eventType == "accident" and i == 1 and math.random() < 0.55)
+-    local info = getEligibleVehicleInfo(preferSemi, not forceSemi)
++    local purpose = eventType == "accident" and "accident_passenger" or nil
++    local info = getEligibleVehicleInfo(forceSemi, not forceSemi, purpose)
+     if not info then
+-      return false, forceSemi and "No usable T-Series/semi configuration was found" or "Vehicle catalog/config generator was unavailable"
++      if forceSemi then return false, "No usable T-Series/semi configuration was found" end
++      if eventType == "accident" then return false, "No passenger-size vehicle configuration was available for the accident scene" end
++      return false, "Vehicle catalog/config generator was unavailable"
+     end
+ 
+     local position = pickup.pos
+@@ -947,17 +1027,15 @@
+       impactSpeed = sceneImpactSpeed(eventType, false)
+       event.sceneVariant = roof and "roadside_roof_roll" or "roadside_side_roll"
+     elseif eventType == "accident" then
+-      local side = (i % 2 == 0) and 1 or -1
+-      local offset = vec3((i - 1) * math.random(4, 7) - 2, side * math.random(2, 5), preferSemi and 1.2 or 0.9)
+-      position = worldPosition(offset, pickup.pos, anchorRotTable)
+-      if preferSemi or i == 1 then
+-        rotation = safeRotation(anchorRot, math.rad((preferSemi and 94 or 72) * side), math.rad(math.random(-8, 8)), math.rad(math.random(-35, 35)))
+-      else
+-        rotation = safeRotation(anchorRot, math.rad(math.random(-22, 22)), math.rad(math.random(-14, 14)), math.rad(side * math.random(24, 58)))
+-      end
++      local accidentSpot = accidentSpots[i]
++      local spotRot = accidentSpot.rot or anchorRot
++      local spotRotTable = quatToTable(spotRot)
++      local localOffset = vec3((math.random() - 0.5) * 0.65, (math.random() - 0.5) * 0.85, 0.45)
++      position = worldPosition(localOffset, accidentSpot.pos, spotRotTable)
++      rotation = safeRotation(spotRot, math.rad(math.random(-4, 4)), math.rad(math.random(-3, 3)), math.rad(math.random(-14, 14)))
+       noCling = true
+-      impactSpeed = sceneImpactSpeed(eventType, preferSemi)
+-      event.sceneVariant = "scattered_impact_scene"
++      impactSpeed = sceneImpactSpeed(eventType, false)
++      event.sceneVariant = tostring(targetCount) .. "_car_parking_cluster"
+     end
+ 
+     local vehicle = spawnVehicleFromInfo(info, position, rotation, {noCling = noCling})
+@@ -1011,7 +1089,7 @@
+   end
+   local ok, spawnError
+   if template then ok, spawnError = spawnTemplateTargets(event, template, pickup)
+-  else ok, spawnError = spawnProceduralTargets(event, eventType, pickup) end
++  else ok, spawnError = spawnProceduralTargets(event, eventType, pickup, spots) end
+   if not ok then
+     for _, target in ipairs(event.targets) do deleteTrackedVehicle(target.vehicleId) end
+     return nil, spawnError
+@@ -2110,7 +2188,7 @@
+   ensureProfile()
+   return {
+     moduleId = "redfox_tow_recovery_dispatch",
+-    version = "0.2.1",
++    version = "0.2.2",
+     loaded = runtime.loaded,
+     careerActive = isCareerActive(),
+     windowOpen = M.isWindowOpen(),
+@@ -2257,7 +2335,7 @@
+   runtime.loaded = true
+   runtime.nextCallIn = 30
+   runtime.statusMessage = isCareerActive() and "Dispatch online" or "Waiting for Career mode"
+-  log("I", logTag, "RedFox Tow & Recovery Dispatch v0.2.1 loaded")
++  log("I", logTag, "RedFox Tow & Recovery Dispatch v0.2.2 loaded")
+ end
+ 
+ function M.onExtensionUnloaded()
