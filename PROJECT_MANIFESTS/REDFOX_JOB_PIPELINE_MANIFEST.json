@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0.0",
+  "updated_at": "2026-07-14T20:31:00-07:00",
+  "owner": "David / Captain",
+  "coordinator_job": "JOB-00",
+  "authoritative_directive": "PROJECT_MANIFESTS/READ_FIRST_REDFOX_END_TO_END_JOB_PIPELINE_2026-07-14.md",
+  "core_rule": "Prove each feature backend through a development test harness before connecting the approved website; then register one phone/PC destination, validate, test, and integrate.",
+  "allowed_statuses": [
+    "DAVID-TESTED WORKING",
+    "BUILT — RUNTIME UNTESTED",
+    "PARTIAL",
+    "BLOCKED",
+    "FAILED — STOPPED",
+    "MOCKUP / PLACEHOLDER — NOT FUNCTIONAL"
+  ],
+  "required_phases": [
+    "recover_and_claim",
+    "intake",
+    "baseline",
+    "inspect",
+    "preserve",
+    "separate_backend_from_ui",
+    "test_harness",
+    "backend_proof",
+    "ownership_map",
+    "contracts",
+    "website_integration",
+    "phone_pc_registration",
+    "shared_career_rls_wiring",
+    "static_package_checks",
+    "qa_intake",
+    "david_runtime_test",
+    "integration_gate",
+    "final_assembly_archive"
+  ],
+  "required_report_patterns": [
+    "CHANGE_SCOPE_*.txt",
+    "OPEN_THIS_VERIFICATION_REPORT_*.txt",
+    "OPEN_THIS_VERIFICATION_REPORT_*.html",
+    "VERIFY_*.json",
+    "VERIFY_*_FILE_INVENTORY.csv",
+    "FILE_TREE_*.txt",
+    "LOGGING_AND_TESTING_README.txt",
+    "LOGGING_AND_TESTING_README.html",
+    "REDFOX_JOB_HANDOFF.json"
+  ],
+  "jobs": {
+    "JOB-00": {
+      "title": "Coordinator / Integration / Verification",
+      "owns": ["baseline freeze", "ownership reconciliation", "dependency order", "integration approval", "final assembly", "collision checks", "release manifest", "rollback records"],
+      "must_not": ["rewrite every feature", "claim runtime without David's test"]
+    },
+    "JOB-01": {
+      "title": "Phone + PC Platform Core",
+      "owns": ["IceFox front door", "app registry", "canonical IDs and routes", "phone entry", "PC entry", "browser and navigation host", "same destination on phone and PC"],
+      "must_not": ["feature business logic", "Career money or ownership logic"]
+    },
+    "JOB-02": {
+      "title": "Shared RLS / Career Bridge",
+      "owns": ["versioned UI-to-Lua contracts", "Career/RLS data", "money", "shopping", "purchase results", "ownership", "inventory", "garage and storage", "insurance", "online selling", "shared errors and logs"],
+      "must_not": ["feature-specific page design", "Tow mission implementation"]
+    },
+    "JOB-03": {
+      "title": "RedFox App Store / Play Store",
+      "owns": ["optional Store UI", "install enable disable open update presentation", "manifest presentation"],
+      "must_not": ["competing launcher", "blocking the first integrated milestone"]
+    },
+    "JOB-04": {
+      "title": "Scrap Yard / Wrecking Yard",
+      "owns": ["Scrap Yard backend", "development test harness", "website integration", "phone and PC behavior", "online buy and sell", "map-independent behavior", "real ownership and storage completion"],
+      "must_not": ["direct spawn as purchase success", "fake inventory", "startup Scrap Yard Career module"]
+    },
+    "JOB-05": {
+      "title": "BeamBook Marketplace",
+      "owns": ["BeamBook backend", "development test harness", "social and marketplace behavior", "website integration"],
+      "must_not": ["copy platform core", "fake transactions"]
+    },
+    "JOB-06": {
+      "title": "Import / Export Yard",
+      "owns": ["Import/Export backend", "development test harness", "website integration", "buy-now vehicle market"],
+      "must_not": ["unapproved future delivery systems", "competing shared bridge"]
+    },
+    "JOB-07": {
+      "title": "Classics / Collector Exchange",
+      "owns": ["collector dealer backend", "development test harness", "website integration", "classic and rare vehicle listings"],
+      "must_not": ["auction behavior without owner approval"]
+    },
+    "JOB-08": {
+      "title": "Insurance / Finance / Garage / Storage Pages",
+      "owns": ["Vehicle Services adapters", "development test harness", "pages", "approved runtime connections"],
+      "must_not": ["fake balances", "fake loans", "fake insurance", "fake ownership", "fake capacity"]
+    },
+    "JOB-09": {
+      "title": "Tow / Recovery / Dispatch",
+      "owns": ["Tow backend and gameplay", "WEUI forced-call testing", "dispatch and call chooser", "tow missions", "yard records", "payments", "multi-map support", "Recovery website integration"],
+      "must_not": ["replace working Tow logic to fit a mockup", "depend on the website for backend testing"]
+    },
+    "JOB-10": {
+      "title": "Visual Design / Real Website Polish",
+      "owns": ["website HTML", "CSS", "responsive layout", "visual-only JavaScript", "logos", "images", "cards", "design system"],
+      "must_not": ["gameplay implementation", "Career/RLS actions", "shared bridge logic"]
+    },
+    "JOB-11": {
+      "title": "QA / Logging / Failure Triage",
+      "owns": ["automated handoff validation", "ZIP and collision checks", "contract checks", "test matrices", "logs", "failure evidence", "regression and removal testing", "truth-status verdicts"],
+      "must_not": ["silently patch another job's implementation", "approve untested runtime"]
+    },
+    "JOB-12": {
+      "title": "SponsorHub / FoxMail / FoxText / Sponsor Rewards",
+      "owns": ["four app backends", "development test harnesses", "pages", "website integration"],
+      "must_not": ["replace FoxFax", "edit unrelated market or Tow systems"]
+    }
+  },
+  "acceptance_gates": {
+    "gate_0_ownership": ["exact job owner", "exact version", "unique IDs", "protected paths"],
+    "gate_1_backend": ["backend separated from UI", "test harness available where practical", "backend actions and errors proven independently"],
+    "gate_2_contracts": ["JOB-01 version", "JOB-02 version", "permissions", "events", "dependencies"],
+    "gate_3_package": ["isolated add-on", "no copied shared core", "reports", "size", "SHA-256", "removal instructions"],
+    "gate_4_integration": ["approved JOB-10 page", "real page actions", "same phone and PC destination", "no visual-only fake success"],
+    "gate_5_runtime": ["David tested exact ZIP", "map", "steps", "timestamp", "logs"],
+    "gate_6_release": ["JOB-11 verdict", "JOB-00 approval", "no collisions", "rollback recorded"]
+  }
+}
