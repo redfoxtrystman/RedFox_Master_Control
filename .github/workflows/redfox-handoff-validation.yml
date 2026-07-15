@@ -1,0 +1,34 @@
+name: RedFox Handoff Validation
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "PROJECT_MANIFESTS/REDFOX_JOB_PIPELINE_MANIFEST.json"
+      - "PROJECT_MANIFESTS/**/REDFOX_JOB_HANDOFF.json"
+      - "QA_LOGGING/validate_redfox_handoffs.py"
+      - ".github/workflows/redfox-handoff-validation.yml"
+  pull_request:
+    paths:
+      - "PROJECT_MANIFESTS/REDFOX_JOB_PIPELINE_MANIFEST.json"
+      - "PROJECT_MANIFESTS/**/REDFOX_JOB_HANDOFF.json"
+      - "QA_LOGGING/validate_redfox_handoffs.py"
+      - ".github/workflows/redfox-handoff-validation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-redfox-handoffs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate pipeline manifest and job handoffs
+        run: python QA_LOGGING/validate_redfox_handoffs.py
