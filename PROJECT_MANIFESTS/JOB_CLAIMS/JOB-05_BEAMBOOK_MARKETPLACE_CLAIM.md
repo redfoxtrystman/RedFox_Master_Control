@@ -1,6 +1,6 @@
 # 5 — JOB-05 — BeamBook Marketplace — Claim Record
 
-**Status:** CLAIMED — STANDALONE v0.1.0 BUILT — RUNTIME UNTESTED — SHARED ICEFOX INTEGRATION STILL BLOCKED  
+**Status:** CLAIMED — PAUSED BY OWNER UNTIL RETURN — NO HANDOFF — STANDALONE v0.1.0 BUILT — RUNTIME UNTESTED — SHARED ICEFOX INTEGRATION STILL BLOCKED  
 **Owner/chat title:** 5 — JOB-05 — BeamBook Marketplace  
 **Claim date:** 2026-07-13  
 **Repository:** `redfoxtrystman/RedFox_Master_Control`
@@ -165,9 +165,9 @@ Final handoff:
 
 `PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-05_STANDALONE_BEAMBOOK_FINAL_HANDOFF_v0.1.0_2026-07-14.md`
 
-## Current action
+## Current action before camping pause
 
-Wait for David's exact-candidate BeamNG/RLS test and logs. Shared IceFox phone/PC integration remains blocked pending the shared contracts.
+Wait for David's exact-candidate BeamNG/RLS test and the external research-bundle runtime test. Shared IceFox phone/PC integration remains blocked pending the shared contracts.
 
 ## Regular-chat takeover — 2026-07-14 12:43 PDT
 
@@ -190,7 +190,7 @@ PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_CLAIM.md
 PROJECT_MANIFESTS/JOB_CLAIMS/JOB-05_BEAMBOOK_MARKETPLACE_REGULAR_CHAT_TAKEOVER_2026-07-14.md
 ```
 
-### Current status
+### Current technical status
 
 ```text
 MIGRATED TO REGULAR CHAT — STANDALONE v0.1.0 BUILT — RUNTIME UNTESTED
@@ -200,6 +200,52 @@ MIGRATED TO REGULAR CHAT — STANDALONE v0.1.0 BUILT — RUNTIME UNTESTED
 
 The first BeamNG runtime test has not been recorded. UI-app discovery, input/keybind behavior, WEUI settings, Career/RLS compatibility, current-map inspection, purchase completion, real ownership, inventory, garage, and storage remain unproven. Shared IceFox phone/PC integration remains blocked.
 
-### Required next step
+### Required canonical next step
 
 Test the exact GitHub candidate with the original third-party `beamBook.zip` disabled, then return the `[RedFox][BEAMBOOK]` log section and screenshots of discovery, binding, wall, Marketplace, settings, inspection, and purchase results.
+
+## External vehicle-generation research — 2026-07-15
+
+David asked JOB-05 to use the uploaded third-party BeamBook mod as a controlled research target for broader vehicle categories, different quality/mileage ranges, and in-game adjustment.
+
+JOB-05 built:
+
+```text
+beamBook_RedFoxResearch_v1_1_0_RUNTIME_UNTESTED.zip
+RedFox_BeamBook_Research_Monitor_v0_1_0_RUNTIME_UNTESTED.zip
+RedFox_BeamBook_Research_Test_Bundle_v0_1_0_RUNTIME_UNTESTED.zip
+```
+
+The edited derivative provides configurable category/condition generation and a bindable WEUI settings window. The separate monitor is intended to remain read-only and export evidence about actual generated listings.
+
+Corrected research build record:
+
+```text
+PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-05_BEAMBOOK_EXTERNAL_RESEARCH_SETTINGS_MONITOR_BUILD_2026-07-15.md
+```
+
+The derivative and monitor remain **BUILT — RUNTIME UNTESTED**. They are research toward the RedFox implementation and do not replace the canonical standalone candidate.
+
+## Owner camping pause — 2026-07-17
+
+David explicitly stated that this is a pause until he returns from camping, not a handoff.
+
+Ownership remains with this JOB-05 chat. No other chat should claim or continue JOB-05 during the pause. No background work is occurring.
+
+Authoritative pause and restart record:
+
+```text
+PROJECT_MANIFESTS/JOB_PAUSE_CHECKPOINTS/JOB-05_BEAMBOOK_CAMPING_PAUSE_CHECKPOINT_2026-07-17.md
+```
+
+Pause state:
+
+```text
+PAUSED BY OWNER UNTIL RETURN — OWNERSHIP RETAINED — NO HANDOFF
+```
+
+Exact restart point after David returns:
+
+```text
+Run the exact BeamBook research bundle test, collect logs/JSON/CSV/screenshots, and fix the first proven failing checkpoint. Preserve the canonical standalone v0.1.0 candidate separately until research results prove a specific improvement should be ported.
+```
