@@ -172,3 +172,50 @@ Conditional reuploads are any JOB-07-generated ZIP/source, screenshots/mockups, 
 ### Required next action
 
 Inspect the exact IceFox ecosystem ZIP only for existing Classics/Collector paths, route, assets, naming, and behavior. Then publish a JOB-07 baseline inventory and exact planned-edit/protected-file report before changing code. Reuse `job01.platform.v1`; do not implement transaction behavior until JOB-02 publishes the final bridge contract.
+
+---
+
+## Temporary camping pause update — 2026-07-17 10:08 PDT
+
+**Pause type:** OWNER-REQUESTED TEMPORARY PAUSE — NOT A HANDOFF  
+**Ownership:** RETAINED BY JOB-07 REGULAR CHAT  
+**Implementation state:** BLOCKED — NO JOB-07 MOD SOURCE OR TEST BUILD EXISTS  
+**Resume record:**
+
+```text
+PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-07_CAMPING_PAUSE_FULL_STATUS_AUDIT_2026-07-17.md
+```
+
+**Pause-audit creation commit:**
+
+```text
+015cebd602073ecc0367c6221e15cc25df13cf01
+```
+
+### Sound-off status
+
+- JOB-07 remains claimed by the same active regular chat.
+- This pause is not a transfer, release, abandonment, closeout, or completed handoff.
+- No background work will occur while David is camping.
+- No runtime files, page files, platform files, bridge files, Store files, QA source, or another job's work were modified for this pause.
+- The full audit lists everything completed, attempted, recovered, missing, planned, prohibited, and required for resumption.
+
+### Dependency state recorded at pause
+
+- JOB-01 PR #3 remains open, draft, unmerged, and runtime untested.
+- JOB-02 still has no published `job02.bridge.v1`, adapter, or runtime build.
+- JOB-03 has a proposed Store/catalog model but no final integrated contract.
+- JOB-11 has published the shared QA/logging framework and package audit tool.
+- JOB-00 has not published a final canonical baseline freeze for JOB-07.
+
+### Exact resume action
+
+After David returns, first recheck GitHub for dependency changes and upload/inspect:
+
+```text
+zzzz_RedFox_FoxNet_Web_Ecosystem_v0_10_3_7_ALL_IN_ONE_PC_PHONE_GARAGE_SELL_FIX(1).zip
+Size: 24,510,848 bytes
+SHA-256: 4dac614a4b14d423c069dccc8bdb5e0e511ee208f7414d3e6ed50a86a7903597
+```
+
+Then publish the JOB-07 baseline inventory and exact planned-edit/protected-file report before any implementation.
