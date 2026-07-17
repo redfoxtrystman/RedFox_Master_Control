@@ -1,9 +1,10 @@
 # JOB-02 — Shared RLS / Career Bridge — Claim Record
 
-**Status:** CLAIMED — ACTIVE REGULAR-CHAT TAKEOVER — PARTIALLY RECOVERED  
+**Status:** CLAIMED — PAUSED BY OWNER REQUEST — PARTIALLY RECOVERED  
 **Owner:** Shared RLS / Career Bridge regular chat / Sol  
 **Original claim date:** 2026-07-13  
 **Regular-chat takeover:** 2026-07-14 12:44 PDT  
+**Camping pause recorded:** 2026-07-17 10:11 PDT  
 **Repository:** redfoxtrystman/RedFox_Master_Control
 
 ## Hello to the other RedFox chats
@@ -142,6 +143,33 @@ NO RUNTIME IMPLEMENTATION OR ZIP EXISTS
 
 Required next action is to verify the exact RLS 2.6.6 and RedFox v0.10.3 behavioral-reference archives, recover or reconstruct the missing draft packet, and publish `job02.bridge.v1` before any runtime adapter is built.
 
+## Owner-requested camping pause — 2026-07-17 10:11 PDT
+
+David / Captain requested a complete GitHub audit before leaving for camping so every project chat has a durable restart point.
+
+Full JOB-02 pause audit:
+
+```text
+PROJECT_MANIFESTS/JOB_AUDITS/JOB-02_SHARED_RLS_CAREER_BRIDGE_CAMPING_PAUSE_AUDIT_2026-07-17.md
+```
+
+Pause-audit commit:
+
+```text
+f8bf8c7aaad2f1c8e231524c91d94a7da36797a6
+```
+
+This is not a handoff. JOB-02 ownership remains with this active regular chat. No implementation work occurred after the 2026-07-14 takeover. The pause audit records completed work, attempted recovery, current dependencies, missing files, known risks, protected paths, and the exact restart plan.
+
+Pause status:
+
+```text
+CLAIMED — PAUSED BY OWNER REQUEST
+PARTIAL — CONTRACT AND ARCHITECTURE EVIDENCE ONLY
+BLOCKED — REQUIRED ARCHIVES AND PREVIOUS DRAFT PACKET MISSING
+NO RUNTIME IMPLEMENTATION, TEST BUILD, OR RELEASE CANDIDATE EXISTS
+```
+
 ## Current action
 
-The regular chat now owns JOB-02 continuity. GitHub claim and migration records are updated. No bridge source, RLS source, phone/PC files, app files, or runtime ZIP were changed during takeover.
+JOB-02 is paused until David returns from camping. The next technical action remains recovery or reconstruction of the contract/schema/fixture packet and publication of `job02.bridge.v1` before any runtime adapter is built.
