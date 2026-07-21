@@ -84,6 +84,6 @@ All three supplied output ZIPs contained invalid JBeam and/or references to text
 
 No one may change the status to working until David tests this exact package in BeamNG.
 
-## Source snapshot
+## Repository record
 
-The maintained source snapshot is under `TOOLS/REDFOX_SKIN_STUDIO_V0_2_0/`. Third-party vendored Three.js runtime files are included in the downloadable artifact but are not duplicated in the repository snapshot.
+The source overview and release notes are under `TOOLS/REDFOX_SKIN_STUDIO_V0_2_0/`. The downloadable artifact supplied to David contains the complete source tree, inherited web editor, templates, and offline 3D dependencies. The binary ZIP itself was not committed through the text-only GitHub connector.
