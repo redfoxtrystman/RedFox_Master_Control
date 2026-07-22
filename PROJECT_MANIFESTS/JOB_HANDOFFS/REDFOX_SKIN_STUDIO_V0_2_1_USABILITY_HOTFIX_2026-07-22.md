@@ -4,7 +4,7 @@
 **Owner:** David / Captain  
 **Status:** **BUILT — WINDOWS / BEAMNG RUNTIME UNTESTED**  
 **Artifact:** `RedFox_Skin_Studio_v0_2_1_BUILT_RUNTIME_UNTESTED.zip`  
-**SHA-256:** `7c0549a222f32a937b3fa2f131efe5af23974fae4b2d9ecd3058530661df4866`
+**SHA-256:** `7402125eeaca928cd587bcaf0d75d39df00b58b879d58e07d679af84b672cf48`
 
 ## Why this corrective build was required
 
