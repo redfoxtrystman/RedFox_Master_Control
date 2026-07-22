@@ -1,185 +1,180 @@
 # JOB-09 — Read First After Camping
 
 **Original pause date:** 2026-07-17  
-**Updated:** 2026-07-21  
+**Updated:** 2026-07-22  
 **Owner:** David / Captain  
-**Status:** **PAUSED — NOT A HANDOFF**
+**Status:** **PAUSED/ACTIVE TESTING — NOT A HANDOFF**
 
-Resume the same regular-chat JOB-09 workstation.
-
-Do not create a replacement job, rename JOB-09, or transfer ownership.
+Resume the same regular-chat JOB-09 workstation. Do not rename, replace, or transfer JOB-09.
 
 ---
 
 ## Current active test candidate
 
 ```text
-19-JOB-09-RedFox_TowRecoveryDispatch_v0_2_7_RLSProgressionPersonalClaims.zip
-```
-
-```text
-Size: 138,580 bytes
-SHA-256: a34ed2660e6bf69ad86722c16114f3fe0989422dca4f65cfb3cd5f49a156fd73
+19-JOB-09-RedFox_TowRecoveryDispatch_v0_2_8_CareerDayAssetManager.zip
+Size: 154,970 bytes
+SHA-256: b7ad5424f82f70cec998e1ee01345c8f608b01d60aac6a6f927f06e75019a018
 Status: BUILT — RUNTIME UNTESTED
 ```
 
-Actual ZIP location in the active ChatGPT JOB-09 workspace:
+Active workspace path:
 
 ```text
-/mnt/data/19-JOB-09-RedFox_TowRecoveryDispatch_v0_2_7_RLSProgressionPersonalClaims.zip
+/mnt/data/19-JOB-09-RedFox_TowRecoveryDispatch_v0_2_8_CareerDayAssetManager.zip
 ```
 
-The installable ZIP is not stored as a GitHub binary.
+The binary ZIP is not stored on GitHub.
 
-Previous candidates remain documented as source baselines/fallbacks and were not declared runtime-broken:
+Previous source baseline:
 
 ```text
-v0.2.6 Police Impound + Emergency Scenes
-SHA-256: 82eecc0652d61cc8b6d203d0bf7eb541bdee95532e8c82c2b2ecd59c0a0b2dbd
-
-v0.2.5 Fleet Identity + Hazard Sites
-SHA-256: 52d453d601371a40fb7f675ec62468542939c3b201740845643a5761221cafbf
+v0.2.7 — RLS Progression and Personal Claims
+SHA-256: a34ed2660e6bf69ad86722c16114f3fe0989422dca4f65cfb3cd5f49a156fd73
 ```
 
 ---
 
-## Read these full audits
+## Why v0.2.8 was created
 
-### 1. Original Tow mod and complete JOB-09 state through v0.2.5
+David's runtime screenshots showed:
+
+- storage remaining at `0 day(s) / $0`;
+- map time/daylight apparently frozen;
+- personal claim controls hidden behind a hold that used real calendar days;
+- Fleet, Tow Yard, and Tow History producing one extremely long scrolling page;
+- values/buttons from adjacent records becoming visually confusing.
+
+Source inspection confirmed that v0.2.7 used `os.time()` and 86,400-second real days for Tow Yard aging.
+
+---
+
+## v0.2.8 focus
+
+### Career-day storage clock
+
+- Follows advancing map time-of-day.
+- Uses the map-reported day length when available.
+- If time-of-day is frozen, active unpaused Career playtime advances an equivalent day.
+- Default fallback is 30 active minutes per Career day.
+- Fallback can be adjusted from 5 to 120 minutes.
+- Paused time does not advance the fallback clock.
+- Existing v0.2.7 yard records migrate without deletion.
+- Storage charges accrue per completed Career day.
+
+### Organized asset interface
+
+The main window is split into:
+
+1. Dispatch
+2. Fleet
+3. Storage / Impound
+4. History
+
+Fleet supports location/unit selectors. Storage supports map/category/vehicle selectors. History supports catalog/record selectors.
+
+### Claim visibility
+
+The selected stored record now shows fractional hold progress, remaining Career days, billable storage days, lien, and a clear personal-claim locked/eligible state.
+
+### Vehicle values
+
+The selected record shows its valuation source and can be explicitly reappraised against its exact installed model/configuration. Legacy values are not silently rewritten.
+
+### Future Phone/PC asset manager
+
+Read-only API added:
+
+```text
+getAssetManagerData()
+```
+
+This prepares Fleet, stored vehicles, history, yards, and clock data for a future Phone/PC company asset page.
+
+---
+
+## Read these records
+
+### Complete original state through v0.2.5
 
 ```text
 PROJECT_MANIFESTS/PAUSE_AUDITS/JOB-09_TOW_RECOVERY_DISPATCH_PAUSE_AUDIT_2026-07-17.md
 ```
 
-Contains:
-
-- Job ownership/scope.
-- Every build and version decision through v0.2.5.
-- Exact files/hashes/status at the original pause.
-- What David tested.
-- What failed or was rejected.
-- Known limitations.
-- Current settings and systems.
-- GitHub commits and records.
-- Return test checklist and resume priorities.
-
-### 2. v0.2.6 police/emergency-scene addendum
-
-```text
-PROJECT_MANIFESTS/PAUSE_AUDITS/JOB-09_CAMPING_PAUSE_ADDENDUM_v0.2.6_2026-07-21.md
-```
-
-Contains:
-
-- Police-requested impounds.
-- Street-racing impounds.
-- DUI checkpoint impounds.
-- Emergency-scene support.
-- Random Events, Traffic Reborn, and Sandbox Tools integration boundaries.
-
-### 3. v0.2.7 RLS progression and personal-claim addendum
-
-```text
-PROJECT_MANIFESTS/PAUSE_AUDITS/JOB-09_CAMPING_PAUSE_ADDENDUM_v0.2.7_2026-07-21.md
-```
-
-Contains:
-
-- Current v0.2.7 candidate identity and hash.
-- Exact RLS Career Overhaul 2.6.8 package reference.
-- Money, workload, distance, and target-count scaling.
-- Beam XP, Labourer, Repo XP, and Civil Service XP behavior.
-- RLS Repo vehicle statistics.
-- Tow Yard `Claim as My Personal Vehicle` process.
-- Garage-capacity and rollback rules.
-- Updated runtime test order.
-
-### 4. RLS cross-map repo carrier and future systems
+### RLS cross-map repo and future systems
 
 ```text
 PROJECT_MANIFESTS/PAUSE_AUDITS/JOB-09_RLS_CROSS_MAP_REPO_AND_FUTURE_SYSTEMS_PAUSE_AUDIT_2026-07-17.md
 ```
 
-Contains:
+### v0.2.6 police/emergency scenes
 
-- RLS map-switch correction/research.
-- Current RLS repo behavior.
-- Repo holding and 5/8/10-car bulk transport concept.
-- Tractor/trailer/damaged-car persistence test.
-- Damage/partConditions findings.
-- Coupler/cargo unknowns.
-- Static/frozen reconstruction fallback.
-- Future player-rigged AI transport.
-- Future manual multi-wrecker winch overlay.
-- Simple Business Manager boundary.
-- Cross-job coordination.
+```text
+PROJECT_MANIFESTS/PAUSE_AUDITS/JOB-09_CAMPING_PAUSE_ADDENDUM_v0.2.6_2026-07-21.md
+PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-09_POLICE_IMPOUND_EMERGENCY_SCENES_v0.2.6_2026-07-21.md
+PROJECT_SOURCE_PATCHES/JOB-09/v0.2.6_POLICE_IMPOUND_EMERGENCY_SCENES_CHANGE_SUMMARY.md
+```
 
-### 5. Third-party Tow/Event compatibility audit
+### v0.2.7 RLS progression and personal claims
+
+```text
+PROJECT_MANIFESTS/PAUSE_AUDITS/JOB-09_CAMPING_PAUSE_ADDENDUM_v0.2.7_2026-07-21.md
+PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-09_RLS_PROGRESSION_PERSONAL_CLAIMS_v0.2.7_2026-07-21.md
+PROJECT_SOURCE_PATCHES/JOB-09/v0.2.7_RLS_PROGRESSION_PERSONAL_CLAIMS_CHANGE_SUMMARY.md
+```
+
+### v0.2.8 clock and organized assets
+
+```text
+PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-09_CAREER_DAY_ASSET_MANAGER_v0.2.8_2026-07-22.md
+PROJECT_SOURCE_PATCHES/JOB-09/v0.2.8_CAREER_DAY_ASSET_MANAGER_CHANGE_SUMMARY.md
+```
+
+### Third-party event/tow compatibility
 
 ```text
 PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-09_THIRD_PARTY_TOW_EVENT_COMPATIBILITY_AUDIT_2026-07-21.md
 ```
 
-Contains the complete inspection of:
-
-- Random Events 1.9.0.0;
-- Traffic Reborn Free 1.4.0.0;
-- Sandbox Tools 1.1.0.0;
-- public functions found;
-- lifecycle/vehicle-ownership limits;
-- licensing/redistribution boundary;
-- v0.2.6 integration choices.
-
 ---
 
-## Current build records
+## Immediate v0.2.8 test
 
 ```text
-PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-09_POLICE_IMPOUND_EMERGENCY_SCENES_v0.2.6_2026-07-21.md
-PROJECT_SOURCE_PATCHES/JOB-09/v0.2.6_POLICE_IMPOUND_EMERGENCY_SCENES_CHANGE_SUMMARY.md
-
-PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-09_RLS_PROGRESSION_PERSONAL_CLAIMS_v0.2.7_2026-07-21.md
-PROJECT_SOURCE_PATCHES/JOB-09/v0.2.7_RLS_PROGRESSION_PERSONAL_CLAIMS_CHANGE_SUMMARY.md
-```
-
----
-
-## Existing GitHub issues
-
-```text
-Issue #4 — JOB-09 Tow / Recovery / Dispatch
-Issue #5 — [JOB-00 ASSIGNMENT REQUEST] Simple Business Manager and future Tow Support controls
-```
-
----
-
-## Immediate return action
-
-Do not begin another large feature first.
-
-Start here:
-
-```text
-1. Disable every older JOB-09 ZIP, including v0.2.6.
-2. Enable only v0.2.7.
+1. Disable every older JOB-09 ZIP, including v0.2.7.
+2. Enable only v0.2.8.
 3. Use a disposable RLS Career save.
-4. Confirm old yards, fleet records, cataloged history, impounds, and police calls load.
-5. Confirm RLS Repo progression is detected.
-6. Complete one short Standard Tow and record money, Beam XP, Labourer, Repo XP, and tow-vehicle repo count.
-7. Complete a longer Standard Tow and confirm it awards more.
-8. Complete Rolled, Semi Rollover, and Accident calls and compare workload rewards.
-9. Complete Police and DUI impounds and check Civil Service progression.
-10. Complete an abandoned/unpaid outcome and confirm progression despite deferred/no cash.
-11. Inspect Tow History progression fields.
-12. After a hold expires, use Claim as My Personal Vehicle.
-13. Confirm the record leaves the RedFox yard and appears in My Vehicles/private garage.
-14. Fill all garage slots and confirm a refused claim preserves the yard record.
-15. Save and reload to verify persistence.
-16. Return beamng.log around any reward, attribute, inventory, garage, condition, or claim failure.
-17. Patch only runtime-proven failures.
+4. Confirm old yard, fleet, history, and impound records load.
+5. Leave time-of-day frozen and confirm Hold Progress advances while driving.
+6. Lower fallback to five minutes for a quick billing/expiration test.
+7. Confirm one completed Career day adds one storage day and daily storage charge.
+8. Confirm three Career days unlock personal claim.
+9. Unfreeze time and check that the clock switches to time-of-day-cycle operation.
+10. Test Fleet location/unit dropdowns.
+11. Test Storage map/category/vehicle dropdowns.
+12. Test History catalog/record dropdowns.
+13. Reappraise only a disposable stored vehicle.
+14. Claim a disposable eligible vehicle with free garage space.
+15. Fill garage capacity and confirm a failed claim keeps the Tow Yard record.
+16. Save/reload and verify clock, storage, fleet assignment, and history persist.
+17. Return beamng.log around any clock, UI, appraisal, claim, payment, or save failure.
 ```
 
-After the current Tow mod is stable, run the separate RLS persistence test with one tractor, one trailer, and one damaged loaded car before designing the full cross-map repo shipment system.
+---
+
+## Business/company boundary
+
+The following are still not implemented and must not be assumed working:
+
+- Tow Yard → Tow Company Fleet ownership transfer;
+- personal ↔ company vehicle transfer;
+- company bank routing;
+- branch relocation/map transfer;
+- company sale protection;
+- XXX fleet-insurance enrollment;
+- full Phone/PC asset-manager UI.
+
+A disposable vehicle must prove rollback-safe company transfer before the valuable abandoned truck is moved.
 
 ---
 
@@ -187,15 +182,11 @@ After the current Tow mod is stable, run the separate RLS persistence test with 
 
 ```text
 v0.2.2 is REJECTED — DO NOT USE.
-Do not claim v0.2.7 working before David tests it.
+Do not claim v0.2.8 working before David tests this exact ZIP.
 Do not patch, copy, or redistribute stock BeamNG Career or RLS source.
-Do not guess undocumented random-event APIs.
-Do not claim live Random Events vehicles without a supported claim/lifecycle API.
 Do not delete a Tow Yard record before a successful Career inventory transfer.
-Do not assume older Tow Yard records can reconstruct exact deformation.
-Do not add a complex business/accounting simulator.
-Do not add unfinished AI towing to the current video-test build.
-Universal rigging, unified tow controls, backups, and multi-wrecker controls are not in v0.2.7.
-Current hold timing still uses JOB-09's existing timer behavior; verified RLS in-game-day hold timing remains separate work.
-This camping pause is not a handoff.
+Do not assume old Tow Yard records preserve exact node/beam deformation.
+Do not move the valuable abandoned truck into company ownership yet.
+Do not add unfinished AI towing, universal rigging, or company transfer to this clock/UI test.
+This remains the same JOB-09 workstation; it is not a handoff.
 ```
