@@ -3,7 +3,7 @@
 **Original pause date:** 2026-07-17  
 **Updated:** 2026-07-22  
 **Owner:** David / Captain  
-**Status:** **PAUSED/ACTIVE TESTING — NOT A HANDOFF**
+**Status:** **ACTIVE TESTING — NOT A HANDOFF**
 
 Resume the same regular-chat JOB-09 workstation. Do not rename, replace, or transfer JOB-09.
 
@@ -12,16 +12,16 @@ Resume the same regular-chat JOB-09 workstation. Do not rename, replace, or tran
 ## Current active test candidate
 
 ```text
-19-JOB-09-RedFox_TowRecoveryDispatch_v0_2_8_CareerDayAssetManager.zip
-Size: 154,970 bytes
-SHA-256: b7ad5424f82f70cec998e1ee01345c8f608b01d60aac6a6f927f06e75019a018
+19-JOB-09-RedFox_TowRecoveryDispatch_v0_2_9_ActiveCallRecoveryAlertsDamage.zip
+Size: 181,835 bytes
+SHA-256: 95722351456b6caeb51b448a624bdb33ae4b89e17e45df5fa77a85b6439ea1f2
 Status: BUILT — RUNTIME UNTESTED
 ```
 
 Active workspace path:
 
 ```text
-/mnt/data/19-JOB-09-RedFox_TowRecoveryDispatch_v0_2_8_CareerDayAssetManager.zip
+/mnt/data/19-JOB-09-RedFox_TowRecoveryDispatch_v0_2_9_ActiveCallRecoveryAlertsDamage.zip
 ```
 
 The binary ZIP is not stored on GitHub.
@@ -29,67 +29,101 @@ The binary ZIP is not stored on GitHub.
 Previous source baseline:
 
 ```text
-v0.2.7 — RLS Progression and Personal Claims
-SHA-256: a34ed2660e6bf69ad86722c16114f3fe0989422dca4f65cfb3cd5f49a156fd73
+v0.2.8 — Career-Day Clock and Organized Asset Manager
+SHA-256: b7ad5424f82f70cec998e1ee01345c8f608b01d60aac6a6f927f06e75019a018
 ```
 
 ---
 
-## Why v0.2.8 was created
+## Confirmed runtime evidence
 
-David's runtime screenshots showed:
-
-- storage remaining at `0 day(s) / $0`;
-- map time/daylight apparently frozen;
-- personal claim controls hidden behind a hold that used real calendar days;
-- Fleet, Tow Yard, and Tow History producing one extremely long scrolling page;
-- values/buttons from adjacent records becoming visually confusing.
-
-Source inspection confirmed that v0.2.7 used `os.time()` and 86,400-second real days for Tow Yard aging.
-
----
-
-## v0.2.8 focus
-
-### Career-day storage clock
-
-- Follows advancing map time-of-day.
-- Uses the map-reported day length when available.
-- If time-of-day is frozen, active unpaused Career playtime advances an equivalent day.
-- Default fallback is 30 active minutes per Career day.
-- Fallback can be adjusted from 5 to 120 minutes.
-- Paused time does not advance the fallback clock.
-- Existing v0.2.7 yard records migrate without deletion.
-- Storage charges accrue per completed Career day.
-
-### Organized asset interface
-
-The main window is split into:
-
-1. Dispatch
-2. Fleet
-3. Storage / Impound
-4. History
-
-Fleet supports location/unit selectors. Storage supports map/category/vehicle selectors. History supports catalog/record selectors.
-
-### Claim visibility
-
-The selected stored record now shows fractional hold progress, remaining Career days, billable storage days, lien, and a clear personal-claim locked/eligible state.
-
-### Vehicle values
-
-The selected record shows its valuation source and can be explicitly reappraised against its exact installed model/configuration. Legacy values are not silently rewritten.
-
-### Future Phone/PC asset manager
-
-Read-only API added:
+David confirmed:
 
 ```text
-getAssetManagerData()
+v0.2.8 Western Star Tow Yard record -> personal Career inventory/garage: DAVID-TESTED WORKING
 ```
 
-This prepares Fleet, stored vehicles, history, yards, and clock data for a future Phone/PC company asset page.
+David also reported that the reorganized Tow interface was an improvement.
+
+Testing was interrupted by:
+
+- another window crash;
+- a power outage during a semi rollover call;
+- a headache;
+- loss of the active call because v0.2.8 kept it only in runtime memory.
+
+Storage clock, remaining claim paths, progression, responder cleanup, and all other v0.2.8 behavior remain partial until retested.
+
+---
+
+## Why v0.2.9 was created
+
+Runtime findings and owner requirements:
+
+- active Tow calls need crash/power-loss recovery;
+- calls need a longer acceptance window;
+- incoming dispatch needs an audible and much more visible alert;
+- Tow targets should not be deliverable by simply teleporting to and driving them without the tow truck nearby;
+- accident and rollover targets need more disabled/damaged/wrecked conditions;
+- semi recovery should not add a trailer every time;
+- integrated-bed/carrier heavy vehicles should sometimes have a displaced cargo vehicle instead;
+- emergency scenes should prefer newer police configurations.
+
+---
+
+## v0.2.9 focus
+
+### Active-call recovery
+
+- Autosaves every 12 seconds by default.
+- Rotates between two recovery files plus Career-profile state.
+- Manual **Save Active Call Now**.
+- **Resume Saved Active Call** and **Discard Saved Active Call** after restart.
+- Restores undelivered model/configuration, transform, scene role, condition profile, destination, route, payment plan, and progression preview.
+- Regenerates responders from the scene anchor.
+- Preserves the last snapshot when a target unexpectedly disappears.
+
+Exact live node/beam deformation is not guaranteed after power loss; the saved damage profile is reapplied.
+
+### Tow/service vehicle validation
+
+- Records the vehicle used to accept the job.
+- Stores RLS inventory ID where available.
+- Manual service-truck reassignment.
+- A target cannot be assigned as its own service truck.
+- More than 100 meters separation after target movement starts a 15-second countdown.
+- Delivery requires the assigned service truck within 35 meters.
+
+### Incoming dispatch
+
+- Existing users migrate to a five-minute acceptance window.
+- Built-in BeamNG mission-information sound.
+- Large RedFox incoming-call banner.
+- Repeating reminder every 30 seconds by default.
+- Acceptance and reminder intervals are adjustable.
+
+### Target condition variety
+
+- Operational impound.
+- Operational abandoned.
+- Stalled.
+- Flat tire.
+- Neglected.
+- Minor collision.
+- Rollover damage.
+- Severe collision.
+- Heavy wreck.
+
+### Semi/heavy-carrier variety
+
+- Heavy truck only.
+- Tractor plus trailer.
+- Integrated/rigid carrier plus displaced cargo vehicle.
+- Transport tractor plus displaced cargo vehicle.
+
+### Police selection
+
+Compatible modern stock/modded police configurations are scored above older choices. Older vehicles remain fallback-only when no modern option is found.
 
 ---
 
@@ -130,6 +164,13 @@ PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-09_CAREER_DAY_ASSET_MANAGER_v0.2.8_2026-07-22
 PROJECT_SOURCE_PATCHES/JOB-09/v0.2.8_CAREER_DAY_ASSET_MANAGER_CHANGE_SUMMARY.md
 ```
 
+### v0.2.9 active-call reliability and target conditions
+
+```text
+PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-09_ACTIVE_CALL_RECOVERY_ALERTS_DAMAGE_v0.2.9_2026-07-22.md
+PROJECT_SOURCE_PATCHES/JOB-09/v0.2.9_ACTIVE_CALL_RECOVERY_ALERTS_DAMAGE_CHANGE_SUMMARY.md
+```
+
 ### Third-party event/tow compatibility
 
 ```text
@@ -138,36 +179,32 @@ PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-09_THIRD_PARTY_TOW_EVENT_COMPATIBILITY_AUDIT_
 
 ---
 
-## Immediate v0.2.8 test
+## Immediate v0.2.9 test
 
 ```text
-1. Disable every older JOB-09 ZIP, including v0.2.7.
-2. Enable only v0.2.8.
-3. Use a disposable RLS Career save.
-4. Confirm old yard, fleet, history, and impound records load.
-5. Leave time-of-day frozen and confirm Hold Progress advances while driving.
-6. Lower fallback to five minutes for a quick billing/expiration test.
-7. Confirm one completed Career day adds one storage day and daily storage charge.
-8. Confirm three Career days unlock personal claim.
-9. Unfreeze time and check that the clock switches to time-of-day-cycle operation.
-10. Test Fleet location/unit dropdowns.
-11. Test Storage map/category/vehicle dropdowns.
-12. Test History catalog/record dropdowns.
-13. Reappraise only a disposable stored vehicle.
-14. Claim a disposable eligible vehicle with free garage space.
-15. Fill garage capacity and confirm a failed claim keeps the Tow Yard record.
-16. Save/reload and verify clock, storage, fleet assignment, and history persist.
-17. Return beamng.log around any clock, UI, appraisal, claim, payment, or save failure.
+1. Disable every older JOB-09 ZIP, including v0.2.8.
+2. Enable only v0.2.9.
+3. Use a disposable RLS Career save and disposable service truck.
+4. Accept a call, move a target, save, restart BeamNG, and resume it.
+5. Confirm delivered targets do not respawn.
+6. Confirm tow-truck separation warning/countdown and delivery proximity.
+7. Confirm sound, RedFox banner, repeat reminders, and five-minute acceptance.
+8. Run Standard, Rolled, Accident, and Semi calls and inspect damage/disabled profiles.
+9. Confirm semi-only, semi/trailer, and carrier/cargo variations.
+10. Confirm newer police configurations are preferred when installed.
+11. Regression-test v0.2.8 storage clock, organized pages, progression, and personal claim.
+12. Return beamng.log around any save, resume, spawn, alert, validation, damage, UI, or persistence failure.
 ```
 
 ---
 
 ## Business/company boundary
 
-The following are still not implemented and must not be assumed working:
+Still not implemented:
 
-- Tow Yard → Tow Company Fleet ownership transfer;
-- personal ↔ company vehicle transfer;
+- Tow Yard -> Tow Company Fleet ownership transfer;
+- company fleet storage;
+- personal <-> company vehicle transfer;
 - company bank routing;
 - branch relocation/map transfer;
 - company sale protection;
@@ -182,11 +219,10 @@ A disposable vehicle must prove rollback-safe company transfer before the valuab
 
 ```text
 v0.2.2 is REJECTED — DO NOT USE.
-Do not claim v0.2.8 working before David tests this exact ZIP.
+Do not claim v0.2.9 working before David tests this exact ZIP.
 Do not patch, copy, or redistribute stock BeamNG Career or RLS source.
-Do not delete a Tow Yard record before a successful Career inventory transfer.
-Do not assume old Tow Yard records preserve exact node/beam deformation.
+Do not assume a restored call preserves exact node/beam deformation.
 Do not move the valuable abandoned truck into company ownership yet.
-Do not add unfinished AI towing, universal rigging, or company transfer to this clock/UI test.
+Company fleet storage is not in v0.2.9.
 This remains the same JOB-09 workstation; it is not a handoff.
 ```
