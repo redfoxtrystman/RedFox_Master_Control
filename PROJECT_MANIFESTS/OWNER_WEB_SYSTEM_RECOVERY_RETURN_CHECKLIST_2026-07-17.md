@@ -1,159 +1,186 @@
-# OWNER WEB SYSTEM RECOVERY — RETURN CHECKLIST
+# OWNER WEB SYSTEM RECOVERY — PHONE-ONLY RETURN CHECKLIST
 
-**Date created:** 2026-07-17  
+**Originally created:** 2026-07-17  
+**Updated:** 2026-07-23  
 **Owner:** David / Captain  
 **Coordinator:** JOB-00 — Coordinator / Integration / Verification  
-**Purpose:** This is the exact practical list for getting the RedFox/FoxNet websites connected and the web system back on track when David returns. It is not the full master order of operations.
+**Status:** CURRENT PRACTICAL RESTART LIST  
+**Purpose:** This is the exact list for getting the RedFox/FoxNet pages connected and working on the BeamNG in-game phone. PC/garage-computer web hosting is deferred and is not part of this checklist.
+
+Read first:
+
+```text
+PROJECT_MANIFESTS/OWNER_PHONE_ONLY_ARCHITECTURE_DIRECTIVE_2026-07-23.md
+```
 
 ---
 
-## 1. Begin in JOB-00 — Coordinator / Integration / Verification
+## 1. Begin with the known phone-working Scrap Yard rollback
 
-Tell JOB-00:
+Active rollback candidate:
 
 ```text
-I am back. Start the web-system recovery checklist. Give me only the next one or two actions at a time.
+zzzz_RedFox_FoxNet_JOB04_SCRAPYARD_ROLLBACK_2026-07-23_2302PT_v0_1_6_EXACT_v0_1_4_BUY_WORKS.zip
+Size: 24,742,835 bytes
+SHA-256: e6690693000c176d874f72abf3ffbe60d86815713a7ea65dbd0a1c84ece9fbb0
 ```
 
-JOB-00 first checks GitHub for any new commits, issue updates, candidate changes, or blockers made while David was away.
+This is an exact copy of v0.1.4, where David confirmed:
+
+```text
+Scrap Yard opened
+Buy flow opened
+A Mustang was purchased
+```
+
+Known limitations:
+
+- phone page switching may take around 30 seconds;
+- white or grey waiting screens may appear during navigation;
+- sell flow remains unproven;
+- seller-patience behavior is not the current priority;
+- inherited core UI files are present, so this ZIP is a frozen rollback baseline rather than an editing template.
 
 ---
 
-## 2. Gather the exact files needed for web recovery
+## 2. Prepare a clean test installation
 
-Create one local folder:
+Install only:
 
 ```text
-RedFox_Web_System_Return
+Current approved RLS Career Overhaul baseline
+zzzz_RedFox_FoxNet_JOB04_SCRAPYARD_ROLLBACK_2026-07-23_2302PT_v0_1_6_EXACT_v0_1_4_BUY_WORKS.zip
 ```
 
-Gather these files without renaming them:
-
-### Required shared baseline/reference files
+Disable or remove:
 
 ```text
-rls_career_overhaul_2.6.6.zip or the exact suffixed copy intended as the shared baseline
+JOB-04 v0.1.5
+JOB-04 v0.1.4 when using the v0.1.6 rollback name
+all older JOB-04 test ZIPs
+all other zzzz_RedFox_FoxNet... ZIPs
+all RedFox_ScrapYard_Direct... ZIPs
+all experimental phone integrations
 ```
 
-```text
-The newest known working-ish FoxNet/IceFox all-in-one ZIP
-```
+Do not test two phone shells or two FoxNet integration ZIPs together.
+
+Back up the Career save before testing any purchase or sale behavior.
+
+---
+
+## 3. Reconfirm the rollback behavior
+
+Test only the phone path:
+
+1. Launch BeamNG.
+2. Confirm the title/menu and Career load.
+3. Open the in-game phone.
+4. Record how long the phone takes to open.
+5. Open IceFox/FoxNet/Scrap Yard through the known route.
+6. Record how long each page switch takes.
+7. Load the Scrap Yard vehicle list.
+8. Select one inexpensive test vehicle.
+9. Open the real purchase flow.
+10. Complete a purchase only on a backed-up/disposable save.
+11. Confirm the vehicle appears through real Career/RLS ownership and storage behavior.
+12. Save, exit and reload the Career profile.
+13. Confirm the purchased vehicle remains correctly owned.
+14. Preserve the relevant `beamng.log` lines.
+
+Required report:
 
 ```text
-The phone-working Scrap Yard/FoxNet ZIP
-```
-
-```text
-The PC-broken or newer all-in-one FoxNet ZIP used for comparison
-```
-
-### Required web/platform files
-
-```text
-The current JOB-01 — Phone + PC Platform Core source/build candidate
-```
-
-```text
-The current JOB-10 — Visual Design / Real Website Polish website package
-```
-
-```text
-Any older working website package that successfully opened inside BeamNG
-```
-
-### Required first feature files
-
-```text
-The newest JOB-04 — Scrap Yard / Wrecking Yard WEUI/backend candidate
-```
-
-```text
-The older partly working phone Scrap Yard build
-```
-
-### Newly found references
-
-```text
-All newly found phone mods, including the one with a built-in app store
-```
-
-For every archive record:
-
-```text
-Exact filename =
-Archive byte size =
+Exact ZIP filename =
+Archive size =
 SHA-256 =
-ZIP integrity =
-Where it came from =
-Known runtime result =
+RLS version =
+Map =
+Career profile =
+Phone-open time =
+Scrap Yard-open time =
+Page-switch time =
+Vehicle-list result =
+Purchase-menu result =
+Purchase result =
+Ownership/storage result =
+Save/reload result =
+Errors/log timestamps =
 ```
 
-Do not trust filenames alone.
+Do not test or repair PC access during this pass.
 
 ---
 
-## 3. Resolve the RLS baseline identity problem
+## 4. Preserve the working phone-buy path
 
-Open:
+Before any development change:
+
+- keep an untouched copy of v0.1.6;
+- record its exact hash and file size;
+- compare the proposed edit against the rollback;
+- change one narrow behavior at a time;
+- rebuild under a new version/filename;
+- test the phone route before testing the changed feature;
+- roll back immediately if the phone icon, route, page or purchase flow disappears.
+
+Do not blindly copy changes from the failed v0.1.5 parity/performance build.
+
+---
+
+## 5. Intake the alternate phone mod
+
+David downloaded another phone mod that appears to work well. It may become the RedFox/FoxNet host.
+
+Before deciding, record:
 
 ```text
-GitHub issue #7
-Baseline blocker: reverify RLS 2.6.6 archive size and SHA-256
-https://github.com/redfoxtrystman/RedFox_Master_Control/issues/7
+Exact filename
+Archive byte size
+SHA-256
+Source / creator
+Download page
+License
+Modification permission
+Game-mod redistribution permission
+Attribution requirements
+BeamNG version
+RLS version
+File tree
+Phone framework
+Manifest / route registry
+Built-in app-store behavior
+UI-to-Lua calls
+Persistence
+Startup extensions and overrides
+Stock/RLS files replaced
+Core UI files included
+Phone layout files included
+Duplicate-path risks
+Removal behavior
+Known runtime result
 ```
 
-JOB-01 — Phone + PC Platform Core and JOB-02 — Shared RLS / Career Bridge previously recorded two different byte sizes for the same SHA-256.
+Ownership of the inspection:
 
-Recheck the exact archive and publish one authoritative:
+- JOB-01 — Phone + PC Platform Core: phone shell, routing, lifecycle, RLS compatibility and removal;
+- JOB-03 — RedFox App Store / Play Store: app catalog, install/enable/disable/open/update/remove behavior;
+- JOB-02 — Shared RLS / Career Bridge: UI-to-Lua calls and Career permissions;
+- JOB-11 — QA / Logging / Failure Triage: package conflicts, startup overrides and clean removal;
+- JOB-00 — Coordinator / Integration / Verification: final host decision.
 
-- filename;
-- archive byte size;
-- SHA-256;
-- member count;
-- top-level paths;
-- ZIP-integrity result.
-
-JOB-00 — Coordinator / Integration / Verification freezes that exact archive as the shared baseline.
-
-No new shared phone/PC/bridge build should proceed before this is corrected.
+Do not upload or redistribute the alternate phone publicly until its license permits it.
 
 ---
 
-## 4. Compare the old working web integration against the new websites
+## 6. Build one minimal page on the alternate phone
 
-Use the old working or partly working FoxNet/Scrap Yard package as the integration reference.
+Do not move all RedFox pages at once.
 
-Compare it file-by-file with the current JOB-10 — Visual Design / Real Website Polish package and JOB-01 — Phone + PC Platform Core source.
-
-Specifically identify:
-
-- where the working page lived inside the mod;
-- exact HTML entry file;
-- exact app/route registration;
-- whether it used `ui/modules/apps`, `ui/modModules`, an iframe, AngularJS, Vue, or another host;
-- absolute versus relative asset paths;
-- how phone opened the page;
-- how PC opened the page;
-- how JavaScript called Lua;
-- whether it used `bngApi.engineLua`, messages, hooks, or a parent bridge;
-- which files were shared by phone and PC;
-- which files differed;
-- whether the PC path loaded a different page or bridge;
-- which browser-only features must be removed or replaced;
-- whether `localStorage` was used only for visual state or incorrectly used as gameplay state.
-
-The result must be a written compatibility report before mass-converting pages.
-
----
-
-## 5. Prove one minimal BeamNG-hosted web page
-
-Before connecting the full websites, build the smallest possible proof page.
-
-The proof page must contain only:
+The first proof contains only:
 
 ```text
-One title
+One RedFox title
 One status field
 One JavaScript button
 One UI-to-Lua ping
@@ -161,47 +188,80 @@ One Lua-to-UI response
 One close/back operation
 ```
 
-It must be hosted through the actual JOB-01 — Phone + PC Platform Core path, not opened as a loose browser file.
-
 Required result:
 
-1. Phone opens the proof page.
-2. PC opens the same canonical destination.
-3. Both use the same HTML entry file or approved responsive source.
-4. The button reaches Lua.
-5. Lua returns a visible response.
-6. Close/back works.
-7. Career loads completely.
-8. The same ZIP works on a second map.
+1. Career loads normally.
+2. The alternate phone opens.
+3. The RedFox test page appears.
+4. Assets load using package-relative paths.
+5. The button reaches Lua.
+6. Lua returns a visible response.
+7. Close/back works.
+8. The mod can be disabled without breaking the phone or Career.
+9. The same proof works on a second map where relevant.
 
-If this fails, stop and fix the hosting/bridge layer before connecting any full website.
+If this fails, stop. Do not port Scrap Yard or other pages to that phone yet.
 
 ---
 
-## 6. Stabilize JOB-01 — Phone + PC Platform Core
+## 7. Choose the phone host
 
-JOB-01 — Phone + PC Platform Core must then provide:
+Compare the current RLS/v0.1.6 phone path against the alternate phone.
 
-- one verified phone host;
-- one verified PC host;
-- one shared route registry;
-- one canonical destination ID per app;
+Decision criteria:
+
+```text
+Career loads reliably
+Phone opens reliably
+Page registration is understandable
+Pages can be added without duplicating the full phone
+UI-to-Lua calls work
+RLS purchase/ownership behavior remains authoritative
+No avoidable dangerous global UI override
+Clean install and removal
+No duplicate-path conflicts
+Acceptable load and page-switch time
+License permits the intended use
+Built-in app-store behavior is useful and safe
+```
+
+Possible decisions:
+
+```text
+A. Keep the current RLS phone and improve it carefully.
+B. Use the alternate phone as the RedFox/FoxNet host.
+C. Reuse only safe patterns from the alternate phone.
+D. Continue intake because neither candidate is safe enough yet.
+```
+
+JOB-00 — Coordinator / Integration / Verification records the decision and freezes one phone-host baseline.
+
+---
+
+## 8. Stabilize JOB-01 — Phone + PC Platform Core for phone-only use
+
+JOB-01 retains its official title, but current required deliverables are phone-only:
+
+- one approved phone host;
+- one phone route/app registry;
+- one canonical ID per RedFox page;
 - one approved entry-path format;
-- clear route/open/close errors;
+- open/close/back behavior;
+- clear errors and logs;
 - build/version diagnostics;
-- no duplicated feature business logic;
-- no separate guesswork PC bridge;
-- no hard-coded fake live data presented as real.
+- clean removal;
+- no feature-owned duplicate phone shell;
+- no current PC-host requirement.
 
-Test `redfox.home` first, then one minimal test app.
-
-Do not connect all websites until this host works from phone and PC.
+The old phone+PC parity draft is historical/deferred. Do not merge it as the current target merely because it exists.
 
 ---
 
-## 7. Rebuild JOB-02 — Shared RLS / Career Bridge
+## 9. Rebuild JOB-02 — Shared RLS / Career Bridge
 
-JOB-02 — Shared RLS / Career Bridge must reconstruct and commit:
+JOB-02 remains essential even though there is only one UI host.
+
+Commit and prove:
 
 ```text
 Versioned bridge contract
@@ -213,127 +273,63 @@ Correlation/request IDs
 Timeout behavior
 ```
 
-Start with read-only operations:
+Start read-only:
 
 ```text
 Get Career/session status
 Get available capabilities
 Get vehicle-shopping data
 Get owned Career vehicles
-Get garage/storage read-only information where supported
+Get garage/storage information where supported
 ```
 
-Phone and PC must call the exact same operation names and receive the same payload shape.
-
-Only after read-only calls work should JOB-02 add:
+Then add carefully verified actions:
 
 ```text
-Open purchase menu
+Open purchase flow
 Confirm actual purchase result
-Sell selected owned vehicle
-Other approved mutations
+Sell one explicitly selected owned vehicle
+Other approved feature actions
 ```
 
-Opening a menu is not purchase success. Spawning a vehicle is not purchase success.
+No feature page may invent its own money, ownership, inventory or storage result.
 
 ---
 
-## 8. Recover and prove JOB-04 — Scrap Yard / Wrecking Yard backend
+## 10. Use JOB-04 — Scrap Yard / Wrecking Yard as the first full phone integration
 
-JOB-04 — Scrap Yard / Wrecking Yard is the first complete feature proof.
+After the phone host and shared bridge are frozen:
 
-First recover or rebuild the WEUI/backend candidate because the previous download failed.
+1. Preserve v0.1.6 as rollback evidence.
+2. Prove the Scrap Yard backend through its development harness.
+3. Keep the working phone buy path intact.
+4. Hand the approved mobile Scrap Yard design from JOB-10 — Visual Design / Real Website Polish to JOB-04.
+5. Remove mock data.
+6. Connect the page to the proven backend/shared bridge.
+7. Register it on the approved phone host.
+8. Test open/close/back.
+9. Test real shopping data.
+10. Test purchase and save/reload.
+11. Test owned-vehicle listing.
+12. Test sale only after purchase stability is proven.
+13. Test another map where relevant.
+14. Run JOB-11 QA.
+15. Have David test the exact ZIP.
 
-Test the backend without the pretty website:
-
-1. Open the development WEUI.
-2. Request real vehicle-shopping data.
-3. Show stock count and errors.
-4. Select one listing.
-5. Open the real RLS/BeamNG purchase menu.
-6. List real owned Career vehicles.
-7. Select one owned test vehicle only when safe.
-8. Use the real inventory sell path.
-9. Save the logs.
-10. Repeat on a second map.
-
-The WEUI, phone page, PC page, and final website must all call the same JOB-04 backend service.
-
-Do not add player-owned-yard, crusher, parts, or illegal-disposal mechanics until this backend works.
-
----
-
-## 9. Connect the approved Scrap Yard website
-
-After JOB-04 — Scrap Yard / Wrecking Yard backend works:
-
-1. JOB-10 — Visual Design / Real Website Polish hands over the approved Scrap Yard page source.
-2. JOB-04 removes mock data and connects the page to the proven backend.
-3. JOB-01 — Phone + PC Platform Core registers one canonical Scrap Yard destination.
-4. JOB-02 — Shared RLS / Career Bridge supplies real data/actions.
-5. Phone and PC open the same Scrap Yard destination.
-6. Responsive layout may differ, but business logic and payloads do not.
-7. Test purchase browsing, owned-vehicle listing, selected sell action, errors, close/back, and second-map behavior.
-
-This is the first full end-to-end milestone:
+First milestone:
 
 ```text
-ONE PROVEN PHONE/PC HOST
+ONE PROVEN PHONE HOST
 + ONE VERSIONED SHARED CAREER BRIDGE
 + ONE PROVEN SCRAP YARD BACKEND
-+ ONE APPROVED SCRAP YARD WEBSITE
++ ONE APPROVED MOBILE SCRAP YARD PAGE
 ```
 
 ---
 
-## 10. Inspect the newly found phone mods before deciding the final phone/app-store design
+## 11. Connect remaining pages one at a time
 
-After the minimal JOB-01 host proof exists, inspect all newly found phone mods.
-
-JOB-01 — Phone + PC Platform Core checks:
-
-- phone shell;
-- route registration;
-- lifecycle;
-- RLS conflicts;
-- PC-sharing potential.
-
-JOB-03 — RedFox App Store / Play Store checks:
-
-- catalog format;
-- install/enable/disable behavior;
-- app discovery;
-- update/remove behavior;
-- built-in app-store UI.
-
-JOB-02 — Shared RLS / Career Bridge checks:
-
-- UI-to-Lua calls;
-- Career permissions;
-- persistence and message flow.
-
-JOB-11 — QA / Logging / Failure Triage checks exact candidates for:
-
-- startup overrides;
-- duplicate paths;
-- unsafe removal;
-- packaging conflicts.
-
-JOB-00 — Coordinator / Integration / Verification decides whether to:
-
-```text
-Extend the RLS phone
-Build a RedFox-owned phone shell
-Use only selected safe patterns from another mod
-```
-
-Do not replace the current phone solely because another mod has a nice app store.
-
----
-
-## 11. Hand off and connect the remaining websites one at a time
-
-Once Scrap Yard proves the full pattern, repeat it for:
+Repeat the same pattern for:
 
 ```text
 JOB-05 — BeamBook Marketplace
@@ -344,56 +340,104 @@ JOB-09 — Tow / Recovery / Dispatch
 JOB-12 — SponsorHub / FoxMail / FoxText / Sponsor Rewards
 ```
 
-For every page:
+Per page:
 
 ```text
 Prove backend
-→ hand off approved website source
-→ remove mock data
-→ connect to backend
-→ register one phone/PC destination
-→ test exact ZIP
-→ run JOB-11 QA
-→ approve through JOB-00
+→ adapt approved mobile page
+→ register on approved phone
+→ test open/close/back
+→ test real data/action
+→ test save/reload where state changes
+→ test second map where relevant
+→ JOB-11 QA
+→ David tests exact ZIP
+→ JOB-00 approval
 ```
 
-Unknown or remembered-later pages remain in the JOB-10 — Visual Design / Real Website Polish backlog and can be added later as separate destinations.
+Remembered-later pages remain in the JOB-10 backlog and can be added later.
 
 ---
 
-## 12. Exact first actions when David returns
+## 12. Deferred PC work
 
-The first practical sequence is:
+The following are deferred by owner and are not current blockers:
+
+- Career/garage PC web host;
+- PC browser page registration;
+- identical phone and PC destinations;
+- phone/PC layout parity;
+- PC-specific feature-page adaptation;
+- PC integration acceptance tests.
+
+Preserve old PC work as research. Do not delete it or call it impossible. Label it:
 
 ```text
-1. Open JOB-00 — Coordinator / Integration / Verification.
-2. Gather the exact RLS, FoxNet, phone-working Scrap Yard, PC-broken FoxNet, current JOB-01, current JOB-10 and JOB-04 candidate files.
-3. Resolve GitHub issue #7 and freeze the baseline.
-4. Compare old working web integration against the new website structure.
-5. Build and test one minimal phone/PC web-host ping page.
-6. Stabilize JOB-01 — Phone + PC Platform Core.
-7. Rebuild JOB-02 — Shared RLS / Career Bridge read-only contract.
-8. Recover and test JOB-04 — Scrap Yard / Wrecking Yard WEUI/backend.
-9. Connect the approved Scrap Yard website.
-10. Test the same destination on phone, PC and a second map.
-11. Only then repeat the proven pattern for the other websites.
+DEFERRED BY OWNER — NOT PART OF CURRENT RELEASE TARGET
+```
+
+The separate PC Stability / Crash Monitor remains active because hardware/software stability affects BeamNG testing.
+
+---
+
+## 13. Core UI safety
+
+The v0.1.6 rollback contains inherited core UI files and is a narrow grandfathered exception.
+
+Any new change involving:
+
+```text
+ui/ui-vue/dist/index.js
+lua/ge/extensions/ui/phone/layout.lua
+```
+
+requires:
+
+- explicit JOB-01 and JOB-00 approval;
+- exact baseline identity;
+- exact diff;
+- high-risk labeling;
+- clean-install instructions;
+- rollback/removal instructions;
+- immediate stop if title/menu/phone/Career loading regresses.
+
+Normal feature jobs must not independently ship or rewrite those files.
+
+---
+
+## 14. Exact next actions
+
+```text
+1. Preserve and install only the v0.1.6 Scrap Yard rollback with the approved RLS baseline.
+2. Reconfirm phone opening, Scrap Yard opening and real purchase/save-reload behavior.
+3. Upload or provide the alternate phone mod to JOB-01 / JOB-03 for intake.
+4. Record its exact identity, license, structure and runtime behavior.
+5. Build one minimal RedFox ping page on the alternate phone.
+6. Choose and freeze one phone host.
+7. Reconstruct JOB-02 shared bridge read-only contract.
+8. Stabilize Scrap Yard on the selected phone without touching PC.
+9. Connect the approved mobile Scrap Yard page.
+10. Repeat the proven phone-only method for the other pages.
 ```
 
 ---
 
-## 13. Stop conditions
+## 15. Stop conditions
 
-Stop and inspect before continuing when:
+Stop and inspect when:
 
 - Career does not finish loading;
-- phone and PC open different destinations;
-- Lua ping does not return;
-- relative assets fail in BeamNG;
-- more than one FoxNet ecosystem ZIP is installed;
-- a page depends on browser-only state for gameplay;
+- the phone does not open;
+- a RedFox page route disappears;
+- page assets do not load;
+- UI-to-Lua ping does not return;
+- more than one phone/FoxNet integration ZIP is installed;
+- a page invents gameplay state in browser storage;
 - a purchase opens but ownership/storage does not complete;
-- a ZIP identity is unknown;
-- the PC suffers a full-system crash during the test;
-- a job attempts to copy JOB-01 or JOB-02 into its own package.
+- save/reload loses or duplicates a purchase;
+- a ZIP identity or license is unknown;
+- a feature job copies or replaces the entire phone shell;
+- a global UI or phone-layout file appears without approval;
+- the PC suffers a full-system crash during testing.
 
-No page is called connected, working, fixed, or finished until David tests the exact ZIP.
+No page is called connected, working, fixed or finished until David tests the exact ZIP.
