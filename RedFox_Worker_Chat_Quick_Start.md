@@ -12,38 +12,42 @@ https://github.com/redfoxtrystman/RedFox_Master_Control
 
 ---
 
-## 1. Read the owner-level documents first
+## 1. Current owner directive — phone-only runtime target
 
-For the FoxNet rebuild, read these before implementation:
+Read this first:
 
 ```text
+PROJECT_MANIFESTS/OWNER_PHONE_ONLY_ARCHITECTURE_DIRECTIVE_2026-07-23.md
+```
+
+Current architecture:
+
+```text
+ALL REDFOX / FOXNET RUNTIME PAGES TARGET THE IN-GAME PHONE ONLY.
+PC / GARAGE-COMPUTER WEB HOSTING IS DEFERRED.
+PC PARITY IS NOT A CURRENT RELEASE REQUIREMENT.
+```
+
+Do not spend current work cycles trying to make a feature page work on the Career/garage PC unless David explicitly reopens that requirement.
+
+Earlier phone+PC documents remain historical references. Where they conflict with the phone-only directive, the phone-only directive controls.
+
+Also read:
+
+```text
+PROJECT_MANIFESTS/OWNER_WEB_SYSTEM_RECOVERY_RETURN_CHECKLIST_2026-07-17.md
 PROJECT_MANIFESTS/OWNER_DETAILED_ORDER_OF_OPERATIONS_2026-07-17.md
-PROJECT_MANIFESTS/READ_FIRST_REDFOX_END_TO_END_JOB_PIPELINE_2026-07-14.md
-PROJECT_MANIFESTS/REDFOX_JOB_PIPELINE_MANIFEST.json
+PROJECT_MANIFESTS/00_READ_FIRST_ALL_CHATS_CORE_UI_OVERRIDE_BAN_2026-07-22.md
 PROJECT_MANIFESTS/REDFOX_FOXNET_REBUILD_JOB_BOARD.md
 ```
 
-The owner order document is the current detailed sequence. Follow it unless new test evidence or David changes the priority. Any change must be written to GitHub with the reason and restart point.
-
-Archive identity warning:
-
-```text
-PROJECT_MANIFESTS/OWNER_ARCHIVE_IDENTITY_SIZE_HASH_CORRECTION_REQUIRED_2026-07-17.md
-```
-
-The shared RLS archive currently has contradictory byte-size records attached to the same SHA-256. Do not copy either size as authoritative until the exact archive is measured and hashed again.
-
-A replacement regular chat must update its exact GitHub claim and document what could not be recovered from the inaccessible Work chat.
-
 ---
 
-## 2. Confirm and write the complete job name
+## 2. Complete job names
 
-Valid job IDs are `JOB-00` through `JOB-12`.
+Valid job IDs remain `JOB-00` through `JOB-12`. Do not rename or renumber them.
 
-Do not rename, renumber, merge, or silently change the assigned job.
-
-Always write the full number and title on first mention and in headings. Do not use only a bare number when the complete title is known.
+Always write the full number and title on first mention and in headings.
 
 | Job | Complete title |
 |---|---|
@@ -61,15 +65,64 @@ Always write the full number and title on first mention and in headings. Do not 
 | JOB-11 | QA / Logging / Failure Triage |
 | JOB-12 | SponsorHub / FoxMail / FoxText / Sponsor Rewards |
 
-If the assignment does not match one exact row, stop implementation and report the mismatch to JOB-00 — Coordinator / Integration / Verification.
+JOB-01 keeps its official title, but current scope is:
 
-JOB-11 — QA / Logging / Failure Triage is currently parked/on-call until David assigns an exact candidate, failure investigation or QA task. It did not miss the camping sound-off request.
+```text
+PHONE PLATFORM CORE: ACTIVE
+PC PLATFORM CORE: DEFERRED
+```
+
+JOB-11 — QA / Logging / Failure Triage remains parked/on-call until an exact candidate or failure is assigned.
 
 ---
 
-## 3. Backend-first law
+## 3. Current phone host decision
 
-Every feature job must prove its backend independently before connecting the website.
+The final phone host has not yet been frozen.
+
+Two current directions must be compared:
+
+1. the current RLS phone path used by the known phone-working Scrap Yard rollback;
+2. the alternate phone mod David downloaded, which appears to work well and may include useful app-store behavior.
+
+Do not copy or adopt the alternate phone until its exact filename, size, SHA-256, source, license, file tree, registration method, UI-to-Lua calls, persistence, startup overrides and removal behavior are recorded.
+
+No feature job may create a competing phone shell.
+
+---
+
+## 4. Current JOB-04 — Scrap Yard / Wrecking Yard rollback
+
+Active rollback candidate:
+
+```text
+zzzz_RedFox_FoxNet_JOB04_SCRAPYARD_ROLLBACK_2026-07-23_2302PT_v0_1_6_EXACT_v0_1_4_BUY_WORKS.zip
+Size: 24,742,835 bytes
+SHA-256: e6690693000c176d874f72abf3ffbe60d86815713a7ea65dbd0a1c84ece9fbb0
+```
+
+This is an exact copy of v0.1.4, where David confirmed:
+
+```text
+Scrap Yard opened
+Buy flow opened
+A Mustang was purchased
+```
+
+Known issues:
+
+- phone page switching may take up to roughly 30 seconds;
+- sell flow is unproven;
+- the package contains inherited core UI files;
+- it is a frozen rollback baseline, not permission for blind global-UI editing.
+
+PC access is not part of its acceptance test.
+
+---
+
+## 5. Backend-first law remains mandatory
+
+Every feature job must prove its backend independently before connecting the final phone page.
 
 Use a development-only:
 
@@ -81,40 +134,33 @@ forced-call/test control
 or equivalent test harness
 ```
 
-The test harness and final website must call the same backend service/functions.
+The test harness and final phone page must call the same backend service/functions.
 
-The test harness must not duplicate gameplay logic, auto-open beside the production UI, or become a competing production system. For final release it must be retained developer-only, hidden, disabled, moved into a separate test package, or removed—with the disposition recorded.
-
-The website is connected only after the backend can be forced, observed, logged and tested without fighting the website.
+Phone-only does not permit fake state. Use real BeamNG/RLS Career systems for money, ownership, inventory, garage/storage, purchase and sale behavior.
 
 ---
 
-## 4. Who connects and assembles things
+## 6. Who connects and assembles things
 
 ```text
-JOB-10 — Visual Design / Real Website Polish creates/polishes approved website presentation.
-Each feature job connects its own website to its own proven backend.
-JOB-01 — Phone + PC Platform Core registers one canonical destination for phone and PC.
+JOB-10 — Visual Design / Real Website Polish creates/polishes mobile page presentation.
+Each feature job connects its own phone page to its proven backend.
+JOB-01 — Phone + PC Platform Core owns the approved phone host, route registry and lifecycle.
 JOB-02 — Shared RLS / Career Bridge supplies approved shared Career/RLS data and actions.
+JOB-03 — RedFox App Store / Play Store owns phone app catalog/install behavior after the phone host is selected.
 JOB-11 — QA / Logging / Failure Triage validates packages, contracts, logs and regressions when activated.
-JOB-00 — Coordinator / Integration / Verification approves dependencies and assembles the final combined release.
+JOB-00 — Coordinator / Integration / Verification approves dependencies and final assembly.
 ```
 
-JOB-00 — Coordinator / Integration / Verification does not rewrite every feature. JOB-10 — Visual Design / Real Website Polish does not implement gameplay. JOB-01 — Phone + PC Platform Core does not own feature business logic. JOB-11 — QA / Logging / Failure Triage does not silently fix another job's code.
+JOB-01 does not own feature business logic. JOB-10 does not implement gameplay. JOB-11 does not silently fix another job's code.
 
 ---
 
-## 5. Website staged-handoff rule
+## 7. Website/page handoff rule
 
-David remembers that additional pages still need to be added but cannot currently recall every page.
+JOB-10 — Visual Design / Real Website Polish may hand off completed mobile pages in stages.
 
-Read:
-
-```text
-PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-10_PAGE_BACKLOG_AND_STAGED_HANDOFF_RULE_2026-07-17.md
-```
-
-JOB-10 — Visual Design / Real Website Polish may hand off completed pages and the design system in stages. Each page must be inventoried and marked:
+Each page must be marked:
 
 ```text
 READY FOR FEATURE-OWNER ADAPTATION
@@ -125,79 +171,80 @@ OWNER UNASSIGNED
 REMEMBERED-LATER BACKLOG
 ```
 
-Remembered-later pages can be added as separate registered destinations. They must not require rebuilding every finished app or replacing the phone/PC platform.
+Desktop mockups may be preserved as references, but desktop runtime adaptation is deferred and does not block a phone page.
 
 ---
 
-## 6. Before editing
+## 8. Before editing
 
 A chat must:
 
-1. confirm its exact full job number/title and active regular-chat claim;
-2. identify the newest source, ZIP, screenshots, logs and pending test candidate;
+1. confirm its complete job number/title and active claim;
+2. identify the newest source, ZIP, screenshots, logs and pending candidate;
 3. inspect source before changing it;
 4. list working behavior that must be preserved;
 5. list exact files it may edit and protected files it must not touch;
-6. identify required JOB-01 — Phone + PC Platform Core and JOB-02 — Shared RLS / Career Bridge contract versions;
-7. identify its backend test harness and how the website will call the same backend;
-8. verify exact archive filename, byte size and SHA-256 from the file itself;
-9. leave a written GitHub footprint.
+6. identify the approved phone-host version and JOB-02 bridge version;
+7. identify its backend test harness;
+8. verify exact filename, archive byte size and SHA-256 from the file itself;
+9. check for global UI and phone-layout overrides;
+10. leave a written GitHub footprint.
 
-No feature chat may select a competing shared FoxNet/RLS baseline. JOB-00 — Coordinator / Integration / Verification freezes the shared baseline.
+No feature chat may select its own competing RLS or phone baseline.
 
 ---
 
-## 7. Required work order
+## 9. Required work order
 
 ```text
 CLAIM
 → INTAKE
-→ VERIFY FILE IDENTITY
+→ VERIFY FILE IDENTITY AND LICENSE
 → INSPECT
+→ PRESERVE KNOWN WORKING PHONE BEHAVIOR
 → SEPARATE BACKEND FROM UI
-→ BUILD/PRESERVE WEUI TEST HARNESS
 → PROVE BACKEND
-→ CONNECT APPROVED WEBSITE
-→ REGISTER SAME PHONE/PC DESTINATION
-→ STATIC/PACKAGE CHECKS
+→ ADAPT APPROVED MOBILE PAGE
+→ REGISTER ON APPROVED PHONE
+→ TEST OPEN / CLOSE / BACK
+→ TEST REAL DATA OR ACTION
+→ TEST SECOND MAP WHERE RELEVANT
+→ STATIC / PACKAGE CHECKS
 → JOB-11 — QA / LOGGING / FAILURE TRIAGE
 → DAVID TESTS EXACT ZIP
 → JOB-00 — COORDINATOR / INTEGRATION / VERIFICATION APPROVAL
-→ FINAL ASSEMBLY
 ```
 
-Do not skip directly from visual mockup to final integration.
+Do not add PC parity steps unless David explicitly restores that requirement.
 
 ---
 
-## 8. Required machine-readable handoff
+## 10. Core UI override stop condition
 
-Every build-producing chat must copy and complete:
+Normal feature jobs must not package or edit:
 
 ```text
-PROJECT_MANIFESTS/TEMPLATES/REDFOX_JOB_HANDOFF_TEMPLATE.json
+ui/ui-vue/dist/index.js
 ```
 
-The completed candidate must include:
+or modify:
+
+```text
+lua/ge/extensions/ui/phone/layout.lua
+```
+
+without explicit JOB-01 — Phone + PC Platform Core and JOB-00 — Coordinator / Integration / Verification approval, an exact baseline diff, rollback instructions and a high-risk label.
+
+The v0.1.6 Scrap Yard rollback is a grandfathered frozen exception because it is the exact known phone-buying build. It is not a template for new feature ZIPs.
+
+---
+
+## 11. Package and status requirements
+
+Every build-producing chat must include the required handoff and verification records, including:
 
 ```text
 REDFOX_JOB_HANDOFF.json
-```
-
-The GitHub validator checks:
-
-```text
-QA_LOGGING/validate_redfox_handoffs.py
-.github/workflows/redfox-handoff-validation.yml
-```
-
-A failed automated check is a stop condition, not permission to ship a mostly complete package.
-
----
-
-## 9. Required package reports
-
-```text
 CHANGE_SCOPE_*.txt
 OPEN_THIS_VERIFICATION_REPORT_*.txt
 OPEN_THIS_VERIFICATION_REPORT_*.html
@@ -206,14 +253,9 @@ VERIFY_*_FILE_INVENTORY.csv
 FILE_TREE_*.txt
 LOGGING_AND_TESTING_README.txt
 LOGGING_AND_TESTING_README.html
-REDFOX_JOB_HANDOFF.json
 ```
 
-Static verification is not BeamNG runtime verification.
-
----
-
-## 10. Allowed status language
+Allowed status language:
 
 ```text
 DAVID-TESTED WORKING
@@ -222,95 +264,55 @@ PARTIAL
 BLOCKED
 FAILED — STOPPED
 MOCKUP / PLACEHOLDER — NOT FUNCTIONAL
+DEFERRED BY OWNER — NOT PART OF CURRENT RELEASE TARGET
 ```
 
-Do not say working, fixed, done, safe or final unless the allowed status actually applies.
+Static checks are not BeamNG runtime proof.
 
 ---
 
-## 11. Written footprint
+## 12. Support and external lanes
 
-Each chat must update GitHub directly or return a block for JOB-00 — Coordinator / Integration / Verification to post:
+### SUPPORT-01 — Cross-Map 3D Asset Conversion / Prefab / Placement
+
+Issue:
 
 ```text
-Timestamp =
-Full job ID and title =
-Regular-chat owner =
-Message type = CHECK-IN / STATUS / HANDOFF / RESULT / BLOCKED
-Status =
-Source/candidate inspected =
-Exact archive size and SHA-256 =
-Files changed =
-Files protected =
-Backend test harness =
-Backend test result =
-Website integration status =
-JOB-01 — Phone + PC Platform Core version =
-JOB-02 — Shared RLS / Career Bridge version =
-What David must test =
-Known problems =
-Next action =
-Coordinator action needed = yes/no
+https://github.com/redfoxtrystman/RedFox_Master_Control/issues/8
 ```
 
-Reading without leaving a footprint is failed coordination.
+Owns model licensing/intake, conversion, materials, collisions, prefabs, cross-map placement and save/reload. JOB-04 retains all Scrap Yard business logic.
 
----
+### SUPPORT-02 — Career Node Grabber / Developer Mode Compatibility
 
-## 12. PC stability/crash-monitor chats
+Issue:
 
-The PC crash investigation is external to the BeamNG job map but affects test reliability.
+```text
+https://github.com/redfoxtrystman/RedFox_Master_Control/issues/9
+```
 
-Every PC diagnostic chat must post to:
+### PC Stability / Crash Monitor
+
+Issue:
 
 ```text
 https://github.com/redfoxtrystman/RedFox_Master_Control/issues/6
 ```
 
-Permanent sanitized records belong under:
-
-```text
-PC_STABILITY/
-```
-
-Read:
-
-```text
-PC_STABILITY/README.md
-```
-
-Do not mix PC diagnostic applications, raw dumps or private machine data into BeamNG feature packages.
+The PC stability investigation remains active because machine reliability affects BeamNG testing. It is separate from the deferred FoxNet PC host.
 
 ---
 
-## 13. JOB-04 — Scrap Yard / Wrecking Yard expansion records
+## 13. Final rules
 
-The immediate priority remains proving the current backend.
+Do not rewrite working gameplay merely to add a phone page.
 
-Long-term player-owned yard direction:
+Do not make the phone page responsible for backend testing.
 
-```text
-PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-04_PLAYER_OWNED_SCRAP_WRECKING_YARD_EXPANSION_DIRECTIVE_2026-07-17.md
-PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-04_PLAYER_OWNED_YARD_IMPLEMENTATION_APPENDIX_2026-07-17.md
-PROJECT_MANIFESTS/JOB_HANDOFFS/JOB-04_PHYSICAL_YARD_MODEL_AND_BUILD_PLACEMENT_PLAN_2026-07-17.md
-```
-
-The physical yard may begin as scenery placed on a flat location on any map. Model placement and save/load must be proven before connecting the business economy.
-
----
-
-## 14. Final rules
-
-Do not rewrite working gameplay merely to add a website.
-
-Do not make the website responsible for backend testing.
-
-Do not auto-open both development WEUI and production UI.
-
-Do not copy phone, PC, browser, registry, bridge or another app's files into a feature mod.
+Do not copy the phone host, route registry, shared bridge or another app into a feature ZIP.
 
 Do not hand-roll fake money, ownership, inventory, garage, storage, insurance or purchase success.
 
-Do not pair a SHA-256 with an extracted-size or rounded display-size measurement.
+Do not install multiple FoxNet/phone integration ZIPs together during controlled tests.
 
-Do not claim runtime success without David testing the exact ZIP.
+Do not claim working, fixed, safe, complete or final until David tests the exact ZIP.
