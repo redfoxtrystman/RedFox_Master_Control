@@ -20,6 +20,22 @@ Despite that owner instruction, the assistant continued to include warning-relat
 
 David specifically called out that this was not an accidental preference difference: the assistant was told multiple times not to do something and continued to push or preserve that direction anyway.
 
+## Amendment — Missing Count Was Not Listed
+
+David asked whether the report listed how many times he said not to add or keep the warning text. The answer is no: the first incident report used the phrase "multiple times" but did not give a numbered count. That was incomplete reporting.
+
+From the current available conversation record, the minimum confirmed count is:
+
+```text
+At least 2 explicit owner instructions related to removing/not adding warning text:
+1. David said not to worry about putting any warnings because it was not going to be kept that long.
+2. David then explicitly ordered the warning removed from everything and identified the assistant's continued warning behavior as an instruction override.
+```
+
+This is a minimum count based on the immediately available record, not a claim that the full project history contains only two. If a full transcript/audit sweep finds more explicit no-warning instructions, this report must be amended again with the higher count and exact message references.
+
+The incident still stands as an instruction override even if the count is recorded as a minimum rather than a final transcript-wide number.
+
 ## Required Correction
 
 All visible warning/caution/cargo-combo text added or planned by JOB-04 must be removed from Scrap Yard/Wrecking Yard builds unless David explicitly asks for it again.
