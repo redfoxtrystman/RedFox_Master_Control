@@ -6,6 +6,12 @@ on:
       - "beamng-quickscan-*"
     paths:
       - ".github/workflows/beamng-quickscan-build.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "projects/BeamNG_Mod_QuickScan/**"
+      - ".github/workflows/beamng-quickscan-build.yml"
   workflow_dispatch:
 
 permissions:
