@@ -1,0 +1,87 @@
+name: Build BeamNG Mod QuickScan
+
+on:
+  push:
+    branches:
+      - "beamng-quickscan-*"
+    paths:
+      - ".github/workflows/beamng-quickscan-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reassemble source package
+        shell: pwsh
+        run: |
+          $parts = Get-ChildItem "projects/BeamNG_Mod_QuickScan/source.part*.b64" | Sort-Object Name
+          if ($parts.Count -ne 7) { throw "Expected 7 source parts; found $($parts.Count)." }
+          $base64 = ($parts | ForEach-Object { Get-Content $_.FullName -Raw }) -join ''
+          [IO.File]::WriteAllBytes("BeamNG_Mod_QuickScan_source.zip", [Convert]::FromBase64String($base64))
+          Expand-Archive "BeamNG_Mod_QuickScan_source.zip" -DestinationPath "buildsrc/BeamNG_Mod_QuickScan" -Force
+          if (-not (Test-Path "buildsrc/BeamNG_Mod_QuickScan/BeamNGQuickScan.sln")) { throw "Source archive did not unpack correctly." }
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore buildsrc/BeamNG_Mod_QuickScan/BeamNGQuickScan.sln
+
+      - name: Build
+        run: dotnet build buildsrc/BeamNG_Mod_QuickScan/BeamNGQuickScan.sln -c Release --no-restore
+
+      - name: Run scanner self-tests
+        run: dotnet run --project buildsrc/BeamNG_Mod_QuickScan/tools/BeamNGQuickScan.SelfTest/BeamNGQuickScan.SelfTest.csproj -c Release --no-build
+
+      - name: Publish standalone Windows app
+        run: >-
+          dotnet publish buildsrc/BeamNG_Mod_QuickScan/src/BeamNGQuickScan.App/BeamNGQuickScan.App.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:PublishTrimmed=false
+          -p:DebugType=None
+          -p:DebugSymbols=false
+          -o publish/BeamNG_Mod_QuickScan
+
+      - name: Add handoff files
+        shell: pwsh
+        run: |
+          Copy-Item buildsrc/BeamNG_Mod_QuickScan/README.md publish/BeamNG_Mod_QuickScan/README.txt
+          @"
+          BeamNG Mod QuickScan v0.1.0
+
+          1. Extract this folder.
+          2. Double-click BeamNG Mod QuickScan.exe.
+          3. Choose the BeamNG mods folder or BeamNG user folder.
+          4. Click Scan Mods.
+
+          QuickScan stores its database, reports, cache, ignores, and logs under:
+          <selected BeamNG data root>\RedFoxTools\BeamNG Mod QuickScan\
+
+          The build is unsigned, so Windows SmartScreen may show a warning.
+          "@ | Set-Content publish/BeamNG_Mod_QuickScan/START_HERE.txt
+
+      - name: Package
+        shell: pwsh
+        run: Compress-Archive -Path publish/BeamNG_Mod_QuickScan/* -DestinationPath BeamNG_Mod_QuickScan_v0_1_0_win_x64.zip -Force
+
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: BeamNG_Mod_QuickScan_v0_1_0_win_x64
+          path: BeamNG_Mod_QuickScan_v0_1_0_win_x64.zip
+          if-no-files-found: error
+          retention-days: 30
