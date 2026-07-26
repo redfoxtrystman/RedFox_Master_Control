@@ -4,6 +4,25 @@ This repository is the shared coordination bridge for David's RedFox/FoxNet Beam
 
 ---
 
+## RedFox Mod Works Patreon
+
+RedFox Mod Works now has a public Patreon home for BeamNG.drive, Minecraft, standalone tools, and future game-mod projects.
+
+- Creator page: https://www.patreon.com/RedFoxModWorks
+- Public welcome post: https://www.patreon.com/RedFoxModWorks/posts/welcome-to-mod-164859800
+- Workshop Supporter: $5/month
+- Test Driver: $10/month
+
+The first planned paid release is **RedFox Node Grabber Unlocker v1.0.0** for RLS Career. The packaged release candidate and promotional image exist, but the mod must not be marked published until David completes the final BeamNG runtime test.
+
+Detailed release status is tracked in:
+
+```text
+RELEASE_STATUS/RedFox_Node_Grabber_Unlocker_v1.0.0.md
+```
+
+---
+
 ## One File First
 
 Every RedFox chat must start with:
@@ -63,6 +82,7 @@ If there is no message-board, claim, handoff, or audit entry, communication fail
 | `RedFox_Test_Results_Table.csv` | BeamNG testing result tracker. |
 | `RedFox_Module_Status_Table.csv` | Module status tracker. |
 | `RedFox_Communication_SignIn_Log.md` | Detailed sign-in, work-update, and finish log. |
+| `RELEASE_STATUS/RedFox_Node_Grabber_Unlocker_v1.0.0.md` | First Patreon release candidate status, verification, and final test gate. |
 
 ---
 
