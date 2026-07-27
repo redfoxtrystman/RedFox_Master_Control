@@ -84,7 +84,7 @@ This is now recorded as the explicit next priority.
 
 ## Accidental audit-tool issues
 
-During this audit, four temporary GitHub issues were created accidentally by incorrect tool invocation:
+During this audit, five temporary GitHub issues were created accidentally by incorrect tool invocation:
 
 - #24
 - #25
