@@ -2,9 +2,9 @@
 
 **Last updated:** 2026-07-28 PDT  
 **Owner:** David / Captain  
-**Current version:** v0.4.1 Original Filename + Preview Recovery  
-**Latest release record:** `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_1_ORIGINAL_NAME_PREVIEW_FIX.md`  
-**Latest verification:** `projects/BeamNG_Mod_QuickScan/SOURCE_BASELINE/v0_4_1/README_AND_VERIFICATION.md`  
+**Current version:** v0.4.2 Version-Only Rename + Contrast + Images  
+**Latest release record:** `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_2_VERSION_CONTRAST_IMAGES.md`  
+**Latest verification:** `projects/BeamNG_Mod_QuickScan/SOURCE_BASELINE/v0_4_2/README_AND_VERIFICATION.md`  
 **Career contract:** `projects/BeamNG_Mod_QuickScan/SOURCE_BASELINE/v0_4_0/CAREER_EXPORT_FORMAT.md`  
 **DRM rules:** `projects/BeamNG_Mod_QuickScan/SOURCE_BASELINE/v0_4_0/DRM_DETECTION_NOTES.md`
 
@@ -15,102 +15,102 @@
 3. `projects/BeamNG_Mod_QuickScan/MASTER_PROJECT_RECORD_2026-07-26.md`
 4. `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_0_CATALOG_CAREER_DRM.md`
 5. `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_1_ORIGINAL_NAME_PREVIEW_FIX.md`
-6. This file.
+6. `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_2_VERSION_CONTRAST_IMAGES.md`
+7. This file.
 
 ## Current truth
 
-- v0.4.0 ran on David's Windows computer and exposed a real catalog naming failure.
-- It replaced a useful full source/site name with a short internal vehicle title and did not reliably rebuild missing preview files.
-- v0.4.1 was built from the exact v0.4.0 package/source.
-- v0.4.1 preserves the complete original filename and only adds or updates the detected version token.
-- When v0.4.0 already shortened a ZIP, v0.4.1 checks saved `rename_actions` history and can recover the pre-rename filename.
-- Preview images use the same full proposed ZIP stem.
-- Missing cached preview files trigger automatic ZIP reprocessing and extraction.
-- A rare low-load negative-sleep timing crash found during final package verification was fixed.
-- v0.4.1 passed compile, built-in self-test, extended regression tests, GUI smoke tests, package reopen, packaged compile, packaged self-test, and packaged GUI smoke test.
-- The exact Integra archive was not uploaded, so David's Windows retest remains required.
+- v0.4.0 ran on David's Windows computer and exposed short-name, preview, and contrast failures.
+- v0.4.1 restored the controlling original-name law and missing-preview cache recovery.
+- David then uploaded the exact `BEAM_EVO_Mods_Acura_Integra.zip` and screenshots from the Catalog UI.
+- The uploaded Integra archive contains no declared mod version. QuickScan must not invent one.
+- v0.4.2 adds a `Set / Correct Version` action saved by exact ZIP SHA-256.
+- Manual version changes invalidate stale cache and rebuild naming/image records.
+- The normal Catalog has horizontal and vertical scrollbars.
+- `Open Full-Screen List` opens a maximized Catalog view.
+- Dropdown/read-only field colors are explicitly styled instead of trusting Windows' white native field.
+- Text modes are Automatic, Light text, and Dark text.
+- Image exports can go beside the ZIP, to QuickScan's catalog folder, or both.
+- Vehicle previews, map previews, and UI app icons are classified separately.
+- v0.4.2 passed compile, built-in self-test, exact uploaded Integra regression, GUI contrast/full-screen smoke tests, ZIP reopen/CRC, packaged compile, packaged self-test, and packaged GUI smoke.
+- Large-library Windows runtime and physical DPI behavior remain David tests.
 
 ## Hashes
 
 ```text
-v0.4.0 source
-5df54228831e38bce32439935006d75883a71389bcfc767d73d5090daab358b4
-
 v0.4.1 source
 29548be3cbea233f65439103bd4a25ac0b1dc8bb138fff2fd45ef2cd4ac1adc0
 
-v0.4.1 package
-638528e88572bac8a5bb29caf97a81dc5084d8ce8bff837f85c547487ded3446
+v0.4.2 source
+5a490166433dd98912796ad9a0036c81892a891e73c83bf06c680fb44715bf05
+
+v0.4.2 package
+2ec328f5acec134d141b66223d17da3507127b423dd0d007ec056e5e9de555e6
+
+Uploaded Integra ZIP
+a9cdade74adb53a7c60cad58c1865aeb1e3e5e5513dfd6cb42a6cbdf374a9b29
 ```
 
-## Controlling naming law
+## Controlling rename law
 
 ```text
 KEEP THE COMPLETE ORIGINAL ZIP NAME.
-ADD OR UPDATE ONLY THE DETECTED VERSION.
+ONLY ADD A MISSING VERSION OR UPDATE AN EXISTING VERSION TOKEN.
 DO NOT REPLACE THE ORIGINAL NAME WITH A SHORT INTERNAL TITLE.
-IF NO VERSION IS FOUND, DO NOT RENAME.
+IF NO VERSION IS FOUND, DO NOT RENAME UNTIL THE USER SUPPLIES THE REAL VERSION.
 ```
 
-Example:
+Exact uploaded Integra behavior:
 
 ```text
+No version override:
 BEAM_EVO_Mods_Acura_Integra.zip
-→
-BEAM_EVO_Mods_Acura_Integra_v2.4.zip
-```
+BEAM_EVO_Mods_Acura_Integra.png
 
-Not allowed:
-
-```text
-BEAM_EVO_Mods_Acura_Integra.zip
-→
-Integra.zip
+Manual version 1.2:
+BEAM_EVO_Mods_Acura_Integra_v1.2.zip
+BEAM_EVO_Mods_Acura_Integra_v1.2.png
 ```
 
 ## Preview law
 
-- extract up to three unique useful images;
-- use the full proposed ZIP stem for every image;
-- save a readable `preview_manifest.json`;
-- rebuild images when cached paths are missing;
-- never modify the image inside the source ZIP.
+- vehicle: repository/info image, then vehicle default/config preview;
+- map: preview/loading/overview/screenshot/cover/thumbnail in the level folder;
+- UI app: icon/logo used by the in-game app;
+- up to three useful unique images, except normally one UI icon;
+- random materials, texture channels, terrain/minimap tiles, engine instructions, and part images are filtered out;
+- every record stores role, internal source path, reason, hash, catalog path, and sidecar path;
+- ZIP contents are never modified.
 
-## First David test
+## What David should test
 
-Use the same copied test folder with:
-
-```text
-Checkpoint every: 2
-Extract catalog previews: enabled
-Automatic bulk rename: do not use
-```
-
-Confirm:
-
-1. Proposed name retains the complete current/original stem.
-2. Only the version is added or updated.
-3. A filename with no detected version remains unchanged.
-4. Preview images appear in the preview folder and match the proposed ZIP stem.
-5. A previously shortened v0.4.0 name is recovered when rename history exists.
-6. Apply only one selected rename after reviewing it.
-7. Backup and Undo Last Rename still work.
+1. Extract the new package into its own folder.
+2. Confirm the title says `v0.4.2`.
+3. Set Image export to `Beside ZIP + Catalog`.
+4. Select the Integra row and press `Set / Correct Version`.
+5. Enter the real version.
+6. Confirm only the version is added to the full original filename.
+7. Press `Export Selected Images`.
+8. Confirm the image appears beside the ZIP and under QuickScan's preview folder.
+9. Open the full-screen Catalog and confirm scrolling.
+10. Test Automatic, Light text, and Dark text on the dropdowns.
+11. Apply only one selected version rename after reviewing it.
 
 ## Current handoff
 
 ```text
 Project: BeamNG Mod QuickScan / Catalog Manager
-Version: v0.4.1 Original Filename + Preview Recovery
-Baseline inspected: exact v0.4.0 package/source
-Before-edit checks: source hash recorded; v0.4.0 package extracted
-After-edit checks: compile, built-in self-test, extended naming/preview/history test, GUI smoke PASS
+Version: v0.4.2 Version-Only Rename + Contrast + Images
+Baseline inspected: exact v0.4.1 source
+Before-edit checks: baseline hash and compile recorded
+After-edit checks: compile, built-in self-test, map/UI/vehicle preview tests, manual-version cache test, exact Integra regression, GUI contrast/full-screen smoke PASS
 Packaged ZIP reopened: PASS
 Packaged source compile: PASS
 Packaged self-test: PASS
 Packaged GUI smoke: PASS
 Windows runtime by David: REQUIRED
-Known limitation: exact Integra archive was not uploaded
-Release commit: 6d0d2d615869bc0ed8e2c2c1cd78738223212ec5
-Verification commit: 292d0416d287f609e61cfa37e15d70ce45144600
-Next safe step: David retests v0.4.1 on the copied Integra folder
+Known limitation: real Integra version is not declared in the archive and must be entered manually
+Release commit: 26a69b258c1c4d0e2820734388c500e8e5ea989b
+Verification commit: b644900787dcf7f90340206feb19d9cf46772413
+Next safe step: David tests v0.4.2 on the copied Integra folder
 ```
