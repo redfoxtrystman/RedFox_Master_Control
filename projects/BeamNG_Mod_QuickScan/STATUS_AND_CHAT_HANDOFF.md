@@ -2,9 +2,9 @@
 
 **Last updated:** 2026-07-28 PDT  
 **Owner:** David / Captain  
-**Current version:** v0.4.2 Version-Only Rename + Contrast + Images  
-**Latest release record:** `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_2_VERSION_CONTRAST_IMAGES.md`  
-**Latest verification:** `projects/BeamNG_Mod_QuickScan/SOURCE_BASELINE/v0_4_2/README_AND_VERIFICATION.md`  
+**Current version:** v0.4.3 Readable Controls + Duplicate Sensitivity + Image Export  
+**Latest release record:** `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_3_READABLE_DUPLICATE_IMAGE_FIX.md`  
+**Latest verification:** `projects/BeamNG_Mod_QuickScan/SOURCE_BASELINE/v0_4_3/README_AND_VERIFICATION.md`  
 **Career contract:** `projects/BeamNG_Mod_QuickScan/SOURCE_BASELINE/v0_4_0/CAREER_EXPORT_FORMAT.md`  
 **DRM rules:** `projects/BeamNG_Mod_QuickScan/SOURCE_BASELINE/v0_4_0/DRM_DETECTION_NOTES.md`
 
@@ -16,39 +16,33 @@
 4. `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_0_CATALOG_CAREER_DRM.md`
 5. `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_1_ORIGINAL_NAME_PREVIEW_FIX.md`
 6. `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_2_VERSION_CONTRAST_IMAGES.md`
-7. This file.
+7. `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_3_READABLE_DUPLICATE_IMAGE_FIX.md`
+8. This file.
 
 ## Current truth
 
 - v0.4.0 ran on David's Windows computer and exposed short-name, preview, and contrast failures.
-- v0.4.1 restored the controlling original-name law and missing-preview cache recovery.
-- David then uploaded the exact `BEAM_EVO_Mods_Acura_Integra.zip` and screenshots from the Catalog UI.
-- The uploaded Integra archive contains no declared mod version. QuickScan must not invent one.
-- v0.4.2 adds a `Set / Correct Version` action saved by exact ZIP SHA-256.
-- Manual version changes invalidate stale cache and rebuild naming/image records.
-- The normal Catalog has horizontal and vertical scrollbars.
-- `Open Full-Screen List` opens a maximized Catalog view.
-- Dropdown/read-only field colors are explicitly styled instead of trusting Windows' white native field.
-- Text modes are Automatic, Light text, and Dark text.
-- Image exports can go beside the ZIP, to QuickScan's catalog folder, or both.
-- Vehicle previews, map previews, and UI app icons are classified separately.
-- v0.4.2 passed compile, built-in self-test, exact uploaded Integra regression, GUI contrast/full-screen smoke tests, ZIP reopen/CRC, packaged compile, packaged self-test, and packaged GUI smoke.
-- Large-library Windows runtime and physical DPI behavior remain David tests.
+- v0.4.1 restored the complete-original-name rule and missing-preview cache recovery.
+- v0.4.2 documented version-only rename, full-screen Catalog, text modes, and image destinations.
+- A duplicate-evidence test build then exposed two new failures:
+  - Windows still rendered white text on white native dropdown fields;
+  - duplicate detection became too sensitive and marked unrelated trailer ZIPs as versions despite zero shared functional files.
+- v0.4.3 replaces native comboboxes with custom colored Menubutton dropdowns.
+- v0.4.3 adds Automatic, Light text, and Dark text controls with guaranteed contrasting input backgrounds.
+- v0.4.3 tightens duplicate identity rules and replaces stale duplicate findings after a completed scan.
+- v0.4.3 makes the image destination selector control automatic scan-time sidecar export.
+- v0.4.3 includes full-screen Catalog, version correction, selected image export, duplicate evidence reports, career export, and DRM indicators.
+- v0.4.3 passed compile, self-test, real uploaded Roamer/Transporter regressions, false-positive regression, ZIP reopen/CRC, packaged compile, packaged self-test, and packaged GUI smoke.
+- Physical Windows DPI and thousands-of-mods performance remain David tests.
 
 ## Hashes
 
 ```text
-v0.4.1 source
-29548be3cbea233f65439103bd4a25ac0b1dc8bb138fff2fd45ef2cd4ac1adc0
+v0.4.3 source
+25317a5553fb7f0730e38a1b0380b38c483954dfac084180aa40d41f6d7e8578
 
-v0.4.2 source
-5a490166433dd98912796ad9a0036c81892a891e73c83bf06c680fb44715bf05
-
-v0.4.2 package
-2ec328f5acec134d141b66223d17da3507127b423dd0d007ec056e5e9de555e6
-
-Uploaded Integra ZIP
-a9cdade74adb53a7c60cad58c1865aeb1e3e5e5513dfd6cb42a6cbdf374a9b29
+v0.4.3 package
+f2abfefb47c59eaf0024171048633b3dc83ff7b4f7f22b4a6994f78f7db037f5
 ```
 
 ## Controlling rename law
@@ -57,60 +51,72 @@ a9cdade74adb53a7c60cad58c1865aeb1e3e5e5513dfd6cb42a6cbdf374a9b29
 KEEP THE COMPLETE ORIGINAL ZIP NAME.
 ONLY ADD A MISSING VERSION OR UPDATE AN EXISTING VERSION TOKEN.
 DO NOT REPLACE THE ORIGINAL NAME WITH A SHORT INTERNAL TITLE.
-IF NO VERSION IS FOUND, DO NOT RENAME UNTIL THE USER SUPPLIES THE REAL VERSION.
+IF NO VERSION IS FOUND, DO NOT INVENT ONE.
 ```
 
-Exact uploaded Integra behavior:
+## Duplicate evidence law
+
+- Exact same ZIP SHA-256: confirmed exact duplicate.
+- Same complete internal path/hash set: confirmed repacked duplicate.
+- Same functional files and identity/version, with only docs/metadata/previews different: functional duplicate.
+- A shared generic vehicle folder alone is not identity evidence.
+- A similar title alone is not enough without functional overlap or a unique explicit ID.
+- Zero shared functional files cannot become a version-duplicate finding merely because both touch `tanker`, `flatbed`, `pickup`, `common`, `roamer`, or similar folders.
+- Matching preview hashes are supporting evidence, not the sole proof.
+
+Required real results:
 
 ```text
-No version override:
-BEAM_EVO_Mods_Acura_Integra.zip
-BEAM_EVO_Mods_Acura_Integra.png
+Roamer pair:
+89 files, identical ZIP hash, exact renamed duplicate.
 
-Manual version 1.2:
-BEAM_EVO_Mods_Acura_Integra_v1.2.zip
-BEAM_EVO_Mods_Acura_Integra_v1.2.png
+Transporter pair:
+55 shared functional files, 0 changed functional files,
+3 documentation-only extras, 21 matching preview hashes.
 ```
 
-## Preview law
+## Preview/image law
 
 - vehicle: repository/info image, then vehicle default/config preview;
 - map: preview/loading/overview/screenshot/cover/thumbnail in the level folder;
 - UI app: icon/logo used by the in-game app;
-- up to three useful unique images, except normally one UI icon;
+- up to three useful unique images, normally one UI icon;
 - random materials, texture channels, terrain/minimap tiles, engine instructions, and part images are filtered out;
-- every record stores role, internal source path, reason, hash, catalog path, and sidecar path;
+- scan-time destination choices:
+  - Beside ZIP + Catalog
+  - Catalog folder only
+  - Beside ZIP only
+- every record stores role, source path, reason, hash, catalog path, and sidecar path;
 - ZIP contents are never modified.
 
 ## What David should test
 
-1. Extract the new package into its own folder.
-2. Confirm the title says `v0.4.2`.
-3. Set Image export to `Beside ZIP + Catalog`.
-4. Select the Integra row and press `Set / Correct Version`.
-5. Enter the real version.
-6. Confirm only the version is added to the full original filename.
-7. Press `Export Selected Images`.
-8. Confirm the image appears beside the ZIP and under QuickScan's preview folder.
-9. Open the full-screen Catalog and confirm scrolling.
-10. Test Automatic, Light text, and Dark text on the dropdowns.
-11. Apply only one selected version rename after reviewing it.
+1. Extract v0.4.3 into a new folder.
+2. Confirm the title says `v0.4.3`.
+3. Set Text to `Automatic`.
+4. Confirm Theme, Text, Checkpoint, Computer Load, and Images controls are readable.
+5. Run a **completed** scan so old false duplicate records are replaced.
+6. Confirm unrelated trailers with zero shared functional files are no longer paired.
+7. Confirm the Roamer and Transporter pairs remain detected.
+8. Set Images to `Beside ZIP + Catalog` and confirm images are written automatically.
+9. Open Full-Screen List and test both scrollbars.
+10. Use Set / Correct Version only when a real version is known.
 
 ## Current handoff
 
 ```text
 Project: BeamNG Mod QuickScan / Catalog Manager
-Version: v0.4.2 Version-Only Rename + Contrast + Images
-Baseline inspected: exact v0.4.1 source
-Before-edit checks: baseline hash and compile recorded
-After-edit checks: compile, built-in self-test, map/UI/vehicle preview tests, manual-version cache test, exact Integra regression, GUI contrast/full-screen smoke PASS
+Version: v0.4.3 Readable Controls + Duplicate Sensitivity + Image Export
+Baseline inspected: v0.4.2.1 sensitivity source and v0.4.2 documented feature boundary
+Before-edit checks: source compile, existing self-test, reports.zip false-positive audit
+After-edit checks: compile, self-test, real Roamer/Transporter regression, unrelated-trailer regression, custom dropdown GUI smoke, full-screen Catalog smoke, automatic sidecar image test PASS
 Packaged ZIP reopened: PASS
 Packaged source compile: PASS
 Packaged self-test: PASS
 Packaged GUI smoke: PASS
 Windows runtime by David: REQUIRED
-Known limitation: real Integra version is not declared in the archive and must be entered manually
-Release commit: 26a69b258c1c4d0e2820734388c500e8e5ea989b
-Verification commit: b644900787dcf7f90340206feb19d9cf46772413
-Next safe step: David tests v0.4.2 on the copied Integra folder
+Known limitation: physical DPI and thousands-of-mods performance not yet proven
+Release commit: 2106768e094502a4d82cfb6cc51283a96e185d94
+Verification commit: 05bb44fd3e2bb200a360c4fd465a5b52ccb3f553
+Next safe step: David runs one completed v0.4.3 scan and reports Windows UI/resource results
 ```
