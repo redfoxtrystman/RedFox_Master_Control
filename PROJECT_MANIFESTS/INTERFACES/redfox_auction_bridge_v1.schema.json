@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "redfox.auction.bridge.v1",
+  "title": "RedFox Auction Bridge Listing Request",
+  "type": "object",
+  "required": ["contractVersion", "requestId", "sourceSystem", "sourceType", "sellerType", "sourceRef", "vehicle", "sale"],
+  "properties": {
+    "contractVersion": {"const": "redfox.auction.bridge.v1"},
+    "requestId": {"type": "string", "minLength": 8},
+    "sourceSystem": {"type": "string"},
+    "sourceType": {"enum": ["tow_yard_claim", "personal_vehicle", "company_vehicle", "external_inventory"]},
+    "sellerType": {"enum": ["redfox_tow_company", "player", "company", "npc"]},
+    "sourceRef": {
+      "type": "object",
+      "required": ["inventoryId"],
+      "properties": {
+        "shopId": {"type": ["string", "null"]},
+        "inventoryId": {"type": ["integer", "string"]},
+        "yardId": {"type": ["string", "null"]},
+        "levelId": {"type": ["string", "null"]},
+        "garageId": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "vehicle": {
+      "type": "object",
+      "required": ["name", "model", "config", "estimatedValue"],
+      "properties": {
+        "name": {"type": "string"},
+        "model": {"type": "string"},
+        "config": {"type": "string"},
+        "estimatedValue": {"type": "number", "minimum": 0},
+        "mileage": {"type": ["number", "null"], "minimum": 0},
+        "condition": {"type": ["object", "null"]},
+        "thumbnail": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "sale": {
+      "type": "object",
+      "required": ["reserve", "startingBid", "durationSeconds"],
+      "properties": {
+        "reserve": {"type": "number", "minimum": 0},
+        "startingBid": {"type": "number", "minimum": 0},
+        "buyNow": {"type": ["number", "null"], "minimum": 0},
+        "durationSeconds": {"type": "integer", "minimum": 30},
+        "sellerMinimum": {"type": ["number", "null"], "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "transport": {
+      "type": ["object", "null"],
+      "properties": {
+        "required": {"type": "boolean"},
+        "origin": {"type": ["object", "null"]},
+        "destination": {"type": ["object", "null"]},
+        "requiredEquipment": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "metadata": {"type": "object", "additionalProperties": true}
+  },
+  "additionalProperties": true
+}
