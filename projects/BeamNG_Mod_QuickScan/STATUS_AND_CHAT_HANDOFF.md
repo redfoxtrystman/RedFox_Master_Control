@@ -1,10 +1,10 @@
 # BeamNG Mod QuickScan — Status and Chat Handoff
 
-**Last updated:** 2026-07-29 PDT  
+**Last updated:** 2026-07-30 PDT  
 **Owner:** David / Captain  
-**Current version:** v0.4.7 Whole-Window Scroll + Saved Scan Snapshots + Master Catalog  
-**Latest release:** `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_7_WHOLE_WINDOW_MASTER_CATALOG.md`  
-**Latest verification:** `projects/BeamNG_Mod_QuickScan/SOURCE_BASELINE/v0_4_7/README_AND_VERIFICATION.md`  
+**Current version:** v0.4.7.1 Folder Focus + Metadata Recovery + Settings + Solid Status Lights  
+**Latest release:** `projects/BeamNG_Mod_QuickScan/RELEASES/v0_4_7_1_FOLDER_FOCUS_METADATA_SETTINGS.md`  
+**Latest verification:** `projects/BeamNG_Mod_QuickScan/SOURCE_BASELINE/v0_4_7_1/README_AND_VERIFICATION.md`  
 **Tow schema:** `projects/BeamNG_Mod_QuickScan/SOURCE_BASELINE/v0_4_6/TOW_CATALOG_SCHEMA_V2.md`
 
 ## Read before editing
@@ -12,64 +12,95 @@
 1. `INCIDENT_REPORTS/ALL_REDFOX_CHATS_AUDIT_DIRECTIVE_2026-07-07.md`
 2. `INCIDENT_REPORTS/2026-07-26_BeamNG_Mod_QuickScan_Order_Of_OPERATIONS_Failure.md`
 3. `projects/BeamNG_Mod_QuickScan/MASTER_PROJECT_RECORD_2026-07-26.md`
-4. v0.4.0 through v0.4.7 release records
-5. v0.4.7 verification
-6. This file
+4. v0.4.0 through v0.4.7.1 release records
+5. v0.4.7.1 verification
+6. `projects/BeamNG_Mod_QuickScan/REQUIREMENTS/v0_4_8_CATALOG_GALLERY_WIZARD_REDESIGN_2026-07-30.md`
+7. This file
 
 ## Current truth
 
-- v0.4.6 is the exact verified baseline used for v0.4.7.
-- v0.4.7 fixes the owner-reported layout failure across the complete app, not only Tow Catalog.
-- The header, folder controls, scan controls, status cards, results tools, tabs, and complete active tab now live inside one whole-window scroll region.
-- Major toolbars wrap into additional rows rather than clipping controls.
-- UI Size is selectable from 100% through 200%; Ctrl+Plus/Ctrl+Minus adjust it.
-- F11/Maximize Window and Top controls are present.
-- Tow Catalog uses a full-width exact-configuration list and a full-width review editor below it.
-- Every scan run now stores a separate exact mod snapshot and finding snapshot.
-- Previous Scans displays the exact ZIPs and findings from the selected folder-by-folder run.
-- Master Catalog combines every active ZIP retained in the shared database.
-- Master Catalog shows cross-folder duplicates/conflicts with both folder paths, both mods, category, severity, and explanation.
-- Master Catalog exports JSON and CSV.
-- Existing scanner, duplicate organizer, version-only rename, image extraction, Career wizard, Tow Catalog, DRM, pause/resume, backup, quarantine, and Undo behavior remain present.
-- v0.4.7 passed inherited self-tests, packaged tests, GUI smoke, synthetic two-folder conflict tests, and a real Roamer exact-duplicate test across two separate folders.
+- v0.4.7 is the exact verified baseline used for v0.4.7.1.
+- v0.4.7.1 is a focused hotfix; it does not replace the planned v0.4.8 visual gallery redesign.
+- Normal result tabs default to the currently selected scan folder.
+- `View: All scanned folders` explicitly enables combined results.
+- Master Catalog remains the cross-folder duplicate/conflict workspace.
+- Image extraction is automatic by default and controlled through Settings.
+- Settings can hide scan tuning, summary cards, Catalog actions, progress/history/DRM/Safe columns, and change row compactness.
+- Four separated shaded status cells are replaced by one compact labeled field: yellow ZIP, red DUP, blue IMG, green CAR.
+- The tolerant metadata parser now handles comments, trailing commas, missing commas between adjacent object fields, and surplus closing delimiters after a complete top-level value.
+- `stpmustang.zip` and `WSCX_ChevBel-Air.zip` both recover successfully with no malformed-metadata findings.
+- A truly unrecoverable metadata file is skipped individually; the rest of the ZIP is still scanned.
+- Source ZIPs are never rewritten during ordinary scans or metadata recovery.
+- Existing duplicate organizer, version-only rename, image extraction, Career wizard, Tow Catalog, Previous Scans, Master Catalog, DRM, pause/resume, quarantine, backups, and Undo remain present.
 - Physical Windows D-drive/DPI/large-library behavior remains David's required test.
 
 ## Exact hashes
 
 ```text
-v0.4.6 source
-b9577c76d86a33b9b4b05425f5337dd3cdab7859c004dff2d13455ade9261ae4
-
 v0.4.7 source
 11f685c8f4d7d59dfd5fe54bb65512280fd8b01336c9905b7053fbeb1ea2501c
 
-v0.4.7 package
-538d869a4ce05daaa102edb43f2f1f8da3fcbfc76ca4e0e28245b3b1be3b1076
+v0.4.7.1 source
+35f415769d9a52c5d59832927a7d513d715ecfe27afc240cf85534a85780e208
+
+v0.4.7.1 package
+b6c3b56292d1bf26c2dfaac3340d449a49c18c027dc309d3817f30001dedd95a
 ```
 
-## Whole-window layout law
+## Folder scope law
 
 ```text
-THE COMPLETE APP PAGE MUST SCROLL.
-BUTTONS MUST WRAP INSTEAD OF DISAPPEARING OFF SCREEN.
-TABLES MAY KEEP THEIR OWN SCROLLBARS FOR LARGE DATA.
-THE USER MUST BE ABLE TO SCALE TEXT/CONTROLS FROM 100% THROUGH 200%.
+NORMAL TABS SHOW THE SELECTED FOLDER BY DEFAULT.
+ALL-SCANNED-FOLDERS VIEW MUST BE EXPLICITLY REQUESTED.
+MASTER CATALOG IS THE CROSS-FOLDER VIEW.
+PREVIOUS SCANS RETAIN EACH FOLDER/RUN SNAPSHOT.
 ```
 
-## Saved scan law
+Folder-scoped normal tabs:
 
-- Every completed, paused, or cancelled run remains separately identifiable.
-- A run stores its source folder, exact ZIP members, metadata snapshot, and findings snapshot.
-- Loading one previous run must not silently replace another run's record.
-- Folder-by-folder runs feed the shared Master Catalog while remaining separately reviewable.
+- Findings
+- Duplicate Review
+- Catalog / Rename
+- Career Data
+- DRM Details
+- Previous Scans
+- Tow Catalog
 
-## Master Catalog law
+## Metadata recovery law
 
-- The master view is the union of active ZIPs retained in the shared database.
-- Mods remain linked to the most specific saved scan folder containing them.
-- Cross-folder findings require at least two connected mods from different saved scan folders.
-- Exact duplicates, versions, functional duplicates, and path conflicts must remain evidence-based.
-- Generic filenames or metadata names alone are never conflict proof.
+- Safe recovery happens in memory only.
+- Every repair is recorded in the metadata-recovery report.
+- Missing commas are inserted only between an obviously completed JSON value and a following quoted object key.
+- A suffix is trimmed only when a complete top-level JSON value has already parsed and the suffix contains closing delimiters/whitespace only.
+- If still invalid, only that metadata file is skipped.
+- Normal scans do not modify source ZIPs.
+
+Exact uploaded results:
+
+```text
+stpmustang.zip / vehicles/Mustang67/info_tissma.json
+PASS inserted missing comma + removed trailing comma
+
+WSCX_ChevBel-Air.zip / vehicles/belairkene/info.json
+PASS removed trailing comma + trimmed surplus top-level brace
+
+Complete two-ZIP scan
+PASS 2/2 completed
+PASS 6 previews extracted
+PASS 0 malformed-metadata findings
+PASS 0 yellow findings
+```
+
+## Progress colors
+
+```text
+🟨 ZIP — filename/version checked
+🟥 DUP — duplicate audit completed
+🟦 IMG — image extraction completed
+🟩 CAR — Career check completed
+✓ clear
+! attention needed
+```
 
 ## Preserved laws
 
@@ -84,53 +115,52 @@ DO NOT INVENT A VERSION.
 
 ### Duplicate safety
 
-- Generic folders/similar names alone are not identity proof.
+- Generic folders or similar names alone are not identity proof.
 - Matching images are supporting evidence, not sole proof.
 - Variants with changed functional files remain review-only.
-- Moves and quarantine actions are manifest-backed and undoable.
+- Moves and quarantine are manifest-backed and undoable.
 
 ### Tow safety
 
 - Exact model + exact configuration remains the Tow identity.
 - New/runtime entries start Unreviewed.
 - Manual exact-config reviews survive rescans.
-- Catalog-only operations do not rewrite source ZIPs.
+- Catalog-only work does not rewrite source ZIPs.
 
 ## Verification
 
 ```text
-PASS inherited v0.4.4/v0.4.5/v0.4.6 self-tests
-PASS v0.4.7 compile and self-test
-PASS two-folder scan registry and exact run snapshots
-PASS cross-folder path conflict
-PASS master JSON/CSV exports
-PASS real Roamer exact duplicate across separate folders
-PASS outer scrollregion larger than viewport
-PASS responsive toolbar wrap
-PASS full-width Tow review
-PASS 100–200% UI scaling
-PASS Previous Scans exact-content GUI
-PASS Master Catalog GUI
-PASS final package reopen/extracted tests
+PASS source compile
+PASS inherited v0.4.4/v0.4.5/v0.4.6/v0.4.7 tests
+PASS v0.4.7.1 self-test
+PASS exact uploaded metadata recovery
+PASS exact complete two-ZIP scan
+PASS automatic image extraction
+PASS selected-folder GUI scope
+PASS explicit all-folder GUI scope
+PASS Settings GUI construction
+PASS compact progress display
+PASS final package CRC/reopen
+PASS packaged compile/self-tests/GUI smoke
 ```
 
 ## What David should test
 
-1. Extract v0.4.7 into a new folder and confirm the title.
-2. Confirm the whole-window vertical scrollbar reaches the complete page.
-3. Test UI Size at 125%, 150%, and 175%.
-4. Resize the window narrower and confirm buttons wrap instead of disappearing.
-5. Scan two different D-drive folders.
-6. Open Previous Scans and confirm each run shows its own exact ZIPs and findings.
-7. Open Master Catalog and confirm all scanned folders/mods appear.
-8. Confirm known duplicates/conflicts across different folders appear in the lower table.
-9. Test Tow Catalog review fields by scrolling the whole app page.
-10. Report physical Windows/DPI and large-library behavior before the automatic sorter starts.
+1. Extract v0.4.7.1 into a new folder and confirm the title.
+2. Scan one small folder and confirm Catalog, Career, Findings, DRM, Tow, and Previous Scans show that folder only.
+3. Switch View to All scanned folders and confirm combined records appear.
+4. Confirm Master Catalog still shows all retained folders and cross-folder findings.
+5. Open Settings and hide/show scan tuning, cards, Catalog actions, and optional columns.
+6. Confirm image extraction runs without checking a main-screen box.
+7. Confirm the Progress field shows labeled yellow/red/blue/green jobs close together.
+8. Rescan the Mustang and Bel-Air ZIPs and confirm no malformed-metadata yellow findings.
+9. Report physical Windows/DPI and large-library behavior.
 
 ## Next version boundary
 
 ```text
-v0.4.8 — Tow online enrichment and representative JOB-09 proof set, after Windows v0.4.7 layout test
+v0.4.8 — Ellexium-assisted visual vehicle/configuration gallery, compact searchable catalog, guided wizards, hover help, wrapped layouts
+v0.4.9 — Tow online enrichment and representative JOB-09 proof set
 v0.5.0 — incoming-folder automatic sorter
 v0.6.0 — installed/storage Mod Manager and video mod packs
 ```
@@ -138,7 +168,7 @@ v0.6.0 — installed/storage Mod Manager and video mod packs
 ## Commits
 
 ```text
-Release: 2a6c8858286a4fa8fd594e1d836401083bfe4720
-Verification: 49760be9b71c44cec07cb77f674f357067cc70ab
+v0.4.7.1 release: 8526a90209f2f95f541ae045d5f4a9230200db58
+v0.4.7.1 verification: 5c97b1ae0bf7681b03e66de39825c646c433d008
 Status: this commit
 ```
