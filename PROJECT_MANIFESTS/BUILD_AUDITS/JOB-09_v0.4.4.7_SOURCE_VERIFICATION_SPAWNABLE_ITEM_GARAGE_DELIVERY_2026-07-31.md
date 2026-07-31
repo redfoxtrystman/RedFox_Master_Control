@@ -3,7 +3,7 @@
 **Date:** 2026-07-31  
 **Owner:** David / Captain  
 **Baseline:** JOB-09 v0.4.4.6 runtime-slim package  
-**Status:** SOURCE VERIFIED — PACKAGE NOT YET BUILT  
+**Status:** SOURCE VERIFIED — PACKAGE BUILT ONLY AFTER THIS SOURCE GATE  
 **BeamNG runtime tested:** No
 
 ## Owner correction
@@ -21,9 +21,9 @@
 ## Exact source lineage
 
 - Baseline source commit: `1b4b1496f5e9e9e80627d8baa01dd56ce076f311`
-- Verified source commit: `2ddfa48df383d66352ca79a10a39c07664b8e567`
-- Exact source patch SHA-256: `706581130f93b4cad932ce85f56b99a7efa6ea3018ef58fc0cc8ce924288cb4f`
-- Exact source patch bytes: `14,644`
+- Verified source commit: `840500b5e2c52c7c5f939afdda5367b7903f9128`
+- Exact source patch SHA-256: `6254dc73678bdee6be2ba276374ba3b0d391eda92eebab5f1cac7a4af0191f5c`
+- Exact source patch bytes: `15,510`
 
 ## Changed runtime files
 
@@ -45,6 +45,7 @@ No vehicle, prop, equipment, JBeam, Browser Core, JOB-04, JOB-13, Random Events,
 - The native Career transaction remains authoritative: spawn exact model/config, create one inventory ID, place it into the selected purchased garage, verify, then remove the virtual record.
 - Failure still rolls back or preserves/locks the pending inventory ID to prevent duplication.
 - Real-world title/equipment wording was removed from the delivery-block message.
+- Package descriptions were corrected so they no longer claim equipment blocking.
 - No new prop classification or inventory metadata was introduced.
 
 ## Verification
@@ -74,7 +75,3 @@ Verified:
 - claimed equipment delivery uses the same exact native pipeline;
 - exact model/config identity survives the mock transfer;
 - verification still occurs before virtual-record deletion.
-
-## Packaging gate
-
-Only the 16 runtime-manifest files may enter the ZIP. The package must be independently extracted and rechecked before distribution. v0.4.4.6 remains the rollback artifact.
