@@ -1,0 +1,218 @@
+diff --git a/lua/ge/extensions/redfox/modules/redfox_tow_recovery_dispatch/redfox_module.json b/lua/ge/extensions/redfox/modules/redfox_tow_recovery_dispatch/redfox_module.json
+index a22faa4..d0705f6 100644
+--- a/lua/ge/extensions/redfox/modules/redfox_tow_recovery_dispatch/redfox_module.json
++++ b/lua/ge/extensions/redfox/modules/redfox_tow_recovery_dispatch/redfox_module.json
+@@ -9,8 +9,8 @@
+   "visibleName": "RedFox Tow & Recovery Dispatch",
+   "name": "RedFox Tow & Recovery Dispatch",
+   "displayName": "RedFox Tow & Recovery Dispatch",
+-  "description": "Direct purchased-garage linking, safe legacy company vehicle reconciliation, verified custody-to-company-to-RLS delivery, guided Scene Manager, active-call performance repair, and isolated runtime packaging.",
+-  "version": "0.4.4.6",
++  "description": "Direct purchased-garage linking, safe legacy company-record reconciliation, verified native garage delivery for exact spawnable model/config records, guided Scene Manager, active-call performance repair, and isolated runtime packaging.",
++  "version": "0.4.4.7",
+   "windowId": "redfox_tow_recovery_dispatch_main",
+   "settingsWindowId": "redfox_tow_recovery_dispatch_settings",
+   "settingsFile": "settings/redfox/tow_recovery_dispatch_settings.json",
+diff --git a/lua/ge/extensions/redfoxTowRecoveryDispatch.lua b/lua/ge/extensions/redfoxTowRecoveryDispatch.lua
+index 9860047..8038fb4 100644
+--- a/lua/ge/extensions/redfoxTowRecoveryDispatch.lua
++++ b/lua/ge/extensions/redfoxTowRecoveryDispatch.lua
+@@ -1,6 +1,6 @@
+ local M = {}
+ 
+--- RedFox Tow & Recovery Dispatch v0.4.4.6
++-- RedFox Tow & Recovery Dispatch v0.4.4.7
+ -- Standalone GE Lua extension. It intentionally does not override stock Career files.
+ 
+ local logTag = "redfoxTowRecoveryDispatch"
+@@ -676,7 +676,7 @@ local function ensureProfile(forceNormalize)
+       record.storageAssignmentStatus = "needs_yard_assignment"
+     end
+   end
+-  -- v0.4.4.6: claimed lien vehicles live in the same-yard Tow Company Garage until explicit linked-RLS-garage delivery.
++  -- v0.4.4.7: claimed lien items remain in the same-yard Tow Company Garage until explicit linked-RLS-garage delivery.
+   -- A staged claim is recovered deterministically after an interruption by checking
+   -- whether its exact transaction ID reached the business ledger.
+   for index = #(data.shopInventory or {}), 1, -1 do
+@@ -684,7 +684,7 @@ local function ensureProfile(forceNormalize)
+     if not record.storageClass then
+       record.storageClass = record.inventoryId and "legacy_sales_staging" or "company_shop"
+     end
+-    -- v0.4.4.6: preserve old personal-transfer fields while presenting the operation
++    -- v0.4.4.7: preserve old personal-transfer fields while presenting the operation
+     -- correctly as delivery from the Tow Company Garage into the linked real RLS garage.
+     if record.personalTransferPending and not record.garageDeliveryPending then record.garageDeliveryPending = true end
+     if record.personalTransferPendingInventoryId and not record.garageDeliveryPendingInventoryId then
+@@ -2900,7 +2900,7 @@ function M.activeJobRecovery.recordFailure(eventType, stage, errorText)
+   local entry = {
+     id = "failure_" .. tostring(os.time()) .. "_" .. tostring(runtime.nextId),
+     timestamp = os.time(),
+-    version = "0.4.4.6",
++    version = "0.4.4.7",
+     eventType = eventType,
+     stage = stage,
+     level = getLevelId(),
+@@ -6843,7 +6843,7 @@ end
+ 
+ local fleetTools = {}
+ 
+--- v0.4.4.6 guided Scene Manager and verified Tow Company Garage to linked RLS garage delivery.
++-- v0.4.4.7: remove the incorrect equipment/prop garage-delivery block; leave prop files and behavior untouched.
+ fleetTools.garage = {}
+ 
+ function M.business.ledger(kind, amount, label, details)
+@@ -7917,16 +7917,13 @@ end
+ function fleetTools.legacyDeliveryEligibility(record)
+   if type(record) ~= "table" then return false, "Missing legacy company record" end
+   local model = tostring(record.model or "")
+-  local hasConfig = tostring(record.config or "") ~= "" or type(record.careerConfig) == "table"
++  local config = record.careerConfig or record.config
++  local hasConfig = type(config) == "table" or tostring(config or "") ~= ""
+   if model == "" or not hasConfig then return false, "Stored model/config identity is incomplete" end
+-  local info = {model_key = model, model = model, key = record.config, config = record.config, Name = record.name, name = record.name}
+-  if vehicleRules.isKnownEquipmentOrAttachment(info) then return false, "This is equipment or an attachment, not a complete company vehicle" end
+-  local role = vehicleRules.effectiveCatalogRole(info)
+-  local definition = vehicleRules.roleDefinition(role)
+-  if role == "never_use" or (definition and definition.equipment == true) then
+-    return false, "Catalog role " .. tostring(role) .. " is not a complete garage vehicle"
+-  end
+-  return true, "Complete company vehicle"
++  -- Owner correction: BeamNG stores many spawnable props/equipment through the
++  -- same Career inventory and garage pipeline. Do not classify or alter the prop;
++  -- simply allow the native spawn/addVehicle/garage transaction to decide.
++  return true, "Exact spawnable model/config record"
+ end
+ 
+ function fleetTools.clearLegacyDeliveryState(record)
+@@ -8936,12 +8933,13 @@ end
+ function M.shop.nativeDeliveryEligibility(record)
+   if type(record) ~= "table" then return false, "Missing Tow Company Garage record" end
+   local model = tostring(record.model or "")
+-  local config = tostring(record.config or "")
+-  if model == "" or config == "" then return false, "Stored model/config identity is incomplete" end
+-  local info = {model_key = model, model = model, key = config, config = config, Name = record.name, name = record.name}
+-  local eligible, reason = vehicleRules.isAbandonedLienCandidate(info)
+-  if not eligible then return false, tostring(reason or "This record is not a complete lienable road vehicle") end
+-  return true, "Complete lienable vehicle"
++  local config = record.careerConfig or record.config
++  local hasConfig = type(config) == "table" or tostring(config or "") ~= ""
++  if model == "" or not hasConfig then return false, "Stored model/config identity is incomplete" end
++  -- Owner correction: garage delivery is independent of abandoned/lien category.
++  -- Leave prop/equipment files and classification untouched. The native Career
++  -- transaction remains authoritative and already rolls back safely on failure.
++  return true, "Exact spawnable model/config record"
+ end
+ 
+ function M.shop.linkAndDeliver(shopId, garageId)
+@@ -8950,7 +8948,7 @@ function M.shop.linkAndDeliver(shopId, garageId)
+   if not record then return false end
+   local eligible, reason = M.shop.nativeDeliveryEligibility(record)
+   if not eligible then
+-    message("This Tow Company Garage record cannot become a native Career garage vehicle: " .. tostring(reason) .. ". Keep it in company equipment storage, sell it, or scrap it instead.", 13, "Native Garage Delivery Blocked", "warning")
++    message("This Tow Company Garage record cannot become a Career/RLS inventory item: " .. tostring(reason) .. ". The exact stored model/config identity is incomplete.", 13, "Native Garage Delivery Blocked", "warning")
+     return false
+   end
+   local yard, levelId = M.business.yardAcrossMaps(record.yardId, record.level)
+@@ -9094,7 +9092,7 @@ function M.shop.deliverToLinkedGarage(shopId)
+   if not record then return false end
+   local eligible, eligibilityReason = M.shop.nativeDeliveryEligibility(record)
+   if not eligible then
+-    message("This Tow Company Garage record cannot be delivered as a native Career vehicle: " .. tostring(eligibilityReason) .. ". It remains safely stored for sale, scrap, or equipment handling.", 13, "Native Garage Delivery Blocked", "warning")
++    message("This Tow Company Garage record cannot be delivered as a Career/RLS inventory item: " .. tostring(eligibilityReason) .. ". It remains safely stored and unchanged.", 13, "Native Garage Delivery Blocked", "warning")
+     return false
+   end
+   if record.inventoryId and not record.garageDeliveryPending then
+@@ -9564,8 +9562,8 @@ function uiTools.drawShopInventorySection()
+     textLine("Direct market sale", "$" .. tostring(M.shop.directSaleAmount(record)))
+     textLine("Scrap value", "$" .. tostring(M.shop.scrapAmount(record)))
+     if not nativeEligible and not record.inventoryId then
+-      uiTools.coloredWrappedText("NATIVE GARAGE DELIVERY BLOCKED — " .. tostring(nativeReason), {1.0, 0.45, 0.20, 1.0})
+-      im.TextWrapped("This prevents chains, spreader bars, detached crane pieces, and other equipment from being turned into titled Career garage vehicles. It remains available for sale, auction, scrap, or later equipment-storage work.")
++      uiTools.coloredWrappedText("GARAGE DELIVERY BLOCKED — " .. tostring(nativeReason), {1.0, 0.45, 0.20, 1.0})
++      im.TextWrapped("Delivery is blocked only when the exact stored model/config identity is incomplete or the native Career transaction fails safely.")
+     end
+     if listing then
+       textLine("Auction status", listing.status)
+@@ -10506,7 +10504,7 @@ function M.getModuleStatus()
+   ensureProfile()
+   return {
+     moduleId = "redfox_tow_recovery_dispatch",
+-    version = "0.4.4.6",
++    version = "0.4.4.7",
+     loaded = runtime.loaded,
+     careerActive = isCareerActive(),
+     windowOpen = M.isWindowOpen(),
+@@ -11082,7 +11080,7 @@ function M.getWebPortalState()
+   ensureProfile()
+   return {
+     contractVersion = "redfox.tow.web.v1",
+-    version = "0.4.4.6",
++    version = "0.4.4.7",
+     connected = true,
+     status = runtime.statusMessage,
+     levelId = getLevelId(),
+@@ -11566,7 +11564,7 @@ function M.onExtensionLoaded()
+     runtime.performanceAuditLogged = true
+     log("I", logTag, "[RedFox][TOW][PERFORMANCE_AUDIT] profileNormalization=load_or_profile_change_only portalRefreshSeconds=" .. tostring(settings.webPortalRefreshSeconds) .. " sceneIdentityRefreshSeconds=" .. tostring(settings.sceneHighlightIdentityRefreshSeconds) .. " activeJobAutosaveSeconds=" .. tostring(settings.activeJobAutosaveSeconds) .. " routeRefreshSeconds=" .. tostring(settings.activeCallRouteRefreshSeconds))
+   end
+-  log("I", logTag, "RedFox Tow & Recovery Dispatch v0.4.4.6 direct garage-link and legacy recovery build loaded")
++  log("I", logTag, "RedFox Tow & Recovery Dispatch v0.4.4.7 direct garage-link and legacy recovery build loaded")
+ end
+ 
+ function M.onExtensionUnloaded()
+diff --git a/mod_info/redfox_tow_recovery_dispatch/info.json b/mod_info/redfox_tow_recovery_dispatch/info.json
+index 5740722..ac663ae 100644
+--- a/mod_info/redfox_tow_recovery_dispatch/info.json
++++ b/mod_info/redfox_tow_recovery_dispatch/info.json
+@@ -1,8 +1,8 @@
+ {
+   "name": "RedFox Tow & Recovery Dispatch",
+   "author": "RedFox / Captain David",
+-  "version": "0.4.4.6",
+-  "description": "Direct garage selection and linking from claimed vehicles, safe legacy company-record recovery into exactly one verified Career/RLS garage vehicle, equipment/attachment delivery blocking, guided Scene Manager, and preserved active-call performance repairs.",
++  "version": "0.4.4.7",
++  "description": "Direct garage selection and linking from claimed records, safe legacy company-record recovery into exactly one verified Career/RLS inventory item, exact spawnable model/config delivery, guided Scene Manager, and preserved active-call performance repairs.",
+   "type": "mod",
+   "tag_line": "Choose the call. Do the recovery. Run your tow yard.",
+   "currentGameVersion": "0.38.6",
+diff --git a/ui/modules/apps/redfoxTowPortal/app.json b/ui/modules/apps/redfoxTowPortal/app.json
+index 503ab4e..5c09a72 100644
+--- a/ui/modules/apps/redfoxTowPortal/app.json
++++ b/ui/modules/apps/redfoxTowPortal/app.json
+@@ -1,8 +1,8 @@
+ {
+   "name": "RedFox Tow Web Portal",
+   "author": "RedFox / Captain David",
+-  "version": "0.4.4.6",
+-  "description": "Tow portal with direct garage linking, safe legacy company-record recovery, equipment-aware claimed storage, verified Career/RLS garage delivery, guided scenes, dispatch, records, fleet, yards, and invoices.",
++  "version": "0.4.4.7",
++  "description": "Tow portal with direct garage linking, safe legacy company-record recovery, exact spawnable model/config delivery, verified Career/RLS garage placement, guided scenes, dispatch, records, fleet, yards, and invoices.",
+   "directive": "redfoxTowPortal",
+   "domElement": "<redfox-tow-portal></redfox-tow-portal>",
+   "css": {
+diff --git a/ui/modules/apps/redfoxTowPortal/assets/css/portal.css b/ui/modules/apps/redfoxTowPortal/assets/css/portal.css
+index 843aa5b..0b2c0f8 100644
+--- a/ui/modules/apps/redfoxTowPortal/assets/css/portal.css
++++ b/ui/modules/apps/redfoxTowPortal/assets/css/portal.css
+@@ -75,7 +75,7 @@ button{min-height:calc(34px * var(--game-button-scale,1));}
+ .modal-service-grid button.selected{border-color:var(--orange);box-shadow:0 0 0 2px rgba(244,122,32,.22);background:rgba(244,122,32,.1);}
+ @media(max-width:1150px){.main-nav.mobile-open{display:flex;position:absolute;top:86px;left:20px;right:20px;flex-direction:column;align-items:stretch;gap:0;padding:14px;background:rgba(10,12,16,.97);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.main-nav.mobile-open a{padding:12px 14px}.main-nav.mobile-open a:after{bottom:4px}}
+ 
+-/* v0.4.4.6 guided Scene Manager */
++/* v0.4.4.7 spawnable-item garage-delivery correction */
+ .scene-guide-panel{border-color:rgba(244,122,32,.38)}
+ .scene-step-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:16px 0}
+ .scene-step-grid>div{display:flex;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:10px;background:#11151b;color:var(--muted)}
+diff --git a/ui/modules/apps/redfoxTowPortal/assets/js/portal.js b/ui/modules/apps/redfoxTowPortal/assets/js/portal.js
+index b61dc56..9857e43 100644
+--- a/ui/modules/apps/redfoxTowPortal/assets/js/portal.js
++++ b/ui/modules/apps/redfoxTowPortal/assets/js/portal.js
+@@ -317,7 +317,7 @@
+              <button data-action="shop_scrap" data-shop="${esc(r.id)}">Scrap ${money(r.scrapAmount)}</button>
+              ${virtual
+                ? (!r.nativeDeliveryEligible
+-                   ? `<small>Native garage delivery blocked: ${esc(r.nativeDeliveryReason||r.deliveryBlockReason||'Not a complete titled vehicle')}</small>`
++                   ? `<small>Garage delivery blocked: ${esc(r.nativeDeliveryReason||r.deliveryBlockReason||'Exact model/config identity is incomplete')}</small>`
+                    : r.linkedGarageId
+                      ? `<button data-action="shop_deliver_linked_garage" data-shop="${esc(r.id)}" ${r.canDeliverToLinkedGarage||r.garageDeliveryPending?'':'disabled'}>${r.garageDeliveryPending?'Resume Delivery to '+esc(r.linkedGarageName||'Linked RLS Garage'):'Deliver to '+esc(r.linkedGarageName||'Linked RLS Garage')}</button>${r.deliveryBlockReason?`<small>${esc(r.deliveryBlockReason)}</small>`:''}`
+                      : `<select id="shopGarage_${esc(r.id)}"><option value="">Choose purchased RLS garage</option>${(r.garageCandidates||[]).map(g=>`<option value="${esc(g.id)}" ${g.hasSpace===false?'disabled':''}>${esc(g.name)}${g.hasSpace===false?' — FULL':''}</option>`).join('')}</select><button data-action="shop_link_and_deliver" data-shop="${esc(r.id)}" ${r.canLinkAndDeliver?'':'disabled'}>Link Yard & Deliver</button>${r.deliveryBlockReason?`<small>${esc(r.deliveryBlockReason)}</small>`:''}`)
