@@ -1,0 +1,75 @@
+{
+  "job": "JOB-09",
+  "version": "0.4.4.7",
+  "status": "STATIC VERIFIED — BEAMNG RUNTIME TEST REQUIRED",
+  "baseline_version": "0.4.4.6",
+  "baseline_local_git_commit": "1b4b1496f5e9e9e80627d8baa01dd56ce076f311",
+  "verified_source_local_git_commit": "840500b5e2c52c7c5f939afdda5367b7903f9128",
+  "exact_source_patch": {
+    "filename": "JOB09_v0_4_4_7_EXACT_SOURCE.patch",
+    "sha256": "6254dc73678bdee6be2ba276374ba3b0d391eda92eebab5f1cac7a4af0191f5c",
+    "bytes": 15510
+  },
+  "runtime_allowlist": [
+    "lua/ge/extensions/core/input/actions/redfox_tow_recovery_dispatch.json",
+    "lua/ge/extensions/redfox/modules/redfox_tow_recovery_dispatch/redfox_module.json",
+    "lua/ge/extensions/redfoxTowRecoveryDispatch.lua",
+    "mod_info/redfox_tow_recovery_dispatch/info.json",
+    "scripts/redfox_tow_recovery_dispatch/modScript.lua",
+    "ui/modules/apps/redfoxTowPortal/app.js",
+    "ui/modules/apps/redfoxTowPortal/app.json",
+    "ui/modules/apps/redfoxTowPortal/app.png",
+    "ui/modules/apps/redfoxTowPortal/assets/css/portal.css",
+    "ui/modules/apps/redfoxTowPortal/assets/images/company_fleet.jpg",
+    "ui/modules/apps/redfoxTowPortal/assets/images/hero_tow.jpg",
+    "ui/modules/apps/redfoxTowPortal/assets/images/records_history.jpg",
+    "ui/modules/apps/redfoxTowPortal/assets/images/recovery_rollover.jpg",
+    "ui/modules/apps/redfoxTowPortal/assets/images/tow_yard_inventory.jpg",
+    "ui/modules/apps/redfoxTowPortal/assets/js/portal.js",
+    "ui/modules/apps/redfoxTowPortal/portal.html"
+  ],
+  "files": [
+    {"path":"lua/ge/extensions/core/input/actions/redfox_tow_recovery_dispatch.json","size":2048,"sha256":"80162722013b2f58c9eb259c74f26eb1d1ae929d8d23ceb559b247de02b9bb0f"},
+    {"path":"lua/ge/extensions/redfox/modules/redfox_tow_recovery_dispatch/redfox_module.json","size":3150,"sha256":"548ad87d0c914db487ac60ea25075c42667a6f39d195999b13a1d04dc92d9287"},
+    {"path":"lua/ge/extensions/redfoxTowRecoveryDispatch.lua","size":572724,"sha256":"3c5809ceaffe3f8540afb981ee1c183fc4e4a2323448ee40910324f409e329a0"},
+    {"path":"mod_info/redfox_tow_recovery_dispatch/info.json","size":532,"sha256":"803340b9f56346ea8e0fb7578617599829d4b18aac610c913db75c515526b4a1"},
+    {"path":"scripts/redfox_tow_recovery_dispatch/modScript.lua","size":339,"sha256":"d93ab5d84f2aab80244a731a5cf8fb97dbd5f7c061ff90c795e3ff9de7053a82"},
+    {"path":"ui/modules/apps/redfoxTowPortal/app.js","size":2533,"sha256":"a7ef57c349ab6421a29853a594fbfd20284614e52d4d73dd0f22f12c6f3cd069"},
+    {"path":"ui/modules/apps/redfoxTowPortal/app.json","size":560,"sha256":"a62fa5d2f52980daf1301c0a52ef95b3623fb0ccc3f626a560c10e97abfb91b0"},
+    {"path":"ui/modules/apps/redfoxTowPortal/app.png","size":38207,"sha256":"f0bfc4eb1a89d3534a38bd823331cd4586026079cfa8882cea21905176a9cebf"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/css/portal.css","size":47251,"sha256":"8fb4507adf21d4038d159e282f56a3f8fee222861433a446c67cfacb4d3ace22"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/images/company_fleet.jpg","size":123365,"sha256":"dfbce11fbcf6fe01c7513d25580c1a74ec4eaab22662b992569a6a74527d303c"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/images/hero_tow.jpg","size":232486,"sha256":"b13850b952c42fe26df2b34f6038be2039612cbbec7682b75dfd3effedc2f3f2"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/images/records_history.jpg","size":90060,"sha256":"954c49bb8b46012360f5cba35e96793d599fa9fcdfbffe276329ef8927531c84"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/images/recovery_rollover.jpg","size":157698,"sha256":"89d70f570e06165191eaa60923b127a670a3454cf9eefda571857e339bec3058"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/images/tow_yard_inventory.jpg","size":104748,"sha256":"f2b4b54f4d7211e77f16ede055910fb191c19eaac9cf29523efe734429582d11"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/js/portal.js","size":49704,"sha256":"decb39f42e23589bf2ff99742e2bc6335530499cac40d5a2802a428ee017a7f7"},
+    {"path":"ui/modules/apps/redfoxTowPortal/portal.html","size":39959,"sha256":"b65e15deba92185e78d7ff70bb13952d62ad479fd4d12f626e8a6ba3eb8827cf"}
+  ],
+  "verification": {
+    "source_static_checks_passed": 50,
+    "package_static_checks_passed": 50,
+    "mock_transaction_assertions_passed": 43,
+    "source_package_exact_hash_matches": 16,
+    "cross_package_active_path_overlaps": {"browser_core":0,"job04_slim":0,"job13":0},
+    "failures": 0
+  },
+  "changed_files": [
+    "lua/ge/extensions/redfoxTowRecoveryDispatch.lua",
+    "lua/ge/extensions/redfox/modules/redfox_tow_recovery_dispatch/redfox_module.json",
+    "mod_info/redfox_tow_recovery_dispatch/info.json",
+    "ui/modules/apps/redfoxTowPortal/app.json",
+    "ui/modules/apps/redfoxTowPortal/assets/css/portal.css",
+    "ui/modules/apps/redfoxTowPortal/assets/js/portal.js"
+  ],
+  "prop_files_changed": [],
+  "artifact": {
+    "filename": "19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_4_7_SpawnableItemGarageDeliveryPropFilesUntouchedRuntimeSlim.zip",
+    "sha256": "970acf3070242cdd2aca34b28c74bf37bde4b7919eebe5304f66604a4f74fab2",
+    "bytes": 891619,
+    "zip_entries": 16,
+    "uncompressed_bytes": 1465364
+  },
+  "runtime_tested": false,
+  "known_deferred": ["Saved-job Resume after BeamNG/computer crash remains deferred."]
+}
