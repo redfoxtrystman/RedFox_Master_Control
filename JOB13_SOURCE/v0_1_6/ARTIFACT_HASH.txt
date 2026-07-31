@@ -1,0 +1,5 @@
+RedFox_JOB13_FoxNet_Online_Auctions_v0_1_6_NATIVE_BIDDING_GARAGE_DELIVERY.zip
+SHA-256 8fa86d6fa09287bd07ba97dd4281362e8c05950b31bfd57da5dfc0f2cc39cce4
+Files 21
+Uncompressed bytes 242358
+Runtime status UNPROVEN
