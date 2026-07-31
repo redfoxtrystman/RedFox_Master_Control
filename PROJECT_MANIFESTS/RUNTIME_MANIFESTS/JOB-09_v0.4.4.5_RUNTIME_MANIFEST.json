@@ -1,0 +1,26 @@
+{
+  "artifact": "19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_4_5_GuidedSceneManagerLinkedRLSGarageDeliveryRuntimeSlim.zip",
+  "artifactSha256": "1271ea5a987b04b10e1ed88e928008d2599d5682e682199790802d4a7558dbfb",
+  "artifactBytes": 884951,
+  "version": "0.4.4.5",
+  "fileCount": 16,
+  "uncompressedBytes": 1430020,
+  "files": {
+    "lua/ge/extensions/core/input/actions/redfox_tow_recovery_dispatch.json": {"bytes": 2048, "sha256": "80162722013b2f58c9eb259c74f26eb1d1ae929d8d23ceb559b247de02b9bb0f"},
+    "lua/ge/extensions/redfox/modules/redfox_tow_recovery_dispatch/redfox_module.json": {"bytes": 3131, "sha256": "b348c7b3cd4fe724e916c1f29d83b74237698bc237996c1edd61c7b1b191bcb4"},
+    "lua/ge/extensions/redfoxTowRecoveryDispatch.lua": {"bytes": 540490, "sha256": "5fb7716ed4d105f942a2060856ebd2a106c3a2a8a452c4126d05a5bd820628c6"},
+    "mod_info/redfox_tow_recovery_dispatch/info.json": {"bytes": 530, "sha256": "43b123d1345d54a8a2eefbfe6928ce20a856b111371b961069906df8f79c7520"},
+    "scripts/redfox_tow_recovery_dispatch/modScript.lua": {"bytes": 339, "sha256": "d93ab5d84f2aab80244a731a5cf8fb97dbd5f7c061ff90c795e3ff9de7053a82"},
+    "ui/modules/apps/redfoxTowPortal/app.js": {"bytes": 2533, "sha256": "a7ef57c349ab6421a29853a594fbfd20284614e52d4d73dd0f22f12c6f3cd069"},
+    "ui/modules/apps/redfoxTowPortal/app.json": {"bytes": 579, "sha256": "e92e5daf15d431f78c53b54320ecf03e8f50ec7d6980d0eb829a6ffd30b981c6"},
+    "ui/modules/apps/redfoxTowPortal/app.png": {"bytes": 38207, "sha256": "f0bfc4eb1a89d3534a38bd823331cd4586026079cfa8882cea21905176a9cebf"},
+    "ui/modules/apps/redfoxTowPortal/assets/css/portal.css": {"bytes": 47230, "sha256": "160c84469f6dadfe55861f890cc8f459241164d3e3d1004f52477419ad2e17ae"},
+    "ui/modules/apps/redfoxTowPortal/assets/images/company_fleet.jpg": {"bytes": 123365, "sha256": "dfbce11fbcf6fe01c7513d25580c1a74ec4eaab22662b992569a6a74527d303c"},
+    "ui/modules/apps/redfoxTowPortal/assets/images/hero_tow.jpg": {"bytes": 232486, "sha256": "b13850b952c42fe26df2b34f6038be2039612cbbec7682b75dfd3effedc2f3f2"},
+    "ui/modules/apps/redfoxTowPortal/assets/images/records_history.jpg": {"bytes": 90060, "sha256": "954c49bb8b46012360f5cba35e96793d599fa9fcdfbffe276329ef8927531c84"},
+    "ui/modules/apps/redfoxTowPortal/assets/images/recovery_rollover.jpg": {"bytes": 157698, "sha256": "89d70f570e06165191eaa60923b127a670a3454cf9eefda571857e339bec3058"},
+    "ui/modules/apps/redfoxTowPortal/assets/images/tow_yard_inventory.jpg": {"bytes": 104748, "sha256": "f2b4b54f4d7211e77f16ede055910fb191c19eaac9cf29523efe734429582d11"},
+    "ui/modules/apps/redfoxTowPortal/assets/js/portal.js": {"bytes": 46617, "sha256": "8e24b5581334db3fa58a7d77c7005a19054a14f1d23b6c255b1db86cd82df4d2"},
+    "ui/modules/apps/redfoxTowPortal/portal.html": {"bytes": 39959, "sha256": "b65e15deba92185e78d7ff70bb13952d62ad479fd4d12f626e8a6ba3eb8827cf"}
+  }
+}
