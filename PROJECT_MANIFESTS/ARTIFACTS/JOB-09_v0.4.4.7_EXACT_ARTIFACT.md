@@ -2,10 +2,10 @@
 
 `19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_4_7_SpawnableItemGarageDeliveryPropFilesUntouchedRuntimeSlim.zip`
 
-- SHA-256: `b28308a2c64698d3197312be5e97bbfc6b776f0ad7e765f3858141eec7489c05`
-- Size: `891,611 bytes`
+- SHA-256: `970acf3070242cdd2aca34b28c74bf37bde4b7919eebe5304f66604a4f74fab2`
+- Size: `891,619 bytes`
 - ZIP entries: `16`
-- Uncompressed bytes: `1,465,331`
+- Uncompressed bytes: `1,465,364`
 - Status: static/package verification passed; BeamNG runtime untested
 
 ## Package boundary
