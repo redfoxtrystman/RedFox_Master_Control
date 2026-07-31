@@ -16,8 +16,12 @@ One screenshot record, `FP Crane Chains 2 rotatable chains`, is equipment rather
 
 - Local baseline commit: `ea81a9914a6f0697422d35edcc8df717e5c7c3f7`
 - Verified source commit: `1b4b1496f5e9e9e80627d8baa01dd56ce076f311`
-- Exact source patch SHA-256: `f6540f8fb61325c2cb6dc42854d7f1521f95e843fd89562f7e058f48c428a37f`
-- Exact source patch bytes: `68,338`
+- Exact source patch SHA-256: `b890974d333cecc2aad7fe2032306e30d6fec6d23326cc4ada8a24f97109af60`
+- Exact source patch bytes: `67,737`
+
+## Documentation correction
+
+The first source-verification commit recorded the wrong patch hash and byte count. That documentation-only error was caught before package creation and corrected here. The verified source commit, runtime files, tests and code were unchanged.
 
 ## Changed runtime files
 
