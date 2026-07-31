@@ -13,16 +13,16 @@ v0.4.4.6 incorrectly blocked spawnable equipment/props such as `FP Crane Chains 
 
 `19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_4_7_SpawnableItemGarageDeliveryPropFilesUntouchedRuntimeSlim.zip`
 
-- SHA-256: `b28308a2c64698d3197312be5e97bbfc6b776f0ad7e765f3858141eec7489c05`
-- ZIP bytes: `891,611`
+- SHA-256: `970acf3070242cdd2aca34b28c74bf37bde4b7919eebe5304f66604a4f74fab2`
+- ZIP bytes: `891,619`
 - ZIP entries: `16`
-- Uncompressed bytes: `1,465,331`
+- Uncompressed bytes: `1,465,364`
 
 ## Exact source lineage
 
 - Baseline source commit: `1b4b1496f5e9e9e80627d8baa01dd56ce076f311`
-- Verified source commit: `2ddfa48df383d66352ca79a10a39c07664b8e567`
-- Source patch SHA-256: `706581130f93b4cad932ce85f56b99a7efa6ea3018ef58fc0cc8ce924288cb4f`
+- Verified source commit: `840500b5e2c52c7c5f939afdda5367b7903f9128`
+- Source patch SHA-256: `6254dc73678bdee6be2ba276374ba3b0d391eda92eebab5f1cac7a4af0191f5c`
 
 ## Implemented
 
@@ -32,6 +32,7 @@ v0.4.4.6 incorrectly blocked spawnable equipment/props such as `FP Crane Chains 
 - Leaves the native spawn, `addVehicle`, garage placement and verification transaction authoritative.
 - Preserves existing pending-ID, rollback, duplicate-prevention and identity-conflict safeguards.
 - Removed real-world-title wording from the blocking message.
+- Corrected all package descriptions so they no longer claim equipment blocking.
 - Added no prop classification metadata.
 - Changed no prop, equipment, vehicle, JBeam or controller file.
 
