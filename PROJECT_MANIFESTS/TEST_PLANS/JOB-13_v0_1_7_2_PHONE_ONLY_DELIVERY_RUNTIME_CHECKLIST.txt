@@ -1,0 +1,16 @@
+JOB-13 v0.1.7.2 — SHORT TEST CHECKLIST
+
+1. Remove/disable every older JOB-13 ZIP.
+2. Install only v0.1.7.2 and fully restart BeamNG.
+3. Win one cheap auction vehicle.
+4. Confirm money is deducted once.
+5. Confirm the phone still opens after the purchase.
+6. Wait for delivery, then check the garage tile has an image.
+7. Retrieve/call the vehicle.
+8. Confirm there is no repeated ding/input loop.
+9. Enter the vehicle, exit it, then open the phone again.
+10. Confirm Escape/menu still opens.
+11. Travel to another garage and confirm its vehicle interface still works.
+12. Save, restart Career, and confirm the vehicle still exists with its image.
+
+Stop immediately and report the first failed step.
