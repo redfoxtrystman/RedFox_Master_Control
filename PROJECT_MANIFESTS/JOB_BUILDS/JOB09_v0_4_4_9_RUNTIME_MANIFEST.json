@@ -1,0 +1,58 @@
+{
+  "job": "JOB-09 — Tow / Recovery / Dispatch",
+  "version": "0.4.4.9",
+  "status": "BUILT — STATIC PASS — RUNTIME UNPROVEN",
+  "source": {
+    "filename": "19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_4_8_ChangeableOwnedGarageMapSelectorForceFullDeliveryRuntimeSlim.zip",
+    "bytes": 897747,
+    "sha256": "cdf7aebdaaeb47a8b8a61157eacdf27b249acf478a4fd5ad02dd0f4156f3006e"
+  },
+  "output": {
+    "filename": "19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_4_9_FullNativeLifecycleStoredVehicleRepairRuntimeSlim.zip",
+    "bytes": 908890,
+    "sha256": "5fe0f2be81a02f6cab49b83ad341d0fd5bd2624a43154ffe0ca6ebe35a6f36d1"
+  },
+  "sourcePatch": {
+    "filename": "JOB09_v0_4_4_9_EXACT_SOURCE.patch",
+    "bytes": 60598,
+    "sha256": "74d36ef6ef4445bfa07dd821c2998d3f300f466267efb250524b3f93cbca7ff7"
+  },
+  "archiveMemberCount": 16,
+  "changedFiles": [
+    "lua/ge/extensions/redfox/modules/redfox_tow_recovery_dispatch/redfox_module.json",
+    "lua/ge/extensions/redfoxTowRecoveryDispatch.lua",
+    "mod_info/redfox_tow_recovery_dispatch/info.json",
+    "ui/modules/apps/redfoxTowPortal/app.js",
+    "ui/modules/apps/redfoxTowPortal/app.json",
+    "ui/modules/apps/redfoxTowPortal/assets/css/portal.css",
+    "ui/modules/apps/redfoxTowPortal/assets/js/portal.js",
+    "ui/modules/apps/redfoxTowPortal/portal.html"
+  ],
+  "unchangedFileCount": 8,
+  "staticVerification": {
+    "zipIntegrity": "PASS",
+    "luaParse": "PASS via texlua loadfile",
+    "javascriptSyntax": "PASS via node --check (app.js, portal.js)",
+    "jsonParse": "PASS (4 JSON files)",
+    "memberParityWithSource": "PASS (same 16 runtime files)",
+    "forbiddenCareerOverridePaths": "NONE",
+    "junkOrBackupFiles": "NONE"
+  },
+  "features": [
+    "full live-vehicle snapshot before abandoned/unpaid custody finalization",
+    "full configuration, paints, plate, mileage and part-condition preservation for new lien records",
+    "event-driven native parts/insurance/thumbnail lifecycle instead of fixed one-second completion",
+    "two-stage save and read-back verification before Tow Company source deletion",
+    "in-place same-inventory-ID repair for previously partial RedFox vehicles",
+    "valid uninsured registration and generated Career thumbnail",
+    "cache-busted Tow Portal assets"
+  ],
+  "knownRuntimeRisks": [
+    "RLS lifecycle hooks are asynchronous and require in-game proof",
+    "older source records cannot recover details that were never captured",
+    "malformed third-party vehicle metadata may still interfere with global configuration scans",
+    "repair failure preserves the record for review but may require selling it on the disposable test save"
+  ],
+  "runtimeTestChecklist": "PROJECT_MANIFESTS/JOB_TESTS/JOB-09_v0.4.4.9_FOCUSED_RUNTIME_TEST_CHECKLIST.md",
+  "masterHelpDraft": "PROJECT_MANIFESTS/MASTER_HELP/REDFOX_MASTER_HELP_NATIVE_VEHICLES_AND_NO_LAG_DRAFT.md"
+}
