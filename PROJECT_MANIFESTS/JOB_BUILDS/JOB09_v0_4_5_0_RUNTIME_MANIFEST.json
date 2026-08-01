@@ -1,0 +1,59 @@
+{
+  "job": "JOB-09 — Tow / Recovery / Dispatch",
+  "version": "0.4.5.0",
+  "status": "BUILT — STATIC PASS — RUNTIME UNPROVEN",
+  "source": {
+    "filename": "19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_4_9_FullNativeLifecycleStoredVehicleRepairRuntimeSlim.zip",
+    "bytes": 908890,
+    "sha256": "5fe0f2be81a02f6cab49b83ad341d0fd5bd2624a43154ffe0ca6ebe35a6f36d1"
+  },
+  "output": {
+    "filename": "19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_5_0_NativeRepoGenerationPurchaseFinalizationRuntimeSlim.zip",
+    "bytes": 904138,
+    "sha256": "fce8acd452f03eb807caf1e1fab070e270c9a3263506a55aff97f5cffc76afef"
+  },
+  "sourcePatch": {
+    "filename": "JOB09_v0_4_5_0_EXACT_SOURCE.patch",
+    "bytes": 65073,
+    "sha256": "a2c2c9f387b71a445d7f4b841dc10e07728741577554defca79bb9aceb0b8039"
+  },
+  "archiveMemberCount": 16,
+  "changedFiles": [
+    "lua/ge/extensions/redfox/modules/redfox_tow_recovery_dispatch/redfox_module.json",
+    "lua/ge/extensions/redfoxTowRecoveryDispatch.lua",
+    "mod_info/redfox_tow_recovery_dispatch/info.json",
+    "ui/modules/apps/redfoxTowPortal/app.json",
+    "ui/modules/apps/redfoxTowPortal/assets/css/portal.css",
+    "ui/modules/apps/redfoxTowPortal/assets/js/portal.js"
+  ],
+  "unchangedFileCount": 10,
+  "staticVerification": {
+    "zipIntegrity": "PASS",
+    "luaParse": "PASS via liblua5.4 luaL_loadfilex (main extension and modScript)",
+    "javascriptSyntax": "PASS via node --check (app.js, portal.js)",
+    "jsonParse": "PASS (4 JSON files)",
+    "memberParityWithSource": "PASS (same 16 runtime paths)",
+    "duplicateArchiveMembers": "NONE",
+    "forbiddenCareerOverridePaths": "NONE",
+    "junkOrBackupFiles": "NONE"
+  },
+  "features": [
+    "native RLS repo-style weighted selection from installed eligible vehicle configurations",
+    "exact live tow-state snapshot retained at invoice/custody completion",
+    "actual spawned vehicle passed to career_modules_inventory.addVehicle",
+    "native partInventory and vehicleShopping finalization used for originalParts and changedSlots",
+    "native insurance inventory-added hook used for valid uninsured registration",
+    "same inventory ID moved to the linked purchased RLS garage",
+    "two save/read-back verification stages before Tow Company source deletion",
+    "v0.4.4.9 stored-vehicle repair control intentionally excluded"
+  ],
+  "knownRuntimeRisks": [
+    "RLS native lifecycle hooks and callback ordering require in-game proof",
+    "the current RLS vehicle-shopping finalizer stores purchase context in private Lua upvalues; JOB-09 assigns and clears an isolated zero-cost Tow context and fails safely when unavailable",
+    "native thumbnails may use a configuration preview whose paint differs from the actual saved car",
+    "malformed or manipulated third-party map/vehicle files can cause unrelated errors and should be excluded from the West Coast baseline test",
+    "legacy partial inventory records are not repaired by this build"
+  ],
+  "runtimeTestChecklist": "JOB-09_v0.4.5.0_FOCUSED_RUNTIME_TEST_CHECKLIST.md",
+  "masterHelpStatus": "DRAFT — do not promote until runtime PASS"
+}
