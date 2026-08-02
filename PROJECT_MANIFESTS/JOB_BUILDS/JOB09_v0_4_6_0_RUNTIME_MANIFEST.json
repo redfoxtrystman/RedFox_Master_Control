@@ -1,0 +1,36 @@
+{
+  "job": "JOB-09 — RedFox Tow / Recovery / Dispatch",
+  "version": "0.4.6.0",
+  "build": "Unified public customer site + company portal + immediate native Career claim",
+  "source_version": "0.4.5.1",
+  "archive": "19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_6_0_UnifiedPublicCompanyImmediateNativeCareerClaimRuntimeSlim.zip",
+  "archive_sha256": "1641ba350b6c90e2fb65a9938c35dba51eba889495d9ff1321810a9f0e854ce8",
+  "runtime_file_count": 16,
+  "duplicate_zip_paths": [],
+  "architecture": {
+    "owner": "JOB-09 owns the Tow public website, customer request flow, and company operations portal",
+    "browser_core_role": "JOB-01 may host/link the site but does not own JOB-09 business logic",
+    "claim_behavior": "A successful lien claim immediately creates one native Career/RLS inventory vehicle in the exact linked owned garage and retains a RedFox company asset record referencing the same inventory ID",
+    "failure_behavior": "Before final commit, failures remove the temporary native vehicle, preserve custody, and take no acquisition charge; unresolved native conflicts are locked to prevent duplication",
+    "public_site": "Tow My Current Vehicle and Dispatch Selected Service actions are wired to JOB-09 game actions",
+    "company_portal": [
+      "overview",
+      "dispatch",
+      "scene manager",
+      "records",
+      "custody and company assets",
+      "fleet",
+      "yard links/upgrades",
+      "invoices",
+      "settings"
+    ]
+  },
+  "static_validation": {
+    "zip_integrity": "passed",
+    "lua_loadfile_syntax": "passed via luatex --luaonly",
+    "javascript_syntax": "passed via node --check",
+    "json_parse": "passed",
+    "cache_tokens": "0460",
+    "runtime_status": "unproven until BeamNG test"
+  }
+}
