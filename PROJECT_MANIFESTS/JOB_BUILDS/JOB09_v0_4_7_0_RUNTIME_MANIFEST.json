@@ -1,0 +1,52 @@
+{
+  "job": "JOB-09 — Tow / Recovery / Dispatch",
+  "version": "0.4.7.0",
+  "filename": "19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_7_0_FullTowCompanyWebsitePhotoAlbumWorkingDropdownsRuntimeSlim.zip",
+  "sha256": "44e85a1af3efbad9cf5159d0449a4c51a286ea05930394079dfcf910984cf6e8",
+  "bytes": 3063227,
+  "archiveMembers": 60,
+  "replaceablePhotoCount": 41,
+  "photoFolder": "ui/modules/apps/redfoxTowPortal/assets/images/site_photos/",
+  "cacheToken": "0470",
+  "baseBuild": "0.4.6.0",
+  "nativeLifecycleContractMarker": "0.4.6.0 (intentionally preserved; visual/web expansion does not revise lifecycle contract)",
+  "staticChecks": {
+    "zipIntegrity": "PASS",
+    "javascriptSyntax": "PASS",
+    "jsonParsing": "PASS",
+    "htmlParsing": "PASS",
+    "duplicateHtmlIds": "PASS",
+    "photoReferences": "PASS",
+    "dropdownFrontLayer": "PASS",
+    "runtime": "UNPROVEN"
+  },
+  "publicPages": [
+    "Home",
+    "About",
+    "Services",
+    "Fleet",
+    "Locations",
+    "Gallery",
+    "Reviews",
+    "FAQ",
+    "News",
+    "Shop",
+    "Cart",
+    "Contact"
+  ],
+  "companyPortalPreserved": [
+    "Overview",
+    "Dispatch",
+    "Scene Manager",
+    "Records",
+    "Tow Yard Inventory",
+    "Career Company Assets",
+    "Fleet",
+    "Yards",
+    "Invoices",
+    "Settings",
+    "Post-Tow Summary",
+    "Garage Picker",
+    "Native Claim Modal"
+  ]
+}
