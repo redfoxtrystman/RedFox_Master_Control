@@ -1,0 +1,63 @@
+{
+  "job": "JOB-09 — RedFox Tow / Recovery / Dispatch",
+  "version": "0.4.5.1",
+  "buildStatus": "STATIC_VALIDATION_PASSED_RUNTIME_UNPROVEN",
+  "builtAt": "2026-08-02T12:17:00-07:00",
+  "sourceArchive": {
+    "name": "19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_5_0_NativeRepoGenerationPurchaseFinalizationRuntimeSlim.zip",
+    "sha256": "fce8acd452f03eb807caf1e1fab070e270c9a3263506a55aff97f5cffc76afef"
+  },
+  "outputArchive": {
+    "name": "19-JOB-09-RedFox_TowRecoveryDispatch_v0_4_5_1_ContinueTransferRecoveryTowSummaryNativeInsuranceRuntimeSlim.zip",
+    "sha256": "1fdd8076bbcd8901c8fe6d50a93b71e6399a416f41e9444b3936a11c7c0ffdd3",
+    "size": 911553
+  },
+  "runtimeFileCount": 16,
+  "features": [
+    "Fresh cache-busted Tow Portal 0.4.5.1 iframe, CSS, and JavaScript",
+    "Explicit custody-to-Tow-Company confirmation dialog",
+    "Continue Transfer aliases routed to one idempotent server action",
+    "Stale claimPending self-heal when no real Career inventory conflict exists",
+    "Every transfer failure returns a visible reason and retry state",
+    "Eight-second browser timeout prevents a permanently frozen Continue button",
+    "Post-tow full-screen completion summary with payment, BeamXP, labourer XP, vehicle, payer, destination, and distances",
+    "Native RLS insurance chooser after verified linked-garage ownership delivery",
+    "Native repo-style generation and native purchase finalization retained from 0.4.5.0",
+    "No stored-vehicle repair utility included"
+  ],
+  "staticChecks": {
+    "zipIntegrity": "PASS",
+    "javascriptNodeCheck": "PASS",
+    "luaParseLuaTeX": "PASS",
+    "jsonParse": "PASS",
+    "duplicateHtmlIds": "PASS",
+    "duplicateZipPaths": "PASS",
+    "staleVersionAndCacheTokens": "PASS",
+    "stockOrRlsOverridesAdded": "NO"
+  },
+  "runtimeTestsRequired": [
+    "Continue an eligible custody transfer and verify exactly one Tow Company Garage record",
+    "Verify one acquisition charge and idempotent repeat click",
+    "Deliver the company record to a linked owned RLS garage",
+    "Verify native inventory, insurance chooser, save/reload, and part swapping",
+    "Complete a new paid or unpaid tow and verify the completion summary opens"
+  ],
+  "files": [
+    {"path":"lua/ge/extensions/core/input/actions/redfox_tow_recovery_dispatch.json","size":2048,"sha256":"80162722013b2f58c9eb259c74f26eb1d1ae929d8d23ceb559b247de02b9bb0f"},
+    {"path":"lua/ge/extensions/redfox/modules/redfox_tow_recovery_dispatch/redfox_module.json","size":3042,"sha256":"bff3af103391f06994a823216bed62bd053679ee0075fc2670c773b8815164d3"},
+    {"path":"lua/ge/extensions/redfoxTowRecoveryDispatch.lua","size":619962,"sha256":"cb5bb77cb64b8c72c07f733f543920c6f80b3b23ebcc0bbdec0a03c611cca581"},
+    {"path":"mod_info/redfox_tow_recovery_dispatch/info.json","size":433,"sha256":"2492c4f9dbd5949b17b2d74d0c9890ec8040546e226087c225df9d9e4d08f428"},
+    {"path":"scripts/redfox_tow_recovery_dispatch/modScript.lua","size":339,"sha256":"d93ab5d84f2aab80244a731a5cf8fb97dbd5f7c061ff90c795e3ff9de7053a82"},
+    {"path":"ui/modules/apps/redfoxTowPortal/app.js","size":2533,"sha256":"f24751568a374f6b99a86be8dd78ab96bb27395ef0ee8ffc687cd349a22c5a88"},
+    {"path":"ui/modules/apps/redfoxTowPortal/app.json","size":666,"sha256":"f1da95dd6ca721d99ce2b92da87f009d6964bd08e07a3ceff265c46f56baa6c2"},
+    {"path":"ui/modules/apps/redfoxTowPortal/app.png","size":38207,"sha256":"f0bfc4eb1a89d3534a38bd823331cd4586026079cfa8882cea21905176a9cebf"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/css/portal.css","size":56743,"sha256":"3c9b85850104256fdb5580657d432abef470d4ceabeb460e253c12ba11b29837"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/images/company_fleet.jpg","size":123365,"sha256":"dfbce11fbcf6fe01c7513d25580c1a74ec4eaab22662b992569a6a74527d303c"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/images/hero_tow.jpg","size":232486,"sha256":"b13850b952c42fe26df2b34f6038be2039612cbbec7682b75dfd3effedc2f3f2"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/images/records_history.jpg","size":90060,"sha256":"954c49bb8b46012360f5cba35e96793d599fa9fcdfbffe276329ef8927531c84"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/images/recovery_rollover.jpg","size":157698,"sha256":"89d70f570e06165191eaa60923b127a670a3454cf9eefda571857e339bec3058"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/images/tow_yard_inventory.jpg","size":104748,"sha256":"f2b4b54f4d7211e77f16ede055910fb191c19eaac9cf29523efe734429582d11"},
+    {"path":"ui/modules/apps/redfoxTowPortal/assets/js/portal.js","size":67059,"sha256":"dbfca2af4e03bfeee83e706af7fae0563102c1eb20c8a77757727a11ab646644"},
+    {"path":"ui/modules/apps/redfoxTowPortal/portal.html","size":44176,"sha256":"ac350ba485099e74a2c5080556afcb01dc29c955e7137b6abf286f027ce07b78"}
+  ]
+}
