@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://redfox.local/schemas/redfox_vehicle_acquisition_origin_v1.schema.json",
+  "title": "RedFox Vehicle Acquisition Origin v1",
+  "description": "Append-only origin metadata for a real Career/RLS inventory vehicle. This augments, but does not replace, native Career/RLS inventory records.",
+  "type": "object",
+  "required": [
+    "schema",
+    "version",
+    "inventoryId",
+    "acquisitionMethod",
+    "recordedBy"
+  ],
+  "properties": {
+    "schema": {
+      "const": "redfox.vehicle.acquisition_origin.v1"
+    },
+    "version": {
+      "const": 1
+    },
+    "inventoryId": {
+      "oneOf": [
+        { "type": "integer" },
+        { "type": "string", "minLength": 1 }
+      ]
+    },
+    "acquisitionMethod": {
+      "type": "string",
+      "enum": [
+        "dealership_purchase",
+        "shop_purchase",
+        "foxnet_auction_win",
+        "classic_collector_purchase",
+        "wrecking_yard_purchase",
+        "tow_lien_claim",
+        "found_vehicle_crate",
+        "spawned_then_claimed",
+        "prize_or_competition_win",
+        "gift",
+        "import",
+        "unknown_legacy"
+      ]
+    },
+    "sourceJob": {
+      "type": ["string", "null"]
+    },
+    "sourceSite": {
+      "type": ["string", "null"]
+    },
+    "sourceRecordId": {
+      "type": ["string", "integer", "null"]
+    },
+    "sourceTransactionId": {
+      "type": ["string", "integer", "null"]
+    },
+    "sourceListingId": {
+      "type": ["string", "integer", "null"]
+    },
+    "mapId": {
+      "type": ["string", "null"]
+    },
+    "locationName": {
+      "type": ["string", "null"]
+    },
+    "worldPosition": {
+      "type": ["object", "null"],
+      "required": ["x", "y", "z"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "z": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "pricePaid": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "prizeValue": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "career_money"
+    },
+    "inGameDay": {
+      "type": ["integer", "string", "null"]
+    },
+    "inGameTimestamp": {
+      "type": ["string", "number", "null"]
+    },
+    "recordedBy": {
+      "type": "string",
+      "description": "Extension/job that wrote the origin record."
+    },
+    "recordedAtRealTime": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "notes": {
+      "type": ["string", "null"]
+    }
+  },
+  "additionalProperties": false
+}
