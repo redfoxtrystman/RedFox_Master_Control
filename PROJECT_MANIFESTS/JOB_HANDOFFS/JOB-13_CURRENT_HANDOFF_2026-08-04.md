@@ -2,45 +2,27 @@
 
 ## Authoritative recovery handoff
 
-**Updated:** 2026-08-04
+**Updated:** 2026-08-05
 **Branch:** `job13-online-auctions`
 **Primary issue:** #40 `[JOB-13] CLAIMED — FoxNet Online Vehicle Auctions`
 
-This file is the current authoritative handoff if the active ChatGPT conversation ends. Do not rename, merge, or move JOB-13 into another job.
+This is the current authoritative handoff if the active ChatGPT conversation ends. Do not rename, merge, or move JOB-13 into another job.
 
 ---
 
 ## 1. Latest build awaiting runtime testing
 
-**ZIP:** `RedFox_JOB13_FoxNet_Online_Auctions_v0_1_9_1_RECOVERY_FILTERS_CALMER_NPCS_MULTI_CONSIGNMENTS.zip`
+**ZIP:** `RedFox_JOB13_FoxNet_Online_Auctions_v0_1_9_4_SINGLE_STATE_PAYMENT_RECOVERY.zip`
 
-**SHA-256:** `178648f5b3b4588ba76350e53e9954c0aab979b4db5b9ef73149b17aac170ff7`
+**SHA-256:** `285b741b26f30e7eb00011f695e035394d5b65af346249599f2f66251f8ccd12`
 
-**Base:** v0.1.9.0, SHA-256 `58debecc1e7c2eb2257dcbb9d70e7c7265090063276159ebfa6129c10fbfefa0`
+**Base:** v0.1.9.3, SHA-256 `c132416b2f654cdce7483a83bf44b7eddccb1e5a0b03784a93990a47a97a342c`
 
-v0.1.9.1 passed static triple verification. It is **not BeamNG-runtime-proven** until the user tests this exact ZIP.
+v0.1.9.4 passed all three static verification gates and fresh-extraction verification. It is **not BeamNG-runtime-proven** until the user tests the exact ZIP.
 
-### v0.1.9.0 runtime result
+### Important reset decision
 
-Partial pass:
-
-- bank-backed buying power appeared functional;
-- varied vehicles worked;
-- player seller screen worked;
-- starting bid and private reserve worked;
-- player vehicle entered the next auction;
-- reserve-not-met behavior appeared on the listing.
-
-Runtime failures/defects:
-
-- auction state did not restore after Career/game reload;
-- both native dropdowns still failed in BeamNG CEF;
-- NPC bidding was too aggressive on too many lots;
-- seller screen needed clearer current RLS market value;
-- one-vehicle consignment limit was rejected by the user;
-- recent Wrecking Yard purchases could show `Unknown / legacy record`.
-
-Do not tell the user to keep testing v0.1.9.0 recovery.
+v0.1.9.4 uses a new `auction_state_v0194.json` and intentionally does not import v0.1.9.3 active lots, timers, bids, or prepared auctions because v0.1.9.1–v0.1.9.3 could produce cloned/split timelines. Account profile, purchase/sale ledger, and active seller consignments remain separate and may be preserved.
 
 ---
 
@@ -50,212 +32,217 @@ The user has proved:
 
 - JOB-04 Wrecking Yard, JOB-09 Tow, and JOB-13 Auction remain separate ZIPs.
 - The shared FoxNet Welcome Page routes to JOB-13's unique Auction path.
-- PC and phone open the same JOB-13 website.
+- PC and phone can open the same JOB-13 website.
 - Auction purchases can enter Career inventory.
 - Wrecking Yard purchases continue working beside JOB-13.
 - Tow website is operational.
-- Different installed/modded vehicles can appear.
-- Player consignments and reserve UI can be created.
+- Different installed/modded vehicles appear.
+- Player consignments, starting bids, and private reserves can be created.
+- Bank-backed buying power appeared functional in prior testing.
 
 Known runtime-safe Wrecking Yard route base:
 
 `zzzz_RedFox_FoxNet_JOB-04_Wrecking-Yard_2026-08-01_v0_3_2_3_1_AUCTION_ROUTE_TO_JOB13.zip`
 
-Do not combine the jobs and do not modify JOB-04 or JOB-09 for v0.1.9.1 testing.
+Do not combine the jobs and do not modify JOB-04 or JOB-09 while testing v0.1.9.4.
 
 ---
 
-## 3. v0.1.9.1 changes
+## 3. Why v0.1.9.1–v0.1.9.3 were rejected
 
-### 3.1 Recovery-first repair
+User testing showed:
 
-v0.1.9.0 stored recovery state in a global settings path and used strict catalog validation. A written snapshot could be discarded and replaced with a new market when the current catalog differed.
+- almost every Auction webpage reload could change timers or show a different timeline;
+- lots could restart near 30 minutes, jump forward, or appear already sold;
+- PC/phone were not the root cause—the reload itself was enough;
+- recurring Lua bridge disconnect warnings appeared;
+- old auctions could be loaded as new clones while a new auction was also generated;
+- the next auction sometimes did not auto-start;
+- unresolved wins could be difficult to pay;
+- repeated completion clicks duplicated a won vehicle;
+- some purchased records existed without the vehicle being accessible;
+- v0.1.9.1 recovery was unsafe and testing was stopped.
 
-v0.1.9.1 now stores state per active Career save:
-
-- `<currentSavePath>/career/rls_career/redfox_job13/auction_state_v0191.json`
-- `<currentSavePath>/career/rls_career/redfox_job13/account_profile_v2.json`
-- `<currentSavePath>/career/rls_career/redfox_job13/auction_ledger_v2.json`
-
-The old global v0.1.9.0 files are read only as a one-time migration fallback.
-
-Recovery validation is structural. It verifies that the snapshot contains usable lots and times instead of rejecting the whole auction because the installed catalog changed.
-
-Every completed snapshot is immediately read back and the snapshot serial is verified. Failure keeps the state dirty and logs the exact path.
-
-Lifecycle coverage includes:
-
-- extension load after a Career save path is available;
-- Career activation/modules activation;
-- save-slot selection/change;
-- Career save-slot commit;
-- Career deactivation;
-- clean extension unload.
-
-On restore, active and future lot times shift by offline duration so the auction freezes while the game is closed.
-
-### 3.2 Save-frequency rules preserved
-
-- Full auction snapshot every 30 seconds only while active and dirty.
-- No recurring idle writes.
-- NPC bids mark state dirty; they do not force a full save.
-- Player bids/cancellations do not each force a full snapshot.
-- Critical boundaries may save immediately: lot close, purchase, sale, delivery, save-slot commit, clean deactivation/unload.
-- Catalog cache is not rewritten with each auction snapshot.
-
-### 3.3 Dropdown repair
-
-The two native HTML `<select>` controls were removed from the main Auction filters. BeamNG CEF-safe custom button menus now handle:
-
-- vehicle/category filter;
-- ending soon;
-- current price low-to-high;
-- current price high-to-low;
-- lot number.
-
-The saved-search category selector also uses the custom menu system.
-
-### 3.4 Calmer NPC bidding
-
-Defaults now target varied activity rather than a fight on nearly every vehicle:
-
-- minimum bidders: 0;
-- maximum bidders: 3;
-- no-bid chance: 35%;
-- aggression: 35%;
-- early bidding: 12%;
-- substantially longer bid delays;
-- player bids only sometimes wake NPCs immediately;
-- rare hot lots may still produce larger contests.
-
-Exact old v0.1.9.0 default settings migrate automatically to the calmer profile. Intentional custom settings remain preserved.
-
-### 3.5 Seller screen and multiple consignments
-
-Seller cards now show:
-
-- current RLS market value;
-- suggested opening bid;
-- suggested reserve;
-- acquisition source and original price when known.
-
-The fixed one-car consignment limit is removed. Each exact Career inventory ID is independently locked. Seller vehicles fill generated slots in future groups of ten; extra vehicles spill into later prepared groups rather than being rejected.
-
-### 3.6 Wrecking Yard acquisition lookup
-
-JOB-13 reads `settings/redfox/career_web_state.json` read-only and matches `scrapYardPurchases` by exact Career inventory ID. When that record exists, seller UI can show:
-
-- `RedFox Wrecking Yard`;
-- original price;
-- purchase date/reference.
-
-JOB-04 was not modified. Older purchases that were never recorded with the exact inventory ID may still remain unknown.
+Do not tell the user to test v0.1.9.1, v0.1.9.2, or v0.1.9.3 again.
 
 ---
 
-## 4. Existing features to preserve and re-test
+## 4. v0.1.9.4 single-state architecture
 
-- wallet plus eligible personal bank buying power;
-- purchase settlement and garage delivery;
-- PC and phone routes;
-- membership/watchlist/max-bid persistence;
-- stable Fox Facts and bid history;
-- varied installed/mod vehicle catalog;
-- player seller reserve behavior;
-- purchased/sold/no-sale records;
-- exact inventory ID safety;
-- no full catalog scan at Career startup/page open.
+The user explicitly warned against multiple or redundant save-state systems. v0.1.9.4 therefore enforces:
 
-Vehicle photo management remains owned by Dev Manager. JOB-13 should consume Career thumbnails.
+- exactly one Lua table owns current auction, prepared next auction, bids, timers, consignments, pending wins, and settlement markers;
+- exactly one Lua function writes active auction state;
+- exactly one code path writes the active auction state file;
+- exactly one low-level clock restore implementation;
+- every restore request passes through one guarded recovery gate;
+- repeated Career activation callbacks use `pauseGeneration` / `resumeGeneration` and cannot restore the same freeze twice;
+- re-entrant save requests are coalesced through the same writer;
+- extension unload, webpage reload, PC/phone switching, and bridge reconnect do not save, pause, restore, reroll, rotate, or generate auctions;
+- process-memory reconnect returns the existing live state only;
+- disk recovery occurs only through Career lifecycle startup/reactivation.
+
+Separate account-profile and transaction-ledger files are retained, but they do not own or modify active lots, bids, timers, or prepared auction contents.
+
+### Save policy
+
+- current and next auction snapshot at start/critical transitions;
+- 30-second freeze snapshot while an auction is active;
+- no full state write on every NPC bid;
+- no page-reload save;
+- immediate save for seller consignment, delivery claim, lot transition, purchase/sale settlement, and Career lifecycle boundaries;
+- last written snapshot is read back and serial-verified.
 
 ---
 
-## 5. Triple verification
+## 5. Payment Pending and duplication recovery
+
+v0.1.9.4 adds payment controls to both:
+
+- `Bought Vehicles`
+- `Invoices`
+
+Both call the same idempotent Lua action.
+
+Behavior:
+
+- a saved purchase invoice can reconstruct a missing pending lot;
+- if no Career vehicle exists, one saved delivery claim must verify before spawn;
+- if a vehicle already exists with `job13AuctionPendingKey`, JOB-13 finalizes payment on that exact inventory vehicle and does not spawn another;
+- `job13AuctionDeliveryKey`, `completedDeliveryKeys`, and `deliveryClaims` block duplicate delivery;
+- payment gets its own saved `charging` lock before money is deducted;
+- if a crash occurs while payment completion is uncertain, JOB-13 stops with verification required rather than charging or spawning again;
+- repeated Pay/Complete clicks share one browser action lock and one Lua settlement path.
+
+Existing duplicates created by old builds are not automatically deleted.
+
+---
+
+## 6. Retained feature scope
+
+v0.1.9.4 retains:
+
+- automatic next-auction transition after a one-minute intermission;
+- unresolved wins under My Bids/pending purchases;
+- next-auction reminder;
+- explicit Add/Remove Watchlist button in vehicle details;
+- player consignments saved immediately and placed in early available prepared slots;
+- multiple consignments;
+- private reserve prices;
+- current RLS value/suggested seller pricing from v0.1.9.1;
+- calmer NPC settings;
+- custom BeamNG-safe dropdown menus;
+- wallet plus eligible personal-bank buying power;
+- purchase/sale/no-sale records;
+- PC iframe/page scrolling;
+- current/next vehicle groups protected from webpage rerolling.
+
+JOB-09 `Send to Auction` is not connected yet. JOB-13 must first pass standalone seller/runtime tests.
+
+Vehicle-photo management remains owned by Dev Manager. JOB-13 consumes Career thumbnails.
+
+---
+
+## 7. Triple verification result
 
 ### Gate 1 — before editing
 
 PASS:
 
-- exact v0.1.9.0 ZIP and SHA verified;
+- exact v0.1.9.3 base and SHA verified;
+- ZIP integrity passed;
 - 19 files;
-- zero duplicate paths;
-- zero unsafe paths;
-- JOB-04, JOB-09, and shared FoxNet protected.
+- zero duplicate/unsafe paths;
+- JOB-04, JOB-09, and shared FoxNet protected;
+- scope locked before editing.
 
 ### Gate 2 — after editing
 
 PASS:
 
-- 12 JOB-13 files changed;
-- no files added or removed;
+- 11 approved JOB-13 files changed;
+- no files added/removed;
 - all JSON parsed;
 - all JavaScript passed `node --check`;
-- all Lua files compiled through Lua 5.4 syntax loading;
-- three JOB-13 HTML mirrors are byte-identical;
-- custom menus present and native main dropdowns absent;
-- per-Career state paths and lifecycle hooks present;
-- snapshot write/readback verification present;
-- no fixed consignment limit;
-- calmer NPC defaults present;
-- no JOB-04/JOB-09 files included.
-
-The pre-edit scope was expanded only to JOB-13 app-shell/cache metadata so BeamNG CEF does not retain v0.1.9.0 UI. No shared file was changed.
+- all Lua parsed through Lua 5.4;
+- three Auction route HTML copies are byte-identical;
+- zero duplicate HTML IDs;
+- one state writer/write path and one recovery gate verified;
+- webpage/bridge reload is display-only;
+- delivery/payment locks save before spawn/charge;
+- Bought/Invoices share one payment action;
+- unsafe v0.1.9.3 active lots are not migrated.
 
 ### Gate 3 — after ZIP creation
 
 PASS:
 
-- ZIP CRC/integrity;
+- ZIP integrity/CRC;
+- 19 files;
 - zero duplicate/unsafe paths;
-- fresh extraction file list and every SHA-256 matched edited tree.
+- fresh extraction matched edited source byte-for-byte;
+- all syntax and structural checks reran successfully;
+- final SHA-256 manifest generated.
 
 Artifacts:
 
-- `JOB-13_v0_1_9_1_PRE_EDIT_BASELINE.txt`
-- `JOB-13_v0_1_9_1_TRIPLE_VERIFICATION_AUDIT.md`
-- `JOB-13_v0_1_9_1_FILE_MANIFEST_SHA256.csv`
-- `JOB-13_v0_1_9_1_TEST_CHECKLIST.txt`
+- `JOB-13_v0_1_9_4_PRE_EDIT_VERIFICATION.txt`
+- `JOB-13_v0_1_9_4_AFTER_EDIT_VERIFICATION.md`
+- `JOB-13_v0_1_9_4_STATIC_VERIFICATION.txt`
+- `JOB-13_v0_1_9_4_POST_ZIP_VERIFICATION.txt`
+- `JOB-13_v0_1_9_4_TRIPLE_VERIFICATION_AUDIT.md`
+- `JOB-13_v0_1_9_4_FILE_MANIFEST_SHA256.csv`
+- `JOB-13_v0_1_9_4_TEST_CHECKLIST.txt`
+- `JOB-13_v0_1_9_3_to_v0_1_9_4_FINAL.diff`
 
 Static verification is not runtime proof.
 
 ---
 
-## 6. Exact next runtime test order
+## 8. Exact next runtime test order
 
-Install only v0.1.9.1 for JOB-13. Disable all older JOB-13 ZIPs. Keep current JOB-04 and JOB-09 ZIPs unchanged. Fully restart BeamNG.
+Install only v0.1.9.4 for JOB-13. Disable all older JOB-13 ZIPs. Keep current JOB-04 and JOB-09 ZIPs unchanged. Fully restart BeamNG.
 
-### Recovery must be tested first
+### Test 1 — reload consistency first
 
-1. Open Auction from PC.
-2. Place one inexpensive bid and set a confidential maximum.
-3. Record auction number, lot number, visible bid, maximum, and remaining time.
-4. Wait at least 35 seconds.
-5. Close BeamNG normally, restart, and reopen the same Career save.
-6. Confirm exact same auction/lot, bid, maximum, bid history, and frozen/resumed timer.
-7. Confirm one-time `Interrupted auction restored` notice.
+1. Open Auction and record auction number, three lots, bids, and timers.
+2. Reload/open the page at least five times on the same device.
+3. Switch PC/phone twice.
+4. Confirm the same auction continues without restarting, jumping, selling, or cloning.
 
-If any part fails, stop testing and report it before testing other features.
+If this fails, stop immediately.
 
-### After recovery passes
+### Test 2 — recovery
 
-8. Test category and all four sort menu choices.
-9. Observe multiple lots: some quiet/no-bid, some moderate, rare bidding fights.
-10. Confirm seller cards show current RLS value and suggestions.
-11. Submit two or three vehicles and confirm no fixed one-car limit.
-12. Check a recent Wrecking Yard vehicle for source/original price.
-13. Confirm PC/phone purchases still deliver once and money is deducted once.
+1. Place one bid and confidential maximum.
+2. Wait at least 35 seconds.
+3. close BeamNG normally and reload the same Career save.
+4. Confirm one restored timeline with the same bid and approximately saved remaining time.
 
-Stop immediately if money duplicates, a vehicle duplicates/disappears, phone/PC locks, or Career becomes stuck.
+### Test 3 — auto next
+
+Let the auction finish or use the developer finish control once. Confirm the prepared next auction starts automatically after the intermission.
+
+### Test 4 — pending payment
+
+Use Bought Vehicles or Invoices to pay one Payment Pending purchase. Confirm one charge and one vehicle. Clicking again after refresh must report already delivered/in progress and must not duplicate or charge twice.
+
+### Test 5 — watch/reminder/scroll/seller priority
+
+Confirm Add to Watchlist, next-auction reminder, full PC scrolling, and early prepared placement of one test consignment.
+
+Stop immediately if money charges twice, a vehicle duplicates/disappears, page reload changes state, or the bridge repeatedly disconnects.
 
 ---
 
-## 7. Protected rules
+## 9. Protected rules
 
 - Never claim runtime success before exact-ZIP user testing.
 - Keep JOB-04, JOB-09, and JOB-13 separate.
 - Do not edit shared FoxNet/browser files without permission.
-- Do not spam saves.
+- Do not add a second auction-state writer or recovery system.
+- Do not restore auction state from webpage/bridge load.
 - Do not scan the full catalog at Career startup/page open.
-- Use exact Career inventory IDs for custody and settlement.
-- Never create a permanent duplicate vehicle.
+- Use exact Career inventory IDs and stable delivery keys.
+- Never knowingly charge or deliver twice.
 - Keep GitHub handoff and issue #40 current after every test.
