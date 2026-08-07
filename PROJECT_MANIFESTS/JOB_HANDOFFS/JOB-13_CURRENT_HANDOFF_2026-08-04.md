@@ -2,7 +2,7 @@
 
 ## Authoritative recovery handoff
 
-**Updated:** 2026-08-05
+**Updated:** 2026-08-07
 **Branch:** `job13-online-auctions`
 **Primary issue:** #40 `[JOB-13] CLAIMED — FoxNet Online Vehicle Auctions`
 
@@ -12,237 +12,159 @@ This is the current authoritative handoff if the active ChatGPT conversation end
 
 ## 1. Latest build awaiting runtime testing
 
-**ZIP:** `RedFox_JOB13_FoxNet_Online_Auctions_v0_1_9_4_SINGLE_STATE_PAYMENT_RECOVERY.zip`
+**ZIP:** `RedFox_JOB13_FoxNet_Online_Auctions_v0_1_9_5_SAVE_ISOLATION_SINGLE_OWNER.zip`
 
-**SHA-256:** `285b741b26f30e7eb00011f695e035394d5b65af346249599f2f66251f8ccd12`
+**SHA-256:** `e003c68eff2ef276685ec8794e2efde6e9d227e9ecfe7dfaf768fc730995eb90`
 
-**Base:** v0.1.9.3, SHA-256 `c132416b2f654cdce7483a83bf44b7eddccb1e5a0b03784a93990a47a97a342c`
+**Base:** v0.1.9.4, SHA-256 `285b741b26f30e7eb00011f695e035394d5b65af346249599f2f66251f8ccd12`
 
-v0.1.9.4 passed all three static verification gates and fresh-extraction verification. It is **not BeamNG-runtime-proven** until the user tests the exact ZIP.
-
-### Important reset decision
-
-v0.1.9.4 uses a new `auction_state_v0194.json` and intentionally does not import v0.1.9.3 active lots, timers, bids, or prepared auctions because v0.1.9.1–v0.1.9.3 could produce cloned/split timelines. Account profile, purchase/sale ledger, and active seller consignments remain separate and may be preserved.
+v0.1.9.5 passed static/fresh-extraction verification. It is **not BeamNG-runtime-proven** until the user tests the exact ZIP across at least two Career saves.
 
 ---
 
-## 2. Runtime-proven architecture that must not regress
+## 2. Why v0.1.9.5 exists
 
-The user has proved:
+Runtime testing of v0.1.9.4 found that a brand-new Career save could show Bought Vehicles / delivery records from another save. The live auction state itself appeared save-specific, but transaction history crossed saves.
 
-- JOB-04 Wrecking Yard, JOB-09 Tow, and JOB-13 Auction remain separate ZIPs.
-- The shared FoxNet Welcome Page routes to JOB-13's unique Auction path.
-- PC and phone can open the same JOB-13 website.
-- Auction purchases can enter Career inventory.
-- Wrecking Yard purchases continue working beside JOB-13.
-- Tow website is operational.
-- Different installed/modded vehicles appear.
-- Player consignments, starting bids, and private reserves can be created.
-- Bank-backed buying power appeared functional in prior testing.
+Exact cause: `ledgerOps.loadLedger()` still fell back to the old global `settings/redfox/job13_online_auctions/auction_ledger_v1.json` when a new save had no local ledger. The account loader had the same legacy-global fallback risk for membership/watchlist/reminder data.
 
-Known runtime-safe Wrecking Yard route base:
-
-`zzzz_RedFox_FoxNet_JOB-04_Wrecking-Yard_2026-08-01_v0_3_2_3_1_AUCTION_ROUTE_TO_JOB13.zip`
-
-Do not combine the jobs and do not modify JOB-04 or JOB-09 while testing v0.1.9.4.
+The user explicitly requested that every JOB-13 part save to the correct Career save and that redundant save-state ownership be removed.
 
 ---
 
-## 3. Why v0.1.9.1–v0.1.9.3 were rejected
+## 3. v0.1.9.5 persistence ownership
 
-User testing showed:
+Career progress now has exactly three per-save persistent domains:
 
-- almost every Auction webpage reload could change timers or show a different timeline;
-- lots could restart near 30 minutes, jump forward, or appear already sold;
-- PC/phone were not the root cause—the reload itself was enough;
-- recurring Lua bridge disconnect warnings appeared;
-- old auctions could be loaded as new clones while a new auction was also generated;
-- the next auction sometimes did not auto-start;
-- unresolved wins could be difficult to pay;
-- repeated completion clicks duplicated a won vehicle;
-- some purchased records existed without the vehicle being accessible;
-- v0.1.9.1 recovery was unsafe and testing was stopped.
+1. **Auction state** — `<save>/career/rls_career/redfox_job13/auction_state_v0194.json`
+   - current auction
+   - prepared next/future auctions
+   - bids/timers
+   - seller consignments
+   - pending purchase workflow
+   - settlement/idempotency keys
 
-Do not tell the user to test v0.1.9.1, v0.1.9.2, or v0.1.9.3 again.
+2. **Account profile** — `<save>/career/rls_career/redfox_job13/account_profile_v2.json`
+   - membership
+   - saved searches
+   - watchlist
+   - next-auction reminder
 
----
+3. **Transaction ledger** — `<save>/career/rls_career/redfox_job13/auction_ledger_v2.json`
+   - Bought Vehicles
+   - Sold Vehicles
+   - invoices
+   - payment/delivery/sale status
 
-## 4. v0.1.9.4 single-state architecture
+The auction snapshot no longer persists `state.account`; `account_profile_v2.json` is the sole persistent owner of account progress.
 
-The user explicitly warned against multiple or redundant save-state systems. v0.1.9.4 therefore enforces:
+Ledger and account files are stamped with `careerSavePath`. A file stamped for another save is rejected.
 
-- exactly one Lua table owns current auction, prepared next auction, bids, timers, consignments, pending wins, and settlement markers;
-- exactly one Lua function writes active auction state;
-- exactly one code path writes the active auction state file;
-- exactly one low-level clock restore implementation;
-- every restore request passes through one guarded recovery gate;
-- repeated Career activation callbacks use `pauseGeneration` / `resumeGeneration` and cannot restore the same freeze twice;
-- re-entrant save requests are coalesced through the same writer;
-- extension unload, webpage reload, PC/phone switching, and bridge reconnect do not save, pause, restore, reroll, rotate, or generate auctions;
-- process-memory reconnect returns the existing live state only;
-- disk recovery occurs only through Career lifecycle startup/reactivation.
-
-Separate account-profile and transaction-ledger files are retained, but they do not own or modify active lots, bids, timers, or prepared auction contents.
-
-### Save policy
-
-- current and next auction snapshot at start/critical transitions;
-- 30-second freeze snapshot while an auction is active;
-- no full state write on every NPC bid;
-- no page-reload save;
-- immediate save for seller consignment, delivery claim, lot transition, purchase/sale settlement, and Career lifecycle boundaries;
-- last written snapshot is read back and serial-verified.
+The auction snapshot also validates its saved Career path when present.
 
 ---
 
-## 5. Payment Pending and duplication recovery
+## 4. Global files allowed
 
-v0.1.9.4 adds payment controls to both:
+The only intentionally global JOB-13 persistence is non-Career data:
 
-- `Bought Vehicles`
-- `Invoices`
+- `settings/redfox/job13_online_auctions/settings_v018.json` — user tuning/preferences.
+- installed vehicle/prop catalog cache — installed-content discovery.
 
-Both call the same idempotent Lua action.
+These must not contain Career money, bids, wins, consignments, invoices, membership, watchlists, reminders, or transaction history.
 
-Behavior:
-
-- a saved purchase invoice can reconstruct a missing pending lot;
-- if no Career vehicle exists, one saved delivery claim must verify before spawn;
-- if a vehicle already exists with `job13AuctionPendingKey`, JOB-13 finalizes payment on that exact inventory vehicle and does not spawn another;
-- `job13AuctionDeliveryKey`, `completedDeliveryKeys`, and `deliveryClaims` block duplicate delivery;
-- payment gets its own saved `charging` lock before money is deducted;
-- if a crash occurs while payment completion is uncertain, JOB-13 stops with verification required rather than charging or spawning again;
-- repeated Pay/Complete clicks share one browser action lock and one Lua settlement path.
-
-Existing duplicates created by old builds are not automatically deleted.
+Old global JOB-13 account and ledger files are no longer imported into new Career saves.
 
 ---
 
-## 6. Retained feature scope
+## 5. Additional cross-save protections
 
-v0.1.9.4 retains:
+- Async purchase/delivery runtime maps are cleared when switching Career save slots so reused inventory IDs cannot leak between saves.
+- Purchase records now retain `deliveryKey` for durable reconciliation.
+- JOB-04 Wrecking Yard acquisition history is global in older builds. JOB-13 now accepts it only if JOB-04 provides a matching Career-save stamp; inventory ID alone is not trusted across saves.
+- Per-save older JOB-13 seller listings may still migrate from older JOB-13 state files in the **same Career save only**.
 
-- automatic next-auction transition after a one-minute intermission;
-- unresolved wins under My Bids/pending purchases;
-- next-auction reminder;
-- explicit Add/Remove Watchlist button in vehicle details;
-- player consignments saved immediately and placed in early available prepared slots;
-- multiple consignments;
-- private reserve prices;
-- current RLS value/suggested seller pricing from v0.1.9.1;
-- calmer NPC settings;
-- custom BeamNG-safe dropdown menus;
-- wallet plus eligible personal-bank buying power;
-- purchase/sale/no-sale records;
-- PC iframe/page scrolling;
-- current/next vehicle groups protected from webpage rerolling.
-
-JOB-09 `Send to Auction` is not connected yet. JOB-13 must first pass standalone seller/runtime tests.
-
-Vehicle-photo management remains owned by Dev Manager. JOB-13 consumes Career thumbnails.
+JOB-04 and JOB-09 were not modified.
 
 ---
 
-## 7. Triple verification result
+## 6. Existing runtime defects still under investigation
 
-### Gate 1 — before editing
+Do not consider these fixed unless the user proves them in v0.1.9.5:
 
-PASS:
+- auction reload/recovery consistency has been hit-and-miss in prior builds;
+- old purchase records can show stale Shipping/Payment Pending status after Career already received the vehicle;
+- paying an old invoice previously froze the UI temporarily;
+- old auction lots could reappear with timers;
+- one truck showed No Sale even though Career received it;
+- watchlist catalog search is incomplete;
+- recurring bridge errors have occurred.
 
-- exact v0.1.9.3 base and SHA verified;
-- ZIP integrity passed;
-- 19 files;
-- zero duplicate/unsafe paths;
-- JOB-04, JOB-09, and shared FoxNet protected;
-- scope locked before editing.
+Do not auto-delete old duplicates created by previous unsafe builds.
 
-### Gate 2 — after editing
+---
 
-PASS:
+## 7. Save-frequency and safety rules
 
-- 11 approved JOB-13 files changed;
-- no files added/removed;
-- all JSON parsed;
-- all JavaScript passed `node --check`;
-- all Lua parsed through Lua 5.4;
-- three Auction route HTML copies are byte-identical;
-- zero duplicate HTML IDs;
-- one state writer/write path and one recovery gate verified;
-- webpage/bridge reload is display-only;
-- delivery/payment locks save before spawn/charge;
-- Bought/Invoices share one payment action;
-- unsafe v0.1.9.3 active lots are not migrated.
+- One Lua table owns live auction state.
+- One function writes auction state.
+- One guarded recovery path restores auction state.
+- Page reload, PC/phone switching, and bridge reconnect are display-only.
+- 30-second active freeze snapshot only when dirty/active.
+- Critical transitions save immediately.
+- Seller consignment and delivery claim save immediately.
+- Account changes save immediately to the per-save account profile.
+- Purchase/sale ledger changes use the per-save ledger and critical transaction updates force save.
+- Do not add another writer or another restore path.
 
-### Gate 3 — after ZIP creation
+---
 
-PASS:
+## 8. Verification result
 
-- ZIP integrity/CRC;
-- 19 files;
-- zero duplicate/unsafe paths;
-- fresh extraction matched edited source byte-for-byte;
-- all syntax and structural checks reran successfully;
-- final SHA-256 manifest generated.
+### Gate 1
+PASS — exact v0.1.9.4 base, SHA verified, 19 files.
+
+### Gate 2
+PASS — 19 files, 11 changed, no added/removed paths; Lua syntax, JavaScript syntax, JSON parsing, HTML mirror equality; no global legacy account/ledger/state fallback reads; account excluded from auction snapshot; save-stamped account/ledger; save-slot runtime handles cleared.
+
+### Gate 3
+PASS — ZIP integrity; fresh extraction 19 files; byte-for-byte match; syntax checks rerun from fresh extraction.
 
 Artifacts:
 
-- `JOB-13_v0_1_9_4_PRE_EDIT_VERIFICATION.txt`
-- `JOB-13_v0_1_9_4_AFTER_EDIT_VERIFICATION.md`
-- `JOB-13_v0_1_9_4_STATIC_VERIFICATION.txt`
-- `JOB-13_v0_1_9_4_POST_ZIP_VERIFICATION.txt`
-- `JOB-13_v0_1_9_4_TRIPLE_VERIFICATION_AUDIT.md`
-- `JOB-13_v0_1_9_4_FILE_MANIFEST_SHA256.csv`
-- `JOB-13_v0_1_9_4_TEST_CHECKLIST.txt`
-- `JOB-13_v0_1_9_3_to_v0_1_9_4_FINAL.diff`
+- `JOB-13_v0_1_9_5_TRIPLE_VERIFICATION_AUDIT.md`
+- `JOB-13_v0_1_9_5_SAVE_DOMAIN_AUDIT.md`
+- `JOB-13_v0_1_9_5_FILE_MANIFEST_SHA256.csv`
+- `JOB-13_v0_1_9_5_TEST_CHECKLIST.txt`
 
 Static verification is not runtime proof.
 
 ---
 
-## 8. Exact next runtime test order
+## 9. Exact next runtime test
 
-Install only v0.1.9.4 for JOB-13. Disable all older JOB-13 ZIPs. Keep current JOB-04 and JOB-09 ZIPs unchanged. Fully restart BeamNG.
+Install only v0.1.9.5. Keep JOB-04 and JOB-09 unchanged. Fully restart BeamNG.
 
-### Test 1 — reload consistency first
+Test save isolation first:
 
-1. Open Auction and record auction number, three lots, bids, and timers.
-2. Reload/open the page at least five times on the same device.
-3. Switch PC/phone twice.
-4. Confirm the same auction continues without restarting, jumping, selling, or cloning.
+1. Open Career Save A and note membership, watchlist, Bought/Sold Vehicles, invoices, auction number, and two lot IDs.
+2. Switch to a different Career Save B.
+3. Save B must not contain Save A's Bought/Sold Vehicles, invoices, membership, watchlist, reminder, bids, consignments, or auction state.
+4. Save B should have its own empty transaction history unless that save already had JOB-13 history.
+5. Return to Save A and confirm its own data remains.
 
-If this fails, stop immediately.
-
-### Test 2 — recovery
-
-1. Place one bid and confidential maximum.
-2. Wait at least 35 seconds.
-3. close BeamNG normally and reload the same Career save.
-4. Confirm one restored timeline with the same bid and approximately saved remaining time.
-
-### Test 3 — auto next
-
-Let the auction finish or use the developer finish control once. Confirm the prepared next auction starts automatically after the intermission.
-
-### Test 4 — pending payment
-
-Use Bought Vehicles or Invoices to pay one Payment Pending purchase. Confirm one charge and one vehicle. Clicking again after refresh must report already delivered/in progress and must not duplicate or charge twice.
-
-### Test 5 — watch/reminder/scroll/seller priority
-
-Confirm Add to Watchlist, next-auction reminder, full PC scrolling, and early prepared placement of one test consignment.
-
-Stop immediately if money charges twice, a vehicle duplicates/disappears, page reload changes state, or the bridge repeatedly disconnects.
+Stop immediately if cross-save data appears, a vehicle duplicates/disappears, money charges twice, or page reload creates another timeline.
 
 ---
 
-## 9. Protected rules
+## 10. Protected rules
 
 - Never claim runtime success before exact-ZIP user testing.
 - Keep JOB-04, JOB-09, and JOB-13 separate.
 - Do not edit shared FoxNet/browser files without permission.
+- Never reintroduce global Career-progress fallback files.
+- Do not add redundant account state back into the auction snapshot.
 - Do not add a second auction-state writer or recovery system.
-- Do not restore auction state from webpage/bridge load.
-- Do not scan the full catalog at Career startup/page open.
-- Use exact Career inventory IDs and stable delivery keys.
+- Use exact Career inventory IDs plus stable delivery keys.
 - Never knowingly charge or deliver twice.
 - Keep GitHub handoff and issue #40 current after every test.
