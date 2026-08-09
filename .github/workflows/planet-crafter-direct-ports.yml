@@ -1,0 +1,40 @@
+name: Planet Crafter Game Pass Direct Ports
+on:
+  push:
+    branches: [ planet-crafter-il2cpp-legacy-bridge ]
+    paths:
+      - 'PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/DirectPorts/**'
+      - '.github/workflows/planet-crafter-direct-ports.yml'
+permissions:
+  contents: read
+jobs:
+  death-beacon:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/DirectPorts/DeathBeaconIL2CPP
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Download IL2CPP Unity compile references
+        shell: bash
+        run: |
+          mkdir -p refs
+          base='https://raw.githubusercontent.com/BepInEx/BepInEx.Utility.IL2CPP/main/IL2CPP_net6'
+          for f in Il2Cppmscorlib.dll Il2CppSystem.dll UnityEngine.dll UnityEngine.CoreModule.dll UnityEngine.IMGUIModule.dll UnityEngine.TextRenderingModule.dll UnityEngine.InputLegacyModule.dll; do
+            curl -fsSL "$base/$f" -o "refs/$f"
+          done
+      - name: Build
+        run: dotnet build DeathBeaconIL2CPP.csproj -c Release
+      - name: Stage
+        shell: bash
+        run: |
+          mkdir -p out/BepInEx/plugins/'RedFox - Death Beacon GamePass IL2CPP'
+          cp bin/Release/net6.0/RedFox.DeathBeacon.GamePass.IL2CPP.dll out/BepInEx/plugins/'RedFox - Death Beacon GamePass IL2CPP'/
+          printf '%s\n' 'Native BepInEx 6 IL2CPP test port. Do not install the legacy DeathBeacon DLL at the same time.' > out/README.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DeathBeacon-GamePass-IL2CPP-DirectPort
+          path: PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/DirectPorts/DeathBeaconIL2CPP/out
