@@ -24,5 +24,5 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedTo(typeof(BepInEx.Configuration.ConfigEntryBase))]
 [assembly: TypeForwardedTo(typeof(BepInEx.Configuration.ConfigEntry<>))]
 [assembly: TypeForwardedTo(typeof(BepInEx.Configuration.ConfigFile))]
-[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.KeyboardShortcut))]
 [assembly: TypeForwardedTo(typeof(BepInEx.Configuration.TomlTypeConverter))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.TypeConverter))]
