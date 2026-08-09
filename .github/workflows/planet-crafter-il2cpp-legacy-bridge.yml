@@ -1,0 +1,38 @@
+name: Planet Crafter IL2CPP Legacy Bridge
+
+on:
+  push:
+    branches:
+      - planet-crafter-il2cpp-legacy-bridge
+    paths:
+      - 'PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/**'
+      - '.github/workflows/planet-crafter-il2cpp-legacy-bridge.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore
+        working-directory: PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge
+        run: dotnet restore LegacyBridge/LegacyBridge.csproj --configfile NuGet.Config
+      - name: Build
+        working-directory: PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge
+        run: dotnet build LegacyBridge/LegacyBridge.csproj -c Release --no-restore
+      - name: Stage artifact
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifact/BepInEx/plugins/'RedFox - Legacy BepInEx5 Bridge' | Out-Null
+          New-Item -ItemType Directory -Force -Path artifact/BepInEx/legacy_plugins | Out-Null
+          Copy-Item PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/LegacyBridge/bin/Release/net6.0/RedFox.LegacyBepInEx5Bridge.dll artifact/BepInEx/plugins/'RedFox - Legacy BepInEx5 Bridge'/
+          Copy-Item PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/LegacyBridge/bin/Release/net6.0/BepInEx.dll artifact/BepInEx/plugins/'RedFox - Legacy BepInEx5 Bridge'/
+          Copy-Item PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/README.md artifact/README-LEGACY-BRIDGE.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PlanetCrafter-GamePass-LegacyBridge
+          path: artifact
+          if-no-files-found: error
