@@ -63,8 +63,15 @@ static void DumpAttributes(StringBuilder sb, IEnumerable<CustomAttribute> attrs,
 {
     foreach (var a in attrs)
     {
-        var args = string.Join(", ", a.ConstructorArguments.Select(x => Format(x.Value)));
-        sb.AppendLine($"{prefix}{a.AttributeType.FullName}({args})");
+        try
+        {
+            var args = string.Join(", ", a.ConstructorArguments.Select(x => Format(x.Value)));
+            sb.AppendLine($"{prefix}{a.AttributeType.FullName}({args})");
+        }
+        catch (Exception ex)
+        {
+            sb.AppendLine($"{prefix}{a.AttributeType.FullName}(<? unresolved: {ex.GetType().Name}: {ex.Message} ?>)");
+        }
     }
 }
 
