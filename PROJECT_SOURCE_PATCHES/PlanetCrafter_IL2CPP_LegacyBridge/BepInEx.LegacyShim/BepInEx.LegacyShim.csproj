@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>BepInEx</AssemblyName>
+    <RootNamespace>BepInEx</RootNamespace>
+    <Version>5.4.23.0</Version>
+    <AssemblyVersion>5.4.23.0</AssemblyVersion>
+    <FileVersion>5.4.23.0</FileVersion>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.785" />
+    <ProjectReference Include="..\UnityStub\UnityStub.csproj" Private="false" />
+  </ItemGroup>
+</Project>
