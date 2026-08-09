@@ -1,5 +1,10 @@
 namespace UnityEngine
 {
+    public enum KeyCode
+    {
+        None = 0
+    }
+
     public class Object
     {
         public static void DontDestroyOnLoad(Object target) { }
