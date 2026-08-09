@@ -1,0 +1,26 @@
+name: Planet Crafter ILDump Tool
+on:
+  push:
+    branches: [ planet-crafter-il2cpp-legacy-bridge ]
+    paths:
+      - 'PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/Tools/ILDump/**'
+      - '.github/workflows/planet-crafter-ildump.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/Tools/ILDump
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Publish
+        run: dotnet publish ILDump.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PlanetCrafter-ILDump-linux-x64
+          path: PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/Tools/ILDump/out/ILDump
