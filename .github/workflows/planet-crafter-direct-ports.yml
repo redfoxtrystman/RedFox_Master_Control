@@ -38,3 +38,34 @@ jobs:
         with:
           name: DeathBeacon-GamePass-IL2CPP-DirectPort
           path: PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/DirectPorts/DeathBeaconIL2CPP/out
+
+  celestial-cycle:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/DirectPorts/CelestialCycleIL2CPP
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Download IL2CPP Unity compile references
+        shell: bash
+        run: |
+          mkdir -p refs
+          base='https://raw.githubusercontent.com/BepInEx/BepInEx.Utility.IL2CPP/main/IL2CPP_net6'
+          for f in Il2Cppmscorlib.dll Il2CppSystem.dll UnityEngine.dll UnityEngine.CoreModule.dll UnityEngine.IMGUIModule.dll UnityEngine.TextRenderingModule.dll UnityEngine.InputLegacyModule.dll; do
+            curl -fsSL "$base/$f" -o "refs/$f"
+          done
+      - name: Build
+        run: dotnet build CelestialCycleIL2CPP.csproj -c Release
+      - name: Stage
+        shell: bash
+        run: |
+          mkdir -p out/BepInEx/plugins/'RedFox - Celestial Cycle GamePass IL2CPP'
+          cp bin/Release/net6.0/RedFox.CelestialCycle.GamePass.IL2CPP.dll out/BepInEx/plugins/'RedFox - Celestial Cycle GamePass IL2CPP'/
+          printf '%s\n' 'Native BepInEx 6 IL2CPP CORE test port: repeating day/night phase, lerp driver, moving sun, saved phase and clock. Advanced original sky-body features are not included in this first test. Do not install the legacy CelestialCycle DLL at the same time.' > out/README.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CelestialCycle-GamePass-IL2CPP-Core-DirectPort
+          path: PROJECT_SOURCE_PATCHES/PlanetCrafter_IL2CPP_LegacyBridge/DirectPorts/CelestialCycleIL2CPP/out
