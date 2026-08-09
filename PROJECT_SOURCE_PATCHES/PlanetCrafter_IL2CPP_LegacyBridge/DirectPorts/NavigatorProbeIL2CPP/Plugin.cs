@@ -183,7 +183,11 @@ public sealed class Plugin : BasePlugin
         }
 
         var t = source.GetType();
-        var countMember = (MemberInfo?)t.GetProperty("Length") ?? t.GetProperty("Count") ?? t.GetField("Length") ?? t.GetField("Count");
+        var countMember =
+            (MemberInfo?)t.GetProperty("Length") ??
+            (MemberInfo?)t.GetProperty("Count") ??
+            (MemberInfo?)t.GetField("Length") ??
+            (MemberInfo?)t.GetField("Count");
         object? countValue = countMember switch
         {
             PropertyInfo p => p.GetValue(source),
