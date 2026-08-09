@@ -16,7 +16,7 @@ namespace RedFox.PlanetCrafter.LegacyBridge
     {
         private const string GUID = "redfox.planetcrafter.legacybepinex5bridge";
         private const string NAME = "RedFox Planet Crafter Legacy BepInEx 5 Bridge";
-        private const string VERSION = "0.1.0";
+        private const string VERSION = "0.1.1";
 
         private readonly Dictionary<string, string> _legacyAssemblyPaths =
             new(StringComparer.InvariantCultureIgnoreCase);
@@ -104,8 +104,20 @@ namespace RedFox.PlanetCrafter.LegacyBridge
                     StringComparison.InvariantCultureIgnoreCase));
             var gameObjectType = unityAssembly.GetType("UnityEngine.GameObject", throwOnError: true);
             var objectType = unityAssembly.GetType("UnityEngine.Object", throwOnError: true);
+            var hideFlagsType = unityAssembly.GetType("UnityEngine.HideFlags", throwOnError: true);
 
             var manager = Activator.CreateInstance(gameObjectType, new object[] { "BepInEx_Legacy_Manager" });
+
+            // Planet Crafter's current Unity build is sensitive to visible manager objects.
+            // Match BepInEx HideManagerGameObject behavior for the bridge's own manager too.
+            var hideFlagsProperty = gameObjectType.GetProperty("hideFlags",
+                BindingFlags.Instance | BindingFlags.Public);
+            if (hideFlagsProperty != null)
+            {
+                var hideAndDontSave = Enum.Parse(hideFlagsType, "HideAndDontSave");
+                hideFlagsProperty.SetValue(manager, hideAndDontSave);
+            }
+
             var dontDestroy = objectType.GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .FirstOrDefault(m => m.Name == "DontDestroyOnLoad" && m.GetParameters().Length == 1);
             dontDestroy?.Invoke(null, new[] { manager });
