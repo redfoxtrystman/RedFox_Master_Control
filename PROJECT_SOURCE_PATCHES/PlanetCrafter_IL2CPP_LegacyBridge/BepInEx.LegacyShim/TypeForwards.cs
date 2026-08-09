@@ -1,0 +1,28 @@
+using System.Runtime.CompilerServices;
+
+[assembly: TypeForwardedTo(typeof(BepInEx.BepInPlugin))]
+[assembly: TypeForwardedTo(typeof(BepInEx.BepInDependency))]
+[assembly: TypeForwardedTo(typeof(BepInEx.BepInIncompatibility))]
+[assembly: TypeForwardedTo(typeof(BepInEx.BepInProcess))]
+[assembly: TypeForwardedTo(typeof(BepInEx.MetadataHelper))]
+[assembly: TypeForwardedTo(typeof(BepInEx.PluginInfo))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Paths))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Utility))]
+
+[assembly: TypeForwardedTo(typeof(BepInEx.Logging.ILogListener))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Logging.ILogSource))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Logging.LogEventArgs))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Logging.LogLevel))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Logging.Logger))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Logging.ManualLogSource))]
+
+[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.AcceptableValueBase))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.AcceptableValueRange<>))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.AcceptableValueList<>))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.ConfigDefinition))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.ConfigDescription))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.ConfigEntryBase))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.ConfigEntry<>))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.ConfigFile))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.KeyboardShortcut))]
+[assembly: TypeForwardedTo(typeof(BepInEx.Configuration.TomlTypeConverter))]
