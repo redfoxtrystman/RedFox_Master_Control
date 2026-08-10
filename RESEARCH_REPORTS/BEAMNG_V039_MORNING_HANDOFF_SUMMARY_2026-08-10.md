@@ -163,6 +163,12 @@ Tow bridge supplement:
 Tow single-relay decision:
 `D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\TOW_SINGLE_RELAY_BASELINE_DECISION_2026-08-10.md`
 
+Tow v0.4.9.6 to v0.4.9.7 surgical diff:
+`D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\TOW_0496_TO_0497_SURGICAL_DIFF_REPAIR_PLAN_2026-08-10.md`
+
+RLS version and map surgical test plan:
+`D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\RLS_VERSION_AND_MAP_SURGICAL_TEST_PLAN_2026-08-10.md`
+
 User-state pollution check:
 `D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\USER_STATE_CLEAN_LANE_POLLUTION_CHECK_2026-08-10.md`
 
