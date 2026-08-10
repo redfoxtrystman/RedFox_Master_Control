@@ -75,7 +75,7 @@ David should test:
 Why Freeroam Small Grid first:
 
 - Career UI layout still references inactive RedFox apps.
-- Input maps still reference inactive RedFox actions.
+- Input maps still references inactive RedFox actions.
 - RLS phone layout still has `redfox-browser`.
 - Last remembered level is `redfox_jump_grid`.
 
@@ -147,6 +147,9 @@ Add a small loader/adapter only if a fresh runtime log proves BeamNG still reque
 
 David start-here runtime test:
 `D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\DAVID_START_HERE_RUNTIME_TEST_2026-08-10.md`
+
+Approval-ready test lane switch plan:
+`D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\APPROVAL_READY_TEST_LANE_SWITCH_PLAN_2026-08-10.md`
 
 Full scan and roadmap:
 `D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\FULL_SCAN_RLS_TOW_RECOVERY_ROADMAP_2026-08-09.md`
