@@ -148,6 +148,12 @@ Add a small loader/adapter only if a fresh runtime log proves BeamNG still reque
 Full scan and roadmap:
 `D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\FULL_SCAN_RLS_TOW_RECOVERY_ROADMAP_2026-08-09.md`
 
+Runtime log triage helper:
+`D:\RedFoxMods\tools\Read-BeamNGRecoveryLog.ps1`
+
+Runtime log triage helper README:
+`D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\LOG_TRIAGE_HELPER_README_2026-08-10.md`
+
 Clean-lane static assessment:
 `D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\CLEAN_LANE_STATIC_ASSESSMENT_2026-08-10.md`
 
