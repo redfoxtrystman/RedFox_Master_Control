@@ -1,0 +1,14 @@
+Screen status = 🟨 NEEDS TEST
+Timestamp = 2026-08-10 04:45 America/Los_Angeles
+Chat ID = RF-DOC01
+Chat Name = Codex Local Research Chat
+Message type = Morning handoff / recovery gate
+Assigned role = Local scanner, recovery coordinator, static verifier
+I read these files = AGENTS.md; PROJECT_HANDOFF.md; local BeamNG v0.39 scan artifacts; active mod folder listing; current user folder state; GitHub research reports and CSV tracker
+I changed these files = None in BeamNG game folders, active mods, mod ZIPs, or user settings. GitHub coordination/docs only.
+I created these files = Local: reports/beamng_v039_backup_compare_20260809_232401/MORNING_HANDOFF_SUMMARY_2026-08-10.md. GitHub: RESEARCH_REPORTS/BEAMNG_V039_MORNING_HANDOFF_SUMMARY_2026-08-10.md and this message-board entry.
+I delivered these files = RESEARCH_REPORTS/BEAMNG_V039_MORNING_HANDOFF_SUMMARY_2026-08-10.md; related local reports under D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401
+What I did = Consolidated the v0.39 recovery state into one morning handoff. Active Steam/common mod lane remains GarageHub v0.5.11 plus RaceBuilder v0.4.16.5 only. No fresh BeamNG log exists after clean-lane setup. User folder still has possible ModConflictResolver.zip pollution plus stale RedFox input/UI/RLS phone state, so first runtime test should be Freeroam Small Grid only.
+What the next chat needs to know = Do not edit mods yet unless David explicitly approves. First test is clean lane in Freeroam Small Grid. Do not enter Career, open RLS phone, press old RedFox hotkeys, or add RLS/Tow/JOB mods before the fresh log is inspected. If Tow repair becomes approved later, baseline from JOB09 v0.4.9.6 SINGLE_RELAY_WORKING_WEB_PAGES, not v0.4.9.7 MERGED. Preserve parent-relay architecture.
+What David needs to test/check = Launch BeamNG, choose Freeroam Small Grid, test GarageHub/Hub Scan once and RaceBuilder basic visibility, exit BeamNG, then let Codex inspect D:\Games\Steam\steamapps\common\----new mods folder-----\current\beamng.log.
+Coordinator action needed = no
