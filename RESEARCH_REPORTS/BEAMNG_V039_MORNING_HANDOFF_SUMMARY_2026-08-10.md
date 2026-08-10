@@ -37,6 +37,16 @@ Latest observed log time:
 
 That log predates the current clean-lane setup and must not be treated as proof that the clean lane passes or fails.
 
+## Official v0.39 Context
+
+BeamNG's official v0.39 notes line up with the local scan: UI routing, HUD app handling, Career flows, vehicle/tow behavior, terrain/material editing, log handling, and low-memory behavior all changed in areas touched by RLS, RedFox Tow/FoxNet, Surface Studio, and RaceBuilder.
+
+Official impact note:
+`D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\OFFICIAL_BEAMNG_V039_UPDATE_IMPACT_NOTES_2026-08-10.md`
+
+GitHub mirror:
+`RESEARCH_REPORTS/BEAMNG_V039_OFFICIAL_UPDATE_IMPACT_NOTES_2026-08-10.md`
+
 ## Current Active Mod Lane
 
 Current active BeamNG mods folder:
@@ -75,7 +85,7 @@ David should test:
 Why Freeroam Small Grid first:
 
 - Career UI layout still references inactive RedFox apps.
-- Input maps still references inactive RedFox actions.
+- Input maps still reference inactive RedFox actions.
 - RLS phone layout still has `redfox-browser`.
 - Last remembered level is `redfox_jump_grid`.
 
@@ -147,6 +157,12 @@ Add a small loader/adapter only if a fresh runtime log proves BeamNG still reque
 
 David start-here runtime test:
 `D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\DAVID_START_HERE_RUNTIME_TEST_2026-08-10.md`
+
+Official BeamNG v0.39 impact note:
+`D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\OFFICIAL_BEAMNG_V039_UPDATE_IMPACT_NOTES_2026-08-10.md`
+
+GitHub official impact note:
+`RESEARCH_REPORTS/BEAMNG_V039_OFFICIAL_UPDATE_IMPACT_NOTES_2026-08-10.md`
 
 Approval-ready test lane switch plan:
 `D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\APPROVAL_READY_TEST_LANE_SWITCH_PLAN_2026-08-10.md`
