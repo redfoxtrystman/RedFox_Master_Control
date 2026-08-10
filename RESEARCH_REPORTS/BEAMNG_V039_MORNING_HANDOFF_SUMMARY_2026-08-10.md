@@ -145,6 +145,9 @@ Add a small loader/adapter only if a fresh runtime log proves BeamNG still reque
 
 ## Key Reports
 
+David start-here runtime test:
+`D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\DAVID_START_HERE_RUNTIME_TEST_2026-08-10.md`
+
 Full scan and roadmap:
 `D:\RedFoxMods\reports\beamng_v039_backup_compare_20260809_232401\FULL_SCAN_RLS_TOW_RECOVERY_ROADMAP_2026-08-09.md`
 
