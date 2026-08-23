@@ -40,6 +40,115 @@ Dealer stock needs to behave like a real business-owned asset:
 - save/reload preserves exact vehicle identity/configuration/condition;
 - no clone-on-transfer shortcuts.
 
+## SHOP GARAGE PATTERN — REQUIRED FOR DEALER STOCK
+
+The owner specifically wants the Car Lot to use the same **shop-garage concept** JOB-09 is now moving toward for Tow Company Fleet storage.
+
+The important distinction is:
+
+- **Personal Garage** = player-owned personal storage capacity.
+- **Business/Shop Garage** = company-owned storage capacity belonging to the business location.
+
+A vehicle transferred into the Car Lot must leave personal-garage capacity and enter the dealer's own shop/dealer garage capacity. A 10-, 50-, or 100-car dealership must therefore be able to hold that many dealer-owned vehicles even if the player's personal garages are full.
+
+The shop garage is not only a hidden database bucket. It should expose the same practical vehicle-management workflow that makes a normal Career/RLS garage useful:
+
+- browse vehicle cards with preview image and details;
+- retrieve/pull out the vehicle;
+- put it back into dealer storage;
+- repair it;
+- edit parts/configuration;
+- paint it;
+- use decal/customization tools when the normal garage supports them;
+- rename and personalize plate where appropriate;
+- preserve mileage, paint, parts, part conditions, configuration, value, and identity across edits and save/reload.
+
+The owner wants **selling inventory to remain in this dealer shop garage until it sells**. Listing a vehicle for sale must not move it into personal storage and must not consume a personal garage slot. A listed dealer vehicle remains dealer-owned stock, with a sale/listing state layered on the same dealer asset.
+
+Recommended dealer-garage state model:
+
+- `dealer_stock` — owned by dealer, not currently listed;
+- `listed_for_sale` — owned by dealer and actively offered for retail sale;
+- `reserved` — buyer transaction in progress;
+- `financed_sold` — sold to customer under financing; no longer dealer stock but linked by loan/repo identity;
+- `repo_returned` — repossessed vehicle returned to dealer stock;
+- `auction_pending` / `auction_locked` — dealer asset temporarily committed to FoxNet Auction;
+- `sold` — final consumed dealer asset/history only.
+
+Changing state must not clone the vehicle into another garage. The same stable dealer asset remains authoritative until a confirmed ownership transfer or sale consumes it.
+
+### Dealer shop capacity
+
+Start dealer/shop storage at **10** vehicles.
+
+Allow paid business upgrades up to **100**.
+
+The logical shop capacity is authoritative. Literal physical parking positions at the lot should not cap backend inventory; they are only spawn/display positions. This is the same lesson JOB-09 learned with Tow Yard Company Fleet / Shop Bays.
+
+Example:
+
+- Dealer owns 40 vehicles.
+- Lot physically has 12 convenient parking/display positions.
+- Backend dealer garage still stores all 40.
+- Only a limited subset needs to be spawned/rendered physically at once.
+
+### Shop garage vs physical lot
+
+Treat these as separate layers:
+
+1. **Dealer Shop Garage / Business Inventory** — authoritative ownership/storage record.
+2. **Physical Lot / Showroom / Service Bays** — optional visualization and interaction positions.
+
+A vehicle may be stored in the dealer shop garage without being physically spawned. Pulling it out hydrates/spawns it at an available dealer garage/lot position. Putting it away saves its latest live state and removes/dehydrates the world vehicle.
+
+This distinction is required so a future 100-car dealership does not need 100 fully simulated vehicles loaded at all times.
+
+### Transfers into/out of the dealer shop garage
+
+Required behavior:
+
+**Personal -> Dealer**
+- no automatic money transfer;
+- same exact vehicle identity should move into dealer ownership/storage;
+- personal garage capacity is released;
+- dealer shop capacity is consumed;
+- if later sold while dealer-owned, dealer business gets proceeds.
+
+**Dealer -> Personal**
+- no automatic money transfer;
+- dealer shop capacity is released;
+- personal garage capacity is consumed;
+- vehicle remains the same asset/identity where the underlying APIs permit this safely.
+
+**Tow -> Dealer**
+- Tow vehicle must enter dealer shop inventory directly after transactional handoff;
+- must never need a temporary personal-garage slot;
+- Tow source is removed only after dealer confirms the exact asset is persisted.
+
+**Auction -> Dealer**
+- auction purchase may choose Car Lot/Dealer as destination;
+- acquired vehicle lands directly in dealer shop inventory;
+- no personal-garage detour.
+
+**Dealer -> Auction**
+- same dealer asset is locked while listed;
+- no clone to personal Career inventory merely to satisfy Auction UI;
+- no-sale/cancel returns the same dealer asset to shop inventory.
+
+### Service/editing access
+
+JOB-13 should inspect the exact RLS businessGarage/businessInventory/tuning/garage APIs and reuse the normal garage editing workflow wherever possible rather than recreating parts, paint, and repair systems.
+
+However, do **not** reproduce the current JOB-09 mistake where a business-tagged normal Career vehicle still occupies a personal garage. Dealer ownership/storage must be independent first; garage-style editing is layered on top of that business asset.
+
+If RLS requires temporary live spawning for editing, the dealer should:
+
+1. load the business asset into a temporary/live vehicle;
+2. open the supported normal tuning/paint/parts workflow;
+3. capture resulting configuration/paint/part condition back into the same dealer asset;
+4. return it to dealer shop storage;
+5. never create a second permanent personal vehicle record as the price of editing.
+
 ## Car lot core concept
 
 Start with a dealer inventory capacity of **10 vehicles**.
