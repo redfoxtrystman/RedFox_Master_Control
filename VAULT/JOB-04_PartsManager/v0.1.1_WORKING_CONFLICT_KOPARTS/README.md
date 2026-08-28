@@ -1,5 +1,9 @@
 # JOB-04 Parts Manager v0.1.1 — vaulted working baseline
 
+## Provenance correction
+
+This Parts Manager was **not authored in the current JOB-13/Car Lot chat**. The user supplied it from another prior chat/workstream whose exact chat provenance is currently unknown. Do not attribute authorship to JOB-13 or to the current assistant thread.
+
 This vault preserves the exact user-supplied archive that was known to work by itself but conflicted with JOB-13 KoParts when both were loaded.
 
 ## Preserved archive
@@ -19,7 +23,7 @@ The GitHub connector available in this chat cannot write arbitrary binary bytes 
 
 ## Future direction — do not implement yet
 
-Owner suggested that the separate Parts Manager may eventually be better absorbed into the RedFox Used Car Lot / Service Shop instead of remaining a separate standalone module. That future design could reuse the dealership's planned repair/service workflow and potentially avoid the JOB-04 Parts Manager ↔ JOB-13 KoParts lifecycle conflict.
+The separate Parts Manager may eventually be better absorbed into the RedFox Used Car Lot / Service Shop instead of remaining a separate standalone module. That future design could reuse the dealership's planned repair/service workflow and potentially avoid the JOB-04 Parts Manager ↔ JOB-13 KoParts lifecycle conflict.
 
 Possible future structure:
 
