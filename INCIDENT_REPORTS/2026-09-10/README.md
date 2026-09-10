@@ -6,3 +6,4 @@ Reports in this section must follow the current RedFox incident-report format, p
 
 Current incident:
 - `2026-09-10_REDFOX_EMPLOYEE_PORTRAIT_DIRECTIVE_DUPLICATE_IDENTITY_FAILURE.md`
+- `2026-09-10_REDFOX_EMPLOYEE_PORTRAIT_LOCKED_PLAN_COMPOSITE_OUTPUT_FAILURE.md`
