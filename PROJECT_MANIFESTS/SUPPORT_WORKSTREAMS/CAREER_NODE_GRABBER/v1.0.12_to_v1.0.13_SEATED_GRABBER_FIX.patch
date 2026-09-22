@@ -1,0 +1,92 @@
+--- v1.0.12/lua/ge/extensions/redfox/grabberUi.lua
++++ v1.0.13/lua/ge/extensions/redfox/grabberUi.lua
+@@
+ local lastStatus = "Node Grabber is enabled."
+ local watchdogTimer = 0
+ 
++local cameraGuardInstalled = false
++local guardedCareer = nil
++local originalCareerOnCameraModeChanged = nil
++local originalCareerOnGlobalCameraSet = nil
++local guardedOnCameraModeChanged = nil
++local guardedOnGlobalCameraSet = nil
++
+@@
++local function refreshExtensionHooks()
++  if extensions and type(extensions.hookUpdate) == "function" then
++    pcall(function() extensions.hookUpdate() end)
++  end
++end
++
++local function restoreCareerCameraGuard()
++  if not cameraGuardInstalled then return end
++  local career = guardedCareer
++  if career then
++    if career.onCameraModeChanged == guardedOnCameraModeChanged then
++      career.onCameraModeChanged = originalCareerOnCameraModeChanged
++    end
++    if career.onGlobalCameraSet == guardedOnGlobalCameraSet then
++      career.onGlobalCameraSet = originalCareerOnGlobalCameraSet
++    end
++  end
++  cameraGuardInstalled = false
++  guardedCareer = nil
++  originalCareerOnCameraModeChanged = nil
++  originalCareerOnGlobalCameraSet = nil
++  guardedOnCameraModeChanged = nil
++  guardedOnGlobalCameraSet = nil
++  refreshExtensionHooks()
++end
++
++local function installCareerCameraGuard()
++  local career = getExt("career_career")
++  if not career then return false end
++  if cameraGuardInstalled and guardedCareer == career then return true end
++
++  restoreCareerCameraGuard()
++  originalCareerOnCameraModeChanged = career.onCameraModeChanged
++  originalCareerOnGlobalCameraSet = career.onGlobalCameraSet
++  guardedCareer = career
++
++  guardedOnCameraModeChanged = function(modeName)
++    if grabberEnabled then return end
++    if type(originalCareerOnCameraModeChanged) == "function" then
++      return originalCareerOnCameraModeChanged(modeName)
++    end
++  end
++
++  guardedOnGlobalCameraSet = function(modeName)
++    if grabberEnabled then return end
++    if type(originalCareerOnGlobalCameraSet) == "function" then
++      return originalCareerOnGlobalCameraSet(modeName)
++    end
++  end
++
++  career.onCameraModeChanged = guardedOnCameraModeChanged
++  career.onGlobalCameraSet = guardedOnGlobalCameraSet
++  cameraGuardInstalled = true
++  refreshExtensionHooks()
++  return true
++end
++
+@@
+ function M.enableGrabber()
+   grabberEnabled = true
+   saveSettings()
+   ensureInputActionsRegistered()
++  installCareerCameraGuard()
+@@
+ function M.disableGrabber()
+   grabberEnabled = false
+   saveSettings()
++  restoreCareerCameraGuard()
+@@
+ local function refreshAfterRLSEvent()
+   ensureInputActionsRegistered()
+   if grabberEnabled then
++    installCareerCameraGuard()
+     applyEnabledState(true)
+@@
+ function M.onExtensionUnloaded()
+   saveSettings()
++  restoreCareerCameraGuard()
