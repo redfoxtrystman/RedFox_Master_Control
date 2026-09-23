@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 
 namespace PKVault.Core;
 
-public record TradeSwapActionInput(string OutgoingVariantId, TradePokemonDTO Incoming);
+public record TradeSwapActionInput(string[] OutgoingVariantIds, TradePokemonDTO[] Incoming);
 
 public class TradeSwapAction(
     IPkmVariantLoader pkmVariantLoader,
@@ -10,83 +10,162 @@ public class TradeSwapAction(
     IPkmFileLoader pkmFileLoader
 ) : DataAction<TradeSwapActionInput>
 {
+    private record SlotTarget(BoxDTO Box, int Slot);
+
     protected override async Task<DataActionPayload> Execute(TradeSwapActionInput input, DataUpdateFlags flags)
     {
-        var outgoing = await pkmVariantLoader.GetEntity(input.OutgoingVariantId)
-            ?? throw new KeyNotFoundException($"Trade Pokemon not found: {input.OutgoingVariantId}");
+        if (input.OutgoingVariantIds.Length > 5 || input.Incoming.Length > 5)
+            throw new ArgumentException("A PKVault trade can contain at most 5 Pokemon per side.");
+        if (input.OutgoingVariantIds.Length == 0 && input.Incoming.Length == 0)
+            throw new ArgumentException("A trade cannot be empty.");
+        if (input.OutgoingVariantIds.Distinct().Count() != input.OutgoingVariantIds.Length)
+            throw new ArgumentException("The same Pokemon cannot be offered twice.");
 
-        var targetBox = await boxLoader.GetDto(outgoing.BoxId)
-            ?? throw new KeyNotFoundException($"Trade target box not found: {outgoing.BoxId}");
-
-        var outgoingGroup = (await pkmVariantLoader.GetEntitiesByBox(outgoing.BoxId, outgoing.BoxSlot))
-            .Values.ToList();
-
-        if (outgoingGroup.Count == 0)
-            throw new InvalidOperationException("Trade source slot is empty.");
-
-        var main = outgoingGroup.FirstOrDefault(x => x.IsMain)
-            ?? throw new InvalidOperationException("Trade source slot has no main Pokemon.");
-
-        if (main.Id != input.OutgoingVariantId)
-            throw new InvalidOperationException("Only the main PKVault variant can be traded.");
-
-        foreach (var entity in outgoingGroup)
+        // Validate and materialize all incoming Pokemon before touching storage.
+        var incomingPkms = new List<(TradePokemonDTO Offer, ImmutablePKM Pkm)>();
+        foreach (var incoming in input.Incoming)
         {
-            var dto = await pkmVariantLoader.CreateDTO(entity);
-            if (!dto.CanDelete || dto.IsExternal)
-                throw new InvalidOperationException($"Trade source cannot be removed: {dto.Id}");
+            var bytes = Convert.FromBase64String(incoming.PayloadBase64);
+            var fingerprint = Convert.ToHexString(SHA256.HashData(bytes));
+            if (!fingerprint.Equals(incoming.Fingerprint, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Incoming trade Pokemon fingerprint mismatch.");
+
+            var extension = incoming.Extension.TrimStart('.');
+            if (string.IsNullOrWhiteSpace(extension))
+                throw new InvalidOperationException("Incoming trade Pokemon has no format extension.");
+
+            var tempFile = new PkmFileEntity
+            {
+                Filepath = $"trade-incoming.{extension}",
+                Data = bytes,
+                Error = null,
+                Updated = false,
+                Deleted = false,
+            };
+
+            var pkm = pkmFileLoader.CreatePKM(tempFile, incoming.Context);
+            if (!pkm.IsEnabled)
+                throw new InvalidOperationException("Incoming trade Pokemon could not be loaded by PKVault.");
+
+            incomingPkms.Add((incoming, pkm));
         }
 
-        var bytes = Convert.FromBase64String(input.Incoming.PayloadBase64);
-        var fingerprint = Convert.ToHexString(SHA256.HashData(bytes));
-        if (!fingerprint.Equals(input.Incoming.Fingerprint, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Incoming trade Pokemon fingerprint mismatch.");
+        // Resolve each logical outgoing Pokemon. All variants occupying its slot
+        // leave together so an alternate generation copy cannot be left behind.
+        var outgoingSlots = new List<(PkmVariantEntity Main, BoxDTO Box, List<PkmVariantEntity> Group)>();
+        var logicalSlotKeys = new HashSet<string>();
 
-        var extension = input.Incoming.Extension.TrimStart('.');
-        if (string.IsNullOrWhiteSpace(extension))
-            throw new InvalidOperationException("Incoming trade Pokemon has no format extension.");
-
-        var tempFile = new PkmFileEntity
+        foreach (var id in input.OutgoingVariantIds)
         {
-            Filepath = $"trade-incoming.{extension}",
-            Data = bytes,
-            Error = null,
-            Updated = false,
-            Deleted = false,
-        };
+            var outgoing = await pkmVariantLoader.GetEntity(id)
+                ?? throw new KeyNotFoundException($"Trade Pokemon not found: {id}");
+            var dto = await pkmVariantLoader.CreateDTO(outgoing);
 
-        var incomingPkm = pkmFileLoader.CreatePKM(tempFile, input.Incoming.Context);
-        if (!incomingPkm.IsEnabled)
-            throw new InvalidOperationException("Incoming trade Pokemon could not be loaded by PKVault.");
+            if (!dto.IsMain)
+                throw new InvalidOperationException("Only the main PKVault variant can be traded.");
+            if (!dto.IsEnabled || !dto.CanDelete || dto.IsExternal)
+                throw new InvalidOperationException($"Trade source cannot be removed: {dto.Id}");
 
-        foreach (var entity in outgoingGroup)
-            await pkmVariantLoader.DeleteEntity(entity);
+            var slotKey = $"{outgoing.BoxId}:{outgoing.BoxSlot}";
+            if (!logicalSlotKeys.Add(slotKey))
+                throw new InvalidOperationException("Two offered variants point to the same PKVault slot.");
 
-        var created = await pkmVariantLoader.AddEntity(new(
-            Box: targetBox,
-            BoxSlot: outgoing.BoxSlot,
-            IsMain: true,
-            IsExternal: false,
-            AttachedSaveId: null,
-            AttachedSavePkmIdBase: null,
-            Context: input.Incoming.Context,
-            Generation: input.Incoming.Generation,
-            Pkm: incomingPkm,
-            Id: Guid.NewGuid().ToString(),
-            Updated: true,
-            CheckPkm: true
-        ));
+            var box = await boxLoader.GetDto(outgoing.BoxId)
+                ?? throw new KeyNotFoundException($"Trade source box not found: {outgoing.BoxId}");
 
+            var group = (await pkmVariantLoader.GetEntitiesByBox(outgoing.BoxId, outgoing.BoxSlot))
+                .Values.ToList();
+
+            foreach (var entity in group)
+            {
+                var related = await pkmVariantLoader.CreateDTO(entity);
+                if (!related.CanDelete || related.IsExternal)
+                    throw new InvalidOperationException($"Trade source has a protected/external variant: {related.Id}");
+            }
+
+            outgoingSlots.Add((outgoing, box, group));
+        }
+
+        // Reuse the offered slots first. If this side is receiving more Pokemon
+        // than it sends, place the extras in the first empty normal PKVault slots.
+        var targets = new List<SlotTarget>();
+        foreach (var outgoing in outgoingSlots.Take(incomingPkms.Count))
+            targets.Add(new(outgoing.Box, outgoing.Main.BoxSlot));
+
+        if (targets.Count < incomingPkms.Count)
+        {
+            var allBoxes = (await boxLoader.GetAllDtos())
+                .Where(b => b.Type == BoxType.Box)
+                .OrderBy(b => b.BankId)
+                .ThenBy(b => b.Order)
+                .ThenBy(b => b.IdInt)
+                .ToArray();
+
+            var occupied = (await pkmVariantLoader.GetAllEntities())
+                .Values
+                .Select(e => $"{e.BoxId}:{e.BoxSlot}")
+                .ToHashSet();
+
+            // Offered slots are about to be removed and therefore count as free.
+            foreach (var outgoing in outgoingSlots)
+                occupied.Remove($"{outgoing.Main.BoxId}:{outgoing.Main.BoxSlot}");
+
+            foreach (var target in targets)
+                occupied.Add($"{target.Box.Id}:{target.Slot}");
+
+            foreach (var box in allBoxes)
+            {
+                for (var slot = 0; slot < box.SlotCount && targets.Count < incomingPkms.Count; slot++)
+                {
+                    var key = $"{box.Id}:{slot}";
+                    if (!occupied.Add(key))
+                        continue;
+                    targets.Add(new(box, slot));
+                }
+                if (targets.Count == incomingPkms.Count)
+                    break;
+            }
+
+            if (targets.Count != incomingPkms.Count)
+                throw new InvalidOperationException("There are not enough empty PKVault box slots to receive this trade.");
+        }
+
+        foreach (var outgoing in outgoingSlots)
+            foreach (var entity in outgoing.Group)
+                await pkmVariantLoader.DeleteEntity(entity);
+
+        for (var i = 0; i < incomingPkms.Count; i++)
+        {
+            var (offer, pkm) = incomingPkms[i];
+            var target = targets[i];
+
+            await pkmVariantLoader.AddEntity(new(
+                Box: target.Box,
+                BoxSlot: target.Slot,
+                IsMain: true,
+                IsExternal: false,
+                AttachedSaveId: null,
+                AttachedSavePkmIdBase: null,
+                Context: offer.Context,
+                Generation: offer.Generation,
+                Pkm: pkm,
+                Id: Guid.NewGuid().ToString(),
+                Updated: true,
+                CheckPkm: true
+            ));
+        }
+
+        var firstIncoming = incomingPkms.FirstOrDefault();
         return new(
             type: DataActionType.MOVE_PKM,
             parameters: [
-                incomingPkm.Nickname,
+                firstIncoming.Pkm?.Nickname ?? "Trade",
                 null,
                 null,
-                $"Trade from {input.Incoming.PeerName}",
-                outgoing.BoxSlot,
+                $"PKVault trade ({input.OutgoingVariantIds.Length} sent / {input.Incoming.Length} received)",
+                targets.FirstOrDefault()?.Slot ?? -1,
                 false,
-                incomingPkm.Species
+                firstIncoming.Pkm?.Species ?? 0
             ]
         );
     }
