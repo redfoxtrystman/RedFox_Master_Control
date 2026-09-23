@@ -184,7 +184,7 @@ export const TradingStoragePanel: React.FC = () => {
                     >Host Direct / VPN</Button>
                 </Group>
                 <Text size='xs' c='dimmed'>
-                    For Radmin/Hamachi/LAN, host with Direct / VPN and send your partner the matching IP:port shown below.
+                    Host Direct / VPN starts a direct trading session on this computer. Other players connect using one of the active network addresses shown after hosting, together with the generated port.
                 </Text>
                 <TextInput
                     leftSection={<LinkIcon size={14}/>}
