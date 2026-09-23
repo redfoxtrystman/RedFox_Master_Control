@@ -224,7 +224,7 @@ export const TradingStoragePanel: React.FC = () => {
                             >Copy</Button>
                         </Group>)}
                         {state.hostAddresses.some(host => host.startsWith('26.')) && <Text size='xs' c='dimmed'>
-                            The 26.x.x.x address is the likely Radmin VPN address. Your partner should paste that exact IP:port.
+                            Each address is one of this computer's active IPv4 network interfaces. Use the address for the LAN or VPN network shared with the other player. Radmin VPN commonly assigns addresses in the 26.x.x.x range.
                         </Text>}
                         {!state.hostAddresses.some(host => host.startsWith('26.')) && state.hostAddress !== 'localhost:0000' && <Text size='xs' c='dimmed'>
                             If you are using Radmin/Hamachi and its VPN address is not listed, copy the VPN IPv4 from that app and add the port shown here: {state.listenPort ?? '-'}.
