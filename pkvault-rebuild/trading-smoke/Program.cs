@@ -151,6 +151,21 @@ static async Task WaitCompleted(TradingService trading, string label)
     throw new Exception($"{label} timed out.");
 }
 
+static async Task AssertDexCaught(IServiceProvider sp, params ushort[] species)
+{
+    using var scope = sp.CreateScope();
+    var dexLoader = scope.ServiceProvider.GetRequiredService<IDexLoader>();
+    var entries = await dexLoader.GetEntitiesBySpecies(species);
+
+    foreach (var s in species)
+    {
+        if (!entries.TryGetValue(s, out var forms) || !forms.Any(f => f.IsCaught))
+            throw new Exception($"Expected species {s} to remain registered as caught in PKVault Pokedex.");
+    }
+
+    Console.WriteLine($"DEX CAUGHT {string.Join(",", species)}");
+}
+
 static async Task Trade(IServiceProvider sp, bool host)
 {
     var trading = sp.GetRequiredService<TradingService>();
@@ -197,6 +212,13 @@ static async Task Trade(IServiceProvider sp, bool host)
     await trading.SetReadyAsync(true);
     await WaitCompleted(trading, "ROUND1");
 
+    // Receiving through trade must permanently register the species in PKVault's
+    // central Pokedex immediately after the committed trade.
+    if (host)
+        await AssertDexCaught(sp, 27);      // A received Sandshrew
+    else
+        await AssertDexCaught(sp, 63, 58); // B received Abra + Growlithe
+
     // ROUND 2: one-way gift. A gives its slot-0 Pokemon; B gives nothing.
     pkms = await MainPkms(sp);
 
@@ -215,6 +237,20 @@ static async Task Trade(IServiceProvider sp, bool host)
     }
 
     await WaitCompleted(trading, "ROUND2");
+
+    if (host)
+    {
+        // A traded the received Sandshrew away again. It must no longer be
+        // owned, but the caught dex history must remain permanently registered.
+        var afterGift = await MainPkms(sp);
+        if (afterGift.Any(p => p.Species == 27))
+            throw new Exception("Trader A should no longer own Sandshrew after gifting it away.");
+        await AssertDexCaught(sp, 27);
+    }
+    else
+    {
+        await AssertDexCaught(sp, 63, 58, 27);
+    }
 }
 
 
