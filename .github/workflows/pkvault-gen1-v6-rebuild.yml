@@ -1,4 +1,4 @@
-name: PKVault Gen1 v6.2.1 Rebuild
+name: PKVault v7 Direct Trading Test
 
 on:
   push:
@@ -227,30 +227,134 @@ jobs:
           EOF
           dotnet run --project vault-smoke/vault-smoke.csproj -c Release
 
+      - name: Direct trading two-profile end-to-end test
+        run: |
+          set -euo pipefail
+          ROOT="$GITHUB_WORKSPACE"
+          HARNESS="$ROOT/pkvault-rebuild/trading-smoke/trading-smoke.csproj"
+          SEED_A="$ROOT/trade-test/seed-A"
+          SEED_B="$ROOT/trade-test/seed-B"
+          RUN_A="$ROOT/trade-test/run-A"
+          RUN_B="$ROOT/trade-test/run-B"
+
+          rm -rf "$ROOT/trade-test"
+          mkdir -p "$SEED_A" "$SEED_B"
+
+          dotnet build "$HARNESS" -c Release --nologo
+
+          PKVAULT_PATH="$SEED_A" PKVAULT_TRADE_PROFILE="Trader-A" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- seed A
+          PKVAULT_PATH="$SEED_B" PKVAULT_TRADE_PROFILE="Trader-B" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- seed B
+
+          cp -a "$SEED_A" "$RUN_A"
+          cp -a "$SEED_B" "$RUN_B"
+
+          PKVAULT_PATH="$RUN_A" PKVAULT_TRADE_PROFILE="Trader-A" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- host > "$ROOT/trade-host.log" 2>&1 &
+          HOST_PID=$!
+
+          sleep 2
+
+          PKVAULT_PATH="$RUN_B" PKVAULT_TRADE_PROFILE="Trader-B" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- join > "$ROOT/trade-join.log" 2>&1 &
+          JOIN_PID=$!
+
+          set +e
+          wait "$HOST_PID"; HOST_RC=$?
+          wait "$JOIN_PID"; JOIN_RC=$?
+          set -e
+
+          echo "===== HOST LOG ====="
+          cat "$ROOT/trade-host.log"
+          echo "===== JOIN LOG ====="
+          cat "$ROOT/trade-join.log"
+
+          test "$HOST_RC" -eq 0
+          test "$JOIN_RC" -eq 0
+
+          PKVAULT_PATH="$RUN_A" PKVAULT_TRADE_PROFILE="Trader-A" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- verify "26,1,4,7,133,143"
+          PKVAULT_PATH="$RUN_B" PKVAULT_TRADE_PROFILE="Trader-B" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- verify "25,2,5,8,134,131"
+
+          test ! -f "$RUN_A/pkvault-trade-pending.json"
+          test ! -f "$RUN_B/pkvault-trade-pending.json"
+          echo "PASS: two isolated PKVault profiles traded over localhost:0000 and reloaded correctly"
+
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-gen1-v6.2.1 -t pkvault-gen1-v621
-          docker create --name pkvault-gen1-v6211-out pkvault-gen1-v621
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-gen1-v7-trading-test -t pkvault-v7-trading-test
+          docker create --name pkvault-v7-trading-test-out pkvault-v7-trading-test
           mkdir -p ../dist
-          docker cp pkvault-gen1-v6211-out:/app/PKVault.exe ../dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.exe
-          docker rm pkvault-gen1-v6211-out
+          docker cp pkvault-v7-trading-test-out:/app/PKVault.exe ../dist/PKVault-v7-Direct-Trading-Test-win-x64.exe
+          docker rm pkvault-v7-trading-test-out
 
-      - name: Package and hash
+      - name: Package two isolated Windows trading profiles
         run: |
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/
-          sha256sum dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.exe | tee dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.sha256
-          (cd dist && zip -9 PKVault-Gen1-MissingNo-v6.2.1-win-x64.zip PKVault-Gen1-MissingNo-v6.2.1-win-x64.exe PKVault-Gen1-MissingNo-v6.2.1-win-x64.sha256 PKVAULT_GEN1_REBUILD.txt)
-          ls -lah dist
+          set -euo pipefail
+          mkdir -p dist/PKVault-v7-Trading-SelfTest/Trader-A
+          mkdir -p dist/PKVault-v7-Trading-SelfTest/Trader-B
 
-      - name: Upload rebuilt PKVault
+          cp dist/PKVault-v7-Direct-Trading-Test-win-x64.exe \
+            dist/PKVault-v7-Trading-SelfTest/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v7-Direct-Trading-Test-win-x64.exe \
+            dist/PKVault-v7-Trading-SelfTest/Trader-B/PKVault-Trader-B.exe
+
+          cp -a trade-test/seed-A/. dist/PKVault-v7-Trading-SelfTest/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v7-Trading-SelfTest/Trader-B/
+
+          cat > dist/PKVault-v7-Trading-SelfTest/TESTING.txt <<'EOF'
+          PKVault v7 Direct Trading self-test
+          ===================================
+          Trader A starts with:
+            Pikachu, Bulbasaur, Charmander, Squirtle, Eevee, Snorlax
+          Trader B starts with:
+            Raichu, Ivysaur, Charmeleon, Wartortle, Vaporeon, Lapras
+
+          Local self-test:
+          1. Open Trader-A/PKVault-Trader-A.exe.
+          2. Open Trader-B/PKVault-Trader-B.exe.
+          3. In Trader A, open Trading and click Host Local Test.
+          4. In Trader B, open Trading. Leave the default address as localhost:0000 and click Connect.
+          5. Choose one Pokemon in each app and click Offer Pokemon.
+          6. Click Ready to Trade in both apps.
+          7. When both report Trade complete, inspect Storage. Each received Pokemon replaces the offered Pokemon in that same vault slot.
+
+          Direct LAN / Radmin / Hamachi:
+          - Host clicks Host Direct.
+          - PKVault picks a random real port.
+          - Give the other person the host's reachable LAN/VPN IP plus that displayed port.
+          - The other person enters IP:port and connects.
+
+          Current test-build scope:
+          - Main PKVault vault Pokemon are tradeable.
+          - Loaded-save slots are not yet offered directly.
+          - Room-code relay is not yet implemented.
+          - Raw direct-IP traffic is not encrypted by PKVault in this test build; use a trusted LAN/VPN such as Radmin/Hamachi for remote testing.
+          EOF
+
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v7-Trading-SelfTest/
+          sha256sum dist/PKVault-v7-Trading-SelfTest/Trader-A/PKVault-Trader-A.exe \
+            | tee dist/PKVault-v7-Trading-SelfTest/Trader-A/PKVault-Trader-A.sha256
+          sha256sum dist/PKVault-v7-Trading-SelfTest/Trader-B/PKVault-Trader-B.exe \
+            | tee dist/PKVault-v7-Trading-SelfTest/Trader-B/PKVault-Trader-B.sha256
+
+          (cd dist && zip -9 -r PKVault-v7-Direct-Trading-SelfTest-win-x64.zip PKVault-v7-Trading-SelfTest)
+          sha256sum dist/PKVault-v7-Direct-Trading-SelfTest-win-x64.zip \
+            | tee dist/PKVault-v7-Direct-Trading-SelfTest-win-x64.sha256
+          ls -lah dist
+          find dist/PKVault-v7-Trading-SelfTest -maxdepth 3 -type f -print | sort
+
+      - name: Upload PKVault v7 trading self-test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-Gen1-MissingNo-v6.2.1-win-x64
+          name: PKVault-v7-Direct-Trading-SelfTest-win-x64
           path: |
-            dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.exe
-            dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.zip
-            dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.sha256
-            dist/PKVAULT_GEN1_REBUILD.txt
+            dist/PKVault-v7-Direct-Trading-SelfTest-win-x64.zip
+            dist/PKVault-v7-Direct-Trading-SelfTest-win-x64.sha256
+            dist/PKVault-v7-Direct-Trading-Test-win-x64.exe
+            dist/PKVault-v7-Trading-SelfTest/TESTING.txt
           if-no-files-found: error
           retention-days: 30
