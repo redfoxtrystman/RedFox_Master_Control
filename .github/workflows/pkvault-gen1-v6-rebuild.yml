@@ -1,4 +1,4 @@
-name: PKVault Trading v7.3 Player Name Test
+name: PKVault Trading v7.4 Online VPN Test
 
 on:
   push:
@@ -282,31 +282,64 @@ jobs:
           test ! -f "$RUN_B/pkvault-trade-pending.json"
           echo "PASS: uneven 2-for-1 trade + one-way gift completed over localhost:0000 and both profiles reloaded correctly"
 
+          # Direct-IP path smoke test. This uses the runner's non-loopback IPv4
+          # and the exact random port advertised by Host Direct.
+          DIRECT_A="$ROOT/trade-test/direct-A"
+          DIRECT_B="$ROOT/trade-test/direct-B"
+          DIRECT_ADDR="$ROOT/trade-test/direct-address.txt"
+          cp -a "$SEED_A" "$DIRECT_A"
+          cp -a "$SEED_B" "$DIRECT_B"
+          rm -f "$DIRECT_ADDR"
+
+          PKVAULT_PATH="$DIRECT_A"             dotnet run --no-build --project "$HARNESS" -c Release -- direct-host "$DIRECT_ADDR" > "$ROOT/trade-direct-host.log" 2>&1 &
+          DIRECT_HOST_PID=$!
+
+          sleep 2
+
+          PKVAULT_PATH="$DIRECT_B"             dotnet run --no-build --project "$HARNESS" -c Release -- direct-join "$DIRECT_ADDR" > "$ROOT/trade-direct-join.log" 2>&1 &
+          DIRECT_JOIN_PID=$!
+
+          set +e
+          wait "$DIRECT_HOST_PID"; DIRECT_HOST_RC=$?
+          wait "$DIRECT_JOIN_PID"; DIRECT_JOIN_RC=$?
+          set -e
+
+          echo "===== DIRECT HOST LOG ====="
+          cat "$ROOT/trade-direct-host.log"
+          echo "===== DIRECT JOIN LOG ====="
+          cat "$ROOT/trade-direct-join.log"
+
+          test "$DIRECT_HOST_RC" -eq 0
+          test "$DIRECT_JOIN_RC" -eq 0
+          test -s "$DIRECT_ADDR"
+          ! grep -q '^localhost:' "$DIRECT_ADDR"
+          echo "PASS: Host Direct advertised a non-loopback IP:random-port and a second PKVault connected to it"
+
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v7.3 -t pkvault-v73-trading-test
-          docker create --name pkvault-v73-trading-test-out pkvault-v73-trading-test
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v7.4 -t pkvault-v74-online-test
+          docker create --name pkvault-v74-online-test-out pkvault-v74-online-test
           mkdir -p ../dist
-          docker cp pkvault-v73-trading-test-out:/app/PKVault.exe ../dist/PKVault-v7.3-Storage-Trading-Test-win-x64.exe
-          docker rm pkvault-v73-trading-test-out
+          docker cp pkvault-v74-online-test-out:/app/PKVault.exe ../dist/PKVault-v7.4-Online-Trading-Test-win-x64.exe
+          docker rm pkvault-v74-online-test-out
 
       - name: Package two isolated Windows trading profiles
         run: |
           set -euo pipefail
-          mkdir -p dist/PKVault-v7.3-Trading-SelfTest/Trader-A
-          mkdir -p dist/PKVault-v7.3-Trading-SelfTest/Trader-B
+          mkdir -p dist/PKVault-v7.4-Online-Trading-Test/Trader-A
+          mkdir -p dist/PKVault-v7.4-Online-Trading-Test/Trader-B
 
-          cp dist/PKVault-v7.3-Storage-Trading-Test-win-x64.exe \
-            dist/PKVault-v7.3-Trading-SelfTest/Trader-A/PKVault-Trader-A.exe
-          cp dist/PKVault-v7.3-Storage-Trading-Test-win-x64.exe \
-            dist/PKVault-v7.3-Trading-SelfTest/Trader-B/PKVault-Trader-B.exe
+          cp dist/PKVault-v7.4-Online-Trading-Test-win-x64.exe \
+            dist/PKVault-v7.4-Online-Trading-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v7.4-Online-Trading-Test-win-x64.exe \
+            dist/PKVault-v7.4-Online-Trading-Test/Trader-B/PKVault-Trader-B.exe
 
-          cp -a trade-test/seed-A/. dist/PKVault-v7.3-Trading-SelfTest/Trader-A/
-          cp -a trade-test/seed-B/. dist/PKVault-v7.3-Trading-SelfTest/Trader-B/
+          cp -a trade-test/seed-A/. dist/PKVault-v7.4-Online-Trading-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v7.4-Online-Trading-Test/Trader-B/
 
-          cat > dist/PKVault-v7.3-Trading-SelfTest/TESTING.txt <<'EOF'
-          PKVault v7.3 Storage-integrated Trading + Player Name self-test
+          cat > dist/PKVault-v7.4-Online-Trading-Test/TESTING.txt <<'EOF'
+          PKVault v7.4 Online/VPN Direct Trading test
           ===================================
           Trader A starts with:
             Abra, Growlithe, Machop, Gastly, Dratini, Scyther
@@ -328,10 +361,13 @@ jobs:
           12. When both report Trade complete, the normal Storage panes should refresh automatically without Reload all data & saves.
 
           Direct LAN / Radmin / Hamachi:
-          - Host clicks Host Direct.
-          - PKVault picks a random real port.
-          - Give the other person the host's reachable LAN/VPN IP plus that displayed port.
-          - The other person enters IP:port and connects.
+          - Host chooses Trading in one Storage pane and clicks Host Direct / VPN.
+          - PKVault picks a random real port and lists detected IPv4 connection addresses.
+          - If a 26.x.x.x address is shown, that is usually the Radmin VPN address; use its full IP:port exactly as displayed.
+          - Otherwise copy the VPN IPv4 from Radmin/Hamachi and append the random port shown by PKVault.
+          - The partner chooses Trading, pastes IP:port into Connect, and joins.
+          - If Windows Firewall asks about PKVault, allow it on the network profile used by the VPN.
+          - Builds with incompatible trading protocol versions are rejected with a clear error instead of half-connecting.
 
           Current test-build scope:
           - Main PKVault vault Pokemon are tradeable, up to 6 per side.\n          - Settings > Trading > Player name controls the name peers see; it is not derived from the EXE/folder name.
@@ -339,28 +375,30 @@ jobs:
           - Loaded-save slots are not yet offered directly.
           - Room-code relay is not yet implemented.
           - Raw direct-IP traffic is not encrypted by PKVault in this test build; use a trusted LAN/VPN such as Radmin/Hamachi for remote testing.
+          - Host Direct listens on all IPv4 interfaces and advertises detected non-loopback IPv4 addresses with the randomized port.
+          - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
           EOF
 
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v7.3-Trading-SelfTest/
-          sha256sum dist/PKVault-v7.3-Trading-SelfTest/Trader-A/PKVault-Trader-A.exe \
-            | tee dist/PKVault-v7.3-Trading-SelfTest/Trader-A/PKVault-Trader-A.sha256
-          sha256sum dist/PKVault-v7.3-Trading-SelfTest/Trader-B/PKVault-Trader-B.exe \
-            | tee dist/PKVault-v7.3-Trading-SelfTest/Trader-B/PKVault-Trader-B.sha256
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v7.4-Online-Trading-Test/
+          sha256sum dist/PKVault-v7.4-Online-Trading-Test/Trader-A/PKVault-Trader-A.exe \
+            | tee dist/PKVault-v7.4-Online-Trading-Test/Trader-A/PKVault-Trader-A.sha256
+          sha256sum dist/PKVault-v7.4-Online-Trading-Test/Trader-B/PKVault-Trader-B.exe \
+            | tee dist/PKVault-v7.4-Online-Trading-Test/Trader-B/PKVault-Trader-B.sha256
 
-          (cd dist && zip -9 -r PKVault-v7.3-Storage-Trading-SelfTest-win-x64.zip PKVault-v7.3-Trading-SelfTest)
-          sha256sum dist/PKVault-v7.3-Storage-Trading-SelfTest-win-x64.zip \
-            | tee dist/PKVault-v7.3-Storage-Trading-SelfTest-win-x64.sha256
+          (cd dist && zip -9 -r PKVault-v7.4-Online-Trading-Test-win-x64.zip PKVault-v7.4-Online-Trading-Test)
+          sha256sum dist/PKVault-v7.4-Online-Trading-Test-win-x64.zip \
+            | tee dist/PKVault-v7.4-Online-Trading-Test-win-x64.sha256
           ls -lah dist
-          find dist/PKVault-v7.3-Trading-SelfTest -maxdepth 3 -type f -print | sort
+          find dist/PKVault-v7.4-Online-Trading-Test -maxdepth 3 -type f -print | sort
 
-      - name: Upload PKVault v7.3 storage trading self-test
+      - name: Upload PKVault v7.4 online trading test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v7.3-Storage-Trading-SelfTest-win-x64
+          name: PKVault-v7.4-Online-Trading-Test-win-x64
           path: |
-            dist/PKVault-v7.3-Storage-Trading-SelfTest-win-x64.zip
-            dist/PKVault-v7.3-Storage-Trading-SelfTest-win-x64.sha256
-            dist/PKVault-v7.3-Storage-Trading-Test-win-x64.exe
-            dist/PKVault-v7.3-Trading-SelfTest/TESTING.txt
+            dist/PKVault-v7.4-Online-Trading-Test-win-x64.zip
+            dist/PKVault-v7.4-Online-Trading-Test-win-x64.sha256
+            dist/PKVault-v7.4-Online-Trading-Test-win-x64.exe
+            dist/PKVault-v7.4-Online-Trading-Test/TESTING.txt
           if-no-files-found: error
           retention-days: 30
