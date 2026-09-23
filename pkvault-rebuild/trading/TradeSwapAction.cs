@@ -14,8 +14,8 @@ public class TradeSwapAction(
 
     protected override async Task<DataActionPayload> Execute(TradeSwapActionInput input, DataUpdateFlags flags)
     {
-        if (input.OutgoingVariantIds.Length > 5 || input.Incoming.Length > 5)
-            throw new ArgumentException("A PKVault trade can contain at most 5 Pokemon per side.");
+        if (input.OutgoingVariantIds.Length > 6 || input.Incoming.Length > 6)
+            throw new ArgumentException("A PKVault trade can contain at most 6 Pokemon per side.");
         if (input.OutgoingVariantIds.Length == 0 && input.Incoming.Length == 0)
             throw new ArgumentException("A trade cannot be empty.");
         if (input.OutgoingVariantIds.Distinct().Count() != input.OutgoingVariantIds.Length)
