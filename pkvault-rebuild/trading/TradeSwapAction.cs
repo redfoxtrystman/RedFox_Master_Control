@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using PKHeX.Core;
 
 namespace PKVault.Core;
 
