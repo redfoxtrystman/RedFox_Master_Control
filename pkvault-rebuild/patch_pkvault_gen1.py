@@ -1164,7 +1164,7 @@ replace_once(drop_validation,
 ''')
 
 (PKVAULT / 'PKVAULT_GEN1_REBUILD.txt').write_text(
-    'PKVault Gen1 MissingNo + Direct Trading rebuild v7.5-dex-trading-test\n'
+    'PKVault Gen1 MissingNo + Direct Trading rebuild v7.5.1-dex-trading-test\n'
     'Baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec\n'
     'PKHeX: 26.08.26 / 74b88906e935e4a52d6d9243b8e373056409c738\n'
     'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite normalized to standard PKVault icon sizing, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing, direct-IP PKVault trading with localhost:0000 local test alias, 0-6 batch/gift offers, Trading integrated as a native Storage source, existing PKVault box browsing + drag/drop into six trade slots, automatic cache refresh after commit, and a Settings > Trading player-name identity independent of the app/folder name, plus VPN/LAN direct-host address discovery, protocol-version checks, and permanent PKVault Pokedex registration for every received official Pokemon.\n',
