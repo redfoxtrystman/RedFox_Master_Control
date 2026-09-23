@@ -603,7 +603,7 @@ public class TradingService(
             PeerName: ProfileName,
             Nickname: pkm.Nickname,
             Species: pkm.Species,
-            Level: pkm.Level,
+            Level: pkm.CurrentLevel,
             Generation: entity.Generation,
             Context: entity.Context,
             Extension: pkm.Extension,
