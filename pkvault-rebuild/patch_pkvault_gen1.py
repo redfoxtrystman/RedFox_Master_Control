@@ -237,6 +237,37 @@ replace_once(savefile,
         SetPartySlot(pk, GetPartySpan(index), settings);
 ''')
 
+replace_once(savefile,
+'''    public void SetBoxSlot(PKM pk, Span<byte> data, EntityImportSettings settings = default)
+    {
+        if (pk.GetType() != PKMType)
+            throw new ArgumentException($"PKM Format needs to be {PKMType} when setting to this Save File.");
+
+        UpdatePKM(pk, isParty: false, settings);
+        SetPartyValues(pk, isParty: false);
+        WriteSlotBox(pk, data);
+    }
+''',
+'''    public void SetBoxSlot(PKM pk, Span<byte> data, EntityImportSettings settings = default)
+    {
+        if (pk.GetType() != PKMType)
+            throw new ArgumentException($"PKM Format needs to be {PKMType} when setting to this Save File.");
+
+        // A genuinely blank Gen-1 PK1 must be serialized before update hooks
+        // can normalize it into a non-zero body. Otherwise the raw-00 glitch
+        // detector sees the mutated blank as occupied and resurrects it.
+        if (pk is PK1 pk1 && !PokeList1.IsOccupied(pk1))
+        {
+            WriteSlotBox(pk, data);
+            return;
+        }
+
+        UpdatePKM(pk, isParty: false, settings);
+        SetPartyValues(pk, isParty: false);
+        WriteSlotBox(pk, data);
+    }
+''')
+
 sav1 = PKHEX / 'PKHeX.Core/Saves/SAV1.cs'
 replace_once(sav1,
 '''            int count = PokeList1.CountPresent(src, boxSlotCount);
@@ -376,10 +407,10 @@ replace_once(img,
 ''')
 
 (PKVAULT / 'PKVAULT_GEN1_REBUILD.txt').write_text(
-    'PKVault Gen1 MissingNo rebuild v6\n'
+    'PKVault Gen1 MissingNo rebuild v6.1\n'
     'Baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec\n'
     'PKHeX: 26.08.26 / 74b88906e935e4a52d6d9243b8e373056409c738\n'
-    'Fixes: v5 occupancy separation, raw-00 save/pk1 preservation, phantom-slot guard, Party->Red Box stored-format packing.\n',
+    'Fixes: v5 occupancy separation, raw-00 save/pk1 preservation, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing.\n',
     encoding='utf-8'
 )
 print('all patches applied')
