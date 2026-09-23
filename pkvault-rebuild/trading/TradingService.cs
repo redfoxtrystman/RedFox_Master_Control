@@ -63,7 +63,8 @@ public class TradingService(
     IServiceProvider sp,
     ActionService actionService,
     BackupService backupService,
-    ISessionService sessionService
+    ISessionService sessionService,
+    ISettingsService settingsService
 )
 {
     public const int LocalTestPort = 24801;
@@ -100,10 +101,14 @@ public class TradingService(
     private TaskCompletionSource<bool>? confirmedTcs;
     private TaskCompletionSource<bool>? restoredTcs;
 
-    private string ProfileName =>
-        Environment.GetEnvironmentVariable("PKVAULT_TRADE_PROFILE")
-        ?? Path.GetFileName(Directory.GetCurrentDirectory().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
-        ?? "PKVault";
+    private string ProfileName
+    {
+        get
+        {
+            var configured = settingsService.GetSettings().SettingsMutable.TRADER_NAME?.Trim();
+            return string.IsNullOrWhiteSpace(configured) ? "PKVault Player" : configured;
+        }
+    }
 
     private string JournalPath => Path.Combine(Directory.GetCurrentDirectory(), "pkvault-trade-pending.json");
 
