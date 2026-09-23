@@ -1008,6 +1008,17 @@ replace_once(drop_validation,
             banks: getStorageGetMainBanksQueryOptions(),
 ''')
 replace_once(drop_validation,
+'''            storageLeftPkmSaveIndex: storagesOptions[ 0 ]?.targetPkmSaveIndex,
+            storageLeftBoxes: storagesOptions[ 0 ]?.targetBoxes,
+            storageRightPkmSaveIndex: storagesOptions[ 1 ]?.targetPkmSaveIndex,
+            storageRightBoxes: storagesOptions[ 1 ]?.targetBoxes,
+''',
+'''            storageLeftPkmSaveIndex: storagesOptions[ 0 ]?.targetPkmSaveIndex ?? null,
+            storageLeftBoxes: storagesOptions[ 0 ]?.targetBoxes ?? null,
+            storageRightPkmSaveIndex: storagesOptions[ 1 ]?.targetPkmSaveIndex ?? null,
+            storageRightBoxes: storagesOptions[ 1 ]?.targetBoxes ?? null,
+''')
+replace_once(drop_validation,
 '''            getItemsContainers,
         };
 ''',
