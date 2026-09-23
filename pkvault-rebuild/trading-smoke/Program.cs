@@ -40,7 +40,11 @@ static async Task Seed(IServiceProvider sp, string profile)
     var settingsService = sp.GetRequiredService<ISettingsService>();
     var currentSettings = settingsService.GetSettings();
     await settingsService.UpdateSettingsSimple(
-        currentSettings.SettingsMutable with { SAVE_GLOBS = [] },
+        currentSettings.SettingsMutable with
+        {
+            SAVE_GLOBS = [],
+            TRADER_NAME = profile.Equals("A", StringComparison.OrdinalIgnoreCase) ? "Trader A" : "Trader B",
+        },
         currentSettings.UserId
     );
 
@@ -154,6 +158,15 @@ static async Task Trade(IServiceProvider sp, bool host)
         Console.WriteLine("JOIN localhost:0000");
         await WaitConnected(trading);
     }
+
+    var connectedState = await trading.GetStateAsync();
+    var expectedSelf = host ? "Trader A" : "Trader B";
+    var expectedPeer = host ? "Trader B" : "Trader A";
+    if (connectedState.ProfileName != expectedSelf)
+        throw new Exception($"Configured trading player name was not used. Expected self '{expectedSelf}', got '{connectedState.ProfileName}'.");
+    if (connectedState.PeerName != expectedPeer)
+        throw new Exception($"Peer trading player name was not exchanged. Expected '{expectedPeer}', got '{connectedState.PeerName}'.");
+    Console.WriteLine($"IDENTITY {connectedState.ProfileName} <-> {connectedState.PeerName}");
 
     // ROUND 1: uneven 2-for-1. A sends two; B sends one.
     var pkms = await MainPkms(sp);
