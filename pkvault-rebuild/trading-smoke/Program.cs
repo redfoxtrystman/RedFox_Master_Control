@@ -15,29 +15,28 @@ static async Task<IServiceProvider> Boot()
 
 static async Task Seed(IServiceProvider sp, string profile)
 {
+    // Fresh deterministic "random" Gen-1 test sets for v7.1.
     var setA = new (ushort Species, string Name, byte Level)[]
     {
-        (25, "PIKACHU", 18),
-        (1, "BULBASAUR", 12),
-        (4, "CHARMANDER", 14),
-        (7, "SQUIRTLE", 16),
-        (133, "EEVEE", 20),
-        (143, "SNORLAX", 30),
+        (63, "ABRA", 17),
+        (58, "GROWLITHE", 22),
+        (66, "MACHOP", 19),
+        (92, "GASTLY", 21),
+        (147, "DRATINI", 25),
+        (123, "SCYTHER", 28),
     };
     var setB = new (ushort Species, string Name, byte Level)[]
     {
-        (26, "RAICHU", 24),
-        (2, "IVYSAUR", 18),
-        (5, "CHARMELEON", 20),
-        (8, "WARTORTLE", 22),
-        (134, "VAPOREON", 28),
-        (131, "LAPRAS", 32),
+        (27, "SANDSHREW", 18),
+        (60, "POLIWAG", 16),
+        (104, "CUBONE", 23),
+        (116, "HORSEA", 20),
+        (127, "PINSIR", 30),
+        (124, "JYNX", 31),
     };
 
     var set = profile.Equals("A", StringComparison.OrdinalIgnoreCase) ? setA : setB;
 
-    // Keep the portable trader profiles focused on the seeded Gen-1 vault data.
-    // Otherwise desktop PKVault's normal first-run path creates its Emerald sample save.
     var settingsService = sp.GetRequiredService<ISettingsService>();
     var currentSettings = settingsService.GetSettings();
     await settingsService.UpdateSettingsSimple(
@@ -52,7 +51,6 @@ static async Task Seed(IServiceProvider sp, string profile)
 
     var box = await boxes.GetDto("0") ?? throw new Exception("Default Box 0 missing.");
 
-    // Seed only a clean test profile.
     if ((await loader.GetAllEntities()).Count != 0)
         throw new Exception("Refusing to seed non-empty PKVault test profile.");
 
@@ -62,7 +60,7 @@ static async Task Seed(IServiceProvider sp, string profile)
         var p = new PK1
         {
             Species = s.Species,
-            TID16 = (ushort)(profile == "A" ? 11000 + i : 22000 + i),
+            TID16 = (ushort)(profile == "A" ? 31000 + i : 42000 + i),
             DV16 = (ushort)(0x1111 * (i + 1)),
             CurrentLevel = s.Level,
         };
@@ -101,6 +99,45 @@ static async Task<List<PkmVariantDTO>> MainPkms(IServiceProvider sp)
         .ToList();
 }
 
+static async Task WaitConnected(TradingService trading)
+{
+    var deadline = DateTime.UtcNow.AddSeconds(30);
+    while (!(await trading.GetStateAsync()).Connected && DateTime.UtcNow < deadline)
+        await Task.Delay(100);
+    if (!(await trading.GetStateAsync()).Connected)
+        throw new Exception("Timed out waiting for localhost peer.");
+}
+
+static async Task WaitRemoteOfferCount(TradingService trading, int minimum)
+{
+    var deadline = DateTime.UtcNow.AddSeconds(20);
+    while (DateTime.UtcNow < deadline)
+    {
+        if ((await trading.GetStateAsync()).RemoteOffers.Length >= minimum)
+            return;
+        await Task.Delay(50);
+    }
+    throw new Exception($"Timed out waiting for at least {minimum} remote offers.");
+}
+
+static async Task WaitCompleted(TradingService trading, string label)
+{
+    var deadline = DateTime.UtcNow.AddSeconds(60);
+    while (DateTime.UtcNow < deadline)
+    {
+        var state = await trading.GetStateAsync();
+        if (state.Status == "Completed")
+        {
+            Console.WriteLine($"{label} COMPLETE");
+            return;
+        }
+        if (state.Status == "Error")
+            throw new Exception(state.LastError ?? $"{label} entered Error state.");
+        await Task.Delay(100);
+    }
+    throw new Exception($"{label} timed out.");
+}
+
 static async Task Trade(IServiceProvider sp, bool host)
 {
     var trading = sp.GetRequiredService<TradingService>();
@@ -109,50 +146,57 @@ static async Task Trade(IServiceProvider sp, bool host)
     {
         var state = await trading.HostAsync(localTest: true);
         Console.WriteLine($"HOST {state.HostAddress} internal={state.ListenPort}");
-
-        var deadline = DateTime.UtcNow.AddSeconds(30);
-        while (!(await trading.GetStateAsync()).Connected && DateTime.UtcNow < deadline)
-            await Task.Delay(100);
-
-        if (!(await trading.GetStateAsync()).Connected)
-            throw new Exception("Host timed out waiting for localhost client.");
+        await WaitConnected(trading);
     }
     else
     {
         await trading.ConnectAsync("localhost:0000");
         Console.WriteLine("JOIN localhost:0000");
+        await WaitConnected(trading);
     }
 
+    // ROUND 1: uneven 2-for-1. A sends two; B sends one.
     var pkms = await MainPkms(sp);
-    if (pkms.Count < 6)
-        throw new Exception($"Expected at least six seeded Pokemon, found {pkms.Count}.");
+    if (pkms.Count != 6)
+        throw new Exception($"Expected six seeded Pokemon before round 1, found {pkms.Count}.");
 
-    var offered = pkms[0];
-    Console.WriteLine($"OFFER BEFORE species={offered.Species} id={offered.Id} slot={offered.BoxSlot}");
+    var firstRoundIds = host
+        ? new[] { pkms[0].Id, pkms[1].Id }
+        : new[] { pkms[0].Id };
 
-    await trading.SetOfferAsync(offered.Id);
+    await trading.SetOffersAsync(firstRoundIds);
+
+    if (!host)
+        await WaitRemoteOfferCount(trading, 2);
+    else
+        await WaitRemoteOfferCount(trading, 1);
+
     await trading.SetReadyAsync(true);
+    await WaitCompleted(trading, "ROUND1");
 
-    var tradeDeadline = DateTime.UtcNow.AddSeconds(60);
-    while (DateTime.UtcNow < tradeDeadline)
+    // ROUND 2: one-way gift. A gives its slot-0 Pokemon; B gives nothing.
+    pkms = await MainPkms(sp);
+
+    if (host)
     {
-        var state = await trading.GetStateAsync();
-        if (state.Status == "Completed")
-        {
-            Console.WriteLine($"TRADE COMPLETE remoteSpecies={state.RemoteOffer?.Species}");
-            return;
-        }
-        if (state.Status == "Error")
-            throw new Exception(state.LastError ?? "Trading service entered Error state.");
-        await Task.Delay(100);
+        var gift = pkms.First();
+        Console.WriteLine($"GIFT species={gift.Species} id={gift.Id}");
+        await trading.SetOffersAsync([gift.Id]);
+        await trading.SetReadyAsync(true);
+    }
+    else
+    {
+        await trading.SetOffersAsync([]);
+        await WaitRemoteOfferCount(trading, 1);
+        await trading.SetReadyAsync(true);
     }
 
-    throw new Exception("Trade timed out.");
+    await WaitCompleted(trading, "ROUND2");
 }
 
 static async Task Verify(IServiceProvider sp, string expected)
 {
-    var expectedSpecies = expected.Split(',').Select(ushort.Parse).ToArray();
+    var expectedSpecies = expected.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(ushort.Parse).ToArray();
     var pkms = await MainPkms(sp);
     var actual = pkms.Select(x => x.Species).ToArray();
 
