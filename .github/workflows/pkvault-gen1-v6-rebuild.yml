@@ -117,7 +117,7 @@ jobs:
           Need(normalFromBox.Species == 25, "Party->Box normal Pokemon became '?'");
           Need(glitchFromBox.SpeciesInternal == 0, "raw00 glitch did not round-trip");
 
-          var party = new byte[PokeList1.GetListLength(3, true, true)];
+          var party = new byte[PokeList1.GetListLength(3, false, true)];
           Need(PokeList1.MergeSingles(singles, party, stringLength, 3, true), "party merge failed");
           Need(party[0] == 2 && party[2] == 0, "party occupancy/raw00 preservation failed");
 
