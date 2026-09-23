@@ -424,20 +424,16 @@ replace_once(img,
     const settings = useSettingsGet();
 
     if (species === 0 && context === EntityContext.Gen1) {
-        const { style, ...rest } = imgProps;
-        return <img
-            {...rest}
+        return <UISpeciesImg
+            {...imgProps}
             data-species-id={0}
-            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFQAAADDCAYAAAAcCDY6AAAFl0lEQVR4nO2dMW5UQQyGd9F2SUHgCtwkh4hEu4IeIZBSAEIUkZCAHiktgkPkJlwhkCL90iWzXq3XYz7Pe5H+r9rkvX0v+eWx7BmPZ7kYzJOjo0378/Xtbeh7b19+23vt8/dXe+/1rh16TuZ7j/beJVJIUJjV6BdGh3gPdjh6Q9e7j3AHslAYCQojQWGWo1+42Ww2h+/axfOTWd+XxXufLBRGgsI8mCFvIUIcKsNqkYXCSFAYCQozPPW0RH2TpSIcIt4tC4WRoDDDw6Y/P99vhU0nZx//+5k9bsPLsLLXWmShMBIURoLCDPehdpHu9+Xru8/P1l8W9LWLq8db17ILcR5apCtEgsIMz5TWzz+Z39zcfWqHqiV7zSM7xD1koTASFEaCwgz3oeenN1s/E6mnyxXvJzXbNBAJCjOrTMnSZkD2vui1nlqqNoyyrin6PlkojASFkaAww33omxdf9xY6TLnwdohoEYQsFEaCwkweNu3OPt1DLKhZKmqbNMFciASFkaAwk4dN1f7OSyGzKPUciASFmVVJeEWtkUc2NFJt00AkKIwEhZnch/799eHuczak8Wb97SKg5/8uf7z77/fLQmEkKMzkmZLNZAiiC2qW6MyXRRPMhUhQGAkKM6ttNVOnni3Z3c6yUBgJCjP5kI/i7fTo+Z73jOi93t8iC4WRoDASFGZ4Sbj1P9H6zbXZEXdyFgt5eupD7TtaLq6a+0yK2v4tslAYCQozq9qmnrX3ffcdIpthRUstZaEwEhRGgsJMnnpmZ9ej23GoFsXqfTcREhRm8nX5luqm/T1ky8xloTASFEaCwgyfbWprmRaL3b5KUaJhzNPj49TzbVgWrcGShcJIUJhZhU0e1MEA1WctyUJhJCiMBIVZeQ0BRhANf7K+sGLLjb2m3ciFSFCYJXXYSUtP+NFmMj0TzFHsBHN2t5x20k2EBIWRoDArOxtTce5mi31ftt1vtF5zdIMXWSiMBIVZVQ/xxWJ7iNgNqt66vDeso+v53u64CmShMBIURoLCDFmka0Mlz2d7KV2Pr792Oo9XpJ6abSpEgsIsbXlhdp2cgFo0856hTOmBIUFhJCjM0m5zqUhFPf/j1R4RO45t6lnduEAWCiNBYXYW6bLlfy0Vh51kw5ieknB1CZ8hEhRGgsJgYVPWbxE+26On0CGKF/rJQmEkKMzOkCdOzLZEF81s68t25qtnJx2xe06zTTNBgsJIUJjh9aFeJ+6oHz50b0tPl3BiFUAWCiNBYXbKGbN9lIih1LZDs2RLuz2ys1SaYB6IBIWRoDDLip10Pf6VesfI99nnt6GgLBRGgsKsvBmeLF4mYXuO0O+2UCeCt/+TzfbUJbwQCQojQWF2Zpu8/kTEbH7FuXPZmagsXqdzWSiMBIVZ2TCmnZD1mvFT11q8EM47CMDu+oie3u3VYPXsztO6fCESFEaCwgxvd+n7yW1feL649+/W13v+7vz0/rN95trxy9FrSj0HIkFhdjKlijJs4pCU7Pcqjgq2tG5LFgojQWEkKExJbZNHT58oYnvMCFo/LQuFkaAww4c8BRFiVYSFslAYCQojQWGGzzb1kA1/suGWR7ReVBYKI0FhSsoZs1CNBPY9owc7S9VOVGsXyEAkKIwEhRmeemYPk/Luzdaj9tRZRbcbyUJhJCjMrId89Hse2domS3QiXBYKI0FhJChM2odWtIoccax5BUo9C5GgMKsRxzRWDLvo+7zSQwqVhBciQWEkKAw2Y0+ciVnR+tejwtfLQmEkKMyKWrcmyLoKS7blWvSZWqQbiASFkaAwD6ZvU9bXU4t00QYLslAYCQqTLmf0hjXVtXvf8+0zvWteL6jsIQi2iULbplMWCiNBYSQoTNqHUudlRpnTKoBFqWchEhSmZF2+okaJ6kpesUNEtU2FSFCYf4GHjPUM5fGuAAAAAElFTkSuQmCC"
-            alt="MissingNo / 'M Gen 1 glitch sprite"
-            title="Gen 1 glitch Pokemon"
-            style={{
-                width: 'calc(var(--sprite-species-size-multiplier, 1) * 96px)',
-                height: 'calc(var(--sprite-species-size-multiplier, 1) * 96px)',
-                objectFit: 'contain',
-                imageRendering: 'pixelated',
-                ...style,
-            }}
+            data-glitch-species="gen1"
+            sheetUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAD7klEQVR42u2cvW7iQBDHx6d0UOTjFXgTP0ROaS3oSQQSRYJyKSIRAT0RbRQegjfhFQIUTs01t9ZmmNl1YnMaS/+fhOxgN3h3vv4zDhEAAAAAAAAAAAAAAAAAAAAAAABghMtW6+Az6M4Og+6sOOff8b+t/Z6zpi3AR56L3w97c5os+sXfk0Wfhr15ce7uARU5MLRdL9036M7MWcCvpi9IaKfzo0XOmvjQ+QP1XU9ooYiIXl5v4UaqsH1/CLoYKSBbdkGNzIK27w8H7ShlP5azoMbFgOzmiYiINss78ai5KcSAmhile7q4ftRvWM+DMQDU5II0N8TjAr+OJ1iRWL6vBWh3RAyoyPLtPprra9/BDdVkAdLO5i6Hf6y6oKSJUoS/o/1jqEJ25y+vtwm2ccUFkHa5C8x+/i/dgzS0BhlilB7n/UREnWxKGyJavk2/1AxQQ08gRWhSQ6gXYLESTpq4AEe73rOGTjYtKmN+vlne0eXvP4gBVQsxKcfn59CCThwHeG4fqgsmiz5qgDpdkJ/Xc2kiJlXjCdaQhsYa7yEXhTS0IrvVmJ7X56JLIiK6are/XNss72i3GhcBGdRkAaGmfGg8BRZQQuspG4R9mcEdNUnCBWL0hL+5wyUfz4Ow/4lZA9LQCNyHS9e5DOG3Jf3dzgU7i5hbAG3yzdd0/ArXr4YRaE/sgvw8P9QZC42nQAsqUWjxNFOzBj4RJ1XH3BVZ6weYW4DLVusQG8B1cUIS4bKbJ7VBQ0SUJAnEuJgLCrUUtRpAE+Osj6c3wgJ4FhPKlD7yXGy8OMvZfn7CAmILIM38uHO3m6UxxFCVbLUSTiy6oFD168ZSeArquLh+DAZnxIASFhDSdKQmi6T5aFYBC/ihFiRlNjzDCV0f9ua0fLs3FwPMiXGjdE9SHeBcyG41JiIirVaQJAf38P/1hGEBsRjg9Hu/ma7JDVos4HSyKX3kOWJAmUo4lONrWZA2De1nTxZHExvXlB+l+yLbGaV72q3GdNVu0241Lt4dyG6ejo7OBSEIl3BBkobDZWXtzUi3QBLP63NoQT+tA/wq2FXKvEKOjR6O0j0Gs8oswHeJ1QF4QeNE8B5wrE6w2BVrTCGmFVf8ofJFcIEZUkRNLkiTINzRF+7cBy7oRGhzobwoszwXaj4L0jpbkuIZy4QsuiBzWlBosEp7uP71UMEVG3mBBShBWFoEKQhLE3Mca4WYOQso668lq4gthsXRxMb3A/iCObnaV00tv6JkfjzdH7rVtH5/h7s+AW/sZ+tzel7b+33m01A+61nWMqT0FJVwhTRUaztq/zNOsxa8KQ8AAAAAAAAAAAAAAAAAAAAAAOB/8RdrIr6c7MaA6QAAAABJRU5ErkJggg=="
+            spriteInfos={{ x: 0, y: 0, width: 96, height: 96 }}
+            sourceRealHeight={96}
+            species={1}
+            isShadow={false}
+            title="MissingNo / 'M Gen 1 glitch Pokemon"
         />;
     }
 
@@ -447,10 +443,10 @@ replace_once(img,
 ''')
 
 (PKVAULT / 'PKVAULT_GEN1_REBUILD.txt').write_text(
-    'PKVault Gen1 MissingNo rebuild v6.2\n'
+    'PKVault Gen1 MissingNo rebuild v6.2.1\n'
     'Baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec\n'
     'PKHeX: 26.08.26 / 74b88906e935e4a52d6d9243b8e373056409c738\n'
-    'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing.\n',
+    'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite normalized to standard PKVault icon sizing, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing.\n',
     encoding='utf-8'
 )
 print('all patches applied')
