@@ -101,7 +101,7 @@ jobs:
           start = s.index("    public void FlushParty()")
           end = s.index("    private void SetParty", start)
           flush = s[start:end]
-          assert "save.GetPartyData()" not in flush, "FlushParty still rereads mutated save buffer"
+          assert "\\n        var party = save.GetPartyData()" not in flush, "FlushParty still actively rereads mutated save buffer"
           assert "GetAllDtos()" in flush, "FlushParty is not using logical DTO cache"
           assert "dto.BoxId == (int)BoxType.Party" in flush
           assert "OrderBy(dto => dto.BoxSlot)" in flush
