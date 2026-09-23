@@ -236,7 +236,8 @@ static async Task DirectHost(IServiceProvider sp, string addressFile)
     await File.WriteAllTextAsync(addressFile, address);
     Console.WriteLine($"DIRECT HOST {address}");
 
-    await WaitConnected(trading);
+    // The hello/identity message proves the direct socket connected. Waiting
+    // only on Connected can race a fast test peer that disconnects immediately.
     await WaitPeerName(trading);
 
     var connected = await trading.GetStateAsync();
@@ -269,6 +270,8 @@ static async Task DirectJoin(IServiceProvider sp, string addressFile)
         throw new Exception($"Direct join expected Trader A, got '{connected.PeerName}'.");
 
     Console.WriteLine($"DIRECT JOIN {address} AS {connected.ProfileName} -> {connected.PeerName}");
+    // Give the host-side smoke process time to observe the completed hello.
+    await Task.Delay(750);
     await trading.DisconnectAsync();
 }
 
