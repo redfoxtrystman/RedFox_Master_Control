@@ -201,6 +201,44 @@ replace_once(savefile,
                 SetPartySlotAtIndex(exist, ctr++);
 ''')
 replace_once(savefile,
+'''    public void SetBoxSlotAtIndex(PKM pk, int box, int slot, EntityImportSettings settings = default)
+        => SetBoxSlot(pk, BoxBuffer[GetBoxSlotOffset(box, slot)..], settings);
+
+    public void SetBoxSlotAtIndex(PKM pk, int index, EntityImportSettings settings = default)
+        => SetBoxSlot(pk, BoxBuffer[GetBoxSlotOffset(index)..], settings);
+''',
+'''    private bool TryClearBlankGen1BoxSlot(PKM pk, Span<byte> data)
+    {
+        if (pk is not PK1 pk1 || PokeList1.IsOccupied(pk1))
+            return false;
+
+        // Canonical empty single-slot Gen-1 list. Write it directly instead of
+        // entering the normal import path, which normalizes a blank PK1 into
+        // level 1 and makes the raw-00 detector think it is MissingNo.
+        data[..SIZE_BOXSLOT].Clear();
+        data[1] = PokeList1.SlotEmpty;
+        data[2] = PokeList1.SlotEmpty;
+        return true;
+    }
+
+    public void SetBoxSlotAtIndex(PKM pk, int box, int slot, EntityImportSettings settings = default)
+    {
+        var data = BoxBuffer[GetBoxSlotOffset(box, slot)..];
+        if (TryClearBlankGen1BoxSlot(pk, data))
+            return;
+        SetBoxSlot(pk, data, settings);
+    }
+
+    public void SetBoxSlotAtIndex(PKM pk, int index, EntityImportSettings settings = default)
+    {
+        var data = BoxBuffer[GetBoxSlotOffset(index)..];
+        if (TryClearBlankGen1BoxSlot(pk, data))
+            return;
+        SetBoxSlot(pk, data, settings);
+    }
+''')
+
+replace_once(savefile,
 '''        int currentCount = PartyCount;
         if (pk.Species != 0)
         {
