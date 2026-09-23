@@ -1,4 +1,4 @@
-name: PKVault Trading v7.5.1 Copy Patch Test
+name: PKVault Trading v7.5.2 Description Patch Test
 
 on:
   push:
@@ -318,28 +318,28 @@ jobs:
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v7.5.1 -t pkvault-v751-copy-patch
-          docker create --name pkvault-v751-copy-patch-out pkvault-v751-copy-patch
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v7.5.2 -t pkvault-v752-description-patch
+          docker create --name pkvault-v752-description-patch-out pkvault-v752-description-patch
           mkdir -p ../dist
-          docker cp pkvault-v751-copy-patch-out:/app/PKVault.exe ../dist/PKVault-v7.5.1-Online-Trading-Dex-Test-win-x64.exe
-          docker rm pkvault-v751-copy-patch-out
+          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v7.5.2-Online-Trading-Dex-Test-win-x64.exe
+          docker rm pkvault-v752-description-patch-out
 
       - name: Package two isolated Windows trading profiles
         run: |
           set -euo pipefail
-          mkdir -p dist/PKVault-v7.5.1-Online-Trading-Dex-Test/Trader-A
-          mkdir -p dist/PKVault-v7.5.1-Online-Trading-Dex-Test/Trader-B
+          mkdir -p dist/PKVault-v7.5.2-Online-Trading-Dex-Test/Trader-A
+          mkdir -p dist/PKVault-v7.5.2-Online-Trading-Dex-Test/Trader-B
 
-          cp dist/PKVault-v7.5.1-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v7.5.1-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
-          cp dist/PKVault-v7.5.1-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v7.5.1-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
+          cp dist/PKVault-v7.5.2-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v7.5.2-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v7.5.2-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v7.5.2-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
 
-          cp -a trade-test/seed-A/. dist/PKVault-v7.5.1-Online-Trading-Dex-Test/Trader-A/
-          cp -a trade-test/seed-B/. dist/PKVault-v7.5.1-Online-Trading-Dex-Test/Trader-B/
+          cp -a trade-test/seed-A/. dist/PKVault-v7.5.2-Online-Trading-Dex-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v7.5.2-Online-Trading-Dex-Test/Trader-B/
 
-          cat > dist/PKVault-v7.5.1-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
-          PKVault v7.5.1 Online/VPN Trading + Permanent Dex Registration test
+          cat > dist/PKVault-v7.5.2-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
+          PKVault v7.5.2 Online/VPN Trading + Permanent Dex Registration test
           ===================================
           Trader A starts with:
             Abra, Growlithe, Machop, Gastly, Dratini, Scyther
@@ -384,26 +384,26 @@ jobs:
           - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
           EOF
 
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v7.5.1-Online-Trading-Dex-Test/
-          sha256sum dist/PKVault-v7.5.1-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
-            | tee dist/PKVault-v7.5.1-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
-          sha256sum dist/PKVault-v7.5.1-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
-            | tee dist/PKVault-v7.5.1-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v7.5.2-Online-Trading-Dex-Test/
+          sha256sum dist/PKVault-v7.5.2-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
+            | tee dist/PKVault-v7.5.2-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
+          sha256sum dist/PKVault-v7.5.2-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
+            | tee dist/PKVault-v7.5.2-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
 
-          (cd dist && zip -9 -r PKVault-v7.5.1-Online-Trading-Dex-Test-win-x64.zip PKVault-v7.5.1-Online-Trading-Dex-Test)
-          sha256sum dist/PKVault-v7.5.1-Online-Trading-Dex-Test-win-x64.zip \
-            | tee dist/PKVault-v7.5.1-Online-Trading-Dex-Test-win-x64.sha256
+          (cd dist && zip -9 -r PKVault-v7.5.2-Online-Trading-Dex-Test-win-x64.zip PKVault-v7.5.2-Online-Trading-Dex-Test)
+          sha256sum dist/PKVault-v7.5.2-Online-Trading-Dex-Test-win-x64.zip \
+            | tee dist/PKVault-v7.5.2-Online-Trading-Dex-Test-win-x64.sha256
           ls -lah dist
-          find dist/PKVault-v7.5.1-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
+          find dist/PKVault-v7.5.2-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
 
-      - name: Upload PKVault v7.5.1 online trading dex test
+      - name: Upload PKVault v7.5.2 online trading dex test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v7.5.1-Online-Trading-Dex-Test-win-x64
+          name: PKVault-v7.5.2-Online-Trading-Dex-Test-win-x64
           path: |
-            dist/PKVault-v7.5.1-Online-Trading-Dex-Test-win-x64.zip
-            dist/PKVault-v7.5.1-Online-Trading-Dex-Test-win-x64.sha256
-            dist/PKVault-v7.5.1-Online-Trading-Dex-Test-win-x64.exe
-            dist/PKVault-v7.5.1-Online-Trading-Dex-Test/TESTING.txt
+            dist/PKVault-v7.5.2-Online-Trading-Dex-Test-win-x64.zip
+            dist/PKVault-v7.5.2-Online-Trading-Dex-Test-win-x64.sha256
+            dist/PKVault-v7.5.2-Online-Trading-Dex-Test-win-x64.exe
+            dist/PKVault-v7.5.2-Online-Trading-Dex-Test/TESTING.txt
           if-no-files-found: error
           retention-days: 30
