@@ -13,7 +13,7 @@ public class TradingController(TradingService tradingService)
     public Task<TradeStateDTO> Connect(TradeConnectPayload payload) => tradingService.ConnectAsync(payload.Address);
 
     [HttpPut("offer")]
-    public Task<TradeStateDTO> SetOffer(TradeOfferPayload payload) => tradingService.SetOfferAsync(payload.PkmVariantId);
+    public Task<TradeStateDTO> SetOffer(TradeOfferPayload payload) => tradingService.SetOffersAsync(payload.PkmVariantIds);
 
     [HttpPut("ready")]
     public Task<TradeStateDTO> SetReady(TradeReadyPayload payload) => tradingService.SetReadyAsync(payload.Ready);
