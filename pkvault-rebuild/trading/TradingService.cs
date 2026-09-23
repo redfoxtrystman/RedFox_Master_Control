@@ -39,6 +39,8 @@ public record TradeStateDTO(
     string ProfileName,
     string? PeerName,
     string? HostAddress,
+    string[] HostAddresses,
+    string? PeerAddress,
     int? ListenPort,
     TradePokemonDTO[] LocalOffers,
     TradePokemonDTO[] RemoteOffers,
@@ -52,6 +54,7 @@ public record TradeWireMessage(
     string Type,
     string? TransactionId = null,
     string? ProfileName = null,
+    int? ProtocolVersion = null,
     TradePokemonDTO[]? Offers = null,
     bool? Ready = null,
     string? Error = null
@@ -69,6 +72,8 @@ public class TradingService(
 {
     public const int LocalTestPort = 24801;
     public const int MaxOffers = 6;
+    public const int ProtocolVersion = 2;
+    public static readonly TimeSpan ConnectTimeout = TimeSpan.FromSeconds(15);
 
     private readonly object stateLock = new();
     private readonly SemaphoreSlim sendLock = new(1, 1);
@@ -84,6 +89,8 @@ public class TradingService(
     private string status = "Disconnected";
     private string? peerName;
     private string? hostAddress;
+    private string[] hostAddresses = [];
+    private string? peerAddress;
     private int? listenPort;
     private List<TradePokemonDTO> localOffers = [];
     private List<TradePokemonDTO> remoteOffers = [];
@@ -137,12 +144,18 @@ public class TradingService(
         }
 
         var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+        var addresses = localTest
+            ? [ "localhost:0000" ]
+            : GetDirectHostAddresses(port);
+
         lock (stateLock)
         {
             isHost = true;
             status = "Hosting";
             listenPort = port;
-            hostAddress = localTest ? "localhost:0000" : $"localhost:{port}";
+            hostAddresses = addresses;
+            hostAddress = addresses.FirstOrDefault()
+                ?? (localTest ? "localhost:0000" : $"0.0.0.0:{port}");
             lastError = null;
         }
 
@@ -170,8 +183,21 @@ public class TradingService(
 
         try
         {
-            await tcp.ConnectAsync(host, port, networkCts.Token);
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(networkCts.Token);
+            timeoutCts.CancelAfter(ConnectTimeout);
+
+            await tcp.ConnectAsync(host, port, timeoutCts.Token);
             await SetupPeerAsync(tcp, networkCts.Token);
+        }
+        catch (OperationCanceledException ex) when (!networkCts.IsCancellationRequested)
+        {
+            tcp.Dispose();
+            lock (stateLock)
+            {
+                status = "Error";
+                lastError = $"Connection to {host}:{port} timed out after {(int)ConnectTimeout.TotalSeconds} seconds.";
+            }
+            throw new TimeoutException(lastError, ex);
         }
         catch
         {
@@ -278,6 +304,8 @@ public class TradingService(
             status = "Disconnected";
             peerName = null;
             hostAddress = null;
+            hostAddresses = [];
+            peerAddress = null;
             listenPort = null;
             localOffers = [];
             remoteOffers = [];
@@ -310,6 +338,7 @@ public class TradingService(
     private async Task SetupPeerAsync(TcpClient tcp, CancellationToken cancellationToken)
     {
         client = tcp;
+        peerAddress = tcp.Client.RemoteEndPoint?.ToString();
         var stream = tcp.GetStream();
         reader = new StreamReader(stream, new UTF8Encoding(false), false, 8192, leaveOpen: true);
         writer = new StreamWriter(stream, new UTF8Encoding(false), 8192, leaveOpen: true) { AutoFlush = true };
@@ -321,7 +350,7 @@ public class TradingService(
             lastError = null;
         }
 
-        await SendAsync(new("hello", ProfileName: ProfileName));
+        await SendAsync(new("hello", ProfileName: ProfileName, ProtocolVersion: ProtocolVersion));
         await SendAsync(new("offer", Offers: [.. localOffers]));
 
         _ = ReadLoopAsync(cancellationToken);
@@ -381,9 +410,17 @@ public class TradingService(
         switch (msg.Type)
         {
             case "hello":
+                if (msg.ProtocolVersion != ProtocolVersion)
+                {
+                    var peerVersion = msg.ProtocolVersion?.ToString() ?? "unknown";
+                    var error = $"Trading protocol mismatch. This build uses v{ProtocolVersion}; peer uses v{peerVersion}.";
+                    await SendAsync(new("error", Error: error));
+                    throw new InvalidOperationException(error);
+                }
+
                 lock (stateLock)
                 {
-                    peerName = msg.ProfileName ?? "PKVault peer";
+                    peerName = string.IsNullOrWhiteSpace(msg.ProfileName) ? "PKVault Player" : msg.ProfileName.Trim();
                     status = "Connected";
                 }
                 break;
@@ -898,6 +935,8 @@ public class TradingService(
         ProfileName: ProfileName,
         PeerName: peerName,
         HostAddress: hostAddress,
+        HostAddresses: [.. hostAddresses],
+        PeerAddress: peerAddress,
         ListenPort: listenPort,
         LocalOffers: [.. localOffers],
         RemoteOffers: [.. remoteOffers],
@@ -906,6 +945,40 @@ public class TradingService(
         ActiveTransactionId: activeTransactionId,
         LastError: lastError
     );
+
+    private static string[] GetDirectHostAddresses(int port)
+    {
+        try
+        {
+            var addresses = Dns.GetHostEntry(Dns.GetHostName())
+                .AddressList
+                .Where(a => a.AddressFamily == AddressFamily.InterNetwork)
+                .Where(a => !IPAddress.IsLoopback(a))
+                .Where(a => !a.Equals(IPAddress.Any))
+                .Where(a => !a.ToString().StartsWith("169.254.", StringComparison.Ordinal))
+                .Distinct()
+                .OrderByDescending(a => a.GetAddressBytes()[0] == 26)
+                .ThenByDescending(a =>
+                {
+                    var b = a.GetAddressBytes();
+                    return b[0] == 10
+                        || (b[0] == 172 && b[1] is >= 16 and <= 31)
+                        || (b[0] == 192 && b[1] == 168);
+                })
+                .ThenBy(a => a.ToString(), StringComparer.Ordinal)
+                .Select(a => $"{a}:{port}")
+                .ToArray();
+
+            return addresses.Length == 0
+                ? [ $"0.0.0.0:{port}" ]
+                : addresses;
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Could not enumerate direct-trading host addresses");
+            return [ $"0.0.0.0:{port}" ];
+        }
+    }
 
     private static (string Host, int Port) ParseAddress(string raw)
     {
