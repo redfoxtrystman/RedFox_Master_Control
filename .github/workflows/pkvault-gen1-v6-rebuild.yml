@@ -85,6 +85,12 @@ jobs:
           glitch.EXP = 12345;
           glitch.Stat_Level = 20;
 
+          var missingno50 = new PK1();
+          missingno50.SpeciesInternal = 0x50;
+          missingno50.CatchRate = 45;
+          missingno50.EXP = 54321;
+          missingno50.Stat_LevelBox = 92;
+
           var blank = new PK1();
 
           var normalSingle = PokeList1.WrapSingle(normal);
@@ -97,6 +103,11 @@ jobs:
               "raw-00 glitch was not preserved as occupied");
           Need(blankSingle[0] == 0 && blankSingle[1] == 0xFF,
               "blank PK1 became occupied");
+          var missingno50Single = PokeList1.WrapSingle(missingno50);
+          Need(PokeList1.IsKnownGen1Glitch(missingno50),
+              "raw-50 MissingNo was not recognized as a supported Gen1 glitch");
+          Need(missingno50Single[0] == 1 && missingno50Single[1] == 0x50,
+              "raw-50 MissingNo was not serialized as occupied");
 
           var one = normalSingle.Length;
           var singles = new byte[one * 3];
@@ -149,13 +160,74 @@ jobs:
           var glitchRoundTrip = (PK1)glitchReload.GetBoxSlotAtIndex(0, 0);
           Need(PokeList1.IsRawZeroGlitch(glitchRoundTrip), "real raw-00 glitch was lost after SAV1 save/reload");
 
-          Console.WriteLine("PASS: SAV1 vacated-slot and raw00 round-trip regression");
+          // Raw-50 MissingNo must also survive box + party save paths.
+          var missingSave = new SAV1(LanguageID.English, GameVersion.RB);
+          missingSave.SetBoxSlotAtIndex(missingno50.Clone(), 0, 0, EntityImportSettings.None);
+          var missingBytes = missingSave.Write().ToArray();
+          var missingReload = new SAV1(missingBytes, LanguageID.English, GameVersion.RB);
+          var missingRoundTrip = (PK1)missingReload.GetBoxSlotAtIndex(0, 0);
+          Need(missingRoundTrip.SpeciesInternal == 0x50, "raw-50 MissingNo was lost after SAV1 box save/reload");
+
+          var missingParty = new SAV1(LanguageID.English, GameVersion.RB);
+          missingParty.PartyData = [missingno50.Clone()];
+          Need(missingParty.PartyCount == 1, "raw-50 MissingNo was not counted as a party Pokemon");
+          Need(((PK1)missingParty.PartyData[0]).SpeciesInternal == 0x50, "raw-50 MissingNo party marker was corrupted");
+
+          Console.WriteLine("PASS: SAV1 vacated-slot, raw00 and raw50 regressions");
           EOF
           dotnet run --project smoke/smoke.csproj -c Release
 
       - name: Build PKVault Core with patched library
         run: |
           dotnet build pkvault-src/PKVault.Core/PKVault.Core.csproj -c Release --nologo
+
+      - name: PKVault Gen1 glitch enablement smoke test
+        run: |
+          mkdir -p vault-smoke
+          cat > vault-smoke/vault-smoke.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+            </PropertyGroup>
+            <ItemGroup>
+              <ProjectReference Include="../pkvault-src/PKVault.Core/PKVault.Core.csproj" />
+            </ItemGroup>
+          </Project>
+          EOF
+          cat > vault-smoke/Program.cs <<'EOF'
+          using PKHeX.Core;
+          using PKVault.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          var raw00 = new PK1();
+          raw00.SpeciesInternal = 0;
+          raw00.CatchRate = 45;
+          raw00.EXP = 12345;
+          raw00.Stat_LevelBox = 20;
+
+          var raw50 = new PK1();
+          raw50.SpeciesInternal = 0x50;
+          raw50.CatchRate = 45;
+          raw50.EXP = 54321;
+          raw50.Stat_LevelBox = 92;
+
+          var blank = new PK1();
+
+          Need(new ImmutablePKM(raw00).IsEnabled, "'M raw-00 should be enabled");
+          Need(new ImmutablePKM(raw50).IsEnabled, "MissingNo raw-50 should be enabled");
+          Need(!new ImmutablePKM(blank).IsEnabled, "blank PK1 must remain disabled");
+          Need(new ImmutablePKM(raw00).IsGen1Glitch, "'M raw-00 glitch identity missing");
+          Need(new ImmutablePKM(raw50).IsGen1Glitch, "MissingNo raw-50 glitch identity missing");
+
+          Console.WriteLine("PASS: PKVault enables raw00 + raw50 glitches and rejects blank PK1");
+          EOF
+          dotnet run --project vault-smoke/vault-smoke.csproj -c Release
 
       - name: Build Windows x64 PKVault executable
         run: |
