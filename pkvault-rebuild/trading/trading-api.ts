@@ -26,6 +26,8 @@ export type TradeState = {
     profileName: string;
     peerName?: string | null;
     hostAddress?: string | null;
+    hostAddresses: string[];
+    peerAddress?: string | null;
     listenPort?: number | null;
     localOffers: TradePokemon[];
     remoteOffers: TradePokemon[];
