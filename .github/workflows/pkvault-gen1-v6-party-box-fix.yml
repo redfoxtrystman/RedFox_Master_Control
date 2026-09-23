@@ -1,0 +1,142 @@
+name: PKVault Gen1 v6 Party-to-Box Fix
+
+on:
+  push:
+    branches: [chatgpt/pkvault-gen1-v6-party-box-fix-20260923]
+    paths: [".github/workflows/pkvault-gen1-v6-party-box-fix.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Recreate exact v5 source
+        run: |
+          set -euxo pipefail
+          curl -fsSL "https://raw.githubusercontent.com/redfoxtrystman/RedFox_Master_Control/9b4e46a334e83a834cd4c752b6819d3c34be2ce9/.github/workflows/pkvault-gen1-v5-save-fix.yml" -o /tmp/v5-workflow.yml
+
+          python3 - <<'PY'
+          from pathlib import Path
+          lines = Path("/tmp/v5-workflow.yml").read_text().splitlines()
+
+          def extract_step(name, out):
+              target = f"- name: {name}"
+              start = next(i for i, line in enumerate(lines) if line.strip() == target)
+              run_i = next(i for i in range(start + 1, len(lines)) if lines[i].strip() == "run: |")
+              run_indent = len(lines[run_i]) - len(lines[run_i].lstrip())
+              body = []
+              for line in lines[run_i + 1:]:
+                  if line.strip():
+                      indent = len(line) - len(line.lstrip())
+                      if indent <= run_indent:
+                          break
+                      cut = min(len(line), run_indent + 2)
+                      body.append(line[cut:])
+                  else:
+                      body.append("")
+              Path(out).write_text("\n".join(body) + "\n")
+
+          extract_step("Recreate exact v3 source", "/tmp/recreate-v5.sh")
+          extract_step("Apply v5 save-clear fix", "/tmp/apply-v5.sh")
+          PY
+
+          bash /tmp/recreate-v5.sh
+          bash /tmp/apply-v5.sh
+
+      - name: Apply v6 party-to-box phantom fix
+        run: |
+          set -euxo pipefail
+          cd pkvault
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("PKVault.Core/db/loader/save/SavePkmLoader.cs")
+          s = p.read_text()
+
+          old = """        var party = save.GetPartyData()
+                  .FindAll(pkm => pkm.IsEnabled);
+
+                  SetParty(party);"""
+          new = """        // Do NOT rebuild the party by rereading SAV1's mutated party buffer.
+                  // Clearing a Gen 1 party slot makes PKHeX create a temporary blank PK1
+                  // with calculated Lv.1 party stats. Reading that temporary object back
+                  // can make it appear as a fake species-0 '?' entry.
+                  //
+                  // The DTO cache is the authoritative logical party state during a move:
+                  // DeleteDto has already removed the source slot and WriteDto has already
+                  // inserted any swap target. Compact those logical entries instead.
+                  var party = GetAllDtos()
+                      .Where(dto => dto.BoxId == (int)BoxType.Party && dto.IsEnabled)
+                      .OrderBy(dto => dto.BoxSlot)
+                      .Select(dto => dto.Pkm)
+                      .ToList();
+
+                  SetParty(party);"""
+          if old not in s:
+              raise SystemExit("FlushParty anchor not found")
+          p.write_text(s.replace(old, new, 1))
+          PY
+
+      - name: Validate v5 plus v6 invariants
+        run: |
+          set -euxo pipefail
+          cd pkvault
+
+          # v5's critical save serializer separation remains intact.
+          grep -q "private static bool IsOccupied(PK1 pk1)" PKVault.Core/utils/Gen1GlitchUtil.cs
+          grep -q "public static bool IsOccupiedGlitch(PK1 pk1)" PKVault.Core/utils/Gen1GlitchUtil.cs
+          grep -q "if (!IsOccupied(pk1))" PKVault.Core/utils/Gen1GlitchUtil.cs
+          ! grep -q "if (!IsOccupiedGlitch(pk1))" PKVault.Core/utils/Gen1GlitchUtil.cs
+          grep -q "Math.Min(0x21, data.Length)" PKVault.Core/utils/Gen1GlitchUtil.cs
+
+          # v6 must never reread Save.GetPartyData during FlushParty.
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path("PKVault.Core/db/loader/save/SavePkmLoader.cs").read_text()
+          start = s.index("    public void FlushParty()")
+          end = s.index("    private void SetParty", start)
+          flush = s[start:end]
+          assert "save.GetPartyData()" not in flush, "FlushParty still rereads mutated save buffer"
+          assert "GetAllDtos()" in flush, "FlushParty is not using logical DTO cache"
+          assert "dto.BoxId == (int)BoxType.Party" in flush
+          assert "OrderBy(dto => dto.BoxSlot)" in flush
+          print("v6 FlushParty invariant: OK")
+          PY
+
+      - name: Build Windows x64
+        run: |
+          docker build pkvault --target desktop-publish --build-arg RID=win-x64 -t pkvault-gen1-v6:ci
+
+      - name: Extract and verify
+        run: |
+          cid="$(docker create pkvault-gen1-v6:ci)"
+          mkdir publish-final
+          docker cp "$cid":/app/publish-final/. publish-final/
+          docker rm "$cid"
+
+          test -f publish-final/PKVault.exe
+          file publish-final/PKVault.exe
+          sha256sum publish-final/PKVault.exe | tee publish-final/PKVault.exe.sha256
+
+          cat > publish-final/GEN1-V6-FIXES.txt <<'EOF'
+          PKVault Gen1 glitch v6
+          - Keeps the v5 critical save-clear fix.
+          - Fixes party -> Pokemon Red box leaving a fake Lv.1 ? in the old party slot.
+          - FlushParty now compacts PKVault's logical cached party entries instead of
+            rereading PKHeX's temporarily mutated blank PK1 party slot.
+          - Box -> party, party -> vault, MissingNo, raw species 00 ('M), and fixed
+            MissingNo sprite sizing are retained.
+          EOF
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-Gen1-MissingNo-v6-win-x64
+          path: publish-final/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
