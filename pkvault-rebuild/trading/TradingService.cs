@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -950,13 +951,19 @@ public class TradingService(
     {
         try
         {
-            var addresses = Dns.GetHostEntry(Dns.GetHostName())
-                .AddressList
+            // Enumerate real adapters instead of relying on hostname DNS. This
+            // reliably includes virtual VPN adapters such as Radmin/Hamachi.
+            var addresses = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(nic => nic.OperationalStatus == OperationalStatus.Up)
+                .Where(nic => nic.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                .SelectMany(nic => nic.GetIPProperties().UnicastAddresses)
+                .Select(info => info.Address)
                 .Where(a => a.AddressFamily == AddressFamily.InterNetwork)
                 .Where(a => !IPAddress.IsLoopback(a))
                 .Where(a => !a.Equals(IPAddress.Any))
                 .Where(a => !a.ToString().StartsWith("169.254.", StringComparison.Ordinal))
                 .Distinct()
+                // Radmin VPN commonly uses 26.x.x.x, so surface it first.
                 .OrderByDescending(a => a.GetAddressBytes()[0] == 26)
                 .ThenByDescending(a =>
                 {
