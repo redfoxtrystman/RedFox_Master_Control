@@ -11,7 +11,7 @@ namespace PKVault.Core;
 
 public record TradeHostPayload(bool LocalTest);
 public record TradeConnectPayload(string Address);
-public record TradeOfferPayload(string PkmVariantId);
+public record TradeOfferPayload(string[] PkmVariantIds);
 public record TradeReadyPayload(bool Ready);
 
 public record TradePokemonDTO(
@@ -35,8 +35,8 @@ public record TradeStateDTO(
     string? PeerName,
     string? HostAddress,
     int? ListenPort,
-    TradePokemonDTO? LocalOffer,
-    TradePokemonDTO? RemoteOffer,
+    TradePokemonDTO[] LocalOffers,
+    TradePokemonDTO[] RemoteOffers,
     bool LocalReady,
     bool RemoteReady,
     string? ActiveTransactionId,
@@ -47,7 +47,7 @@ public record TradeWireMessage(
     string Type,
     string? TransactionId = null,
     string? ProfileName = null,
-    TradePokemonDTO? Offer = null,
+    TradePokemonDTO[]? Offers = null,
     bool? Ready = null,
     string? Error = null
 );
@@ -62,6 +62,7 @@ public class TradingService(
 )
 {
     public const int LocalTestPort = 24801;
+    public const int MaxOffers = 5;
 
     private readonly object stateLock = new();
     private readonly SemaphoreSlim sendLock = new(1, 1);
@@ -78,8 +79,8 @@ public class TradingService(
     private string? peerName;
     private string? hostAddress;
     private int? listenPort;
-    private TradePokemonDTO? localOffer;
-    private TradePokemonDTO? remoteOffer;
+    private List<TradePokemonDTO> localOffers = [];
+    private List<TradePokemonDTO> remoteOffers = [];
     private bool localReady;
     private bool remoteReady;
     private string? activeTransactionId;
@@ -173,25 +174,31 @@ public class TradingService(
         return await GetStateAsync();
     }
 
-    public async Task<TradeStateDTO> SetOfferAsync(string pkmVariantId)
+    public async Task<TradeStateDTO> SetOffersAsync(string[] pkmVariantIds)
     {
         if (!connected)
-            throw new InvalidOperationException("Connect to another PKVault before offering a Pokemon.");
+            throw new InvalidOperationException("Connect to another PKVault before changing the trade offer.");
         if (localReady)
             throw new InvalidOperationException("Unready before changing the offered Pokemon.");
         if (Volatile.Read(ref transactionRunning) != 0)
             throw new InvalidOperationException("A trade is already being committed.");
+        if (pkmVariantIds.Length > MaxOffers)
+            throw new ArgumentException($"A trade can contain at most {MaxOffers} Pokemon.");
+        if (pkmVariantIds.Distinct().Count() != pkmVariantIds.Length)
+            throw new ArgumentException("The same Pokemon cannot be offered twice.");
 
-        var offer = await BuildOfferAsync(pkmVariantId);
+        var offers = await BuildOffersAsync(pkmVariantIds);
 
         lock (stateLock)
         {
-            localOffer = offer;
+            localOffers = offers.ToList();
             localReady = false;
+            if (status == "Completed")
+                status = "Connected";
             lastError = null;
         }
 
-        await SendAsync(new("offer", Offer: offer));
+        await SendAsync(new("offer", Offers: offers));
         return await GetStateAsync();
     }
 
@@ -199,11 +206,20 @@ public class TradingService(
     {
         if (!connected)
             throw new InvalidOperationException("No active trade connection.");
-        if (ready && localOffer == null)
-            throw new InvalidOperationException("Choose a Pokemon before readying.");
+
+        TradePokemonDTO[] local;
+        TradePokemonDTO[] remote;
+        lock (stateLock)
+        {
+            local = [.. localOffers];
+            remote = [.. remoteOffers];
+        }
+
+        if (ready && local.Length == 0 && remote.Length == 0)
+            throw new InvalidOperationException("At least one side must offer a Pokemon.");
 
         if (ready)
-            await ValidateLocalOfferAsync();
+            await ValidateLocalOffersAsync();
 
         lock (stateLock)
         {
@@ -253,8 +269,8 @@ public class TradingService(
             peerName = null;
             hostAddress = null;
             listenPort = null;
-            localOffer = null;
-            remoteOffer = null;
+            localOffers = [];
+            remoteOffers = [];
             localReady = false;
             remoteReady = false;
             activeTransactionId = null;
@@ -296,8 +312,7 @@ public class TradingService(
         }
 
         await SendAsync(new("hello", ProfileName: ProfileName));
-        if (localOffer != null)
-            await SendAsync(new("offer", Offer: localOffer));
+        await SendAsync(new("offer", Offers: [.. localOffers]));
 
         _ = ReadLoopAsync(cancellationToken);
     }
@@ -364,10 +379,18 @@ public class TradingService(
                 break;
 
             case "offer":
+                var incomingOffers = msg.Offers ?? [];
+                if (incomingOffers.Length > MaxOffers)
+                {
+                    await SendAsync(new("error", Error: $"Peer tried to offer more than {MaxOffers} Pokemon."));
+                    break;
+                }
                 lock (stateLock)
                 {
-                    remoteOffer = msg.Offer;
+                    remoteOffers = [.. incomingOffers];
                     remoteReady = false;
+                    if (status == "Completed")
+                        status = "Connected";
                 }
                 break;
 
@@ -384,7 +407,16 @@ public class TradingService(
                     break;
                 try
                 {
-                    await ValidateLocalOfferAsync();
+                    await ValidateLocalOffersAsync();
+                    TradePokemonDTO[] local;
+                    TradePokemonDTO[] remote;
+                    lock (stateLock)
+                    {
+                        local = [.. localOffers];
+                        remote = [.. remoteOffers];
+                    }
+                    if (local.Length == 0 && remote.Length == 0)
+                        throw new InvalidOperationException("Trade became empty before commit.");
                     await SendAsync(new("prepared", TransactionId: msg.TransactionId));
                 }
                 catch (Exception ex)
@@ -398,11 +430,11 @@ public class TradingService(
                 break;
 
             case "stage":
-                if (isHost || msg.Offer == null)
+                if (isHost)
                     break;
                 try
                 {
-                    await StageLocalSwapAsync(msg.TransactionId!, msg.Offer);
+                    await StageLocalSwapAsync(msg.TransactionId!, msg.Offers ?? []);
                     await SendAsync(new("staged", TransactionId: msg.TransactionId));
                 }
                 catch (Exception ex)
@@ -441,6 +473,9 @@ public class TradingService(
                     status = "Completed";
                     localReady = false;
                     remoteReady = false;
+                    localOffers = [];
+                    remoteOffers = [];
+                    activeTransactionId = null;
                 }
                 await SendAsync(new("confirmed", TransactionId: msg.TransactionId));
                 await ClearPendingJournalAsync();
@@ -485,32 +520,35 @@ public class TradingService(
 
         try
         {
-            TradePokemonDTO hostOffer;
-            TradePokemonDTO clientOffer;
+            TradePokemonDTO[] hostOffers;
+            TradePokemonDTO[] clientOffers;
             lock (stateLock)
             {
-                if (!connected || !localReady || !remoteReady || localOffer == null || remoteOffer == null)
+                if (!connected || !localReady || !remoteReady)
                     return;
 
-                hostOffer = localOffer;
-                clientOffer = remoteOffer;
+                hostOffers = [.. localOffers];
+                clientOffers = [.. remoteOffers];
+                if (hostOffers.Length == 0 && clientOffers.Length == 0)
+                    return;
+
                 activeTransactionId = tx;
                 status = "Trading";
                 lastError = null;
             }
 
-            await ValidateLocalOfferAsync();
+            await ValidateLocalOffersAsync();
 
             preparedTcs = NewWaiter();
             await SendAsync(new("prepare", TransactionId: tx));
             await preparedTcs.Task.WaitAsync(TimeSpan.FromSeconds(20));
 
             stagedTcs = NewWaiter();
-            await SendAsync(new("stage", TransactionId: tx, Offer: hostOffer));
+            await SendAsync(new("stage", TransactionId: tx, Offers: hostOffers));
             await stagedTcs.Task.WaitAsync(TimeSpan.FromSeconds(20));
             clientStaged = true;
 
-            await StageLocalSwapAsync(tx, clientOffer);
+            await StageLocalSwapAsync(tx, clientOffers);
             localStaged = true;
 
             finalizedTcs = NewWaiter();
@@ -532,6 +570,8 @@ public class TradingService(
                 status = "Completed";
                 localReady = false;
                 remoteReady = false;
+                localOffers = [];
+                remoteOffers = [];
                 activeTransactionId = null;
             }
         }
@@ -571,69 +611,94 @@ public class TradingService(
         }
     }
 
-    private async Task<TradePokemonDTO> BuildOfferAsync(string pkmVariantId)
+    private async Task<TradePokemonDTO[]> BuildOffersAsync(string[] pkmVariantIds)
     {
         if (!sessionService.HasEmptyActionList())
-            throw new InvalidOperationException("Save or undo current PKVault changes before starting a trade.");
+            throw new InvalidOperationException("Save or undo current PKVault changes before changing a trade offer.");
 
         using var scope = sp.CreateScope();
         var loader = scope.ServiceProvider.GetRequiredService<IPkmVariantLoader>();
+        var offers = new List<TradePokemonDTO>(pkmVariantIds.Length);
+        var logicalSlots = new HashSet<string>();
 
-        var entity = await loader.GetEntity(pkmVariantId)
-            ?? throw new KeyNotFoundException($"Pokemon not found: {pkmVariantId}");
-        var dto = await loader.CreateDTO(entity);
-
-        if (!dto.IsMain)
-            throw new InvalidOperationException("Only the main variant can be offered for trade.");
-        if (!dto.IsEnabled || !dto.CanDelete || dto.IsExternal)
-            throw new InvalidOperationException("That Pokemon cannot be traded from PKVault.");
-
-        var group = (await loader.GetEntitiesByBox(entity.BoxId, entity.BoxSlot)).Values;
-        foreach (var related in group)
+        foreach (var pkmVariantId in pkmVariantIds)
         {
-            var relatedDto = await loader.CreateDTO(related);
-            if (!relatedDto.CanDelete || relatedDto.IsExternal)
-                throw new InvalidOperationException("This Pokemon has a protected/external variant and cannot be traded.");
+            var entity = await loader.GetEntity(pkmVariantId)
+                ?? throw new KeyNotFoundException($"Pokemon not found: {pkmVariantId}");
+            var dto = await loader.CreateDTO(entity);
+
+            if (!dto.IsMain)
+                throw new InvalidOperationException("Only the main variant can be offered for trade.");
+            if (!dto.IsEnabled || !dto.CanDelete || dto.IsExternal)
+                throw new InvalidOperationException("That Pokemon cannot be traded from PKVault.");
+
+            if (!logicalSlots.Add($"{entity.BoxId}:{entity.BoxSlot}"))
+                throw new InvalidOperationException("The same logical Pokemon slot cannot be offered twice.");
+
+            var group = (await loader.GetEntitiesByBox(entity.BoxId, entity.BoxSlot)).Values;
+            foreach (var related in group)
+            {
+                var relatedDto = await loader.CreateDTO(related);
+                if (!relatedDto.CanDelete || relatedDto.IsExternal)
+                    throw new InvalidOperationException("This Pokemon has a protected/external variant and cannot be traded.");
+            }
+
+            var pkm = await loader.GetPKM(entity);
+            var bytes = pkm.GetDecryptedDataParty();
+            var fingerprint = Convert.ToHexString(SHA256.HashData(bytes));
+
+            offers.Add(new(
+                VariantId: entity.Id,
+                PeerName: ProfileName,
+                Nickname: pkm.Nickname,
+                Species: pkm.Species,
+                Level: pkm.CurrentLevel,
+                Generation: entity.Generation,
+                Context: entity.Context,
+                Extension: pkm.Extension,
+                PayloadBase64: Convert.ToBase64String(bytes),
+                Fingerprint: fingerprint
+            ));
         }
 
-        var pkm = await loader.GetPKM(entity);
-        var bytes = pkm.GetDecryptedDataParty();
-        var fingerprint = Convert.ToHexString(SHA256.HashData(bytes));
-
-        return new(
-            VariantId: entity.Id,
-            PeerName: ProfileName,
-            Nickname: pkm.Nickname,
-            Species: pkm.Species,
-            Level: pkm.CurrentLevel,
-            Generation: entity.Generation,
-            Context: entity.Context,
-            Extension: pkm.Extension,
-            PayloadBase64: Convert.ToBase64String(bytes),
-            Fingerprint: fingerprint
-        );
+        return [.. offers];
     }
 
-    private async Task ValidateLocalOfferAsync()
+    private async Task ValidateLocalOffersAsync()
     {
-        var offer = localOffer ?? throw new InvalidOperationException("No local Pokemon is offered.");
-        if (offer.VariantId == null)
-            throw new InvalidOperationException("Local trade offer has no PKVault variant id.");
+        TradePokemonDTO[] snapshot;
+        lock (stateLock)
+            snapshot = [.. localOffers];
 
-        var current = await BuildOfferAsync(offer.VariantId);
-        if (!current.Fingerprint.Equals(offer.Fingerprint, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("The offered Pokemon changed after it was selected.");
+        var ids = snapshot
+            .Select(o => o.VariantId ?? throw new InvalidOperationException("Local trade offer has no PKVault variant id."))
+            .ToArray();
+
+        var current = await BuildOffersAsync(ids);
+        if (current.Length != snapshot.Length)
+            throw new InvalidOperationException("The local trade offer changed.");
+
+        for (var i = 0; i < current.Length; i++)
+        {
+            if (!current[i].Fingerprint.Equals(snapshot[i].Fingerprint, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"The offered Pokemon '{snapshot[i].Nickname}' changed after it was selected.");
+        }
     }
 
-    private async Task StageLocalSwapAsync(string tx, TradePokemonDTO incoming)
+    private async Task StageLocalSwapAsync(string tx, TradePokemonDTO[] incoming)
     {
-        var offer = localOffer ?? throw new InvalidOperationException("No local trade offer.");
-        if (offer.VariantId == null)
-            throw new InvalidOperationException("Local trade offer has no variant id.");
+        TradePokemonDTO[] outgoing;
+        lock (stateLock)
+            outgoing = [.. localOffers];
+
         if (!sessionService.HasEmptyActionList())
             throw new InvalidOperationException("PKVault has unsaved actions; trade cannot be staged.");
 
-        await actionService.TradeSwap(new(offer.VariantId, incoming));
+        var outgoingIds = outgoing
+            .Select(o => o.VariantId ?? throw new InvalidOperationException("Local trade offer has no variant id."))
+            .ToArray();
+
+        await actionService.TradeSwap(new(outgoingIds, incoming));
 
         stageActive = true;
         lock (stateLock)
@@ -819,8 +884,8 @@ public class TradingService(
         PeerName: peerName,
         HostAddress: hostAddress,
         ListenPort: listenPort,
-        LocalOffer: localOffer,
-        RemoteOffer: remoteOffer,
+        LocalOffers: [.. localOffers],
+        RemoteOffers: [.. remoteOffers],
         LocalReady: localReady,
         RemoteReady: remoteReady,
         ActiveTransactionId: activeTransactionId,
