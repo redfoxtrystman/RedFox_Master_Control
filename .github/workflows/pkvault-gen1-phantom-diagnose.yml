@@ -1,0 +1,55 @@
+name: Diagnose PKVault Gen1 Phantom Slot
+
+on:
+  push:
+    branches:
+      - chatgpt/pkvault-gen1-phantom-fix-20260923
+    paths:
+      - ".github/workflows/pkvault-gen1-phantom-diagnose.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Recreate exact v3 source
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v3chunks
+          base="https://raw.githubusercontent.com/redfoxtrystman/RedFox_Master_Control/ddad36154d3deb5f8a76d59aebe4c5c4703f0967/tmp/pkvault-gen1-v3"
+          for f in final00.b64 final01.b64 final02.b64 final03.b64 final04p0.b64 final04p1.b64 final04p2.b64 final04p3_0.b64 final04p3_1.b64 final04p3_2.b64 final04p4.b64 final05.b64; do
+            curl -fL "$base/$f" -o "/tmp/v3chunks/$f"
+          done
+          cat /tmp/v3chunks/*.b64 > /tmp/v3.b64
+          test "$(wc -c < /tmp/v3.b64)" -eq 41196
+          echo "7b67adb072aa9508831a118b8a2e418df50bef6d7a8a4adcb60b66ef64013948  /tmp/v3.b64" | sha256sum -c -
+          base64 -d /tmp/v3.b64 > /tmp/v3.tar.gz
+          echo "e178b91aa15efb5584b1a08ad25c4826beb1ce07a7fa599a41bd9fc19dbcd2c2  /tmp/v3.tar.gz" | sha256sum -c -
+
+          git clone https://github.com/Chnapy/PKVault.git pkvault
+          cd pkvault
+          git checkout 57e5ac226932ba2f20cf069a6cbfeb150ea4684c
+          git submodule update --init --recursive
+          tar -xzf /tmp/v3.tar.gz -C .
+          sed -i '309,315{s/var scopedBox/var glitchScopedBox/; s/{scopedBox}/{glitchScopedBox}/}' PKVault.Core/storage/wrapper/ImmutablePKM.cs
+
+      - name: Show Gen1 patch source
+        run: |
+          cd pkvault
+          echo "===== Gen1GlitchUtil.cs ====="
+          sed -n '1,360p' PKVault.Core/utils/Gen1GlitchUtil.cs
+          echo "===== MovePkmAction.cs ====="
+          sed -n '1,430p' PKVault.Core/storage/data-action/MovePkmAction.cs
+          echo "===== SavePkmLoader.cs ====="
+          sed -n '1,360p' PKVault.Core/db/loader/save/SavePkmLoader.cs
+          echo "===== SaveWrapper.cs ====="
+          sed -n '1,280p' PKVault.Core/storage/wrapper/SaveWrapper.cs
+          echo "===== ImmutablePKM glitch sections ====="
+          grep -n -C 25 -E 'Gen1Glitch|RawSpecies|RawData|glitchScopedBox' PKVault.Core/storage/wrapper/ImmutablePKM.cs || true
+          echo "===== PkmFileLoader glitch sections ====="
+          grep -n -C 25 -E 'Gen1Glitch|GetPK1FileData|RawData' PKVault.Core/db/loader/PkmFileLoader.cs || true
