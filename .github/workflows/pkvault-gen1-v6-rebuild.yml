@@ -1,4 +1,4 @@
-name: PKVault Gen1 v6.2 Rebuild
+name: PKVault Gen1 v6.2.1 Rebuild
 
 on:
   push:
@@ -230,27 +230,27 @@ jobs:
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-gen1-v6.2 -t pkvault-gen1-v62
-          docker create --name pkvault-gen1-v62-out pkvault-gen1-v62
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-gen1-v6.2.1 -t pkvault-gen1-v6211
+          docker create --name pkvault-gen1-v6211-out pkvault-gen1-v621
           mkdir -p ../dist
-          docker cp pkvault-gen1-v62-out:/app/PKVault.exe ../dist/PKVault-Gen1-MissingNo-v6.2-win-x64.exe
-          docker rm pkvault-gen1-v62-out
+          docker cp pkvault-gen1-v6211-out:/app/PKVault.exe ../dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.exe
+          docker rm pkvault-gen1-v6211-out
 
       - name: Package and hash
         run: |
           cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/
-          sha256sum dist/PKVault-Gen1-MissingNo-v6.2-win-x64.exe | tee dist/PKVault-Gen1-MissingNo-v6.2-win-x64.sha256
-          (cd dist && zip -9 PKVault-Gen1-MissingNo-v6.2-win-x64.zip PKVault-Gen1-MissingNo-v6.2-win-x64.exe PKVault-Gen1-MissingNo-v6.2-win-x64.sha256 PKVAULT_GEN1_REBUILD.txt)
+          sha256sum dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.exe | tee dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.sha256
+          (cd dist && zip -9 PKVault-Gen1-MissingNo-v6.2.1-win-x64.zip PKVault-Gen1-MissingNo-v6.2.1-win-x64.exe PKVault-Gen1-MissingNo-v6.2.1-win-x64.sha256 PKVAULT_GEN1_REBUILD.txt)
           ls -lah dist
 
       - name: Upload rebuilt PKVault
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-Gen1-MissingNo-v6.2-win-x64
+          name: PKVault-Gen1-MissingNo-v6.2.1-win-x64
           path: |
-            dist/PKVault-Gen1-MissingNo-v6.2-win-x64.exe
-            dist/PKVault-Gen1-MissingNo-v6.2-win-x64.zip
-            dist/PKVault-Gen1-MissingNo-v6.2-win-x64.sha256
+            dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.exe
+            dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.zip
+            dist/PKVault-Gen1-MissingNo-v6.2.1-win-x64.sha256
             dist/PKVAULT_GEN1_REBUILD.txt
           if-no-files-found: error
           retention-days: 30
