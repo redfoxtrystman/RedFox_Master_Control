@@ -447,7 +447,7 @@ replace_once(img,
 ''')
 
 (PKVAULT / 'PKVAULT_GEN1_REBUILD.txt').write_text(
-    'PKVault Gen1 MissingNo rebuild v6.1\n'
+    'PKVault Gen1 MissingNo rebuild v6.2\n'
     'Baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec\n'
     'PKHeX: 26.08.26 / 74b88906e935e4a52d6d9243b8e373056409c738\n'
     'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing.\n',
