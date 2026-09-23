@@ -1,0 +1,35 @@
+name: Inspect PKVault v3 Overlay Fast
+
+on:
+  push:
+    branches:
+      - chatgpt/pkvault-gen1-phantom-fix-20260923
+    paths:
+      - ".github/workflows/pkvault-v3-overlay-inspect.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reassemble exact v3 overlay and print modified files
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v3chunks
+          base="https://raw.githubusercontent.com/redfoxtrystman/RedFox_Master_Control/ddad36154d3deb5f8a76d59aebe4c5c4703f0967/tmp/pkvault-gen1-v3"
+          for f in final00.b64 final01.b64 final02.b64 final03.b64 final04p0.b64 final04p1.b64 final04p2.b64 final04p3_0.b64 final04p3_1.b64 final04p3_2.b64 final04p4.b64 final05.b64; do
+            curl -fsSL "$base/$f" -o "/tmp/v3chunks/$f"
+          done
+          cat /tmp/v3chunks/final00.b64 /tmp/v3chunks/final01.b64 /tmp/v3chunks/final02.b64 /tmp/v3chunks/final03.b64 /tmp/v3chunks/final04p0.b64 /tmp/v3chunks/final04p1.b64 /tmp/v3chunks/final04p2.b64 /tmp/v3chunks/final04p3_0.b64 /tmp/v3chunks/final04p3_1.b64 /tmp/v3chunks/final04p3_2.b64 /tmp/v3chunks/final04p4.b64 /tmp/v3chunks/final05.b64 > /tmp/v3.b64
+          base64 -d /tmp/v3.b64 > /tmp/v3.tar.gz
+          echo "===== TAR TREE ====="
+          tar -tzf /tmp/v3.tar.gz
+          for p in             PKVault.Core/utils/Gen1GlitchUtil.cs             PKVault.Core/db/loader/save/SavePkmLoader.cs             PKVault.Core/storage/data-action/MovePkmAction.cs             PKVault.Core/storage/wrapper/SaveWrapper.cs             PKVault.Core/storage/wrapper/ImmutablePKM.cs             PKVault.Core/db/loader/PkmFileLoader.cs             frontend/src/storage/item/storage-item.tsx             frontend/src/storage/item/save/storage-save-item.tsx
+          do
+            echo "===== $p ====="
+            tar -xOf /tmp/v3.tar.gz "$p" 2>/dev/null || true
+          done
