@@ -457,6 +457,8 @@ copy_text('TradeSwapAction.cs', PKVAULT / 'PKVault.Core/storage/data-action/Trad
 copy_text('trading-api.ts', PKVAULT / 'frontend/src/trading/trading-api.ts')
 copy_text('trading-storage-panel.tsx', PKVAULT / 'frontend/src/trading/trading-storage-panel.tsx')
 copy_text('game-trading-expanded.tsx', PKVAULT / 'frontend/src/storage/panel/game-list/game-trading-expanded.tsx')
+copy_text('settings-trading-left.tsx', PKVAULT / 'frontend/src/settings/trading/settings-trading-left.tsx')
+copy_text('settings-trading-right.tsx', PKVAULT / 'frontend/src/settings/trading/settings-trading-right.tsx')
 copy_text('trading.svg', PKVAULT / 'frontend/public/trading.svg')
 
 program = PKVAULT / 'PKVault.Core/Program.cs'
@@ -556,6 +558,101 @@ replace_once(actions,
         string[] pkmIds, uint? sourceSaveId,
 ''')
 
+
+
+# Persist a user-facing trading identity in normal PKVault settings.
+settings_dto = PKVAULT / 'PKVault.Core/settings/dto/SettingsDTO.cs'
+replace_once(settings_dto,
+'''    Dictionary<uint, string>? SAVE_PATH_OVERRIDES = null,
+    string LANGUAGE = "en"
+);
+''',
+'''    Dictionary<uint, string>? SAVE_PATH_OVERRIDES = null,
+    string LANGUAGE = "en",
+    string? TRADER_NAME = null
+);
+''')
+
+settings_route = PKVAULT / 'PKVault.Core/settings/routes/SettingsRoute.cs'
+replace_once(settings_route,
+'''            PKM_EXTERNAL_GLOBS = [.. (settingsMutable.PKM_EXTERNAL_GLOBS ?? []).Select(glob => glob.Trim())],
+        };
+''',
+'''            PKM_EXTERNAL_GLOBS = [.. (settingsMutable.PKM_EXTERNAL_GLOBS ?? []).Select(glob => glob.Trim())],
+            TRADER_NAME = string.IsNullOrWhiteSpace(settingsMutable.TRADER_NAME)
+                ? null
+                : settingsMutable.TRADER_NAME.Trim(),
+        };
+
+        if (settingsMutable.TRADER_NAME?.Length > 32)
+            throw new ArgumentException("Trading player name must be 32 characters or fewer.");
+        if (settingsMutable.TRADER_NAME?.Any(char.IsControl) == true)
+            throw new ArgumentException("Trading player name cannot contain control characters.");
+''')
+
+settings_route_ts = PKVAULT / 'frontend/src/routes/settings.tsx'
+replace_once(settings_route_ts,
+'''export type SettingsSubMenuValue = 'main' | 'external-pkms' | 'backups' | 'about';
+
+const searchSchema = z.object({
+  subMenu: z.enum([ 'main', 'external-pkms', 'backups', 'about' ] as const satisfies SettingsSubMenuValue[]).optional(),
+});
+''',
+'''export type SettingsSubMenuValue = 'main' | 'external-pkms' | 'backups' | 'trading' | 'about';
+
+const searchSchema = z.object({
+  subMenu: z.enum([ 'main', 'external-pkms', 'backups', 'trading', 'about' ] as const satisfies SettingsSubMenuValue[]).optional(),
+});
+''')
+
+settings_submenu = PKVAULT / 'frontend/src/settings/settings-sub-menu.tsx'
+replace_once(settings_submenu,
+'''            {
+                id: 'backups' satisfies typeof currentValue,
+                label: t('settings.sub.backups'),
+            },
+            {
+                id: 'about' satisfies typeof currentValue,
+''',
+'''            {
+                id: 'backups' satisfies typeof currentValue,
+                label: t('settings.sub.backups'),
+            },
+            {
+                id: 'trading' satisfies typeof currentValue,
+                label: 'Trading',
+            },
+            {
+                id: 'about' satisfies typeof currentValue,
+''')
+
+settings_page = PKVAULT / 'frontend/src/pages/settings.tsx'
+replace_once(settings_page,
+'''import { SettingsMainLeft } from '../settings/main/settings-main-left';
+import { SettingsMainRight } from '../settings/main/settings-main-right';
+''',
+'''import { SettingsMainLeft } from '../settings/main/settings-main-left';
+import { SettingsMainRight } from '../settings/main/settings-main-right';
+import { SettingsTradingLeft } from '../settings/trading/settings-trading-left';
+import { SettingsTradingRight } from '../settings/trading/settings-trading-right';
+''')
+replace_once(settings_page,
+'''    backups: () => ({
+      left: <SettingsBackupLeft />,
+      right: <SettingsBackupRight />,
+    }),
+    about: () => ({
+''',
+'''    backups: () => ({
+      left: <SettingsBackupLeft />,
+      right: <SettingsBackupRight />,
+    }),
+    trading: () => ({
+      left: <SettingsTradingLeft />,
+      right: <SettingsTradingRight />,
+    }),
+    about: () => ({
+''')
 
 # Integrate Trading as a first-class Storage source beside PKVault/save files.
 storage_route = PKVAULT / 'frontend/src/routes/storage.tsx'
@@ -1067,10 +1164,10 @@ replace_once(drop_validation,
 ''')
 
 (PKVAULT / 'PKVAULT_GEN1_REBUILD.txt').write_text(
-    'PKVault Gen1 MissingNo + Direct Trading rebuild v7.2-test\n'
+    'PKVault Gen1 MissingNo + Direct Trading rebuild v7.3-test\n'
     'Baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec\n'
     'PKHeX: 26.08.26 / 74b88906e935e4a52d6d9243b8e373056409c738\n'
-    'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite normalized to standard PKVault icon sizing, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing, direct-IP PKVault trading with localhost:0000 local test alias, 0-6 batch/gift offers, Trading integrated as a native Storage source, existing PKVault box browsing + drag/drop into six trade slots, and automatic cache refresh after commit.\n',
+    'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite normalized to standard PKVault icon sizing, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing, direct-IP PKVault trading with localhost:0000 local test alias, 0-6 batch/gift offers, Trading integrated as a native Storage source, existing PKVault box browsing + drag/drop into six trade slots, automatic cache refresh after commit, and a Settings > Trading player-name identity independent of the app/folder name.\n',
     encoding='utf-8'
 )
 print('all patches applied')
