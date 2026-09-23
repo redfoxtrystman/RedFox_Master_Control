@@ -122,6 +122,28 @@ jobs:
           Need(party[0] == 2 && party[2] == 0, "party occupancy/raw00 preservation failed");
 
           Console.WriteLine("PASS: normal, blank, raw00, party and box Gen1 serialization");
+
+          // Regression: a normal Pokemon placed in a Red box and then removed
+          // before save must not resurrect as a raw-00 glitch after save/reload.
+          var red = new SAV1(LanguageID.English, GameVersion.RB);
+          red.SetBoxSlotAtIndex(normal.Clone(), 0, 0, EntityImportSettings.None);
+          red.SetBoxSlotAtIndex(red.BlankPKM, 0, 0, EntityImportSettings.None);
+          var removedBytes = red.Write().ToArray();
+          var redReload = new SAV1(removedBytes, LanguageID.English, GameVersion.RB);
+          var resurrected = redReload.GetBoxData(0)
+              .OfType<PK1>()
+              .Count(PokeList1.IsOccupied);
+          Need(resurrected == 0, $"vacated box slot resurrected as {resurrected} occupied Pokemon");
+
+          // A genuine raw-00 glitch must still survive the same save/reload path.
+          var glitchSave = new SAV1(LanguageID.English, GameVersion.RB);
+          glitchSave.SetBoxSlotAtIndex(glitch.Clone(), 0, 0, EntityImportSettings.None);
+          var glitchBytes = glitchSave.Write().ToArray();
+          var glitchReload = new SAV1(glitchBytes, LanguageID.English, GameVersion.RB);
+          var glitchRoundTrip = (PK1)glitchReload.GetBoxSlotAtIndex(0, 0);
+          Need(PokeList1.IsRawZeroGlitch(glitchRoundTrip), "real raw-00 glitch was lost after SAV1 save/reload");
+
+          Console.WriteLine("PASS: SAV1 vacated-slot and raw00 round-trip regression");
           EOF
           dotnet run --project smoke/smoke.csproj -c Release
 
