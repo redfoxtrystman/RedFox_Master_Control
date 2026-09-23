@@ -1,0 +1,242 @@
+name: PKVault Gen1 Phantom Fix Build 2
+
+on:
+  push:
+    branches: [chatgpt/pkvault-gen1-phantom-fix-20260923]
+    paths: [".github/workflows/pkvault-gen1-phantom-fix-build2.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Recreate exact v3 source
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v3chunks
+          base="https://raw.githubusercontent.com/redfoxtrystman/RedFox_Master_Control/ddad36154d3deb5f8a76d59aebe4c5c4703f0967/tmp/pkvault-gen1-v3"
+          for f in final00.b64 final01.b64 final02.b64 final03.b64 final04p0.b64 final04p1.b64 final04p2.b64 final04p3_0.b64 final04p3_1.b64 final04p3_2.b64 final04p4.b64 final05.b64; do
+            curl -fsSL "$base/$f" -o "/tmp/v3chunks/$f"
+          done
+          cat /tmp/v3chunks/final00.b64 /tmp/v3chunks/final01.b64 /tmp/v3chunks/final02.b64 /tmp/v3chunks/final03.b64 /tmp/v3chunks/final04p0.b64 /tmp/v3chunks/final04p1.b64 /tmp/v3chunks/final04p2.b64 /tmp/v3chunks/final04p3_0.b64 /tmp/v3chunks/final04p3_1.b64 /tmp/v3chunks/final04p3_2.b64 /tmp/v3chunks/final04p4.b64 /tmp/v3chunks/final05.b64 > /tmp/v3.b64
+          echo "7b67adb072aa9508831a118b8a2e418df50bef6d7a8a4adcb60b66ef64013948  /tmp/v3.b64" | sha256sum -c -
+          base64 -d /tmp/v3.b64 > /tmp/v3.tar.gz
+          echo "e178b91aa15efb5584b1a08ad25c4826beb1ce07a7fa599a41bd9fc19dbcd2c2  /tmp/v3.tar.gz" | sha256sum -c -
+
+          git clone https://github.com/Chnapy/PKVault.git pkvault
+          cd pkvault
+          git checkout 57e5ac226932ba2f20cf069a6cbfeb150ea4684c
+          git submodule update --init --recursive
+          tar -xzf /tmp/v3.tar.gz -C .
+          sed -i '309,315{s/var scopedBox/var glitchScopedBox/; s/{scopedBox}/{glitchScopedBox}/}' PKVault.Core/storage/wrapper/ImmutablePKM.cs
+
+      - name: Apply v4 phantom-slot hotfix
+        run: |
+          cd pkvault
+          python3 - <<'PY'
+          from pathlib import Path
+
+          util = Path("PKVault.Core/utils/Gen1GlitchUtil.cs")
+          s = util.read_text()
+
+          old = "for (var slot = 0; slot < 6; slot++)\n        {\n            if (sav.GetPartySlotAtIndex(slot) is PK1 pk1 && IsGlitch(pk1) && IsOccupied(pk1))"
+          new = "for (var slot = 0; slot < Math.Min(sav.PartyCount, 6); slot++)\n        {\n            if (sav.GetPartySlotAtIndex(slot) is PK1 pk1 && IsOccupiedGlitch(pk1))"
+          if old not in s:
+              raise SystemExit("party glitch scan anchor missing")
+          s = s.replace(old, new, 1)
+          s = s.replace(
+              "if (pkms[slot] is PK1 pk1 && IsGlitch(pk1) && IsOccupied(pk1))",
+              "if (pkms[slot] is PK1 pk1 && IsOccupiedGlitch(pk1))",
+          )
+
+          old = """        // SAV1.Write updates all normal save fields and checksums. It also packs
+                  // storage, but its packer maps marker 00 to FF. We replace only the Gen 1
+                  // Pokémon lists below and then recompute the RBY checksum.
+                  var result = sav.Write().ToArray();
+
+                  var offsets = sav.Japanese ? SAV1Offsets.JPN : SAV1Offsets.INT;"""
+          new = """        // Save the logical party count before PKHeX's stock writer runs.
+                  // Its Gen 1 packer considers raw species 00 empty.
+                  var logicalPartyCount = Math.Min(sav.PartyCount, 6);
+
+                  // Let PKHeX update ordinary save fields, then replace the Gen 1 lists
+                  // with our raw-species-aware packing below.
+                  var result = sav.Write().ToArray();
+
+                  var offsets = sav.Japanese ? SAV1Offsets.JPN : SAV1Offsets.INT;
+                  // SAV1.Write mutates the live backing data. Restore the logical count
+                  // so subsequent PKVault operations keep working in the same session.
+                  sav.Data[offsets.Party] = (byte)logicalPartyCount;"""
+          if old not in s:
+              raise SystemExit("save writer anchor missing")
+          s = s.replace(old, new, 1)
+
+          old = """        var partyLength = PokeList1.GetListLength(6, sav.Japanese, party: true);
+                  var party = new List<PK1>(6);
+                  for (var slot = 0; slot < 6; slot++)
+                  {
+                      if (sav.GetPartySlotAtIndex(slot) is PK1 pk1)
+                          party.Add(pk1);
+                  }"""
+          new = """        var partyLength = PokeList1.GetListLength(6, sav.Japanese, party: true);
+                  var party = new List<PK1>(logicalPartyCount);
+                  for (var slot = 0; slot < logicalPartyCount; slot++)
+                  {
+                      if (sav.GetPartySlotAtIndex(slot) is PK1 pk1)
+                          party.Add(pk1);
+                  }"""
+          if old not in s:
+              raise SystemExit("party serializer anchor missing")
+          s = s.replace(old, new, 1)
+
+          start = s.index("    private static bool IsGlitch(PK1 pk1)")
+          end = s.index("    private static bool HasNonBlankGen1Text", start)
+          s = s[:start] + """    /// <summary>
+              /// True only for a real occupied Generation 1 glitch Pokémon.
+              /// Blank PK1 party slots can receive calculated Lv.1/party stats during
+              /// writes; those party-only bytes must not create phantom '?' entries.
+              /// </summary>
+              public static bool IsOccupiedGlitch(PK1 pk1)
+              {
+                  if (pk1.Species != 0)
+                      return false;
+
+                  if (pk1.SpeciesInternal != 0)
+                      return true;
+
+                  // Raw species 00 ('M) is ambiguous with blank. Only inspect the Gen 1
+                  // STORED body; all calculated party stats live after this region.
+                  var data = pk1.Data;
+                  var storedLength = Math.Min(PokeCrypto.SIZE_1STORED, data.Length);
+                  for (var i = 0; i < storedLength; i++)
+                  {
+                      // PKHeX sets a blank PK1's box/current level to 1 while writing.
+                      if (i == 3 && data[i] <= 1)
+                          continue;
+                      if (data[i] != 0)
+                          return true;
+                  }
+
+                  if (HasNonBlankGen1Text(pk1.OriginalTrainerTrash))
+                      return true;
+                  if (HasNonBlankGen1Text(pk1.NicknameTrash))
+                      return true;
+
+                  return false;
+              }
+
+          """ + s[end:]
+          util.write_text(s)
+
+          immutable = Path("PKVault.Core/storage/wrapper/ImmutablePKM.cs")
+          s = immutable.read_text()
+          old = """    public bool IsGen1Glitch => Pkm is PK1 pk1
+                  && Species == 0
+                  && (pk1.SpeciesInternal != 0 || pk1.Data.ContainsAnyExcept<byte>(0));"""
+          new = """    public bool IsGen1Glitch => Pkm is PK1 pk1
+                  && Gen1GlitchUtil.IsOccupiedGlitch(pk1);"""
+          if old not in s:
+              raise SystemExit("ImmutablePKM glitch anchor missing")
+          immutable.write_text(s.replace(old, new, 1))
+
+          loader = Path("PKVault.Core/db/loader/save/SavePkmLoader.cs")
+          s = loader.read_text()
+          start = s.index("    private void SetParty(List<ImmutablePKM> party)")
+          end = s.index("    public void SetFlags(", start)
+          replacement = """    private void SetParty(List<ImmutablePKM> party)
+              {
+                  // Decide occupancy BEFORE PKHeX mutates the PK1 with calculated party
+                  // stats. This is the key fix for the fake Lv.1 '?' left by v3.
+                  var logicalPartyCount = 0;
+
+                  for (var slot = 0; slot < 6; slot++)
+                  {
+                      if (slot < party.Count)
+                      {
+                          var pkm = party[slot];
+                          var isEnabled = pkm.IsEnabled;
+                          if (isEnabled)
+                              logicalPartyCount = slot + 1;
+
+                          save.SetPartySlotAtIndex(pkm, slot);
+                          if (isEnabled)
+                          {
+                              SetDTO(
+                                  CreateDTO(
+                                      save, pkm, (int)BoxType.Party, slot
+                                  )
+                              );
+                          }
+                          else
+                          {
+                              save.SetPartySlotAtIndex(save.GetBlankPKM(), slot);
+                              RemoveDTO((int)BoxType.Party, slot);
+                          }
+                      }
+                      else
+                      {
+                          save.SetPartySlotAtIndex(save.GetBlankPKM(), slot);
+                          RemoveDTO((int)BoxType.Party, slot);
+                      }
+                  }
+
+                  // National species 0 is ambiguous in PKHeX, but RBY's party list has an
+                  // explicit count. Restore the true logical count after the writes so
+                  // raw-species-00 'M is allowed and later party members are not hidden.
+                  if (save.GetSave() is SAV1 sav1)
+                  {
+                      var offsets = sav1.Japanese ? SAV1Offsets.JPN : SAV1Offsets.INT;
+                      sav1.Data[offsets.Party] = (byte)logicalPartyCount;
+                  }
+              }
+
+          """
+          s = s[:start] + replacement + s[end:]
+          loader.write_text(s)
+          PY
+
+      - name: Validate source
+        run: |
+          set -euxo pipefail
+          cd pkvault
+          grep -q "public static bool IsOccupiedGlitch" PKVault.Core/utils/Gen1GlitchUtil.cs
+          grep -q "PokeCrypto.SIZE_1STORED" PKVault.Core/utils/Gen1GlitchUtil.cs
+          grep -q "Math.Min(sav.PartyCount, 6)" PKVault.Core/utils/Gen1GlitchUtil.cs
+          grep -q "Gen1GlitchUtil.IsOccupiedGlitch(pk1)" PKVault.Core/storage/wrapper/ImmutablePKM.cs
+          ! grep -q "pk1.Data.ContainsAnyExcept<byte>(0)" PKVault.Core/storage/wrapper/ImmutablePKM.cs
+          grep -q "var isEnabled = pkm.IsEnabled" PKVault.Core/db/loader/save/SavePkmLoader.cs
+          grep -q "sav1.Data\[offsets.Party\] = (byte)logicalPartyCount" PKVault.Core/db/loader/save/SavePkmLoader.cs
+
+      - name: Build Windows x64
+        run: |
+          docker build pkvault --target desktop-publish --build-arg RID=win-x64 -t pkvault-gen1-v4:ci
+
+      - name: Extract and verify
+        run: |
+          cid="$(docker create pkvault-gen1-v4:ci)"
+          mkdir publish-final
+          docker cp "$cid":/app/publish-final/. publish-final/
+          docker rm "$cid"
+          test -f publish-final/PKVault.exe
+          file publish-final/PKVault.exe
+          sha256sum publish-final/PKVault.exe | tee publish-final/PKVault.exe.sha256
+          cat > publish-final/GEN1-V4-FIXES.txt <<'EOF'
+          PKVault Gen1 glitch v4
+          - Fixes fake Lv.1 ? left behind after moving a party/box Pokémon.
+          - Empty PK1 slots cannot be promoted to glitch Pokémon by calculated party stats.
+          - Preserves logical RBY party count during PKVault writes.
+          - Keeps raw species 00 ('M) support and v3 MissingNo sprite sizing.
+          EOF
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-Gen1-MissingNo-v4-win-x64
+          path: publish-final/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
