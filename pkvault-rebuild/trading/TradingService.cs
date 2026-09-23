@@ -67,7 +67,7 @@ public class TradingService(
 )
 {
     public const int LocalTestPort = 24801;
-    public const int MaxOffers = 5;
+    public const int MaxOffers = 6;
 
     private readonly object stateLock = new();
     private readonly SemaphoreSlim sendLock = new(1, 1);
