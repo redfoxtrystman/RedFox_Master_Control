@@ -442,11 +442,165 @@ replace_once(img,
         : species;
 ''')
 
+
+# PKVault direct-IP trading MVP.
+TRADING = Path(__file__).resolve().parent / 'trading'
+
+def copy_text(src_name: str, dest: Path):
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text((TRADING / src_name).read_text(encoding='utf-8'), encoding='utf-8')
+    print(f'added {dest}')
+
+copy_text('TradingService.cs', PKVAULT / 'PKVault.Core/trading/TradingService.cs')
+copy_text('TradingRoute.cs', PKVAULT / 'PKVault.Core/trading/routes/TradingRoute.cs')
+copy_text('TradeSwapAction.cs', PKVAULT / 'PKVault.Core/storage/data-action/TradeSwapAction.cs')
+copy_text('trading-page.tsx', PKVAULT / 'frontend/src/pages/trading.tsx')
+copy_text('trading-route.tsx', PKVAULT / 'frontend/src/routes/trading.tsx')
+
+program = PKVAULT / 'PKVault.Core/Program.cs'
+replace_once(program,
+'''using PKVault.Core.storage.routes;
+using PKVault.Core.warnings.routes;
+''',
+'''using PKVault.Core.storage.routes;
+using PKVault.Core.trading.routes;
+using PKVault.Core.warnings.routes;
+''')
+replace_once(program,
+'''        services.AddSingleton<PkmLegalityService>();
+
+        Log.Information($"Setup services - Actions");
+''',
+'''        services.AddSingleton<PkmLegalityService>();
+        services.AddSingleton<TradingService>();
+
+        Log.Information($"Setup services - Actions");
+''')
+replace_once(program,
+'''        services.AddScoped<DexSyncAction>();
+
+        Log.Information($"Setup services - Loaders");
+''',
+'''        services.AddScoped<DexSyncAction>();
+        services.AddScoped<TradeSwapAction>();
+
+        Log.Information($"Setup services - Loaders");
+''')
+replace_once(program,
+'''        services.AddScoped<StaticDataController>();
+
+        Log.Information($"Setup services - Finished");
+''',
+'''        services.AddScoped<StaticDataController>();
+        services.AddScoped<TradingController>();
+
+        Log.Information($"Setup services - Finished");
+''')
+
+router = PKVAULT / 'PKVault.Core/router/CoreRouter.cs'
+replace_once(router,
+'''using PKVault.Core.storage.routes;
+using PKVault.Core.warnings.routes;
+''',
+'''using PKVault.Core.storage.routes;
+using PKVault.Core.trading.routes;
+using PKVault.Core.warnings.routes;
+''')
+replace_once(router,
+'''        typeof(WarningsController),
+        typeof(StaticDataController),
+''',
+'''        typeof(WarningsController),
+        typeof(StaticDataController),
+        typeof(TradingController),
+''')
+
+route_json = PKVAULT / 'PKVault.Core/router/RouteJsonContext.cs'
+replace_once(route_json,
+'''[JsonSerializable(typeof(BankEntity.BankViewSave))]
+
+[JsonSerializable(typeof(DesktopMessageRequest))]
+''',
+'''[JsonSerializable(typeof(BankEntity.BankViewSave))]
+[JsonSerializable(typeof(TradeStateDTO))]
+[JsonSerializable(typeof(TradeHostPayload))]
+[JsonSerializable(typeof(TradeConnectPayload))]
+[JsonSerializable(typeof(TradeOfferPayload))]
+[JsonSerializable(typeof(TradeReadyPayload))]
+[JsonSerializable(typeof(TradePokemonDTO))]
+[JsonSerializable(typeof(TradeWireMessage))]
+[JsonSerializable(typeof(TradeJournal))]
+
+[JsonSerializable(typeof(DesktopMessageRequest))]
+''')
+
+actions = PKVAULT / 'PKVault.Core/storage/services/ActionService.cs'
+replace_once(actions,
+'''    public async Task<DataUpdateFlags> MovePkmBank(
+        string[] pkmIds, uint? sourceSaveId,
+''',
+'''    public async Task<DataUpdateFlags> TradeSwap(TradeSwapActionInput input)
+    {
+        using var scope = sp.CreateScope();
+
+        return await AddAction(
+            scope,
+            (scope) => scope.ServiceProvider.GetRequiredService<TradeSwapAction>(),
+            input
+        );
+    }
+
+    public async Task<DataUpdateFlags> MovePkmBank(
+        string[] pkmIds, uint? sourceSaveId,
+''')
+
+header = PKVAULT / 'frontend/src/header/header.tsx'
+replace_once(header,
+'''            <UIHeaderItem
+                id={'pokedex' satisfies HeaderValue}
+                to={"/pokedex"}
+                selected={value === 'pokedex'}
+                label={t('header.dex')}
+            >
+                {t('header.dex')}
+            </UIHeaderItem>
+
+            <Tooltip
+''',
+'''            <UIHeaderItem
+                id={'pokedex' satisfies HeaderValue}
+                to={"/pokedex"}
+                selected={value === 'pokedex'}
+                label={t('header.dex')}
+            >
+                {t('header.dex')}
+            </UIHeaderItem>
+
+            <UIHeaderItem
+                id={'trading' satisfies HeaderValue}
+                to={"/trading"}
+                selected={value === 'trading'}
+                label="Trading"
+            >
+                Trading
+            </UIHeaderItem>
+
+            <Tooltip
+''')
+replace_once(header,
+'''            'saves': () => null,
+            'settings': () => <SettingsSubMenu />,
+''',
+'''            'saves': () => null,
+            'trading': () => null,
+            'settings': () => <SettingsSubMenu />,
+''')
+
 (PKVAULT / 'PKVAULT_GEN1_REBUILD.txt').write_text(
-    'PKVault Gen1 MissingNo rebuild v6.2.1\n'
+    'PKVault Gen1 MissingNo + Direct Trading rebuild v7.0-test\n'
     'Baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec\n'
     'PKHeX: 26.08.26 / 74b88906e935e4a52d6d9243b8e373056409c738\n'
-    'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite normalized to standard PKVault icon sizing, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing.\n',
+    'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite normalized to standard PKVault icon sizing, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing, direct-IP PKVault trading MVP with localhost:0000 local test alias.\n',
     encoding='utf-8'
 )
 print('all patches applied')
