@@ -5,6 +5,7 @@ namespace PKVault.Core;
 public record TradeSwapActionInput(string[] OutgoingVariantIds, TradePokemonDTO[] Incoming);
 
 public class TradeSwapAction(
+    IServiceProvider sp,
     IPkmVariantLoader pkmVariantLoader,
     IBoxLoader boxLoader,
     IPkmFileLoader pkmFileLoader
@@ -153,6 +154,16 @@ public class TradeSwapAction(
                 Updated: true,
                 CheckPkm: true
             ));
+
+            // Receiving a Pokemon through PKVault trading counts as obtaining it.
+            // Use PKVault's native persistent dex record so trading it away later
+            // never removes the caught/seen history. Eggs and glitch species 0
+            // deliberately do not create official Pokedex entries.
+            if (!pkm.IsEgg && pkm.Species > 0 && pkm.Species < (ushort)Species.MAX_COUNT)
+            {
+                await new DexMainService(sp).EnablePKM(pkm);
+                flags.Dex.Ids.Add(pkm.Species.ToString());
+            }
         }
 
         var firstIncoming = incomingPkms.FirstOrDefault();
