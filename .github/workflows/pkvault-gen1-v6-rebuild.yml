@@ -1,12 +1,12 @@
-name: PKVault Gen1 v6 Rebuild
+name: PKVault Gen1 v6.1 Rebuild
 
 on:
   push:
     branches:
-      - pkvault-gen1-v6-rebuild
+      - pkvault-gen1-v61-rebuild
     paths:
       - 'pkvault-rebuild/**'
-      - '.github/workflows/pkvault-gen1-v6-rebuild.yml'
+      - '.github/workflows/pkvault-gen1-v61-rebuild.yml'
   workflow_dispatch:
 
 permissions:
@@ -128,21 +128,11 @@ jobs:
           var red = new SAV1(LanguageID.English, GameVersion.RB);
           red.SetBoxSlotAtIndex(normal.Clone(), 0, 0, EntityImportSettings.None);
           red.SetBoxSlotAtIndex(red.BlankPKM, 0, 0, EntityImportSettings.None);
-          var clearedBeforeSave = (PK1)red.GetBoxSlotAtIndex(0, 0);
-          var clearedSingle = PokeList1.WrapSingle(clearedBeforeSave);
-          Console.WriteLine($"DEBUG cleared-before-save marker={clearedSingle[1]:X2} count={clearedSingle[0]} speciesRaw={clearedBeforeSave.SpeciesInternal:X2} catch={clearedBeforeSave.CatchRate:X2} exp={clearedBeforeSave.EXP}");
-
           var removedBytes = red.Write().ToArray();
           var redReload = new SAV1(removedBytes, LanguageID.English, GameVersion.RB);
-          var reloadBox = redReload.GetBoxData(0).OfType<PK1>().ToArray();
-          for (var i = 0; i < reloadBox.Length; i++)
-          {
-              var p = reloadBox[i];
-              if (!PokeList1.IsOccupied(p)) continue;
-              var s = PokeList1.WrapSingle(p);
-              Console.WriteLine($"DEBUG resurrected slot={i} marker={s[1]:X2} count={s[0]} raw={p.SpeciesInternal:X2} catch={p.CatchRate:X2} exp={p.EXP} levelBox={p.Stat_LevelBox}");
-          }
-          var resurrected = reloadBox.Count(PokeList1.IsOccupied);
+          var resurrected = redReload.GetBoxData(0)
+              .OfType<PK1>()
+              .Count(PokeList1.IsOccupied);
           Need(resurrected == 0, $"vacated box slot resurrected as {resurrected} occupied Pokemon");
 
           // A genuine raw-00 glitch must still survive the same save/reload path.
@@ -164,27 +154,27 @@ jobs:
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-gen1-v6 -t pkvault-gen1-v6
-          docker create --name pkvault-gen1-v6-out pkvault-gen1-v6
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-gen1-v6 -t pkvault-gen1-v61
+          docker create --name pkvault-gen1-v611-out pkvault-gen1-v61
           mkdir -p ../dist
-          docker cp pkvault-gen1-v6-out:/app/PKVault.exe ../dist/PKVault-Gen1-MissingNo-v6-win-x64.exe
-          docker rm pkvault-gen1-v6-out
+          docker cp pkvault-gen1-v611-out:/app/PKVault.exe ../dist/PKVault-Gen1-MissingNo-v6.1-win-x64.exe
+          docker rm pkvault-gen1-v611-out
 
       - name: Package and hash
         run: |
           cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/
-          sha256sum dist/PKVault-Gen1-MissingNo-v6-win-x64.exe | tee dist/PKVault-Gen1-MissingNo-v6-win-x64.sha256
-          (cd dist && zip -9 PKVault-Gen1-MissingNo-v6-win-x64.zip PKVault-Gen1-MissingNo-v6-win-x64.exe PKVault-Gen1-MissingNo-v6-win-x64.sha256 PKVAULT_GEN1_REBUILD.txt)
+          sha256sum dist/PKVault-Gen1-MissingNo-v6.1-win-x64.exe | tee dist/PKVault-Gen1-MissingNo-v6.1-win-x64.sha256
+          (cd dist && zip -9 PKVault-Gen1-MissingNo-v6.1-win-x64.zip PKVault-Gen1-MissingNo-v6.1-win-x64.exe PKVault-Gen1-MissingNo-v6.1-win-x64.sha256 PKVAULT_GEN1_REBUILD.txt)
           ls -lah dist
 
       - name: Upload rebuilt PKVault
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-Gen1-MissingNo-v6-win-x64
+          name: PKVault-Gen1-MissingNo-v6.1-win-x64
           path: |
-            dist/PKVault-Gen1-MissingNo-v6-win-x64.exe
-            dist/PKVault-Gen1-MissingNo-v6-win-x64.zip
-            dist/PKVault-Gen1-MissingNo-v6-win-x64.sha256
+            dist/PKVault-Gen1-MissingNo-v6.1-win-x64.exe
+            dist/PKVault-Gen1-MissingNo-v6.1-win-x64.zip
+            dist/PKVault-Gen1-MissingNo-v6.1-win-x64.sha256
             dist/PKVAULT_GEN1_REBUILD.txt
           if-no-files-found: error
           retention-days: 30
