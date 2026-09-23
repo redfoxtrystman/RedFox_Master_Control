@@ -217,6 +217,61 @@ static async Task Trade(IServiceProvider sp, bool host)
     await WaitCompleted(trading, "ROUND2");
 }
 
+
+static async Task DirectHost(IServiceProvider sp, string addressFile)
+{
+    var trading = sp.GetRequiredService<TradingService>();
+    var state = await trading.HostAsync(localTest: false);
+
+    if (state.ListenPort is null or <= 0)
+        throw new Exception("Direct host did not allocate a real port.");
+    if (state.HostAddresses.Length == 0)
+        throw new Exception("Direct host did not advertise any addresses.");
+    if (state.HostAddresses.Any(a => a == "localhost:0000"))
+        throw new Exception("Direct host incorrectly advertised the localhost test alias.");
+
+    var address = state.HostAddresses.FirstOrDefault(a => !a.StartsWith("0.0.0.0:", StringComparison.Ordinal))
+        ?? throw new Exception("Direct host did not advertise a concrete IPv4 address.");
+
+    await File.WriteAllTextAsync(addressFile, address);
+    Console.WriteLine($"DIRECT HOST {address}");
+
+    await WaitConnected(trading);
+    await WaitPeerName(trading);
+
+    var connected = await trading.GetStateAsync();
+    if (connected.PeerName != "Trader B")
+        throw new Exception($"Direct host expected Trader B, got '{connected.PeerName}'.");
+
+    Console.WriteLine($"DIRECT CONNECTED {connected.ProfileName} <- {connected.PeerName} @ {connected.PeerAddress}");
+    await trading.DisconnectAsync();
+}
+
+static async Task DirectJoin(IServiceProvider sp, string addressFile)
+{
+    var deadline = DateTime.UtcNow.AddSeconds(20);
+    while (!File.Exists(addressFile) && DateTime.UtcNow < deadline)
+        await Task.Delay(100);
+    if (!File.Exists(addressFile))
+        throw new Exception("Timed out waiting for direct host address file.");
+
+    var address = (await File.ReadAllTextAsync(addressFile)).Trim();
+    if (string.IsNullOrWhiteSpace(address))
+        throw new Exception("Direct host address file was empty.");
+
+    var trading = sp.GetRequiredService<TradingService>();
+    await trading.ConnectAsync(address);
+    await WaitConnected(trading);
+    await WaitPeerName(trading);
+
+    var connected = await trading.GetStateAsync();
+    if (connected.PeerName != "Trader A")
+        throw new Exception($"Direct join expected Trader A, got '{connected.PeerName}'.");
+
+    Console.WriteLine($"DIRECT JOIN {address} AS {connected.ProfileName} -> {connected.PeerName}");
+    await trading.DisconnectAsync();
+}
+
 static async Task Verify(IServiceProvider sp, string expected)
 {
     var expectedSpecies = expected.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(ushort.Parse).ToArray();
@@ -230,7 +285,7 @@ static async Task Verify(IServiceProvider sp, string expected)
 }
 
 if (args.Length == 0)
-    throw new ArgumentException("usage: seed A|B | host | join | verify csv");
+    throw new ArgumentException("usage: seed A|B | host | join | direct-host address-file | direct-join address-file | verify csv");
 
 var sp = await Boot();
 
@@ -244,6 +299,12 @@ switch (args[0].ToLowerInvariant())
         break;
     case "join":
         await Trade(sp, host: false);
+        break;
+    case "direct-host":
+        await DirectHost(sp, args[1]);
+        break;
+    case "direct-join":
+        await DirectJoin(sp, args[1]);
         break;
     case "verify":
         await Verify(sp, args[1]);
