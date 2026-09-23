@@ -127,7 +127,13 @@ jobs:
           // before save must not resurrect as a raw-00 glitch after save/reload.
           var red = new SAV1(LanguageID.English, GameVersion.RB);
           red.SetBoxSlotAtIndex(normal.Clone(), 0, 0, EntityImportSettings.None);
-          red.SetBoxSlotAtIndex(red.BlankPKM, 0, 0, EntityImportSettings.None);
+          var blankForClear = red.BlankPKM;
+          Console.WriteLine($"DEBUG fresh blank occupied={PokeList1.IsOccupied(blankForClear)} raw={blankForClear.SpeciesInternal:X2} levelBox={blankForClear.Stat_LevelBox} catch={blankForClear.CatchRate:X2} exp={blankForClear.EXP}");
+          red.SetBoxSlotAtIndex(blankForClear, 0, 0, EntityImportSettings.None);
+          Console.WriteLine($"DEBUG blank after SetBox occupied={PokeList1.IsOccupied(blankForClear)} raw={blankForClear.SpeciesInternal:X2} levelBox={blankForClear.Stat_LevelBox} catch={blankForClear.CatchRate:X2} exp={blankForClear.EXP}");
+          var boxAfterClear = (PK1)red.GetBoxSlotAtIndex(0, 0);
+          var singleAfterClear = PokeList1.WrapSingle(boxAfterClear);
+          Console.WriteLine($"DEBUG slot after clear occupied={PokeList1.IsOccupied(boxAfterClear)} marker={singleAfterClear[1]:X2} count={singleAfterClear[0]} raw={boxAfterClear.SpeciesInternal:X2} levelBox={boxAfterClear.Stat_LevelBox} catch={boxAfterClear.CatchRate:X2} exp={boxAfterClear.EXP}");
           var removedBytes = red.Write().ToArray();
           var redReload = new SAV1(removedBytes, LanguageID.English, GameVersion.RB);
           var resurrected = redReload.GetBoxData(0)
