@@ -36,6 +36,10 @@ replace_once(poke,
         return pk.Data[..PokeCrypto.SIZE_1STORED].ContainsAnyExcept<byte>(0);
     }
 
+    public static bool IsMissingNo50(PK1 pk) => pk.SpeciesInternal == 0x50;
+
+    public static bool IsKnownGen1Glitch(PK1 pk) => IsRawZeroGlitch(pk) || IsMissingNo50(pk);
+
     public static bool IsOccupied(PK1 pk) => pk.SpeciesInternal != 0 || IsRawZeroGlitch(pk);
 
     public static bool IsSingleSlotOccupied(ReadOnlySpan<byte> single)
@@ -189,7 +193,7 @@ replace_once(savefile,
 '''    private const int MaxPartyCount = 6;
 
     private static bool IsPartySlotOccupied(PKM pk)
-        => pk.Species != 0 || (pk is PK1 pk1 && PokeList1.IsRawZeroGlitch(pk1));
+        => pk.Species != 0 || (pk is PK1 pk1 && PokeList1.IsKnownGen1Glitch(pk1));
 
     public IList<PKM> PartyData
 ''')
@@ -331,10 +335,12 @@ replace_once(imm,
 '''    public bool IsSpeciesValid => Species > 0 && Species < GameInfo.Strings.Species.Count;
 
     public bool IsGen1RawZeroGlitch => Pkm is PK1 pk1 && PokeList1.IsRawZeroGlitch(pk1);
+    public bool IsGen1MissingNo50 => Pkm is PK1 pk1 && PokeList1.IsMissingNo50(pk1);
+    public bool IsGen1Glitch => Pkm is PK1 pk1 && PokeList1.IsKnownGen1Glitch(pk1);
 
-    // General storage occupancy. Do not replace this with the glitch-only
-    // predicate; doing that was the v4 regression that dropped normal Pokemon.
-    public bool IsStorageOccupied => IsSpeciesValid || IsGen1RawZeroGlitch;
+    // General storage occupancy. Normal Pokemon remain normal; only the two
+    // explicitly supported Gen-1 glitch families bypass Species==0.
+    public bool IsStorageOccupied => IsSpeciesValid || IsGen1Glitch;
 
     public PKMLoadError? LoadError => loadError;
 
@@ -359,12 +365,12 @@ replace_once(convert,
 ''',
 '''    public ImmutablePKM ConvertTo(ImmutablePKM sourcePkm, Type targetPkmType, PKMRndValues? rndValues, SaveFile? targetSave = null)
     {
-        // Raw species-00 Gen-1 glitches are intentionally Gen-1-only. Do not
-        // run them through legality healing, party-stat reset, or conversions.
-        if (sourcePkm.IsGen1RawZeroGlitch)
+        // Supported Gen-1 glitches are intentionally Gen-1-only. Do not run
+        // 'M (00) or MissingNo (50) through legality healing or conversion.
+        if (sourcePkm.IsGen1Glitch)
         {
             if (targetPkmType != typeof(PK1))
-                throw new InvalidOperationException("Raw species-00 Gen-1 glitch Pokemon cannot leave Gen 1.");
+                throw new InvalidOperationException("Gen-1 glitch Pokemon cannot leave Gen 1.");
             return new(sourcePkm.GetMutablePkm().Clone());
         }
 
@@ -396,8 +402,10 @@ replace_once(pfl,
 ''',
 '''        var star = pkm.IsShiny ? " ★" : string.Empty;
         var speciesName = pkm.IsGen1RawZeroGlitch
-            ? "MISSINGNO-RAW00"
-            : GameInfo.Strings.Species[pkm.Species].ToUpperInvariant().Replace(":", "");
+            ? "'M-RAW00"
+            : pkm.IsGen1MissingNo50
+                ? "MISSINGNO-RAW50"
+                : GameInfo.Strings.Species[pkm.Species].ToUpperInvariant().Replace(":", "");
         return $"{pkm.Species:0000}{star} - {speciesName} - {id}.{pkm.Extension}";
 ''')
 
@@ -417,26 +425,20 @@ replace_once(img,
 
     if (species === 0 && context === EntityContext.Gen1) {
         const { style, ...rest } = imgProps;
-        return <div
+        return <img
             {...rest}
             data-species-id={0}
-            title="Gen 1 raw-00 glitch Pokemon"
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFQAAADDCAYAAAAcCDY6AAAFl0lEQVR4nO2dMW5UQQyGd9F2SUHgCtwkh4hEu4IeIZBSAEIUkZCAHiktgkPkJlwhkCL90iWzXq3XYz7Pe5H+r9rkvX0v+eWx7BmPZ7kYzJOjo0378/Xtbeh7b19+23vt8/dXe+/1rh16TuZ7j/beJVJIUJjV6BdGh3gPdjh6Q9e7j3AHslAYCQojQWGWo1+42Ww2h+/axfOTWd+XxXufLBRGgsI8mCFvIUIcKsNqkYXCSFAYCQozPPW0RH2TpSIcIt4tC4WRoDDDw6Y/P99vhU0nZx//+5k9bsPLsLLXWmShMBIURoLCDPehdpHu9+Xru8/P1l8W9LWLq8db17ILcR5apCtEgsIMz5TWzz+Z39zcfWqHqiV7zSM7xD1koTASFEaCwgz3oeenN1s/E6mnyxXvJzXbNBAJCjOrTMnSZkD2vui1nlqqNoyyrin6PlkojASFkaAww33omxdf9xY6TLnwdohoEYQsFEaCwkweNu3OPt1DLKhZKmqbNMFciASFkaAwk4dN1f7OSyGzKPUciASFmVVJeEWtkUc2NFJt00AkKIwEhZnch/799eHuczak8Wb97SKg5/8uf7z77/fLQmEkKMzkmZLNZAiiC2qW6MyXRRPMhUhQGAkKM6ttNVOnni3Z3c6yUBgJCjP5kI/i7fTo+Z73jOi93t8iC4WRoDASFGZ4Sbj1P9H6zbXZEXdyFgt5eupD7TtaLq6a+0yK2v4tslAYCQozq9qmnrX3ffcdIpthRUstZaEwEhRGgsJMnnpmZ9ej23GoFsXqfTcREhRm8nX5luqm/T1ky8xloTASFEaCwgyfbWprmRaL3b5KUaJhzNPj49TzbVgWrcGShcJIUJhZhU0e1MEA1WctyUJhJCiMBIVZeQ0BRhANf7K+sGLLjb2m3ciFSFCYJXXYSUtP+NFmMj0TzFHsBHN2t5x20k2EBIWRoDArOxtTce5mi31ftt1vtF5zdIMXWSiMBIVZVQ/xxWJ7iNgNqt66vDeso+v53u64CmShMBIURoLCDFmka0Mlz2d7KV2Pr792Oo9XpJ6abSpEgsIsbXlhdp2cgFo0856hTOmBIUFhJCjM0m5zqUhFPf/j1R4RO45t6lnduEAWCiNBYXYW6bLlfy0Vh51kw5ieknB1CZ8hEhRGgsJgYVPWbxE+26On0CGKF/rJQmEkKMzOkCdOzLZEF81s68t25qtnJx2xe06zTTNBgsJIUJjh9aFeJ+6oHz50b0tPl3BiFUAWCiNBYXbKGbN9lIih1LZDs2RLuz2ys1SaYB6IBIWRoDDLip10Pf6VesfI99nnt6GgLBRGgsKsvBmeLF4mYXuO0O+2UCeCt/+TzfbUJbwQCQojQWF2Zpu8/kTEbH7FuXPZmagsXqdzWSiMBIVZ2TCmnZD1mvFT11q8EM47CMDu+oie3u3VYPXsztO6fCESFEaCwgxvd+n7yW1feL649+/W13v+7vz0/rN95trxy9FrSj0HIkFhdjKlijJs4pCU7Pcqjgq2tG5LFgojQWEkKExJbZNHT58oYnvMCFo/LQuFkaAww4c8BRFiVYSFslAYCQojQWGGzzb1kA1/suGWR7ReVBYKI0FhSsoZs1CNBPY9owc7S9VOVGsXyEAkKIwEhRmeemYPk/Luzdaj9tRZRbcbyUJhJCjMrId89Hse2domS3QiXBYKI0FhJChM2odWtIoccax5BUo9C5GgMKsRxzRWDLvo+7zSQwqVhBciQWEkKAw2Y0+ciVnR+tejwtfLQmEkKMyKWrcmyLoKS7blWvSZWqQbiASFkaAwD6ZvU9bXU4t00QYLslAYCQqTLmf0hjXVtXvf8+0zvWteL6jsIQi2iULbplMWCiNBYSQoTNqHUudlRpnTKoBFqWchEhSmZF2+okaJ6kpesUNEtU2FSFCYf4GHjPUM5fGuAAAAAElFTkSuQmCC"
+            alt="MissingNo / 'M Gen 1 glitch sprite"
+            title="Gen 1 glitch Pokemon"
             style={{
                 width: 'calc(var(--sprite-species-size-multiplier, 1) * 96px)',
                 height: 'calc(var(--sprite-species-size-multiplier, 1) * 96px)',
+                objectFit: 'contain',
                 imageRendering: 'pixelated',
                 ...style,
             }}
-        >
-            <svg viewBox="0 0 16 16" width="100%" height="100%" shapeRendering="crispEdges" aria-label="MissingNo raw-00 reverse-L sprite">
-                <rect x="0" y="0" width="16" height="16" fill="transparent" />
-                <rect x="10" y="2" width="3" height="11" fill="currentColor" opacity="0.9" />
-                <rect x="4" y="10" width="9" height="3" fill="currentColor" opacity="0.9" />
-                <rect x="8" y="3" width="2" height="2" fill="currentColor" opacity="0.45" />
-                <rect x="5" y="8" width="2" height="2" fill="currentColor" opacity="0.45" />
-                <rect x="13" y="6" width="2" height="2" fill="currentColor" opacity="0.35" />
-            </svg>
-        </div>;
+        />;
     }
 
     const usedSpecies = species === 0
@@ -448,7 +450,7 @@ replace_once(img,
     'PKVault Gen1 MissingNo rebuild v6.1\n'
     'Baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec\n'
     'PKHeX: 26.08.26 / 74b88906e935e4a52d6d9243b8e373056409c738\n'
-    'Fixes: v5 occupancy separation, raw-00 save/pk1 preservation, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing.\n',
+    'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing.\n',
     encoding='utf-8'
 )
 print('all patches applied')
