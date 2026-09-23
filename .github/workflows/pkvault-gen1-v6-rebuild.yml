@@ -315,6 +315,71 @@ jobs:
           ! grep -q '^localhost:' "$DIRECT_ADDR"
           echo "PASS: Host Direct advertised a non-loopback IP:random-port and a second PKVault connected to it"
 
+      - name: Package complete v7.5.2 source snapshot
+        run: |
+          set -euo pipefail
+          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v7.5.2-FULL-SOURCE"
+          rm -rf "$SOURCE_ROOT"
+          mkdir -p "$SOURCE_ROOT"
+
+          # These are the exact trees used by this successful build, after the
+          # RedFox reconstruction patch has been applied.
+          cp -a pkvault-src "$SOURCE_ROOT/PKVault"
+          cp -a pkhex-src "$SOURCE_ROOT/PKHeX"
+          cp -a pkvault-rebuild "$SOURCE_ROOT/RedFox-Rebuild"
+          mkdir -p "$SOURCE_ROOT/GitHub-Workflow"
+          cp .github/workflows/pkvault-gen1-v6-rebuild.yml "$SOURCE_ROOT/GitHub-Workflow/"
+
+          # Do not ship nested Git history in the source archive.
+          rm -rf "$SOURCE_ROOT/PKVault/.git" "$SOURCE_ROOT/PKHeX/.git"
+
+          cat > "$SOURCE_ROOT/SOURCE_README.txt" <<'EOF'
+          PKVault v7.5.2 FULL SOURCE
+          ==========================
+          Release line: Online/VPN Trading + Permanent Pokedex Registration + Gen1 MissingNo support
+          PKVault upstream baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec
+          PKHeX upstream baseline: kwsch/PKHeX 74b88906e935e4a52d6d9243b8e373056409c738
+          RedFox build branch: pkvault-gen1-v6-rebuild
+
+          Contents:
+          - PKVault/        Exact patched PKVault source tree compiled for v7.5.2.
+          - PKHeX/          Exact patched PKHeX source tree used to build PKHeX.Core.
+          - RedFox-Rebuild/ Reconstruction patcher, trading sources, and trading smoke harness.
+          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v7.5.2.
+          - SOURCE_FILE_SHA256SUMS.txt hashes every file in this source snapshot.
+
+          Reproduction:
+          1. Build PKHeX/PKHeX.Core/PKHeX.Core.csproj with .NET 10 Release.
+          2. Copy the resulting PKHeX.Core.dll to PKVault/PKVault.Core/PKHeX.Core.dll.
+          3. Build PKVault normally or use its Dockerfile desktop target for win-x64.
+
+          This archive exists specifically so future PKVault versions never depend on
+          recovering source from an EXE or from a GitHub Actions runner.
+          EOF
+
+          (
+            cd "$SOURCE_ROOT"
+            find . -type f ! -name SOURCE_FILE_SHA256SUMS.txt -print0 |
+              sort -z |
+              xargs -0 sha256sum > SOURCE_FILE_SHA256SUMS.txt
+          )
+
+          (
+            cd "$GITHUB_WORKSPACE/dist"
+            zip -9 -r PKVault-v7.5.2-FULL-SOURCE.zip PKVault-v7.5.2-FULL-SOURCE
+            sha256sum PKVault-v7.5.2-FULL-SOURCE.zip > PKVault-v7.5.2-FULL-SOURCE.zip.sha256
+          )
+
+      - name: Upload PKVault v7.5.2 full source
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-v7.5.2-FULL-SOURCE
+          path: |
+            dist/PKVault-v7.5.2-FULL-SOURCE.zip
+            dist/PKVault-v7.5.2-FULL-SOURCE.zip.sha256
+          if-no-files-found: error
+          retention-days: 90
+
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
