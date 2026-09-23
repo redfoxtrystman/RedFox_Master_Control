@@ -333,10 +333,12 @@ public class TradingService(
                 {
                     if (stageActive)
                         await RollbackStageAsync();
+                    else if (pendingBackupTime != null && status != "Completed")
+                        await RestorePendingBackupAsync();
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Trade stage rollback after connection loss failed");
+                    Log.Error(ex, "Trade rollback after connection loss failed");
                 }
 
                 lock (stateLock)
