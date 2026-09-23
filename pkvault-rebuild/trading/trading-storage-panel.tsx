@@ -181,33 +181,56 @@ export const TradingStoragePanel: React.FC = () => {
                         variant='light'
                         loading={busy}
                         onClick={() => void act(() => tradingHost(false))}
-                    >Host Direct</Button>
+                    >Host Direct / VPN</Button>
                 </Group>
+                <Text size='xs' c='dimmed'>
+                    For Radmin/Hamachi/LAN, host with Direct / VPN and send your partner the matching IP:port shown below.
+                </Text>
                 <TextInput
                     leftSection={<LinkIcon size={14}/>}
                     value={address}
                     onChange={e => setAddress(e.currentTarget.value)}
-                    placeholder='localhost:0000 or IP:port'
+                    placeholder='localhost:0000 or 26.x.x.x:port'
                 />
                 <Button loading={busy} onClick={() => void act(() => tradingConnect(address))}>Connect</Button>
             </Stack>
             : <Card withBorder p='xs'>
-                <Group justify='space-between'>
-                    <Stack gap={0}>
-                        <Text size='sm'><b>You:</b> {state?.profileName ?? '-'}</Text>
-                        <Text size='sm'><b>Peer:</b> {state?.peerName ?? (state?.status === 'Hosting' ? 'Waiting…' : '-')}</Text>
-                        {state?.isHost && state.hostAddress && <Text size='xs' c='dimmed'>
-                            Address: <b>{state.hostAddress}</b>
+                <Stack gap='xs'>
+                    <Group justify='space-between' align='flex-start'>
+                        <Stack gap={0}>
+                            <Text size='sm'><b>You:</b> {state?.profileName ?? '-'}</Text>
+                            <Text size='sm'><b>Peer:</b> {state?.peerName ?? (state?.status === 'Hosting' ? 'Waiting…' : '-')}</Text>
+                            {state?.peerAddress && <Text size='xs' c='dimmed'>
+                                Peer address: {state.peerAddress}
+                            </Text>}
+                        </Stack>
+                        <Button
+                            color='red'
+                            variant='light'
+                            size='compact-sm'
+                            leftSection={<UnplugIcon size={14}/>}
+                            onClick={() => void act(tradingDisconnect)}
+                        >Cancel</Button>
+                    </Group>
+
+                    {state?.isHost && (state.hostAddresses?.length ?? 0) > 0 && <Stack gap={4}>
+                        <Text size='xs' fw={700}>Connection addresses</Text>
+                        {state.hostAddresses.map(host => <Group key={host} justify='space-between' gap='xs' wrap='nowrap'>
+                            <Text size='xs' ff='monospace' style={{ overflowWrap: 'anywhere' }}>{host}</Text>
+                            <Button
+                                size='compact-xs'
+                                variant='subtle'
+                                onClick={() => void navigator.clipboard?.writeText(host)}
+                            >Copy</Button>
+                        </Group>)}
+                        {state.hostAddresses.some(host => host.startsWith('26.')) && <Text size='xs' c='dimmed'>
+                            The 26.x.x.x address is the likely Radmin VPN address. Your partner should paste that exact IP:port.
                         </Text>}
-                    </Stack>
-                    <Button
-                        color='red'
-                        variant='light'
-                        size='compact-sm'
-                        leftSection={<UnplugIcon size={14}/>}
-                        onClick={() => void act(tradingDisconnect)}
-                    >Cancel</Button>
-                </Group>
+                        {!state.hostAddresses.some(host => host.startsWith('26.')) && state.hostAddress !== 'localhost:0000' && <Text size='xs' c='dimmed'>
+                            If you are using Radmin/Hamachi and its VPN address is not listed, copy the VPN IPv4 from that app and add the port shown here: {state.listenPort ?? '-'}.
+                        </Text>}
+                    </Stack>}
+                </Stack>
             </Card>}
 
         <Card withBorder p='xs'>
