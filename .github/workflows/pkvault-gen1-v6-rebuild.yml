@@ -1,0 +1,157 @@
+name: PKVault Gen1 v6 Rebuild
+
+on:
+  push:
+    branches:
+      - pkvault-gen1-v6-rebuild
+    paths:
+      - 'pkvault-rebuild/**'
+      - '.github/workflows/pkvault-gen1-v6-rebuild.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout build recipe
+        uses: actions/checkout@v4
+
+      - name: Checkout exact PKVault baseline
+        run: |
+          git clone https://github.com/Chnapy/PKVault.git pkvault-src
+          cd pkvault-src
+          git checkout 88993b8702a3ec7fc54b67ea1e2dbb1827822cec
+
+      - name: Checkout exact PKHeX 26.08.26
+        run: |
+          git clone https://github.com/kwsch/PKHeX.git pkhex-src
+          cd pkhex-src
+          git checkout 74b88906e935e4a52d6d9243b8e373056409c738
+
+      - name: Apply reconstructed v5 fixes plus Party-to-Box fix
+        run: |
+          python3 pkvault-rebuild/patch_pkvault_gen1.py pkvault-src pkhex-src
+          git -C pkvault-src diff --check
+          git -C pkhex-src diff --check
+
+      - name: Install .NET 10 SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build patched PKHeX.Core
+        run: |
+          dotnet build pkhex-src/PKHeX.Core/PKHeX.Core.csproj -c Release --nologo
+          cp pkhex-src/PKHeX.Core/bin/Release/net10.0/PKHeX.Core.dll pkvault-src/PKVault.Core/PKHeX.Core.dll
+
+      - name: Gen1 serializer smoke test
+        run: |
+          mkdir -p smoke
+          cat > smoke/smoke.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+            </PropertyGroup>
+            <ItemGroup>
+              <Reference Include="PKHeX.Core">
+                <HintPath>../pkvault-src/PKVault.Core/PKHeX.Core.dll</HintPath>
+              </Reference>
+            </ItemGroup>
+          </Project>
+          EOF
+          cat > smoke/Program.cs <<'EOF'
+          using PKHeX.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          var normal = new PK1();
+          normal.Species = 25;
+          normal.Stat_Level = 42;
+          normal.EXP = 80000;
+
+          var glitch = new PK1();
+          glitch.SpeciesInternal = 0;
+          glitch.CatchRate = 45;
+          glitch.EXP = 12345;
+          glitch.Stat_Level = 20;
+
+          var blank = new PK1();
+
+          var normalSingle = PokeList1.WrapSingle(normal);
+          var glitchSingle = PokeList1.WrapSingle(glitch);
+          var blankSingle = PokeList1.WrapSingle(blank);
+
+          Need(normalSingle[0] == 1 && normalSingle[1] != 0 && normalSingle[1] != 0xFF,
+              "normal Pokemon did not serialize as occupied");
+          Need(glitchSingle[0] == 1 && glitchSingle[1] == 0,
+              "raw-00 glitch was not preserved as occupied");
+          Need(blankSingle[0] == 0 && blankSingle[1] == 0xFF,
+              "blank PK1 became occupied");
+
+          var one = normalSingle.Length;
+          var singles = new byte[one * 3];
+          normalSingle.CopyTo(singles, 0);
+          glitchSingle.CopyTo(singles, one);
+          blankSingle.CopyTo(singles, one * 2);
+
+          var stringLength = normal.OriginalTrainerTrash.Length;
+          var box = new byte[PokeList1.GetListLength(3, false, false)];
+          Need(PokeList1.MergeSingles(singles, box, stringLength, 3, false), "box merge failed");
+          Need(box[0] == 2, "box count should contain normal + raw00 glitch");
+          Need(box[1] == normal.SpeciesInternal, "normal Pokemon header corrupted");
+          Need(box[2] == 0, "raw00 header corrupted");
+          Need(box[3] == 0xFF && box[4] == 0xFF, "box empty/terminator markers invalid");
+
+          var normalFromBox = PokeList1.ReadFromList(box, stringLength, 3, false, 0);
+          var glitchFromBox = PokeList1.ReadFromList(box, stringLength, 3, false, 1);
+          Need(normalFromBox.Species == 25, "Party->Box normal Pokemon became '?'");
+          Need(glitchFromBox.SpeciesInternal == 0, "raw00 glitch did not round-trip");
+
+          var party = new byte[PokeList1.GetListLength(3, true, true)];
+          Need(PokeList1.MergeSingles(singles, party, stringLength, 3, true), "party merge failed");
+          Need(party[0] == 2 && party[2] == 0, "party occupancy/raw00 preservation failed");
+
+          Console.WriteLine("PASS: normal, blank, raw00, party and box Gen1 serialization");
+          EOF
+          dotnet run --project smoke/smoke.csproj -c Release
+
+      - name: Build PKVault Core with patched library
+        run: |
+          dotnet build pkvault-src/PKVault.Core/PKVault.Core.csproj -c Release --nologo
+
+      - name: Build Windows x64 PKVault executable
+        run: |
+          cd pkvault-src
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-gen1-v6 -t pkvault-gen1-v6
+          docker create --name pkvault-gen1-v6-out pkvault-gen1-v6
+          mkdir -p ../dist
+          docker cp pkvault-gen1-v6-out:/app/PKVault.exe ../dist/PKVault-Gen1-MissingNo-v6-win-x64.exe
+          docker rm pkvault-gen1-v6-out
+
+      - name: Package and hash
+        run: |
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/
+          sha256sum dist/PKVault-Gen1-MissingNo-v6-win-x64.exe | tee dist/PKVault-Gen1-MissingNo-v6-win-x64.sha256
+          (cd dist && zip -9 PKVault-Gen1-MissingNo-v6-win-x64.zip PKVault-Gen1-MissingNo-v6-win-x64.exe PKVault-Gen1-MissingNo-v6-win-x64.sha256 PKVAULT_GEN1_REBUILD.txt)
+          ls -lah dist
+
+      - name: Upload rebuilt PKVault
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-Gen1-MissingNo-v6-win-x64
+          path: |
+            dist/PKVault-Gen1-MissingNo-v6-win-x64.exe
+            dist/PKVault-Gen1-MissingNo-v6-win-x64.zip
+            dist/PKVault-Gen1-MissingNo-v6-win-x64.sha256
+            dist/PKVAULT_GEN1_REBUILD.txt
+          if-no-files-found: error
+          retention-days: 30
