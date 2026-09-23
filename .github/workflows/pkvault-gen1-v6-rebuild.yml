@@ -1,4 +1,4 @@
-name: PKVault Trading v7.4 Online VPN Test
+name: PKVault Trading v7.5 Dex Registration Test
 
 on:
   push:
@@ -318,28 +318,28 @@ jobs:
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v7.4 -t pkvault-v74-online-test
-          docker create --name pkvault-v74-online-test-out pkvault-v74-online-test
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v7.5 -t pkvault-v75-dex-test
+          docker create --name pkvault-v75-dex-test-out pkvault-v75-dex-test
           mkdir -p ../dist
-          docker cp pkvault-v74-online-test-out:/app/PKVault.exe ../dist/PKVault-v7.4-Online-Trading-Test-win-x64.exe
-          docker rm pkvault-v74-online-test-out
+          docker cp pkvault-v75-dex-test-out:/app/PKVault.exe ../dist/PKVault-v7.5-Online-Trading-Dex-Test-win-x64.exe
+          docker rm pkvault-v75-dex-test-out
 
       - name: Package two isolated Windows trading profiles
         run: |
           set -euo pipefail
-          mkdir -p dist/PKVault-v7.4-Online-Trading-Test/Trader-A
-          mkdir -p dist/PKVault-v7.4-Online-Trading-Test/Trader-B
+          mkdir -p dist/PKVault-v7.5-Online-Trading-Dex-Test/Trader-A
+          mkdir -p dist/PKVault-v7.5-Online-Trading-Dex-Test/Trader-B
 
-          cp dist/PKVault-v7.4-Online-Trading-Test-win-x64.exe \
-            dist/PKVault-v7.4-Online-Trading-Test/Trader-A/PKVault-Trader-A.exe
-          cp dist/PKVault-v7.4-Online-Trading-Test-win-x64.exe \
-            dist/PKVault-v7.4-Online-Trading-Test/Trader-B/PKVault-Trader-B.exe
+          cp dist/PKVault-v7.5-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v7.5-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v7.5-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v7.5-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
 
-          cp -a trade-test/seed-A/. dist/PKVault-v7.4-Online-Trading-Test/Trader-A/
-          cp -a trade-test/seed-B/. dist/PKVault-v7.4-Online-Trading-Test/Trader-B/
+          cp -a trade-test/seed-A/. dist/PKVault-v7.5-Online-Trading-Dex-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v7.5-Online-Trading-Dex-Test/Trader-B/
 
-          cat > dist/PKVault-v7.4-Online-Trading-Test/TESTING.txt <<'EOF'
-          PKVault v7.4 Online/VPN Direct Trading test
+          cat > dist/PKVault-v7.5-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
+          PKVault v7.5 Online/VPN Trading + Permanent Dex Registration test
           ===================================
           Trader A starts with:
             Abra, Growlithe, Machop, Gastly, Dratini, Scyther
@@ -359,6 +359,7 @@ jobs:
           10. One side may offer zero Pokemon, so gifts and uneven trades are supported.
           11. Click Ready to Trade on both copies.
           12. When both report Trade complete, the normal Storage panes should refresh automatically without Reload all data & saves.
+          13. Open Pokedex: received Pokemon should be registered as caught. If you trade one away again, it should stay registered.
 
           Direct LAN / Radmin / Hamachi:
           - Host chooses Trading in one Storage pane and clicks Host Direct / VPN.
@@ -370,7 +371,11 @@ jobs:
           - Builds with incompatible trading protocol versions are rejected with a clear error instead of half-connecting.
 
           Current test-build scope:
-          - Main PKVault vault Pokemon are tradeable, up to 6 per side.\n          - Settings > Trading > Player name controls the name peers see; it is not derived from the EXE/folder name.
+          - Main PKVault vault Pokemon are tradeable, up to 6 per side.
+          - Every official Pokemon received through trading is permanently registered as caught in PKVault's central Pokedex.
+          - Trading that Pokemon away later does not remove its Pokedex registration.
+          - The registration uses the received Pokemon's own context/form/gender/shiny/alpha/language metadata, covering supported games from Gen 1 through ZA.
+          - Eggs and glitch species 0 do not create official Pokedex entries.\n          - Settings > Trading > Player name controls the name peers see; it is not derived from the EXE/folder name.
           - Uneven trades and one-way gifts are supported.
           - Loaded-save slots are not yet offered directly.
           - Room-code relay is not yet implemented.
@@ -379,26 +384,26 @@ jobs:
           - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
           EOF
 
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v7.4-Online-Trading-Test/
-          sha256sum dist/PKVault-v7.4-Online-Trading-Test/Trader-A/PKVault-Trader-A.exe \
-            | tee dist/PKVault-v7.4-Online-Trading-Test/Trader-A/PKVault-Trader-A.sha256
-          sha256sum dist/PKVault-v7.4-Online-Trading-Test/Trader-B/PKVault-Trader-B.exe \
-            | tee dist/PKVault-v7.4-Online-Trading-Test/Trader-B/PKVault-Trader-B.sha256
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v7.5-Online-Trading-Dex-Test/
+          sha256sum dist/PKVault-v7.5-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
+            | tee dist/PKVault-v7.5-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
+          sha256sum dist/PKVault-v7.5-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
+            | tee dist/PKVault-v7.5-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
 
-          (cd dist && zip -9 -r PKVault-v7.4-Online-Trading-Test-win-x64.zip PKVault-v7.4-Online-Trading-Test)
-          sha256sum dist/PKVault-v7.4-Online-Trading-Test-win-x64.zip \
-            | tee dist/PKVault-v7.4-Online-Trading-Test-win-x64.sha256
+          (cd dist && zip -9 -r PKVault-v7.5-Online-Trading-Dex-Test-win-x64.zip PKVault-v7.5-Online-Trading-Dex-Test)
+          sha256sum dist/PKVault-v7.5-Online-Trading-Dex-Test-win-x64.zip \
+            | tee dist/PKVault-v7.5-Online-Trading-Dex-Test-win-x64.sha256
           ls -lah dist
-          find dist/PKVault-v7.4-Online-Trading-Test -maxdepth 3 -type f -print | sort
+          find dist/PKVault-v7.5-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
 
-      - name: Upload PKVault v7.4 online trading test
+      - name: Upload PKVault v7.5 online trading dex test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v7.4-Online-Trading-Test-win-x64
+          name: PKVault-v7.5-Online-Trading-Dex-Test-win-x64
           path: |
-            dist/PKVault-v7.4-Online-Trading-Test-win-x64.zip
-            dist/PKVault-v7.4-Online-Trading-Test-win-x64.sha256
-            dist/PKVault-v7.4-Online-Trading-Test-win-x64.exe
-            dist/PKVault-v7.4-Online-Trading-Test/TESTING.txt
+            dist/PKVault-v7.5-Online-Trading-Dex-Test-win-x64.zip
+            dist/PKVault-v7.5-Online-Trading-Dex-Test-win-x64.sha256
+            dist/PKVault-v7.5-Online-Trading-Dex-Test-win-x64.exe
+            dist/PKVault-v7.5-Online-Trading-Dex-Test/TESTING.txt
           if-no-files-found: error
           retention-days: 30
