@@ -112,6 +112,15 @@ static async Task WaitConnected(TradingService trading)
         throw new Exception("Timed out waiting for localhost peer.");
 }
 
+static async Task WaitPeerName(TradingService trading)
+{
+    var deadline = DateTime.UtcNow.AddSeconds(10);
+    while (string.IsNullOrWhiteSpace((await trading.GetStateAsync()).PeerName) && DateTime.UtcNow < deadline)
+        await Task.Delay(50);
+    if (string.IsNullOrWhiteSpace((await trading.GetStateAsync()).PeerName))
+        throw new Exception("Timed out waiting for trading peer identity.");
+}
+
 static async Task WaitRemoteOfferCount(TradingService trading, int minimum)
 {
     var deadline = DateTime.UtcNow.AddSeconds(20);
@@ -159,6 +168,7 @@ static async Task Trade(IServiceProvider sp, bool host)
         await WaitConnected(trading);
     }
 
+    await WaitPeerName(trading);
     var connectedState = await trading.GetStateAsync();
     var expectedSelf = host ? "Trader A" : "Trader B";
     var expectedPeer = host ? "Trader B" : "Trader A";
