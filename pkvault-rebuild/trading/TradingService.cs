@@ -413,9 +413,9 @@ public class TradingService(
                 if (msg.ProtocolVersion != ProtocolVersion)
                 {
                     var peerVersion = msg.ProtocolVersion?.ToString() ?? "unknown";
-                    var error = $"Trading protocol mismatch. This build uses v{ProtocolVersion}; peer uses v{peerVersion}.";
-                    await SendAsync(new("error", Error: error));
-                    throw new InvalidOperationException(error);
+                    var protocolError = $"Trading protocol mismatch. This build uses v{ProtocolVersion}; peer uses v{peerVersion}.";
+                    await SendAsync(new("error", Error: protocolError));
+                    throw new InvalidOperationException(protocolError);
                 }
 
                 lock (stateLock)
