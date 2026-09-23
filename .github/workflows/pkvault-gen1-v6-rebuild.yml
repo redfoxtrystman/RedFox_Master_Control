@@ -231,7 +231,7 @@ jobs:
         run: |
           cd pkvault-src
           docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-gen1-v6.2 -t pkvault-gen1-v62
-          docker create --name pkvault-gen1-v62-out pkvault-gen1-v61
+          docker create --name pkvault-gen1-v62-out pkvault-gen1-v62
           mkdir -p ../dist
           docker cp pkvault-gen1-v62-out:/app/PKVault.exe ../dist/PKVault-Gen1-MissingNo-v6.2-win-x64.exe
           docker rm pkvault-gen1-v62-out
