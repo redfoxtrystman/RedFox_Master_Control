@@ -244,13 +244,9 @@ replace_once(sav1,
 '''            int count = PokeList1.CountPresent(src, boxSlotCount, SIZE_STORED);
 ''')
 replace_once(sav1,
-'''    // Storage
-    public override int PartyCount
+'''    public override bool IsPKMPresent(ReadOnlySpan<byte> data) => EntityDetection.IsPresentGB(data);
 ''',
-'''    // Storage
-    public override bool IsPKMPresent(ReadOnlySpan<byte> data) => PokeList1.IsSingleSlotOccupied(data);
-
-    public override int PartyCount
+'''    public override bool IsPKMPresent(ReadOnlySpan<byte> data) => PokeList1.IsSingleSlotOccupied(data);
 ''')
 
 imm = PKVAULT / 'PKVault.Core/storage/wrapper/ImmutablePKM.cs'
