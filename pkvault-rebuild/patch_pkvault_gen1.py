@@ -454,8 +454,10 @@ def copy_text(src_name: str, dest: Path):
 copy_text('TradingService.cs', PKVAULT / 'PKVault.Core/trading/TradingService.cs')
 copy_text('TradingRoute.cs', PKVAULT / 'PKVault.Core/trading/routes/TradingRoute.cs')
 copy_text('TradeSwapAction.cs', PKVAULT / 'PKVault.Core/storage/data-action/TradeSwapAction.cs')
-copy_text('trading-page.tsx', PKVAULT / 'frontend/src/pages/trading.tsx')
-copy_text('trading-route.tsx', PKVAULT / 'frontend/src/routes/trading.tsx')
+copy_text('trading-api.ts', PKVAULT / 'frontend/src/trading/trading-api.ts')
+copy_text('trading-storage-panel.tsx', PKVAULT / 'frontend/src/trading/trading-storage-panel.tsx')
+copy_text('game-trading-expanded.tsx', PKVAULT / 'frontend/src/storage/panel/game-list/game-trading-expanded.tsx')
+copy_text('trading.svg', PKVAULT / 'frontend/public/trading.svg')
 
 program = PKVAULT / 'PKVault.Core/Program.cs'
 replace_once(program,
@@ -554,53 +556,510 @@ replace_once(actions,
         string[] pkmIds, uint? sourceSaveId,
 ''')
 
-header = PKVAULT / 'frontend/src/header/header.tsx'
-replace_once(header,
-'''            <UIHeaderItem
-                id={'pokedex' satisfies HeaderValue}
-                to={"/pokedex"}
-                selected={value === 'pokedex'}
-                label={t('header.dex')}
-            >
-                {t('header.dex')}
-            </UIHeaderItem>
 
-            <Tooltip
+# Integrate Trading as a first-class Storage source beside PKVault/save files.
+storage_route = PKVAULT / 'frontend/src/routes/storage.tsx'
+replace_once(storage_route,
+'''    .object({
+      saveId: z.number().int().nullable(),
+      boxId: z.number().int().optional(),
+    })
 ''',
-'''            <UIHeaderItem
-                id={'pokedex' satisfies HeaderValue}
-                to={"/pokedex"}
-                selected={value === 'pokedex'}
-                label={t('header.dex')}
-            >
-                {t('header.dex')}
-            </UIHeaderItem>
-
-            <UIHeaderItem
-                id={'trading' satisfies HeaderValue}
-                to={"/trading"}
-                selected={value === 'trading'}
-                label="Trading"
-            >
-                Trading
-            </UIHeaderItem>
-
-            <Tooltip
+'''    .object({
+      saveId: z.number().int().nullable(),
+      boxId: z.number().int().optional(),
+      trade: z.boolean().optional(),
+    })
 ''')
-replace_once(header,
-'''            'saves': () => null,
-            'settings': () => <SettingsSubMenu />,
+
+storage_ctx = PKVAULT / 'frontend/src/storage/panel/storage-panel-context.ts'
+replace_once(storage_ctx,
+'''        if (storage.saveId === defaultStorage?.saveId
+            && storage.boxId === defaultStorage.boxId)
+            return defaultStorage;
 ''',
-'''            'saves': () => null,
-            'trading': () => null,
-            'settings': () => <SettingsSubMenu />,
+'''        if (!storage.trade
+            && storage.saveId === defaultStorage?.saveId
+            && storage.boxId === defaultStorage.boxId)
+            return defaultStorage;
+''')
+replace_once(storage_ctx,
+'''        const nextStorage = { ...storage, ...newStorage };
+        if (nextStorage.saveId === undefined)
+            throw new Error('Current storage is partial: ' + JSON.stringify(nextStorage, undefined, 2));
+
+        if (nextStorage.saveId !== storage?.saveId)
+            nextStorage.boxId = newStorage.boxId;
+
+        if (nextStorage.saveId === storage?.saveId && nextStorage.boxId === storage.boxId)
+            return searchStorages!;
+''',
+'''        const nextStorage = { ...storage, ...newStorage };
+        if (nextStorage.saveId === undefined)
+            throw new Error('Current storage is partial: ' + JSON.stringify(nextStorage, undefined, 2));
+
+        if (nextStorage.trade) {
+            nextStorage.saveId = null;
+            nextStorage.boxId = undefined;
+        }
+
+        if (nextStorage.saveId !== storage?.saveId || nextStorage.trade !== storage?.trade)
+            nextStorage.boxId = newStorage.boxId;
+
+        if (nextStorage.saveId === storage?.saveId
+            && nextStorage.boxId === storage.boxId
+            && nextStorage.trade === storage.trade)
+            return searchStorages!;
+''')
+
+game_list = PKVAULT / 'frontend/src/storage/panel/game-list/storage-panel-game-list.tsx'
+replace_once(game_list,
+'''import { GameExpanded } from './game-expanded';
+import { GamePkvaultExpanded } from './game-pkvault-expanded';
+''',
+'''import { GameExpanded } from './game-expanded';
+import { GamePkvaultExpanded } from './game-pkvault-expanded';
+import { GameTradingExpanded } from './game-trading-expanded';
+''')
+replace_once(game_list,
+'''const pkvaultStorageId = 'pkvault';
+''',
+'''const pkvaultStorageId = 'pkvault';
+const tradingStorageId = 'trading';
+''')
+replace_once(game_list,
+'''    const { getStorage, setStorage } = useCurrentStorage();
+    const otherStorage = useOtherStorage();
+    const saveId = Route.useSearch({ select: (search) => getStorage(search.storages)?.saveId });
+    const navigate = Route.useNavigate();
+''',
+'''    const { getStorage, setStorage } = useCurrentStorage();
+    const otherStorage = useOtherStorage();
+    const currentStorage = Route.useSearch({ select: (search) => getStorage(search.storages) });
+    const saveId = currentStorage?.saveId;
+    const navigate = Route.useNavigate();
+''')
+replace_once(game_list,
+'''    const value = saveId !== undefined
+        ? saveId?.toString() ?? pkvaultStorageId
+        : '';
+''',
+'''    const value = currentStorage?.trade
+        ? tradingStorageId
+        : saveId !== undefined
+            ? saveId?.toString() ?? pkvaultStorageId
+            : '';
+''')
+replace_once(game_list,
+'''            return pkvaultBoxesQuery.isPending
+                || (otherStorage.getStorage(search.storages)?.saveId === null && pkvaultBoxesQuery.data?.data.length === 1);
+        }
+    });
+''',
+'''            const other = otherStorage.getStorage(search.storages);
+            return pkvaultBoxesQuery.isPending
+                || (!other?.trade && other?.saveId === null && pkvaultBoxesQuery.data?.data.length === 1);
+        }
+    });
+
+    const disabledTrading = Route.useSearch({
+        select: (search) => {
+            if (value === tradingStorageId)
+                return false;
+            return otherStorage.getStorage(search.storages)?.trade === true;
+        }
+    });
+''')
+replace_once(game_list,
+'''    const onChange = (id: string) => {
+        const saveId = id === pkvaultStorageId ? null : Number(id);
+
+        navigate({
+            search: (search) => {
+                return {
+                    ...search,
+                    storages: setStorage(search.storages, { saveId }),
+                };
+            },
+        });
+    };
+''',
+'''    const onChange = (id: string) => {
+        const trade = id === tradingStorageId;
+        const saveId = id === pkvaultStorageId || trade ? null : Number(id);
+
+        navigate({
+            search: (search) => {
+                return {
+                    ...search,
+                    selected: undefined,
+                    storages: setStorage(search.storages, {
+                        saveId,
+                        trade,
+                        boxId: undefined,
+                    }),
+                };
+            },
+        });
+    };
+''')
+replace_once(game_list,
+'''            {
+                id: pkvaultStorageId,
+                imgSrc: '/logo.svg',
+                label: 'PKVault',
+                disabled: disabledPkvault,
+            },
+            ...saveInfos.map(({ id, displayedVersion, duplicates }): UIGameData => ({
+''',
+'''            {
+                id: pkvaultStorageId,
+                imgSrc: '/logo.svg',
+                label: 'PKVault',
+                disabled: disabledPkvault,
+            },
+            {
+                id: tradingStorageId,
+                imgSrc: '/trading.svg',
+                label: 'Trading',
+                disabled: disabledTrading,
+            },
+            ...saveInfos.map(({ id, displayedVersion, duplicates }): UIGameData => ({
+''')
+replace_once(game_list,
+'''        renderHoverCard={({ item, selected }, { reduce }) => item.id === pkvaultStorageId
+            ? <GamePkvaultExpanded
+                {...item}
+                onSelect={() => {
+                    if (!selected)
+                        onChange(item.id);
+                    reduce();
+                }}
+            />
+            : <GameExpanded
+                {...item}
+                onSelect={() => {
+                    if (!selected)
+                        onChange(item.id);
+                    reduce();
+                }}
+            />}
+''',
+'''        renderHoverCard={({ item, selected }, { reduce }) => item.id === pkvaultStorageId
+            ? <GamePkvaultExpanded
+                {...item}
+                onSelect={() => {
+                    if (!selected)
+                        onChange(item.id);
+                    reduce();
+                }}
+            />
+            : item.id === tradingStorageId
+                ? <GameTradingExpanded
+                    {...item}
+                    selected={selected}
+                    onSelect={() => {
+                        if (!selected)
+                            onChange(item.id);
+                        reduce();
+                    }}
+                />
+                : <GameExpanded
+                    {...item}
+                    onSelect={() => {
+                        if (!selected)
+                            onChange(item.id);
+                        reduce();
+                    }}
+                />}
+''')
+replace_once(game_list,
+'''        renderExpanded={(data, { reduce }) => data.map(({ item, selected }) =>
+            item.id === pkvaultStorageId
+                ? <GamePkvaultExpanded
+                    key={item.id}
+                    {...item}
+                    selected={selected}
+                    onSelect={item.disabled
+                        ? undefined
+                        : (() => {
+                            onChange(item.id);
+                            reduce();
+                        })}
+                />
+                : <GameExpanded
+                    key={item.id}
+                    {...item}
+                    selected={selected}
+                    disabled={item.disabled}
+                    onSelect={item.disabled
+                        ? undefined
+                        : (() => {
+                            onChange(item.id);
+                            reduce();
+                        })}
+                />)}
+''',
+'''        renderExpanded={(data, { reduce }) => data.map(({ item, selected }) =>
+            item.id === pkvaultStorageId
+                ? <GamePkvaultExpanded
+                    key={item.id}
+                    {...item}
+                    selected={selected}
+                    onSelect={item.disabled
+                        ? undefined
+                        : (() => {
+                            onChange(item.id);
+                            reduce();
+                        })}
+                />
+                : item.id === tradingStorageId
+                    ? <GameTradingExpanded
+                        key={item.id}
+                        {...item}
+                        selected={selected}
+                        disabled={item.disabled}
+                        onSelect={item.disabled
+                            ? undefined
+                            : (() => {
+                                onChange(item.id);
+                                reduce();
+                            })}
+                    />
+                    : <GameExpanded
+                        key={item.id}
+                        {...item}
+                        selected={selected}
+                        disabled={item.disabled}
+                        onSelect={item.disabled
+                            ? undefined
+                            : (() => {
+                                onChange(item.id);
+                                reduce();
+                            })}
+                    />)}
+''')
+
+storage_panel = PKVAULT / 'frontend/src/storage/panel/storage-panel.tsx'
+replace_once(storage_panel,
+'''import { StoragePanelItems } from './items/storage-panel-items';
+''',
+'''import { StoragePanelItems } from './items/storage-panel-items';
+import { useCurrentStorage } from './storage-panel-context';
+import { TradingStoragePanel } from '../../trading/trading-storage-panel';
+''')
+replace_once(storage_panel,
+'''export const StoragePanel: React.FC<PopoverTargetChildProps> = (popoverProps) => {
+    const storage = useCurrentStorageWithFallback();
+    const { saveId, boxId } = storage.data ?? {};
+    const hasStorage = saveId !== undefined;
+
+    const navigate = Route.useNavigate();
+''',
+'''export const StoragePanel: React.FC<PopoverTargetChildProps> = (popoverProps) => {
+    const currentStorage = useCurrentStorage();
+    const selectedStorage = Route.useSearch({ select: search => currentStorage.getStorage(search.storages) });
+    const isTrading = selectedStorage?.trade === true;
+
+    const storage = useCurrentStorageWithFallback();
+    const { saveId, boxId } = storage.data ?? {};
+    const hasStorage = !isTrading && saveId !== undefined;
+
+    const navigate = Route.useNavigate();
+''')
+replace_once(storage_panel,
+'''    const storageWithoutBox = !(storage.isPending && storage.isEnabled) && saveId !== undefined && boxId === undefined;
+''',
+'''    const storageWithoutBox = !isTrading && !(storage.isPending && storage.isEnabled) && saveId !== undefined && boxId === undefined;
+''')
+replace_once(storage_panel,
+'''    >
+        {hasStorage && <StoragePanelItems />}
+    </UIStoragePanel>;
+''',
+'''    >
+        {isTrading
+            ? <TradingStoragePanel />
+            : hasStorage && <StoragePanelItems />}
+    </UIStoragePanel>;
+''')
+
+move_containers = PKVAULT / 'frontend/src/storage/move/move-container-fns.ts'
+replace_once(move_containers,
+'''    | {
+        type: 'bank';
+        saveId?: undefined;
+        boxId?: undefined;
+        bankId: string;
+    };
+''',
+'''    | {
+        type: 'bank';
+        saveId?: undefined;
+        boxId?: undefined;
+        bankId: string;
+    }
+    | {
+        type: 'trade';
+        saveId?: undefined;
+        boxId?: undefined;
+        bankId?: undefined;
+    };
+''')
+replace_once(move_containers,
+'''        case 'bank':
+            return {
+                type: 'bank',
+                bankId,
+            };
+    }
+};
+''',
+'''        case 'bank':
+            return {
+                type: 'bank',
+                bankId,
+            };
+        case 'trade':
+            return {
+                type: 'trade',
+            };
+    }
+};
+''')
+
+move_impl = PKVAULT / 'frontend/src/storage/move/move-select-impl-provider.tsx'
+replace_once(move_impl,
+'''import { type MoveContainerValue, type MoveParams, containerFns } from './move-container-fns';
+''',
+'''import { type MoveContainerValue, type MoveParams, containerFns } from './move-container-fns';
+import { tradingGetState, tradingSetOffers } from '../../trading/trading-api';
+''')
+replace_once(move_impl,
+'''    return React.useCallback((source, target) => {
+        if (target.targetContainer.type === 'bank')
+            return {};
+''',
+'''    return React.useCallback((source, target) => {
+        if (target.targetContainer.type === 'bank')
+            return {};
+
+        if (target.targetContainer.type === 'trade') {
+            return Object.fromEntries(
+                Array.from(source.ids).map((id, i) => [ id, target.targetPosition + i ])
+            );
+        }
+''')
+replace_once(move_impl,
+'''        switch (target.targetContainer.type) {
+            case 'bank': {
+''',
+'''        switch (target.targetContainer.type) {
+            case 'trade': {
+                if (sourceContainer.type !== 'main-item') {
+                    errorsOnMutationResponse(undefined, new Error('Only PKVault storage Pokémon can be offered in this trading build.'));
+                    break;
+                }
+
+                try {
+                    const state = await tradingGetState();
+                    if (!state.connected)
+                        throw new Error('Connect to another PKVault before adding Pokémon to the trade.');
+                    if (state.localReady || state.status === 'Trading')
+                        throw new Error('Unready before changing the trade offer.');
+
+                    const existing = state.localOffers
+                        .map(o => o.variantId)
+                        .filter((id): id is string => !!id)
+                        .filter(id => !pkmIds.includes(id));
+
+                    const insertAt = Math.max(0, Math.min(target.targetPosition, existing.length));
+                    existing.splice(insertAt, 0, ...pkmIds);
+
+                    if (existing.length > 6)
+                        throw new Error('A trade can contain at most 6 Pokémon.');
+
+                    await tradingSetOffers(existing);
+                } catch (err) {
+                    errorsOnMutationResponse(undefined, err as Error);
+                }
+                break;
+            };
+            case 'bank': {
+''')
+
+drop_validation = PKVAULT / 'frontend/src/storage/move/hooks/use-droppable-validation.ts'
+replace_once(drop_validation,
+'''        const storages = [ storageLeft, storageRight ].filter(filterIsDefined);
+
+        const storagesOptions = storages
+''',
+'''        const allStorages = [ storageLeft, storageRight ].filter(filterIsDefined);
+        const storages = allStorages.filter(storage => !storage.trade);
+        const hasTradeTarget = allStorages.some(storage => storage.trade);
+
+        const storagesOptions = storages
+''')
+replace_once(drop_validation,
+'''            sourceBoxes: getStorageGetBoxesQueryOptions({ saveId: sourceSaveId ?? undefined }),
+            banks: getStorageGetMainBanksQueryOptions(),
+''',
+'''            sourceBoxes: getStorageGetBoxesQueryOptions({ saveId: sourceSaveId ?? undefined }),
+            banks: getStorageGetMainBanksQueryOptions(),
+''')
+replace_once(drop_validation,
+'''            getItemsContainers,
+        };
+''',
+'''            getItemsContainers,
+            hasTradeTarget,
+        };
+''')
+replace_once(drop_validation,
+'''            getItemsContainers,
+        } = getCommonData(source);
+''',
+'''            getItemsContainers,
+            hasTradeTarget,
+        } = getCommonData(source);
+''')
+replace_once(drop_validation,
+'''        return {
+            rootItems: bankSlotStates,
+            items: itemSlotStates,
+        };
+''',
+'''        const sourceContainer = containerFns.getContainerValue(source.containerId);
+        const tradeItems = hasTradeTarget
+            ? {
+                [ containerFns.getContainerHash({ type: 'trade' }) ]: Object.fromEntries(
+                    new Array(6).fill(0).map((_, slot) => [
+                        slot,
+                        {
+                            canDrop: sourceContainer.type === 'main-item' && !attached && sourceIds.length <= 6,
+                            helpText: sourceContainer.type === 'main-item'
+                                ? undefined
+                                : 'Only PKVault storage Pokémon can be offered in this trading build.',
+                        },
+                    ])
+                ),
+            }
+            : {};
+
+        return {
+            rootItems: bankSlotStates,
+            items: {
+                ...itemSlotStates,
+                ...tradeItems,
+            },
+        };
 ''')
 
 (PKVAULT / 'PKVAULT_GEN1_REBUILD.txt').write_text(
-    'PKVault Gen1 MissingNo + Direct Trading rebuild v7.1-test\n'
+    'PKVault Gen1 MissingNo + Direct Trading rebuild v7.2-test\n'
     'Baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec\n'
     'PKHeX: 26.08.26 / 74b88906e935e4a52d6d9243b8e373056409c738\n'
-    'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite normalized to standard PKVault icon sizing, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing, direct-IP PKVault trading with localhost:0000 local test alias, 0-5 batch/gift offers, drag/drop trade box UI, and automatic cache refresh after commit.\n',
+    'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite normalized to standard PKVault icon sizing, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing, direct-IP PKVault trading with localhost:0000 local test alias, 0-6 batch/gift offers, Trading integrated as a native Storage source, existing PKVault box browsing + drag/drop into six trade slots, and automatic cache refresh after commit.\n',
     encoding='utf-8'
 )
 print('all patches applied')
