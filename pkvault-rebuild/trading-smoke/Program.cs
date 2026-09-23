@@ -36,6 +36,15 @@ static async Task Seed(IServiceProvider sp, string profile)
 
     var set = profile.Equals("A", StringComparison.OrdinalIgnoreCase) ? setA : setB;
 
+    // Keep the portable trader profiles focused on the seeded Gen-1 vault data.
+    // Otherwise desktop PKVault's normal first-run path creates its Emerald sample save.
+    var settingsService = sp.GetRequiredService<ISettingsService>();
+    var currentSettings = settingsService.GetSettings();
+    await settingsService.UpdateSettingsSimple(
+        currentSettings.SettingsMutable with { SAVE_GLOBS = [] },
+        currentSettings.UserId
+    );
+
     using var scope = sp.CreateScope();
     var boxes = scope.ServiceProvider.GetRequiredService<IBoxLoader>();
     var loader = scope.ServiceProvider.GetRequiredService<IPkmVariantLoader>();
