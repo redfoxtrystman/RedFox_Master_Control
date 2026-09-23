@@ -597,10 +597,10 @@ replace_once(header,
 ''')
 
 (PKVAULT / 'PKVAULT_GEN1_REBUILD.txt').write_text(
-    'PKVault Gen1 MissingNo + Direct Trading rebuild v7.0-test\n'
+    'PKVault Gen1 MissingNo + Direct Trading rebuild v7.1-test\n'
     'Baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec\n'
     'PKHeX: 26.08.26 / 74b88906e935e4a52d6d9243b8e373056409c738\n'
-    'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite normalized to standard PKVault icon sizing, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing, direct-IP PKVault trading MVP with localhost:0000 local test alias.\n',
+    'Fixes: v5 occupancy separation, raw-00 and raw-50 glitch preservation, real MissingNo sprite normalized to standard PKVault icon sizing, canonical blank box writes, phantom-slot guard, Party->Red Box stored-format packing, direct-IP PKVault trading with localhost:0000 local test alias, 0-5 batch/gift offers, drag/drop trade box UI, and automatic cache refresh after commit.\n',
     encoding='utf-8'
 )
 print('all patches applied')
