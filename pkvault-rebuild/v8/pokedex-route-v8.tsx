@@ -7,7 +7,6 @@ import type { DetailsExpandedState } from './storage';
 const searchSchema = z.object({
   selected: z.number().optional(),
   selectedSaveId: z.number().optional(),
-  dexProfile: z.enum([ 'tmt' ] as const).optional(),
   selectExpanded: z.enum([ 'none', 'expanded' ] as const satisfies DetailsExpandedState[]).optional(),
   filterSpeciesName: z.string().optional(),
   filterTypes: z.array(z.number()).optional(),
@@ -27,7 +26,6 @@ export const Route = createFileRoute("/pokedex")({
   validateSearch: fallback(searchSchema, {
     selected: undefined,
     selectedSaveId: undefined,
-    dexProfile: undefined,
     selectExpanded: undefined,
     filterSpeciesName: undefined,
     filterTypes: undefined,
