@@ -269,7 +269,21 @@ jobs:
           Need(vanilla.SpeciesInternal != 280,
               "TMT direct raw species id was not remapped to vanilla Gen3 internal numbering");
 
-          Console.WriteLine("PASS: PKVault V8 TMT direct species, forms, roster, types, clone, storage and vanilla downgrade");
+          // Regression for alpha1 crash: normal DexGenService assumes every
+          // species has StaticSpecies.Forms[EntityContext.Gen3]. Later-gen TMT
+          // species do not, so TMT must use DexTmtService and never index that
+          // vanilla Gen3 form dictionary.
+          var dexSave = new SAV3E { DirectSpeciesIDs = true };
+          var tmtDex = new DexTmtService(dexSave);
+          var dex = new Dictionary<ushort, Dictionary<uint, DexItemDTO>>();
+          await tmtDex.UpdateDexWithSave(dex, new StaticSpeciesData(), null);
+          Need(dex.ContainsKey(654), "TMT dex did not include Braixen");
+          var braixenDex = dex[654].Values.Single();
+          Need(braixenDex.Forms.Count > 0, "TMT Braixen dex entry has no forms");
+          Need(braixenDex.Forms.All(f => f.RomHackTypes is ["Fire", "Magic", "Furry"]),
+              "TMT Braixen dex entry lost ROM-hack type metadata");
+
+          Console.WriteLine("PASS: PKVault V8 TMT direct species, forms, roster, types, dex adapter, clone, storage and vanilla downgrade");
           EOF
           dotnet run --project tmt-smoke/tmt-smoke.csproj -c Release
 
@@ -412,10 +426,10 @@ jobs:
           ! grep -q '^localhost:' "$DIRECT_ADDR"
           echo "PASS: Host Direct advertised a non-loopback IP:random-port and a second PKVault connected to it"
 
-      - name: Package complete v8.0.0-alpha1-TMT source snapshot
+      - name: Package complete v8.0.0-alpha2-TMT source snapshot
         run: |
           set -euo pipefail
-          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha1-TMT-FULL-SOURCE"
+          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha2-TMT-FULL-SOURCE"
           rm -rf "$SOURCE_ROOT"
           mkdir -p "$SOURCE_ROOT"
 
@@ -431,18 +445,18 @@ jobs:
           rm -rf "$SOURCE_ROOT/PKVault/.git" "$SOURCE_ROOT/PKHeX/.git"
 
           cat > "$SOURCE_ROOT/SOURCE_README.txt" <<'EOF'
-          PKVault v8.0.0-alpha1-TMT FULL SOURCE
+          PKVault v8.0.0-alpha2-TMT FULL SOURCE
           ==========================
-          Release line: V8 alpha1 ROM-Hack Compatibility + Too Many Types v1.6 + existing Trading/MissingNo support
+          Release line: V8 alpha2 ROM-Hack Compatibility + Too Many Types v1.6 + existing Trading/MissingNo support
           PKVault upstream baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec
           PKHeX upstream baseline: kwsch/PKHeX 74b88906e935e4a52d6d9243b8e373056409c738
           RedFox build branch: pkvault-v8-romhack-tmt
 
           Contents:
-          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha1-TMT.
+          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha2-TMT.
           - PKHeX/          Exact patched PKHeX source tree used to build PKHeX.Core.
           - RedFox-Rebuild/ Reconstruction patcher, trading sources, and trading smoke harness.
-          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha1-TMT.
+          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha2-TMT.
           - SOURCE_FILE_SHA256SUMS.txt hashes every file in this source snapshot.
 
           Reproduction:
@@ -463,45 +477,45 @@ jobs:
 
           (
             cd "$GITHUB_WORKSPACE/dist"
-            zip -9 -r PKVault-v8.0.0-alpha1-TMT-FULL-SOURCE.zip PKVault-v8.0.0-alpha1-TMT-FULL-SOURCE
-            sha256sum PKVault-v8.0.0-alpha1-TMT-FULL-SOURCE.zip > PKVault-v8.0.0-alpha1-TMT-FULL-SOURCE.zip.sha256
+            zip -9 -r PKVault-v8.0.0-alpha2-TMT-FULL-SOURCE.zip PKVault-v8.0.0-alpha2-TMT-FULL-SOURCE
+            sha256sum PKVault-v8.0.0-alpha2-TMT-FULL-SOURCE.zip > PKVault-v8.0.0-alpha2-TMT-FULL-SOURCE.zip.sha256
           )
 
-      - name: Upload PKVault v8.0.0-alpha1-TMT full source
+      - name: Upload PKVault v8.0.0-alpha2-TMT full source
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha1-TMT-FULL-SOURCE
+          name: PKVault-v8.0.0-alpha2-TMT-FULL-SOURCE
           path: |
-            dist/PKVault-v8.0.0-alpha1-TMT-FULL-SOURCE.zip
-            dist/PKVault-v8.0.0-alpha1-TMT-FULL-SOURCE.zip.sha256
+            dist/PKVault-v8.0.0-alpha2-TMT-FULL-SOURCE.zip
+            dist/PKVault-v8.0.0-alpha2-TMT-FULL-SOURCE.zip.sha256
           if-no-files-found: error
           retention-days: 90
 
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha1-TMT -t pkvault-v752-description-patch
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha2-TMT -t pkvault-v752-description-patch
           docker create --name pkvault-v752-description-patch-out pkvault-v752-description-patch
           mkdir -p ../dist
-          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test-win-x64.exe
+          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test-win-x64.exe
           docker rm pkvault-v752-description-patch-out
 
       - name: Package two isolated Windows trading profiles
         run: |
           set -euo pipefail
-          mkdir -p dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/Trader-A
-          mkdir -p dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/Trader-B
+          mkdir -p dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/Trader-A
+          mkdir -p dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/Trader-B
 
-          cp dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
-          cp dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
+          cp dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
 
-          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/Trader-A/
-          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/Trader-B/
+          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/Trader-B/
 
-          cat > dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
-          PKVault v8.0.0-alpha1-TMT Online/VPN Trading + Permanent Dex Registration test
+          cat > dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
+          PKVault v8.0.0-alpha2-TMT Online/VPN Trading + Permanent Dex Registration test
           ===================================
           Trader A starts with:
             Abra, Growlithe, Machop, Gastly, Dratini, Scyther
@@ -546,26 +560,26 @@ jobs:
           - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
           EOF
 
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/
-          sha256sum dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
-            | tee dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
-          sha256sum dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
-            | tee dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/
+          sha256sum dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
+            | tee dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
+          sha256sum dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
+            | tee dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
 
-          (cd dist && zip -9 -r PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test)
-          sha256sum dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test-win-x64.zip \
-            | tee dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test-win-x64.sha256
+          (cd dist && zip -9 -r PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test)
+          sha256sum dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test-win-x64.zip \
+            | tee dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test-win-x64.sha256
           ls -lah dist
-          find dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
+          find dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
 
-      - name: Upload PKVault v8.0.0-alpha1-TMT online trading dex test
+      - name: Upload PKVault v8.0.0-alpha2-TMT online trading dex test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test-win-x64
+          name: PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test-win-x64.zip
-            dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test-win-x64.sha256
-            dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test-win-x64.exe
-            dist/PKVault-v8.0.0-alpha1-TMT-Online-Trading-Dex-Test/TESTING.txt
+            dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test-win-x64.zip
+            dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test-win-x64.sha256
+            dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test-win-x64.exe
+            dist/PKVault-v8.0.0-alpha2-TMT-Online-Trading-Dex-Test/TESTING.txt
           if-no-files-found: error
           retention-days: 30
