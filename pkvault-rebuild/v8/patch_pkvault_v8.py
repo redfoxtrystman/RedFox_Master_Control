@@ -842,14 +842,22 @@ replace_once(dto,
 # official binary PKM structures.
 replace_once(loader,
 '''        var star = pkm.IsShiny ? " ★" : string.Empty;
-        var speciesName = GameInfo.Strings.Species[pkm.Species].ToUpperInvariant().Replace(":", "");
+        var speciesName = pkm.IsGen1RawZeroGlitch
+            ? "'M-RAW00"
+            : pkm.IsGen1MissingNo50
+                ? "MISSINGNO-RAW50"
+                : GameInfo.Strings.Species[pkm.Species].ToUpperInvariant().Replace(":", "");
         var extension = TooManyTypesCompat.GetStorageExtension(pkm);
         return $"{pkm.Species:0000}{star} - {speciesName} - {id}.{extension}";
 ''',
 '''        var star = pkm.IsShiny ? " ★" : string.Empty;
         var speciesName = pkm.GetMutablePkm() is PKEssentials essentials
             ? essentials.SpeciesName.ToUpperInvariant().Replace(":", "")
-            : GameInfo.Strings.Species[pkm.Species].ToUpperInvariant().Replace(":", "");
+            : pkm.IsGen1RawZeroGlitch
+                ? "'M-RAW00"
+                : pkm.IsGen1MissingNo50
+                    ? "MISSINGNO-RAW50"
+                    : GameInfo.Strings.Species[pkm.Species].ToUpperInvariant().Replace(":", "");
         var extension = pkm.GetMutablePkm() is PKEssentials ? "pkessentials" : TooManyTypesCompat.GetStorageExtension(pkm);
         return $"{pkm.Species:0000}{star} - {speciesName} - {id}.{extension}";
 ''')
