@@ -294,6 +294,7 @@ public static class EssentialsLegacySaveReader
             MoveNames = moveNames,
             LocalSpeciesId = species,
             LocalFormId = form,
+            OfficialNationalDexId = EssentialsProfileFallback.GetOfficialNationalDexId(game, species, form),
             Level = storedLevel,
             ReadOnlySource = false,
             SourceSavePath = sourcePath,
@@ -408,6 +409,19 @@ public static class EssentialsProfileFallback
             EssentialsGameKind.Insurgence => $"Insurgence #{species}",
             _ => $"Essentials #{species}",
         };
+    }
+
+    public static int GetOfficialNationalDexId(EssentialsGameKind game, int species, int form)
+    {
+        if (game == EssentialsGameKind.Uranium
+            && UraniumProfileGenerated.TryGetOfficialNationalDexId(species, form, out var uraniumOfficial))
+            return uraniumOfficial;
+
+        if (game == EssentialsGameKind.Insurgence
+            && InsurgenceProfileGenerated.IsOfficialSpecies(species))
+            return species;
+
+        return 0;
     }
 
     public static string[] GetTypes(EssentialsGameKind game, int species, int form)

@@ -31,11 +31,18 @@ public static class EssentialsInterop
     {
         if (source.GetMutablePkm() is PKEssentials existing)
         {
-            if (!string.Equals(existing.ProfileId, target.ProfileId, StringComparison.Ordinal))
-                throw new InvalidOperationException($"Cross-profile Essentials conversion blocked: {existing.ProfileId} -> {target.ProfileId}.");
-            if (existing.ReadOnlySource || existing.SourceRubyMarshal.Length == 0)
-                throw new InvalidOperationException("Essentials Pokémon lacks a writable Ruby source template.");
-            return new((PKEssentials)existing.Clone());
+            if (string.Equals(existing.ProfileId, target.ProfileId, StringComparison.Ordinal))
+            {
+                if (existing.ReadOnlySource || existing.SourceRubyMarshal.Length == 0)
+                    throw new InvalidOperationException("Essentials Pokémon lacks a writable Ruby source template.");
+                return new((PKEssentials)existing.Clone());
+            }
+
+            if (existing.OfficialNationalDexId > 0
+                && string.Equals(target.ProfileId, InsurgenceProfileGenerated.ProfileId, StringComparison.Ordinal))
+                return BuildInsurgenceOfficial(target, existing);
+
+            throw new InvalidOperationException($"Cross-profile Essentials conversion blocked: {existing.ProfileId} -> {target.ProfileId}.");
         }
 
         if (!string.Equals(target.ProfileId, InsurgenceProfileGenerated.ProfileId, StringComparison.Ordinal))
@@ -78,6 +85,7 @@ public static class EssentialsInterop
             MoveNames = moves.Select(z => SafeName(GameInfo.Strings.Move, z, "")).ToArray(),
             LocalSpeciesId = species,
             LocalFormId = 0,
+            OfficialNationalDexId = species,
             Level = (byte)Math.Clamp((int)source.CurrentLevel, 1, 120),
             ReadOnlySource = false,
             SourceSavePath = target.Metadata.FilePath,
@@ -145,6 +153,7 @@ public static class EssentialsInterop
             MoveNames = moves.Select(z => SafeName(GameInfo.Strings.Move, z, "")).ToArray(),
             LocalSpeciesId = InsurgenceProfileGenerated.MissingNoSpecies,
             LocalFormId = 0,
+            OfficialNationalDexId = 0,
             Level = (byte)Math.Clamp((int)source.CurrentLevel, 1, 120),
             ReadOnlySource = false,
             SourceSavePath = target.Metadata.FilePath,

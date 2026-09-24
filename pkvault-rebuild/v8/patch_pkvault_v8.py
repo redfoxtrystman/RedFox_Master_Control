@@ -1902,3 +1902,107 @@ replace_once(move_action_v15,
 ''')
 
 print("PKVault V8 alpha15 Insurgence compatibility + no Essentials party badge applied")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha16: Uranium is an overlay, not a duplicate National Dex.
+# Official base-form species collapse onto normal PKVault presentation/dex;
+# Uranium-added species get their own dex and static front battle sprites.
+# ---------------------------------------------------------------------------
+shutil.copyfile(HERE / "uranium-pokedex.tsx", frontend_romhacks / "uranium-pokedex.tsx")
+shutil.copyfile(HERE / "essentials/DexEssentialsService.cs", essentials_core / "DexEssentialsService.cs")
+
+# PKEssentials DTO presentation: official reused Pokémon use normal species/type UI.
+replace_once(dto,
+'''    public string[]? RomHackTypes => Pkm.GetMutablePkm() is PKEssentials essentials
+        ? essentials.TypeNames
+        : TooManyTypesCompat.GetTypes(Pkm);
+    public string? RomHackSpeciesName => Pkm.GetMutablePkm() is PKEssentials essentials
+        ? string.Equals(essentials.ProfileId, InsurgenceProfileGenerated.ProfileId, StringComparison.Ordinal)
+            && InsurgenceProfileGenerated.IsOfficialSpecies(essentials.LocalSpeciesId)
+                ? null
+                : essentials.SpeciesName
+        : null;
+''',
+'''    public string[]? RomHackTypes => Pkm.GetMutablePkm() is PKEssentials essentials
+        ? essentials.OfficialNationalDexId > 0 ? null : essentials.TypeNames
+        : TooManyTypesCompat.GetTypes(Pkm);
+    public string? RomHackSpeciesName => Pkm.GetMutablePkm() is PKEssentials essentials
+        ? essentials.OfficialNationalDexId > 0 ? null : essentials.SpeciesName
+        : null;
+''')
+
+# Uranium local custom sprites now use a real static 80x80 battle-front frame.
+replace_once(species_img_ess,
+'''import { getUraniumIconPath, isUraniumSpeciesId, URANIUM_PROFILE_ID } from '../romhacks/uranium-profile';
+''',
+'''import { getUraniumFrontSpritePath, isUraniumSpeciesId, URANIUM_PROFILE_ID } from '../romhacks/uranium-profile';
+''')
+replace_once(species_img_ess,
+'''            sheetUrl={isUranium ? getUraniumIconPath(localSpeciesId) : fallbackIcon}
+            spriteInfos={{ x: 0, y: 0, width: 32, height: 32 }}
+            sourceRealHeight={32}
+''',
+'''            sheetUrl={isUranium ? getUraniumFrontSpritePath(localSpeciesId) : fallbackIcon}
+            spriteInfos={{ x: 0, y: 0, width: isUranium ? 80 : 32, height: isUranium ? 80 : 32 }}
+            sourceRealHeight={isUranium ? 80 : 32}
+''')
+
+# Official Pokémon from Essentials saves contribute to the normal National Dex.
+dex_service_v16 = PKVAULT / "PKVault.Core/dex/services/DexService.cs"
+replace_once(dex_service_v16,
+'''            SAV3 { DirectSpeciesIDs: true } tmt3 => new DexTmtService(tmt3),
+            SAV3 sav3 => new Dex123Service(sav3),
+''',
+'''            SAV3 { DirectSpeciesIDs: true } tmt3 => new DexTmtService(tmt3),
+            EssentialsLegacySaveFile essentials => new DexEssentialsService(essentials),
+            SAV3 sav3 => new Dex123Service(sav3),
+''')
+
+# Add the Uranium-added-only section to the ordinary Pokedex page.
+pokedex_list_v16 = PKVAULT / "frontend/src/pokedex/list/pokedex-list.tsx"
+replace_once(pokedex_list_v16,
+'''import { PokedexItem } from "./pokedex-item";
+''',
+'''import { PokedexItem } from "./pokedex-item";
+import { UraniumPokedexSection } from '../../romhacks/uranium-pokedex';
+''')
+replace_once(pokedex_list_v16,
+'''        ])}
+    </UIPokedexMain>
+''',
+'''        ])}
+
+      <UraniumPokedexSection />
+    </UIPokedexMain>
+''')
+
+# Synthetic Uranium dex selections use the dedicated custom details renderer.
+pokedex_wrapper_v16 = PKVAULT / "frontend/src/pokedex/details/pokedex-main-wrapper-details.tsx"
+replace_once(pokedex_wrapper_v16,
+'''import { PokedexDetails } from './pokedex-details';
+''',
+'''import { PokedexDetails } from './pokedex-details';
+import { UraniumPokedexDetails } from '../../romhacks/uranium-pokedex';
+import { URANIUM_DEX_OFFSET, URANIUM_SPECIES_COUNT } from '../../romhacks/uranium-profile';
+''')
+replace_once(pokedex_wrapper_v16,
+'''    const opened = Route.useSearch({ select: search => search.selected !== undefined });
+
+    const navigate = Route.useNavigate();
+''',
+'''    const selected = Route.useSearch({ select: search => search.selected });
+    const opened = selected !== undefined;
+    const isUraniumDex = selected !== undefined
+        && selected > URANIUM_DEX_OFFSET
+        && selected <= URANIUM_DEX_OFFSET + URANIUM_SPECIES_COUNT;
+
+    const navigate = Route.useNavigate();
+''')
+replace_once(pokedex_wrapper_v16,
+'''        details={<PokedexDetails />}
+''',
+'''        details={isUraniumDex ? <UraniumPokedexDetails /> : <PokedexDetails />}
+''')
+
+print("PKVault V8 alpha16 Uranium overlay dex + static front battlers applied")

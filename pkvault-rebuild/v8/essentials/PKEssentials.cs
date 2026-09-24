@@ -17,7 +17,7 @@ namespace PKHeX.Core;
 /// </summary>
 public sealed class PKEssentials : PKM
 {
-    public const int InternalSerializedVersion = 2;
+    public const int InternalSerializedVersion = 3;
 
     private readonly byte[] NickTrash = new byte[64];
     private readonly byte[] OtTrash = new byte[64];
@@ -32,6 +32,7 @@ public sealed class PKEssentials : PKM
     public string[] MoveNames { get; set; } = ["", "", "", ""];
     public int LocalSpeciesId { get; set; }
     public int LocalFormId { get; set; }
+    public int OfficialNationalDexId { get; set; }
     public byte StoredLevel { get; set; } = 1;
     public bool ReadOnlySource { get; set; } = true;
 
@@ -61,6 +62,7 @@ public sealed class PKEssentials : PKM
         MoveNames = NormalizeMoveNames(p.MoveNames);
         LocalSpeciesId = p.LocalSpeciesId;
         LocalFormId = p.LocalFormId;
+        OfficialNationalDexId = p.OfficialNationalDexId;
         StoredLevel = p.Level == 0 ? (byte)1 : p.Level;
         ReadOnlySource = p.ReadOnlySource;
         SourceSavePath = p.SourceSavePath ?? "";
@@ -70,7 +72,11 @@ public sealed class PKEssentials : PKM
         SourceRubyMarshal = p.SourceRubyMarshal ?? [];
         ReadOnlySource = p.ReadOnlySource || SourceRubyMarshal.Length == 0;
 
-        Species = checked((ushort)Math.Clamp(p.LocalSpeciesId, 0, ushort.MaxValue));
+        Species = checked((ushort)Math.Clamp(
+            p.OfficialNationalDexId > 0 ? p.OfficialNationalDexId : p.LocalSpeciesId,
+            0,
+            ushort.MaxValue
+        ));
         Form = checked((byte)Math.Clamp(p.LocalFormId, 0, byte.MaxValue));
         Nickname = p.Nickname ?? SpeciesName;
         OriginalTrainerName = p.OriginalTrainerName ?? "";
@@ -108,7 +114,12 @@ public sealed class PKEssentials : PKM
         PersonalData = new EssentialsPersonalInfo
         {
             HP = bs[0], ATK = bs[1], DEF = bs[2], SPE = bs[3], SPA = bs[4], SPD = bs[5],
-            Type1 = 0, Type2 = 0,
+            Type1 = p.OfficialNationalDexId > 0
+                ? PersonalTable.AO.GetFormEntry((ushort)p.OfficialNationalDexId, 0).Type1
+                : (byte)0,
+            Type2 = p.OfficialNationalDexId > 0
+                ? PersonalTable.AO.GetFormEntry((ushort)p.OfficialNationalDexId, 0).Type2
+                : (byte)0,
             EXPGrowth = (byte)Math.Clamp(p.ExpGrowth, 0, 5),
             Gender = p.GenderRatio,
             BaseFriendship = p.BaseFriendship,
@@ -147,6 +158,7 @@ public sealed class PKEssentials : PKM
         MoveNames = MoveNames,
         LocalSpeciesId = LocalSpeciesId,
         LocalFormId = LocalFormId,
+        OfficialNationalDexId = OfficialNationalDexId,
         Level = StoredLevel,
         ReadOnlySource = ReadOnlySource,
         SourceSavePath = SourceSavePath,
@@ -396,6 +408,7 @@ public sealed record EssentialsPkmPayload
     public string[]? MoveNames { get; init; }
     public int LocalSpeciesId { get; init; }
     public int LocalFormId { get; init; }
+    public int OfficialNationalDexId { get; init; }
     public byte Level { get; init; }
     public bool ReadOnlySource { get; init; } = true;
     public string? SourceSavePath { get; init; }
