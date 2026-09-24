@@ -425,7 +425,7 @@ jobs:
           cp -a pkhex-src "$SOURCE_ROOT/PKHeX"
           cp -a pkvault-rebuild "$SOURCE_ROOT/RedFox-Rebuild"
           mkdir -p "$SOURCE_ROOT/GitHub-Workflow"
-          cp .github/workflows/pkvault-v8-romhack-tmt.yml "$SOURCE_ROOT/GitHub-Workflow/"
+          cp .github/workflows/pkvault-gen1-v6-rebuild.yml "$SOURCE_ROOT/GitHub-Workflow/"
 
           # Do not ship nested Git history in the source archive.
           rm -rf "$SOURCE_ROOT/PKVault/.git" "$SOURCE_ROOT/PKHeX/.git"
