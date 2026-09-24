@@ -1,27 +1,22 @@
 import { useDexGetAll } from '../../../data/sdk/dex/dex.gen';
-import type { DexItemDTO, DexItemForm, EntityContext, GameVersion, Gender, StaticVersion } from '../../../data/sdk/model';
+import type { DexItemForm, EntityContext, GameVersion, Gender, StaticVersion } from '../../../data/sdk/model';
 import { useStaticData } from '../../../hooks/use-static-data';
 import { Route } from '../../../routes/pokedex';
 import { filterIsDefined } from '../../../util/filter-is-defined';
 import { getGameInfos } from '../../details/util/get-game-infos';
 import { usePokedexFilters } from './use-pokedex-filters';
 
-export type DexProfile = 'tmt';
-
 type PokedexItems = Counts & {
     isPending: boolean;
     speciesItemsByGenerationList: SpeciesItemsByGeneration[];
 };
 
-export type SpeciesItemsByGeneration = Counts & {
+type SpeciesItemsByGeneration = Counts & {
     generation: number;
     versionsForImgs: GameVersion[][];
     speciesInfos: SpeciesInfos[];
     minSpecies: number;
     maxSpecies: number;
-    dexProfile?: DexProfile;
-    sectionLabel?: string;
-    sectionRegions?: string[];
 };
 
 type Counts = {
@@ -52,25 +47,14 @@ export type SpeciesFormItem = {
     isCaught?: boolean;
     isOwned?: boolean;
     isOwnedShiny?: boolean;
-    romHackTypes?: string[] | null;
 };
 
-const emptyCounts = (): Counts => ({
-    seenCount: 0,
-    caughtCount: 0,
-    ownedCount: 0,
-    shinyCount: 0,
-    totalCount: 0,
-    itemsCount: 0,
-});
-
 /**
- * Prepare all pokedex items by grouping them following filters on form/genders if any.
+ * Normal National Pokédex only.
  *
- * V8 ROM-hack rule:
- * - National Dex sections always use official/canonical presentation.
- * - TMT gets a separate section with its own forms/types.
- * - Seen/caught/owned state from TMT still contributes to the canonical entry.
+ * TMT contributes seen/caught/owned state through DexTmtService, but ROM-hack
+ * typing/presentation is intentionally not represented here. TMT-specific
+ * information belongs to the storage/details UI.
  */
 export const usePokedexItems = (): PokedexItems => {
     const staticData = useStaticData();
@@ -79,7 +63,6 @@ export const usePokedexItems = (): PokedexItems => {
     const showGendersRaw = Route.useSearch({ select: (search) => search.showGenders ?? false });
 
     const { data, isPending } = useDexGetAll();
-
     const { isPkmFiltered, filterSpeciesValues } = usePokedexFilters();
 
     const speciesRecord = data?.data ?? {};
@@ -89,7 +72,6 @@ export const usePokedexItems = (): PokedexItems => {
         .sort((a, b) => a - b);
 
     const lastSpecies = keys[ keys.length - 1 ] ?? 0;
-
     const speciesList = new Array(lastSpecies).fill(0).map((_, i) => i + 1);
 
     const filteredSpeciesList = speciesList
@@ -100,34 +82,25 @@ export const usePokedexItems = (): PokedexItems => {
         )
         .filter((speciesValues) => !isPkmFiltered(speciesValues));
 
-    const buildSpeciesInfo = (dexItems: DexItemDTO[], dexProfile?: DexProfile): SpeciesInfos | null => {
-        const species = dexItems[ 0 ]?.species;
-        if (!species)
-            return null;
+    const speciesItemsByGeneration = filteredSpeciesList.reduce<{
+        [ generation in number ]?: SpeciesItemsByGeneration;
+    }>((acc, dexItems) => {
+        const species = dexItems[ 0 ]!.species;
+        const generation = staticData.species[ species ]?.generation ?? -1;
 
         const staticForms = staticData.species[ species ]?.forms ?? {};
         const speciesName = Object.values(staticForms)[ 0 ]?.[ 0 ]?.name ?? '';
-
-        const allForms = dexItems.flatMap(value => value.forms)
-            .filter(form => dexProfile === 'tmt'
-                ? !!form.romHackTypes?.length
-                : true)
-            .map(form => dexProfile === 'tmt'
-                ? form
-                : { ...form, romHackTypes: null });
-
-        if (!allForms.length)
-            return null;
+        const allForms = dexItems.flatMap(value => value.forms);
 
         const differentForms = [ ...new Set(allForms.map(form => form.form)) ];
 
-        const hasGenderDifferencesByForm = differentForms.reduce<Record<number, boolean>>((acc, formValue) => {
+        const hasGenderDifferencesByForm = differentForms.reduce<Record<number, boolean>>((formAcc, formValue) => {
             const hasGenderDifferences = allForms
                 .some(form => form.form === formValue
-                    && Object.values(staticForms).some(forms => forms?.[ form.form ]?.hasGenderDifferences));
+                    && staticForms[ form.context ]?.[ form.form ]?.hasGenderDifferences);
 
             return {
-                ...acc,
+                ...formAcc,
                 [ formValue ]: hasGenderDifferences
             };
         }, {});
@@ -135,15 +108,13 @@ export const usePokedexItems = (): PokedexItems => {
         const groupBy = <K extends keyof Pick<DexItemForm, 'form' | 'gender'>>(groupKeysRaw: K[]) => {
             return allForms.reduce<{
                 [ key in string ]?: SpeciesFormItem
-            }>((acc, form) => {
+            }>((groupAcc, form) => {
                 const groupKeys = hasGenderDifferencesByForm[ form.form ]
                     ? groupKeysRaw
                     : groupKeysRaw.filter(key => key !== 'gender');
 
-                const rawKey = groupKeys.map(groupKey => form[ groupKey ]).join('.');
-                const key = dexProfile ? `${dexProfile}:${rawKey}` : rawKey;
-
-                const oldGroup = acc[ key ];
+                const key = groupKeys.map(groupKey => form[ groupKey ]).join('.');
+                const oldGroup = groupAcc[ key ];
                 const formValue = Math.min(oldGroup?.form ?? 99, form.form);
 
                 const getContext = (): EntityContext => {
@@ -169,13 +140,10 @@ export const usePokedexItems = (): PokedexItems => {
                     isCaught: oldGroup?.isCaught || form.isCaught,
                     isOwned: oldGroup?.isOwned || form.isOwned,
                     isOwnedShiny: oldGroup?.isOwnedShiny || form.isOwnedShiny,
-                    romHackTypes: dexProfile === 'tmt'
-                        ? oldGroup?.romHackTypes ?? form.romHackTypes
-                        : null,
                 };
 
                 return {
-                    ...acc,
+                    ...groupAcc,
                     [ key ]: group,
                 };
             }, {});
@@ -186,7 +154,7 @@ export const usePokedexItems = (): PokedexItems => {
 
         const getItemsToRender = (): SpeciesFormItem[] => {
             if (!showForms && !showGenders)
-                return [ groupBy([])[ dexProfile ? `${dexProfile}:` : '' ]! ];
+                return [ groupBy([])[ '' ]! ];
 
             if (!showForms && showGenders)
                 return Object.values(groupBy([ 'gender' ])).filter(filterIsDefined);
@@ -198,36 +166,21 @@ export const usePokedexItems = (): PokedexItems => {
         };
 
         const itemsToRender = getItemsToRender()
-            .filter(filterIsDefined)
             .sort((g1, g2) => {
                 if (g1.species !== g2.species)
                     return g1.species - g2.species;
+
                 if (g1.form !== g2.form)
                     return g1.form - g2.form;
+
                 if (g1.genders.length === 1 && g2.genders.length === 1
                     && g1.genders[ 0 ] !== g2.genders[ 0 ])
                     return g1.genders[ 0 ]! - g2.genders[ 0 ]!;
+
                 return 0;
             });
 
-        return {
-            species,
-            speciesName,
-            itemsToRender,
-            isSeen: itemsToRender.some(item => item.isSeen),
-        };
-    };
-
-    const speciesItemsByGeneration = filteredSpeciesList.reduce<{
-        [ generation in number ]?: SpeciesItemsByGeneration;
-    }>((acc, dexItems) => {
-        const speciesInfo = buildSpeciesInfo(dexItems);
-        if (!speciesInfo)
-            return acc;
-
-        const { species, itemsToRender, isSeen } = speciesInfo;
-        const generation = staticData.species[ species ]?.generation ?? -1;
-
+        const isSeen = itemsToRender.some(item => item.isSeen);
         const isCaught = itemsToRender.some(item => item.isCaught);
         const isOwned = itemsToRender.some(item => item.isOwned);
         const isOwnedShiny = itemsToRender.some(item => item.isOwnedShiny);
@@ -235,7 +188,12 @@ export const usePokedexItems = (): PokedexItems => {
         const minSpecies = Math.min(acc[ generation ]?.minSpecies ?? Infinity, species);
         const maxSpecies = Math.max(acc[ generation ]?.maxSpecies ?? 0, species);
 
-        const oldCounts = acc[ generation ] ?? emptyCounts();
+        const seenCount = acc[ generation ]?.seenCount ?? 0;
+        const caughtCount = acc[ generation ]?.caughtCount ?? 0;
+        const ownedCount = acc[ generation ]?.ownedCount ?? 0;
+        const shinyCount = acc[ generation ]?.shinyCount ?? 0;
+        const totalCount = acc[ generation ]?.totalCount ?? 0;
+        const itemsCount = acc[ generation ]?.itemsCount ?? 0;
 
         const getVersionsForImgs = () => {
             const versions = Object.values(staticData.versions)
@@ -261,87 +219,56 @@ export const usePokedexItems = (): PokedexItems => {
                     return versionsAcc;
                 }
 
-                return [ ...versionsAcc, [ version ] ];
+                return [
+                    ...versionsAcc,
+                    [ version ]
+                ];
             }, []);
 
             return splitVersions.map(versions => versions.map(version => version.id as GameVersion));
         };
 
+        const versionsForImgs = acc[ generation ]?.versionsForImgs ?? getVersionsForImgs();
+
         const itemForGeneration: SpeciesItemsByGeneration = {
+            ...acc[ generation ],
             generation,
-            versionsForImgs: acc[ generation ]?.versionsForImgs ?? getVersionsForImgs(),
+            versionsForImgs,
             speciesInfos: [
                 ...acc[ generation ]?.speciesInfos ?? [],
-                speciesInfo,
+                {
+                    species,
+                    speciesName,
+                    itemsToRender,
+                    isSeen,
+                },
             ],
             minSpecies,
             maxSpecies,
-            seenCount: oldCounts.seenCount + (isSeen ? 1 : 0),
-            caughtCount: oldCounts.caughtCount + (isCaught ? 1 : 0),
-            ownedCount: oldCounts.ownedCount + (isOwned ? 1 : 0),
-            shinyCount: oldCounts.shinyCount + (isOwnedShiny ? 1 : 0),
-            totalCount: oldCounts.totalCount + 1,
-            itemsCount: oldCounts.itemsCount + itemsToRender.length,
+            seenCount: seenCount + (isSeen ? 1 : 0),
+            caughtCount: caughtCount + (isCaught ? 1 : 0),
+            ownedCount: ownedCount + (isOwned ? 1 : 0),
+            shinyCount: shinyCount + (isOwnedShiny ? 1 : 0),
+            totalCount: totalCount + 1,
+            itemsCount: itemsCount + itemsToRender.length,
         };
 
         return {
             ...acc,
             [ generation ]: itemForGeneration,
-        };
+        } satisfies typeof acc;
     }, {});
 
-    const canonicalSections = Object.values(speciesItemsByGeneration).filter(filterIsDefined);
+    const speciesItemsByGenerationList = Object.values(speciesItemsByGeneration)
+        .filter(filterIsDefined)
+        .sort((a, b) => a.generation - b.generation);
 
-    const tmtSpeciesInfos = filteredSpeciesList
-        .map(dexItems => buildSpeciesInfo(dexItems, 'tmt'))
-        .filter(filterIsDefined);
-
-    const tmtSection = (() => {
-        if (!tmtSpeciesInfos.length)
-            return undefined;
-
-        const counts = tmtSpeciesInfos.reduce<Counts>((acc, info) => {
-            const isCaught = info.itemsToRender.some(item => item.isCaught);
-            const isOwned = info.itemsToRender.some(item => item.isOwned);
-            const isOwnedShiny = info.itemsToRender.some(item => item.isOwnedShiny);
-
-            return {
-                seenCount: acc.seenCount + (info.isSeen ? 1 : 0),
-                caughtCount: acc.caughtCount + (isCaught ? 1 : 0),
-                ownedCount: acc.ownedCount + (isOwned ? 1 : 0),
-                shinyCount: acc.shinyCount + (isOwnedShiny ? 1 : 0),
-                totalCount: acc.totalCount + 1,
-                itemsCount: acc.itemsCount + info.itemsToRender.length,
-            };
-        }, emptyCounts());
-
-        return {
-            generation: 3,
-            versionsForImgs: [],
-            speciesInfos: tmtSpeciesInfos,
-            minSpecies: Math.min(...tmtSpeciesInfos.map(info => info.species)),
-            maxSpecies: Math.max(...tmtSpeciesInfos.map(info => info.species)),
-            dexProfile: 'tmt' as const,
-            sectionLabel: 'Too Many Types v1.6',
-            sectionRegions: [ 'ROM Hack', 'Emerald TMT' ],
-            ...counts,
-        } satisfies SpeciesItemsByGeneration;
-    })();
-
-    const speciesItemsByGenerationList = [
-        ...canonicalSections.filter(section => section.generation <= 3),
-        ...(tmtSection ? [ tmtSection ] : []),
-        ...canonicalSections.filter(section => section.generation > 3),
-    ];
-
-    // Global totals remain canonical National Dex totals. The TMT section is a
-    // second presentation of the same caught/owned history and must not double-count.
-    const seenCount = canonicalSections.reduce((acc, item) => acc + item.seenCount, 0);
-    const caughtCount = canonicalSections.reduce((acc, item) => acc + item.caughtCount, 0);
-    const ownedCount = canonicalSections.reduce((acc, item) => acc + item.ownedCount, 0);
-    const shinyCount = canonicalSections.reduce((acc, item) => acc + item.shinyCount, 0);
-    const totalCount = canonicalSections.reduce((acc, item) => acc + item.totalCount, 0);
-    const itemsCount = canonicalSections.reduce((acc, item) => acc + item.itemsCount, 0);
+    const seenCount = speciesItemsByGenerationList.reduce((acc, item) => acc + item.seenCount, 0);
+    const caughtCount = speciesItemsByGenerationList.reduce((acc, item) => acc + item.caughtCount, 0);
+    const ownedCount = speciesItemsByGenerationList.reduce((acc, item) => acc + item.ownedCount, 0);
+    const shinyCount = speciesItemsByGenerationList.reduce((acc, item) => acc + item.shinyCount, 0);
+    const totalCount = speciesItemsByGenerationList.reduce((acc, item) => acc + item.totalCount, 0);
+    const itemsCount = speciesItemsByGenerationList.reduce((acc, item) => acc + item.itemsCount, 0);
 
     return {
         isPending,
