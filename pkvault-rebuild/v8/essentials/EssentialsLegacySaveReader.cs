@@ -28,8 +28,8 @@ public sealed record EssentialsLegacySaveData(
 public sealed record EssentialsBoxData(string Name, IReadOnlyList<PKEssentials?> Pokemon);
 
 /// <summary>
-/// Read-only loader for pre-v19 Pokémon Essentials concatenated Ruby Marshal
-/// saves (the structure used by Uranium and Insurgence).
+/// Loader for pre-v19 Pokémon Essentials concatenated Ruby Marshal saves
+/// (the structure used by Uranium and Insurgence).
 /// </summary>
 public static class EssentialsLegacySaveReader
 {
@@ -295,11 +295,12 @@ public static class EssentialsLegacySaveReader
             LocalSpeciesId = species,
             LocalFormId = form,
             Level = storedLevel,
-            ReadOnlySource = true,
+            ReadOnlySource = false,
             SourceSavePath = sourcePath,
             SourceContainer = sourceContainer,
             SourceSlot = sourceSlot,
             SourceFingerprint = Fingerprint(raw, sourceContainer, sourceSlot),
+            SourceRubyMarshal = RubyMarshal48Writer.WriteDocument(raw),
 
             Nickname = string.IsNullOrWhiteSpace(nickname) ? speciesName : nickname,
             OriginalTrainerName = RubyValue.Text(Get(raw, "@ot"), trainerName),

@@ -16,7 +16,7 @@ namespace PKHeX.Core;
 /// </summary>
 public sealed class PKEssentials : PKM
 {
-    public const int InternalSerializedVersion = 1;
+    public const int InternalSerializedVersion = 2;
 
     private readonly byte[] NickTrash = new byte[64];
     private readonly byte[] OtTrash = new byte[64];
@@ -39,6 +39,7 @@ public sealed class PKEssentials : PKM
     public string SourceContainer { get; set; } = ""; // party or box:N
     public int SourceSlot { get; set; } = -1;
     public string SourceFingerprint { get; set; } = "";
+    public byte[] SourceRubyMarshal { get; set; } = [];
 
     public PKEssentials() : base(1)
     {
@@ -65,6 +66,8 @@ public sealed class PKEssentials : PKM
         SourceContainer = p.SourceContainer ?? "";
         SourceSlot = p.SourceSlot;
         SourceFingerprint = p.SourceFingerprint ?? "";
+        SourceRubyMarshal = p.SourceRubyMarshal ?? [];
+        ReadOnlySource = p.ReadOnlySource || SourceRubyMarshal.Length == 0;
 
         Species = checked((ushort)Math.Clamp(p.LocalSpeciesId, 0, ushort.MaxValue));
         Form = checked((byte)Math.Clamp(p.LocalFormId, 0, byte.MaxValue));
@@ -149,6 +152,7 @@ public sealed class PKEssentials : PKM
         SourceContainer = SourceContainer,
         SourceSlot = SourceSlot,
         SourceFingerprint = SourceFingerprint,
+        SourceRubyMarshal = SourceRubyMarshal,
         Nickname = Nickname,
         OriginalTrainerName = OriginalTrainerName,
         TID16 = TID16,
@@ -224,7 +228,7 @@ public sealed class PKEssentials : PKM
     public override bool Valid { get; set; }
     public override Span<byte> NicknameTrash => NickTrash;
     public override Span<byte> OriginalTrainerTrash => OtTrash;
-    public override EntityContext Context => EntityContext.Gen9;
+    public override EntityContext Context => EntityContext.Gen3;
 
     public override ushort Species { get; set; }
     public override string Nickname { get; set; } = "";
@@ -391,6 +395,7 @@ public sealed record EssentialsPkmPayload
     public string? SourceContainer { get; init; }
     public int SourceSlot { get; init; } = -1;
     public string? SourceFingerprint { get; init; }
+    public byte[]? SourceRubyMarshal { get; init; }
 
     public string? Nickname { get; init; }
     public string? OriginalTrainerName { get; init; }

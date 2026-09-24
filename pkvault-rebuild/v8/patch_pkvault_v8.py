@@ -763,8 +763,8 @@ replace_once(details_attached,
 
 # ---------------------------------------------------------------------------
 # V8 Essentials foundation: Pokémon Uranium + Pokémon Insurgence.
-# This first layer is intentionally read/import-oriented. Direct .rxdata
-# write-back is kept disabled until user-save round-trip tests are green.
+# Alpha9 adds guarded read/write support: profile-local Pokémon retain a
+# Ruby source template and only the trainer/storage Marshal streams are rebuilt.
 # ---------------------------------------------------------------------------
 essentials_pkhex = PKHEX / "PKHeX.Core/PKM/Shared"
 shutil.copyfile(HERE / "essentials/PKEssentials.cs", essentials_pkhex / "PKEssentials.cs")
@@ -773,6 +773,7 @@ essentials_core = PKVAULT / "PKVault.Core/romhacks/essentials"
 essentials_core.mkdir(parents=True, exist_ok=True)
 shutil.copyfile(HERE / "essentials/RubyMarshal48.cs", essentials_core / "RubyMarshal48.cs")
 shutil.copyfile(HERE / "essentials/EssentialsLegacySaveReader.cs", essentials_core / "EssentialsLegacySaveReader.cs")
+shutil.copyfile(HERE / "essentials/EssentialsLegacySaveWriter.cs", essentials_core / "EssentialsLegacySaveWriter.cs")
 
 immutable = PKVAULT / "PKVault.Core/storage/wrapper/ImmutablePKM.cs"
 replace_once(immutable,
@@ -832,8 +833,11 @@ replace_once(dto,
 
     public virtual bool CanEdit => IsEnabled && !IsEgg;
 ''',
-'''    public virtual bool CanMoveToSave => IsEnabled && Pkm.GetMutablePkm() is not PKEssentials
-        && Pkm.Version > 0 && Pkm.Generation > 0 && CanMove;
+'''    public virtual bool CanMoveToSave => IsEnabled
+        && (Pkm.GetMutablePkm() is PKEssentials essentials
+            ? !essentials.ReadOnlySource && essentials.SourceRubyMarshal.Length > 0
+            : Pkm.Version > 0 && Pkm.Generation > 0)
+        && CanMove;
 
     public virtual bool CanEdit => IsEnabled && !IsEgg && Pkm.GetMutablePkm() is not PKEssentials;
 ''')
@@ -930,10 +934,10 @@ print("PKVault V8 TMT + Essentials foundation patch applied")
 
 
 # ---------------------------------------------------------------------------
-# V8 alpha8 Essentials read-only save integration.
+# V8 alpha8 Essentials read/write save integration.
 # ---------------------------------------------------------------------------
-shutil.copyfile(HERE / "essentials/EssentialsReadOnlySaveFile.cs",
-                essentials_core / "EssentialsReadOnlySaveFile.cs")
+shutil.copyfile(HERE / "essentials/EssentialsLegacySaveFile.cs",
+                essentials_core / "EssentialsLegacySaveFile.cs")
 
 saves_essentials = PKVAULT / "PKVault.Core/db/loader/save/SavesLoadersService.cs"
 replace_once(saves_essentials,
@@ -952,9 +956,9 @@ replace_once(saves_essentials,
                     return null;
                 }
 
-                var essentialsSave = new EssentialsReadOnlySaveFile(essentials);
+                var essentialsSave = new EssentialsLegacySaveFile(essentials);
                 essentialsSave.Metadata.SetExtraInfo(path);
-                Log.Information("Loaded read-only Essentials save {Profile} ({Count} Pokemon) from {Path}",
+                Log.Information("Loaded Essentials save {Profile} ({Count} Pokemon) from {Path}",
                     essentials.ProfileId, essentials.PokemonCount, path);
                 return new SaveWrapper(essentialsSave);
             }
@@ -1036,10 +1040,115 @@ replace_once(variant_dto,
         : VersionChecker.GetCompatibleVersionsForSpecies(Pkm.Species);
 ''')
 
+
+# Alpha9: preserve profile-local Essentials identity through PKVault move paths.
+pkm_convert = PKVAULT / "PKVault.Core/storage/services/PkmConvertService/PkmConvertService.cs"
+replace_once(pkm_convert,
+'''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+''',
+'''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+
+        if (sourcePkm.GetMutablePkm() is PKEssentials essentialsSource)
+        {
+            if (targetPkmType != typeof(PKEssentials))
+                throw new InvalidOperationException("Essentials Pokémon cannot be converted to an official PKM format without an explicit profile mapping.");
+            if (targetSave is not EssentialsLegacySaveFile essentialsTarget)
+                throw new InvalidOperationException("Essentials Pokémon can only be written to an Essentials save.");
+            if (!string.Equals(essentialsSource.ProfileId, essentialsTarget.ProfileId, StringComparison.Ordinal))
+                throw new InvalidOperationException($"Cross-profile Essentials conversion blocked: {essentialsSource.ProfileId} -> {essentialsTarget.ProfileId}.");
+            if (essentialsSource.ReadOnlySource || essentialsSource.SourceRubyMarshal.Length == 0)
+                throw new InvalidOperationException("Essentials Pokémon lacks a writable Ruby source template.");
+            return new((PKEssentials)essentialsSource.Clone());
+        }
+
+        if (targetPkmType == typeof(PKEssentials))
+            throw new InvalidOperationException("Official Pokémon cannot be converted into a profile-local Essentials Pokémon without an explicit mapping.");
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+''')
+
+pkm_save_dto = PKVAULT / "PKVault.Core/storage/dto/PkmSaveDTO.cs"
+replace_once(pkm_save_dto,
+'''    public bool CanMoveToMain => IsEnabled && Pkm.Version > 0 && Pkm.Generation > 0 && CanDelete && !IsShadow && !IsEgg && !IsLocked && Party == -1;
+''',
+'''    public bool CanMoveToMain => IsEnabled
+        && (Pkm.GetMutablePkm() is PKEssentials || (Pkm.Version > 0 && Pkm.Generation > 0))
+        && CanDelete && !IsShadow && !IsEgg && !IsLocked && Party == -1;
+''')
+
+replace_once(wrapper,
+'''    public bool IsSpeciesAllowed(ushort species)
+    {
+        if (Save is EssentialsLegacySaveFile)
+            return false;
+
+        if (Save is SAV3 { DirectSpeciesIDs: true })
+''',
+'''    public bool IsPkmAllowed(ImmutablePKM pkm)
+    {
+        if (Save is EssentialsLegacySaveFile essentials)
+            return pkm.GetMutablePkm() is PKEssentials candidate
+                && !candidate.ReadOnlySource
+                && candidate.SourceRubyMarshal.Length > 0
+                && string.Equals(candidate.ProfileId, essentials.ProfileId, StringComparison.Ordinal);
+
+        return IsSpeciesAllowed(pkm.Species);
+    }
+
+    public bool IsSpeciesAllowed(ushort species)
+    {
+        if (Save is EssentialsLegacySaveFile)
+            return species > 0 && species <= Save.MaxSpeciesID;
+
+        if (Save is SAV3 { DirectSpeciesIDs: true })
+''')
+
+move_action = PKVAULT / "PKVault.Core/storage/data-action/MovePkmAction.cs"
+replace_once(move_action,
+'''        if (!targetSaveLoaders.Save.IsSpeciesAllowed(sourcePkmDto.Species))
+        {
+            throw new ArgumentException($"Save Pkm Species not compatible with save for id={sourcePkmDto.Id}, species={sourcePkmDto.Species}, save.maxSpecies={targetSaveLoaders.Save.MaxSpeciesID}");
+        }
+''',
+'''        if (!targetSaveLoaders.Save.IsPkmAllowed(sourcePkmDto.Pkm))
+        {
+            throw new ArgumentException($"Save Pkm profile/species not compatible with target save for id={sourcePkmDto.Id}.");
+        }
+''')
+replace_once(move_action,
+'''        if (!saveLoaders.Save.IsSpeciesAllowed(pkm.Species))
+        {
+            throw new ArgumentException($"PkmVariantEntity Species not compatible with save for id={pkmVariant.Id}, species={pkm.Species}, save.maxSpecies={saveLoaders.Save.MaxSpeciesID}");
+        }
+''',
+'''        if (!saveLoaders.Save.IsPkmAllowed(pkm))
+        {
+            throw new ArgumentException($"PkmVariantEntity profile/species not compatible with target save for id={pkmVariant.Id}.");
+        }
+''')
+replace_once(move_action,
+'''        await new DexMainService(sp).EnablePKM(savePkm.Pkm, savePkm.Save);
+''',
+'''        if (savePkm.Pkm.GetMutablePkm() is not PKEssentials)
+            await new DexMainService(sp).EnablePKM(savePkm.Pkm, savePkm.Save);
+''')
+
+move_bank_action = PKVAULT / "PKVault.Core/storage/data-action/MovePkmBankAction.cs"
+replace_once(move_bank_action,
+'''        await new DexMainService(sp).EnablePKM(savePkm.Pkm, savePkm.Save);
+''',
+'''        if (savePkm.Pkm.GetMutablePkm() is not PKEssentials)
+            await new DexMainService(sp).EnablePKM(savePkm.Pkm, savePkm.Save);
+''')
+
+print("PKVault V8 alpha9 Essentials guarded read/write move paths applied")
+
 replace_once(wrapper,
 '''            string rawKey = $"{(byte)Save.Version}-{Save.Language}-{ID32}-{Save.OT}-{(byte)Save.Gender}";
 ''',
-'''            string rawKey = Save is EssentialsReadOnlySaveFile essentials
+'''            string rawKey = Save is EssentialsLegacySaveFile essentials
                 ? $"essentials-{essentials.ProfileId}-{ID32}-{Save.OT}-{Save.Metadata.FilePath}"
                 : $"{(byte)Save.Version}-{Save.Language}-{ID32}-{Save.OT}-{(byte)Save.Gender}";
 ''')
@@ -1050,7 +1159,7 @@ replace_once(wrapper,
 ''',
 '''    public bool IsSpeciesAllowed(ushort species)
     {
-        if (Save is EssentialsReadOnlySaveFile)
+        if (Save is EssentialsLegacySaveFile)
             return false;
 
         if (Save is SAV3 { DirectSpeciesIDs: true })
@@ -1063,7 +1172,7 @@ replace_once(save_infos_dto,
 ''',
 '''            RomHackProfile: save.GetSave() switch
             {
-                EssentialsReadOnlySaveFile essentials => essentials.ProfileId,
+                EssentialsLegacySaveFile essentials => essentials.ProfileId,
                 SAV3 { DirectSpeciesIDs: true } => TooManyTypesProfileGenerated.ProfileId,
                 _ => null,
             },
@@ -1164,7 +1273,7 @@ replace_once(path_icon,
 '''const saveExts = new Set([ 'sav', 'dsv', 'dat', 'gci', 'srm', 'fla', 'bin', 'rxdata' ]);
 ''')
 
-print("PKVault V8 alpha8 Essentials read-only save integration applied")
+print("PKVault V8 alpha8 Essentials read/write save integration applied")
 
 
 # Alpha8: pass the profile-local sprite guard through the shared StorageItem.

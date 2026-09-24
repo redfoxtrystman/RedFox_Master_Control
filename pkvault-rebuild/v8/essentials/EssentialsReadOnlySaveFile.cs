@@ -4,33 +4,34 @@ using PKHeX.Core;
 namespace PKVault.Core;
 
 /// <summary>
-/// Read-only SaveFile facade over a legacy Pokémon Essentials .rxdata save.
-/// The buffer contains registry indexes only; export always returns the original
-/// untouched .rxdata bytes.
+/// Writable SaveFile facade over a legacy Pokémon Essentials .rxdata save.
+/// The in-memory buffer contains registry indexes. Export rebuilds only the
+/// trainer/party and PokemonStorage/box Marshal streams.
 /// </summary>
-public sealed class EssentialsReadOnlySaveFile : SaveFile, IBoxDetailNameRead
+public sealed class EssentialsLegacySaveFile : SaveFile, IBoxDetailNameRead
 {
     private const int SlotBytes = sizeof(int);
     private readonly EssentialsLegacySaveData Source;
-    private readonly PKEssentials[] Registry;
+    private readonly List<PKEssentials> Registry;
     private readonly string[] BoxNames;
     private readonly int LocalMaxSpecies;
     private readonly int BoxSlots;
+    private bool Dirty;
 
     private sealed record BuildResult(
         byte[] Buffer,
-        PKEssentials[] Registry,
+        List<PKEssentials> Registry,
         string[] BoxNames,
         int BoxSlotCount,
         int MaxSpecies
     );
 
-    public EssentialsReadOnlySaveFile(EssentialsLegacySaveData source)
+    public EssentialsLegacySaveFile(EssentialsLegacySaveData source)
         : this(source, Build(source))
     {
     }
 
-    private EssentialsReadOnlySaveFile(EssentialsLegacySaveData source, BuildResult built)
+    private EssentialsLegacySaveFile(EssentialsLegacySaveData source, BuildResult built)
         : base(built.Buffer, exportable: true)
     {
         Source = source;
@@ -52,19 +53,20 @@ public sealed class EssentialsReadOnlySaveFile : SaveFile, IBoxDetailNameRead
     public string ProfileId => Source.ProfileId;
     public string ProfileVersion => Source.ProfileVersion;
     public EssentialsGameKind Game => Source.Game;
-    public bool ReadOnly => true;
 
     protected override string ShortSummary => Game switch
     {
-        EssentialsGameKind.Uranium => "Pokémon Uranium (read-only)",
-        EssentialsGameKind.Insurgence => "Pokémon Insurgence (read-only)",
-        _ => "Pokémon Essentials (read-only)",
+        EssentialsGameKind.Uranium => "Pokémon Uranium",
+        EssentialsGameKind.Insurgence => "Pokémon Insurgence",
+        _ => "Pokémon Essentials",
     };
 
     public override string Extension => "rxdata";
     public override GameVersion Version { get => GameVersion.E; set { } }
     public override bool ChecksumsValid => true;
-    public override string ChecksumInfo => "Read-only Essentials source; original bytes preserved.";
+    public override string ChecksumInfo => Dirty
+        ? "Essentials trainer/storage streams will be rebuilt on write."
+        : "Original Essentials bytes are unchanged.";
     public override byte Generation => 3;
     public override EntityContext Context => EntityContext.Gen3;
 
@@ -121,7 +123,7 @@ public sealed class EssentialsReadOnlySaveFile : SaveFile, IBoxDetailNameRead
             return BlankPKM;
 
         var index = BinaryPrimitives.ReadInt32LittleEndian(data.Span);
-        if (index <= 0 || index > Registry.Length)
+        if (index <= 0 || index > Registry.Count)
             return BlankPKM;
 
         return (PKEssentials)Registry[index - 1].Clone();
@@ -135,21 +137,94 @@ public sealed class EssentialsReadOnlySaveFile : SaveFile, IBoxDetailNameRead
         {
             var slot = index + BoxSlotCount;
             if ((uint)slot < 6)
-                return StorageSlotSource.Locked | (StorageSlotSource)(1 << slot);
+                return (StorageSlotSource)(1 << slot);
         }
 
-        return StorageSlotSource.Locked;
+        return StorageSlotSource.None;
     }
 
     public string GetBoxName(int box)
         => (uint)box < BoxNames.Length ? BoxNames[box] : BoxDetailNameExtensions.GetDefaultBoxName(box);
 
-    public override void SetPartySlotAtIndex(PKM pk, int index, EntityImportSettings settings = default)
-        => throw new NotSupportedException("Pokémon Uranium/Insurgence saves are read-only in this PKVault test build.");
+    protected override void WriteSlotStored(PKM pk, Span<byte> data) => WriteRegistrySlot(pk, data);
+    protected override void WriteSlotParty(PKM pk, Span<byte> data) => WriteRegistrySlot(pk, data);
+    protected override void SetPartyValues(PKM pk, bool isParty) { }
+
+    private void WriteRegistrySlot(PKM pk, Span<byte> data)
+    {
+        if (pk.Species == 0)
+        {
+            BinaryPrimitives.WriteInt32LittleEndian(data[..SlotBytes], 0);
+            Dirty = true;
+            return;
+        }
+
+        if (pk is not PKEssentials essentials)
+            throw new InvalidOperationException($"Expected PKEssentials, got {pk.GetType().Name}.");
+        if (!string.Equals(essentials.ProfileId, ProfileId, StringComparison.Ordinal))
+            throw new InvalidOperationException($"Cross-profile Essentials write blocked: {essentials.ProfileId} -> {ProfileId}.");
+        if (essentials.ReadOnlySource || essentials.SourceRubyMarshal.Length == 0)
+            throw new InvalidOperationException(
+                "This Essentials Pokémon lacks a writable Ruby source template. Re-import it from its game save first.");
+
+        Registry.Add((PKEssentials)essentials.Clone());
+        BinaryPrimitives.WriteInt32LittleEndian(data[..SlotBytes], Registry.Count);
+        Dirty = true;
+    }
 
     protected override void SetChecksums() { }
-    protected override EssentialsReadOnlySaveFile CloneInternal() => new(Source);
-    protected override Memory<byte> GetFinalData() => Source.OriginalBytes.ToArray();
+    protected override EssentialsLegacySaveFile CloneInternal()
+    {
+        var clone = new EssentialsLegacySaveFile(Source);
+        for (var i = 0; i < Data.Length; i++)
+            clone.Data[i] = Data[i];
+        clone.Registry.Clear();
+        clone.Registry.AddRange(Registry.Select(z => (PKEssentials)z.Clone()));
+        clone.PartyCount = PartyCount;
+        clone.CurrentBox = CurrentBox;
+        clone.Dirty = Dirty;
+        return clone;
+    }
+
+    protected override Memory<byte> GetFinalData()
+    {
+        if (!Dirty)
+            return Source.OriginalBytes.ToArray();
+
+        var party = new List<PKEssentials>();
+        for (var slot = 0; slot < Math.Min(6, PartyCount); slot++)
+        {
+            if (GetPartySlotAtIndex(slot) is PKEssentials pkm && pkm.LocalSpeciesId > 0)
+                party.Add(pkm);
+        }
+
+        var boxes = new List<EssentialsBoxData>(BoxCount);
+        for (var box = 0; box < BoxCount; box++)
+        {
+            var slots = new List<PKEssentials?>(BoxSlotCount);
+            for (var slot = 0; slot < BoxSlotCount; slot++)
+            {
+                var pkm = GetBoxSlotAtIndex(box, slot) as PKEssentials;
+                slots.Add(pkm is { LocalSpeciesId: > 0 } ? pkm : null);
+            }
+            boxes.Add(new EssentialsBoxData(GetBoxName(box), slots));
+        }
+
+        var bytes = EssentialsLegacySaveWriter.Write(Source, party, boxes);
+        var validationPath = Game == EssentialsGameKind.Uranium
+            ? "Pokemon Uranium/Uranium.rxdata"
+            : "Pokemon Insurgence/Game.rxdata";
+        if (!EssentialsLegacySaveReader.TryRead(bytes, validationPath, out var validation, out var error)
+            || validation == null
+            || validation.Game != Game
+            || validation.Party.Count != party.Count
+            || validation.Boxes.Count != boxes.Count)
+        {
+            throw new InvalidDataException($"Essentials write validation failed: {error ?? "round-trip structure mismatch"}");
+        }
+
+        return bytes;
+    }
 
     public override string GetString(ReadOnlySpan<byte> data) => "";
     public override int LoadString(ReadOnlySpan<byte> data, Span<char> destBuffer) => 0;
@@ -188,7 +263,7 @@ public sealed class EssentialsReadOnlySaveFile : SaveFile, IBoxDetailNameRead
         var maxSpecies = registry.Select(z => z.LocalSpeciesId).DefaultIfEmpty(1).Max();
         return new(
             Buffer: buffer,
-            Registry: [.. registry],
+            Registry: registry,
             BoxNames: [.. source.Boxes.Select(z => z.Name)],
             BoxSlotCount: boxSlots,
             MaxSpecies: maxSpecies
