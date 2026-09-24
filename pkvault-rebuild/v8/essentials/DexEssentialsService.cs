@@ -41,7 +41,7 @@ public sealed class DexEssentialsService(EssentialsLegacySaveFile save) : DexGen
                     var owned = group.Where(p => p.Form == form && (Gender)p.Gender == gender).ToArray();
                     var isOwned = owned.Length > 0;
                     var isOwnedShiny = owned.Any(p => p.IsShiny);
-                    var isOwnedAlpha = owned.Any(p => p.IsAlpha);
+                    var isOwnedAlpha = false;
 
                     forms.Add(helper.GetDexItemFormComplete(
                         species,
