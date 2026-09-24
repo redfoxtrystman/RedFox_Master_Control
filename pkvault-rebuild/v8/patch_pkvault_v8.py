@@ -76,8 +76,8 @@ replace_once(g3,
 '''    public sealed override ushort MaxMoveID => Legal.MaxMoveID_3;
     public sealed override ushort MaxSpeciesID => Legal.MaxSpeciesID_3;
 ''',
-'''    public sealed override ushort MaxMoveID => this is PK3 { DirectSpeciesIDs: true } ? Gen3DirectSpecies.MaxDirectMove : Legal.MaxMoveID_3;
-    public sealed override ushort MaxSpeciesID => this is PK3 { DirectSpeciesIDs: true } ? Gen3DirectSpecies.MaxBaseSpecies : Legal.MaxSpeciesID_3;
+'''    public sealed override ushort MaxMoveID => (ushort)(this is PK3 { DirectSpeciesIDs: true } ? Gen3DirectSpecies.MaxDirectMove : Legal.MaxMoveID_3);
+    public sealed override ushort MaxSpeciesID => (ushort)(this is PK3 { DirectSpeciesIDs: true } ? Gen3DirectSpecies.MaxBaseSpecies : Legal.MaxSpeciesID_3);
 ''')
 replace_once(g3,
 '''    public sealed override byte Form
