@@ -1,7 +1,7 @@
 import { Card, Group, Space, Stack, Text } from '@mantine/core';
 import { useQueries } from '@tanstack/react-query';
 import React from 'react';
-import { usePkmSaveIndex, getPkmSaveIndexOptions } from '../data/hooks/use-pkm-save-index';
+import { getPkmSaveIndexOptions } from '../data/hooks/use-pkm-save-index';
 import { useSaveInfosGetAll } from '../data/sdk/save-infos/save-infos.gen';
 import { EntityContext, Gender } from '../data/sdk/model';
 import { SpeciesImg } from '../img/species-img';

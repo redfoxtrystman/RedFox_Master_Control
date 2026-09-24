@@ -481,7 +481,7 @@ jobs:
               "Uranium Glaceon must collapse to National Dex #471");
           Need(!UraniumProfileGenerated.TryGetOfficialNationalDexId(194, 0, out _),
               "Krakanao must remain Uranium-local");
-          var uraniumGlaceon = new PKEssentials(templateMon.ToPayload() with {
+          var uraniumGlaceon = new PKEssentials(earlyReload.Party[0].ToPayload() with {
               SpeciesName = "Glaceon",
               TypeNames = ["Ice"],
               LocalSpeciesId = 136,
