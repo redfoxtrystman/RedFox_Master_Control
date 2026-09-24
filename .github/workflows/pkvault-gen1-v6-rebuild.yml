@@ -237,7 +237,16 @@ jobs:
           var types = TooManyTypesCompat.GetTypes(wrappedBraixen);
           Need(types is ["Fire", "Magic", "Furry"], "Braixen TMT type metadata mismatch");
 
-          var tmtSave = new SAV3E();
+          var rawSave = new byte[SaveUtil.SIZE_G3RAW];
+          for (var group = 0; group < 2; group++)
+          {
+              for (short sector = 0; sector < 14; sector++)
+              {
+                  var footer = ((group * 14) + sector) * 0x1000 + 0xFF4;
+                  System.Buffers.Binary.BinaryPrimitives.WriteInt16LittleEndian(rawSave.AsSpan(footer, 2), sector);
+              }
+          }
+          var tmtSave = new SAV3E(rawSave);
           Need(TooManyTypesCompat.ConfigureSave(tmtSave, "TooManyTypes_PUBLIC_v1.6.sav"),
               "TMT filename fingerprint did not activate profile");
           Need(tmtSave.DirectSpeciesIDs, "TMT save did not enter direct-species mode");
