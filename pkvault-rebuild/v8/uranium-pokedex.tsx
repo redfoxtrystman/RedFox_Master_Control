@@ -1,4 +1,4 @@
-import { Card, Group, Space, Stack, Text } from '@mantine/core';
+import { Card, Group, Space, Text } from '@mantine/core';
 import { useQueries } from '@tanstack/react-query';
 import React from 'react';
 import { getPkmSaveIndexOptions } from '../data/hooks/use-pkm-save-index';
@@ -25,7 +25,7 @@ import {
   URANIUM_SPECIES,
 } from './uranium-profile';
 
-export const useUraniumDexState = () => {
+const useUraniumDexState = () => {
   const savesQuery = useSaveInfosGetAll();
   const saveIds = React.useMemo(() =>
     Object.values(savesQuery.data?.data ?? {})
