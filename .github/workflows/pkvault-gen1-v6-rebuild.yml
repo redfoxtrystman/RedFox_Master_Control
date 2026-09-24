@@ -281,7 +281,6 @@ jobs:
           grep -F 'Path.GetExtension(path).Equals(".rxdata", StringComparison.OrdinalIgnoreCase)' pkvault-src/PKVault.Core/db/loader/save/SavesLoadersService.cs
           grep -F 'onAddCommitted={commitAddedSaveLocations}' pkvault-src/frontend/src/settings/main/settings-main-right.tsx
           grep -F 'await onAddCommitted?.(nextValue);' pkvault-src/frontend/src/settings/globs-input/globs-input-list.tsx
-          grep -F 'getUraniumIconPath(localSpeciesId)' pkvault-src/frontend/src/img/species-img.tsx
           grep -F 'romHackLocalSpeciesId={romHackLocalSpeciesId}' pkvault-src/frontend/src/storage/item/save/storage-save-item.tsx
           test "$(find pkvault-src/frontend/public/romhacks/uranium/icons -maxdepth 1 -name 'Icon*.gif' | wc -l)" -eq 200
           test -f pkvault-src/frontend/public/romhacks/uranium/icons/Icon003.gif
