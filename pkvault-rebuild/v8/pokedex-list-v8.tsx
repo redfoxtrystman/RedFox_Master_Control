@@ -69,15 +69,12 @@ export const PokedexList: React.FC<PopoverTargetChildProps> = withErrorCatcher("
         ownedCount,
         shinyCount,
         totalCount,
-        dexProfile,
-        sectionLabel,
-        sectionRegions,
       }, i) => [
-          <Card.Section key={`header-${dexProfile ?? generation}-${i}`} inheritPadding withBorder>
+          <Card.Section key={i} inheritPadding withBorder>
             <UIPokedexMainSectionHeader
-              generation={sectionLabel ?? t('dex.list.title', { generation })}
-              regions={sectionRegions ?? staticData.generations[ generation ]?.regions ?? []}
-              games={versionsForImgs.map((versions, versionIndex) => <Group key={versionIndex} gap='xs' wrap='nowrap' visibleFrom='md'>
+              generation={t('dex.list.title', { generation })}
+              regions={staticData.generations[ generation ]?.regions ?? []}
+              games={versionsForImgs.map((versions, gameIndex) => <Group key={gameIndex} gap='xs' wrap='nowrap' visibleFrom='md'>
                 {versions.map(version => <UIGameImg
                   key={version}
                   version={version}
@@ -91,15 +88,14 @@ export const PokedexList: React.FC<PopoverTargetChildProps> = withErrorCatcher("
               totalCount={totalCount}
             />
           </Card.Section>,
-          <Card.Section key={`section-${dexProfile ?? generation}-${i}`} inheritPadding withBorder>
+          <Card.Section key={i + 100} inheritPadding withBorder>
             <UIPokedexMainSection isFirstSection={i === 0} minSpecies={minSpecies} maxSpecies={maxSpecies}>
               {speciesInfos.map(({ species, speciesName, isSeen, itemsToRender }) => (
                 <PokedexItem
-                  key={`${dexProfile ?? 'national'}-${species}`}
+                  key={species}
                   species={species}
                   speciesName={speciesName}
                   isSeen={isSeen}
-                  dexProfile={dexProfile}
                 >
                   {itemsToRender.map((item) => (
                     <DexFormItem key={item.id} {...item} />
