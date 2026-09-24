@@ -183,15 +183,15 @@ jobs:
         run: |
           dotnet build pkvault-src/PKVault.Core/PKVault.Core.csproj -c Release --nologo
 
-      - name: V8 Essentials desktop rxdata import plumbing smoke test
+      - name: V8 Essentials native desktop rxdata location smoke test
         run: |
           set -euo pipefail
-          grep -F 'var canUploadSaves = true;' pkvault-src/PKVault.Core/settings/services/SettingsService.cs
-          grep -F 'Path.Combine(settings.SavesUploadsPath, "**/*")' pkvault-src/PKVault.Core/db/loader/save/SavesLoadersService.cs
+          grep -F 'var canUploadSaves = !isDesktop;' pkvault-src/PKVault.Core/settings/services/SettingsService.cs
+          ! grep -F 'var canUploadSaves = true;' pkvault-src/PKVault.Core/settings/services/SettingsService.cs
+          grep -F 'body = body.TrimEnd' pkvault-src/PKVault.Core/db/loader/save/SavesLoadersService.cs
+          grep -F '"/**/*"' pkvault-src/PKVault.Core/db/loader/save/SavesLoadersService.cs
           grep -F 'Path.GetExtension(path).Equals(".rxdata", StringComparison.OrdinalIgnoreCase)' pkvault-src/PKVault.Core/db/loader/save/SavesLoadersService.cs
-          grep -F 'bufferedFiles.Add(fileBytes);' pkvault-src/PKVault.Core/save-infos/routes/SaveInfosRoute.cs
-          grep -F 'UploadSaveWithoutCheck(savePaths[i], bufferedFiles[i])' pkvault-src/PKVault.Core/save-infos/routes/SaveInfosRoute.cs
-          echo "PASS: desktop upload is enabled, uploads are recursively rediscovered, rxdata is routed to Essentials, and upload bytes are buffered once"
+          echo "PASS: Windows keeps native Add saves location UI and directory save locations expand to files including rxdata"
 
       - name: V8 Essentials Uranium and Insurgence parser smoke test
         run: |
@@ -260,6 +260,14 @@ jobs:
               "Uranium writable source template missing");
 
           var uraniumFacade = new EssentialsLegacySaveFile(uranium);
+          uraniumFacade.Metadata.SetExtraInfo(uraniumPath);
+          var uraniumWrapper = new SaveWrapper(uraniumFacade);
+          Need(uraniumWrapper.GetPartyData().Count == 6, "Uranium SaveWrapper lost party data");
+          Need(uraniumWrapper.GetBoxNames().Count == 35, "Uranium SaveWrapper lost box names");
+          Need(uraniumWrapper.GetAllPKM().Count == 215, "Uranium SaveWrapper lost Pokemon");
+          var uraniumInfo = SaveInfosDTO.FromSave(uraniumWrapper, null, File.GetLastWriteTime(uraniumPath), []);
+          Need(uraniumInfo.RomHackProfile == "pokemon-uranium", "Uranium SaveInfos profile missing");
+          Need(uraniumInfo.TrainerName == uranium.TrainerName, "Uranium SaveInfos trainer mismatch");
           Need(uraniumFacade.PartyCount == 6, "Uranium facade lost party count");
           Need(uraniumFacade.BoxCount == 35, $"Expected 35 Uranium boxes, got {uraniumFacade.BoxCount}");
           Need(!uraniumFacade.GetBoxSlotFlags(0).HasFlag(StorageSlotSource.Locked), "Uranium box slot stayed write-locked");
@@ -295,6 +303,13 @@ jobs:
               "Insurgence writable source template missing");
 
           var insurgenceFacade = new EssentialsLegacySaveFile(insurgence);
+          insurgenceFacade.Metadata.SetExtraInfo(insurgencePath);
+          var insurgenceWrapper = new SaveWrapper(insurgenceFacade);
+          Need(insurgenceWrapper.GetPartyData().Count == 4, "Insurgence SaveWrapper lost party data");
+          Need(insurgenceWrapper.GetBoxNames().Count == 24, "Insurgence SaveWrapper lost box names");
+          Need(insurgenceWrapper.GetAllPKM().Count == 4, "Insurgence SaveWrapper lost Pokemon");
+          var insurgenceInfo = SaveInfosDTO.FromSave(insurgenceWrapper, null, File.GetLastWriteTime(insurgencePath), []);
+          Need(insurgenceInfo.RomHackProfile == "pokemon-insurgence", "Insurgence SaveInfos profile missing");
           Need(insurgenceFacade.PartyCount == 4, "Insurgence facade lost party count");
           Need(insurgenceFacade.BoxCount == 24, $"Expected 24 Insurgence boxes, got {insurgenceFacade.BoxCount}");
           Need(!insurgenceFacade.GetBoxSlotFlags(0).HasFlag(StorageSlotSource.Locked), "Insurgence box slot stayed write-locked");
@@ -307,6 +322,30 @@ jobs:
               $"Insurgence write did not reparse: {insurgenceWriteError}");
           Need(insurgenceReload!.Boxes[0].Pokemon[0]?.PID == insurgenceParty0.PID, "Insurgence box write did not persist");
           NeedUntouchedStreams(insurgenceBytes, insurgence, insurgenceWritten, insurgenceReload);
+
+          // Regression modeled after a very early Uranium save: one Raptorch
+          // in party, empty boxes, while retaining all 35 PC boxes.
+          var earlyFacade = new EssentialsLegacySaveFile(uranium);
+          var earlyMon = (PKEssentials)earlyFacade.GetPartySlotAtIndex(0);
+          earlyMon.LocalSpeciesId = 3;
+          earlyMon.Species = 3;
+          earlyMon.SpeciesName = "Raptorch";
+          for (var i = 0; i < 6; i++)
+              earlyFacade.SetPartySlotAtIndex(i == 0 ? earlyMon : earlyFacade.BlankPKM, i, EntityImportSettings.None);
+          for (var box = 0; box < earlyFacade.BoxCount; box++)
+              for (var slot = 0; slot < earlyFacade.BoxSlotCount; slot++)
+                  earlyFacade.SetBoxSlotAtIndex(earlyFacade.BlankPKM, box, slot, EntityImportSettings.None);
+          var earlyBytes = earlyFacade.Write().ToArray();
+          Need(EssentialsLegacySaveReader.TryRead(earlyBytes, "Pokemon Uranium/Uranium.rxdata", out var earlyReload, out var earlyError),
+              $"Early Uranium regression did not reparse: {earlyError}");
+          Need(earlyReload!.Party.Count == 1, $"Early Uranium expected 1 party Pokemon, got {earlyReload.Party.Count}");
+          Need(earlyReload.Party[0].LocalSpeciesId == 3, "Early Uranium Raptorch local species was not preserved");
+          Need(earlyReload.Boxes.Count == 35, "Early Uranium box structure was lost");
+          var earlySave = new EssentialsLegacySaveFile(earlyReload);
+          earlySave.Metadata.SetExtraInfo("Pokemon Uranium/Uranium.rxdata");
+          var earlyWrapper = new SaveWrapper(earlySave);
+          var earlyInfo = SaveInfosDTO.FromSave(earlyWrapper, null, DateTime.UtcNow, []);
+          Need(earlyInfo.PartyCount == 1 && earlyInfo.BoxCount == 35, "Early Uranium SaveInfos failed");
 
           var crossProfileBlocked = false;
           try
@@ -722,10 +761,10 @@ jobs:
           cd pkvault-src
           docker build . --target frontend-check -t pkvault-v8-alpha8-frontend-check
 
-      - name: Package complete v8.0.0-alpha10-Essentials-RW-Import source snapshot
+      - name: Package complete v8.0.0-alpha11-Essentials-Native-RXData source snapshot
         run: |
           set -euo pipefail
-          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-FULL-SOURCE"
+          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-FULL-SOURCE"
           rm -rf "$SOURCE_ROOT"
           mkdir -p "$SOURCE_ROOT"
 
@@ -741,18 +780,18 @@ jobs:
           rm -rf "$SOURCE_ROOT/PKVault/.git" "$SOURCE_ROOT/PKHeX/.git"
 
           cat > "$SOURCE_ROOT/SOURCE_README.txt" <<'EOF'
-          PKVault v8.0.0-alpha10-Essentials-RW-Import FULL SOURCE
+          PKVault v8.0.0-alpha11-Essentials-Native-RXData FULL SOURCE
           ==========================
-          Release line: V8 alpha10 Essentials guarded read/write + desktop rxdata import (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
+          Release line: V8 alpha11 Essentials guarded read/write + desktop rxdata import (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
           PKVault upstream baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec
           PKHeX upstream baseline: kwsch/PKHeX 74b88906e935e4a52d6d9243b8e373056409c738
           RedFox build branch: pkvault-v8-uranium-insurgence
 
           Contents:
-          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha10-Essentials-RW-Import.
+          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha11-Essentials-Native-RXData.
           - PKHeX/          Exact patched PKHeX source tree used to build PKHeX.Core.
           - RedFox-Rebuild/ Reconstruction patcher, trading sources, and trading smoke harness.
-          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha10-Essentials-RW-Import.
+          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha11-Essentials-Native-RXData.
           - SOURCE_FILE_SHA256SUMS.txt hashes every file in this source snapshot.
 
           Reproduction:
@@ -773,39 +812,39 @@ jobs:
 
           (
             cd "$GITHUB_WORKSPACE/dist"
-            zip -9 -r PKVault-v8.0.0-alpha10-Essentials-RW-Import-FULL-SOURCE.zip PKVault-v8.0.0-alpha10-Essentials-RW-Import-FULL-SOURCE
-            sha256sum PKVault-v8.0.0-alpha10-Essentials-RW-Import-FULL-SOURCE.zip > PKVault-v8.0.0-alpha10-Essentials-RW-Import-FULL-SOURCE.zip.sha256
+            zip -9 -r PKVault-v8.0.0-alpha11-Essentials-Native-RXData-FULL-SOURCE.zip PKVault-v8.0.0-alpha11-Essentials-Native-RXData-FULL-SOURCE
+            sha256sum PKVault-v8.0.0-alpha11-Essentials-Native-RXData-FULL-SOURCE.zip > PKVault-v8.0.0-alpha11-Essentials-Native-RXData-FULL-SOURCE.zip.sha256
           )
 
-      - name: Upload PKVault v8.0.0-alpha10-Essentials-RW-Import full source
+      - name: Upload PKVault v8.0.0-alpha11-Essentials-Native-RXData full source
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha10-Essentials-RW-Import-FULL-SOURCE
+          name: PKVault-v8.0.0-alpha11-Essentials-Native-RXData-FULL-SOURCE
           path: |
-            dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-FULL-SOURCE.zip
-            dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-FULL-SOURCE.zip.sha256
+            dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-FULL-SOURCE.zip
+            dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-FULL-SOURCE.zip.sha256
           if-no-files-found: error
           retention-days: 90
 
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha10-Essentials-RW-Import -t pkvault-v752-description-patch
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha11-Essentials-Native-RXData -t pkvault-v752-description-patch
           docker create --name pkvault-v752-description-patch-out pkvault-v752-description-patch
           mkdir -p ../dist
-          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test-win-x64.exe
+          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test-win-x64.exe
           docker rm pkvault-v752-description-patch-out
 
-      - name: Package V8 alpha10 clean + Essentials RW + TMT visual test profiles
+      - name: Package V8 alpha11 clean + Essentials RW + TMT visual test profiles
         run: |
           set -euo pipefail
           ROOT="$GITHUB_WORKSPACE"
-          OUT="$ROOT/dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-CLEAN-TEST"
-          EXE="$ROOT/dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test-win-x64.exe"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-CLEAN-TEST"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test-win-x64.exe"
           rm -rf "$OUT"
           mkdir -p "$OUT/TMT-Type-Test"
 
-          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha10-Essentials-RW-Import.exe"
+          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha11-Essentials-Native-RXData.exe"
           cp "$EXE" "$OUT/TMT-Type-Test/PKVault-TMT-Type-Test.exe"
           cp -a "$ROOT/tmt-type-test-profile/." "$OUT/TMT-Type-Test/"
 
@@ -813,7 +852,7 @@ jobs:
           PKVault V8.0.0 alpha8 - Essentials read-only + Too Many Types compatibility test
           ========================================================================
           Root EXE:
-            PKVault-v8.0.0-alpha10-Essentials-RW-Import.exe
+            PKVault-v8.0.0-alpha11-Essentials-Native-RXData.exe
             Fresh profile for testing your own saves.
 
           Pre-seeded profile:
@@ -876,36 +915,36 @@ jobs:
 
           (
             cd "$ROOT/dist"
-            zip -9 -r PKVault-v8.0.0-alpha10-Essentials-RW-Import-CLEAN-TEST-win-x64.zip PKVault-v8.0.0-alpha10-Essentials-RW-Import-CLEAN-TEST
-            sha256sum PKVault-v8.0.0-alpha10-Essentials-RW-Import-CLEAN-TEST-win-x64.zip > PKVault-v8.0.0-alpha10-Essentials-RW-Import-CLEAN-TEST-win-x64.zip.sha256
+            zip -9 -r PKVault-v8.0.0-alpha11-Essentials-Native-RXData-CLEAN-TEST-win-x64.zip PKVault-v8.0.0-alpha11-Essentials-Native-RXData-CLEAN-TEST
+            sha256sum PKVault-v8.0.0-alpha11-Essentials-Native-RXData-CLEAN-TEST-win-x64.zip > PKVault-v8.0.0-alpha11-Essentials-Native-RXData-CLEAN-TEST-win-x64.zip.sha256
           )
 
-      - name: Upload V8 alpha10 clean + Essentials RW + TMT visual test
+      - name: Upload V8 alpha11 clean + Essentials RW + TMT visual test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha10-Essentials-RW-Import-CLEAN-TEST-win-x64
+          name: PKVault-v8.0.0-alpha11-Essentials-Native-RXData-CLEAN-TEST-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-CLEAN-TEST-win-x64.zip
-            dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-CLEAN-TEST-win-x64.zip.sha256
+            dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-CLEAN-TEST-win-x64.zip
+            dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-CLEAN-TEST-win-x64.zip.sha256
           if-no-files-found: error
           retention-days: 30
 
       - name: Package two isolated Windows trading profiles
         run: |
           set -euo pipefail
-          mkdir -p dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/Trader-A
-          mkdir -p dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/Trader-B
+          mkdir -p dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/Trader-A
+          mkdir -p dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/Trader-B
 
-          cp dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
-          cp dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
+          cp dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
 
-          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/Trader-A/
-          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/Trader-B/
+          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/Trader-B/
 
-          cat > dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
-          PKVault v8.0.0-alpha10-Essentials-RW-Import Online/VPN Trading + Permanent Dex Registration test
+          cat > dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
+          PKVault v8.0.0-alpha11-Essentials-Native-RXData Online/VPN Trading + Permanent Dex Registration test
           ===================================
           Trader A starts with:
             Abra, Growlithe, Machop, Gastly, Dratini, Scyther
@@ -950,26 +989,26 @@ jobs:
           - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
           EOF
 
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/
-          sha256sum dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
-            | tee dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
-          sha256sum dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
-            | tee dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/
+          sha256sum dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
+            | tee dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
+          sha256sum dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
+            | tee dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
 
-          (cd dist && zip -9 -r PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test)
-          sha256sum dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test-win-x64.zip \
-            | tee dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test-win-x64.sha256
+          (cd dist && zip -9 -r PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test)
+          sha256sum dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test-win-x64.zip \
+            | tee dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test-win-x64.sha256
           ls -lah dist
-          find dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
+          find dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
 
-      - name: Upload PKVault v8.0.0-alpha10-Essentials-RW-Import online trading dex test
+      - name: Upload PKVault v8.0.0-alpha11-Essentials-Native-RXData online trading dex test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test-win-x64
+          name: PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test-win-x64.zip
-            dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test-win-x64.sha256
-            dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test-win-x64.exe
-            dist/PKVault-v8.0.0-alpha10-Essentials-RW-Import-Online-Trading-Dex-Test/TESTING.txt
+            dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test-win-x64.zip
+            dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test-win-x64.sha256
+            dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test-win-x64.exe
+            dist/PKVault-v8.0.0-alpha11-Essentials-Native-RXData-Online-Trading-Dex-Test/TESTING.txt
           if-no-files-found: error
           retention-days: 30

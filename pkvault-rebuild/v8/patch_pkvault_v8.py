@@ -1357,3 +1357,58 @@ replace_once(save_infos_route_v8,
 ''')
 
 print("PKVault V8 alpha10 Essentials desktop rxdata import plumbing applied")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha11: keep the native desktop UI and make folder save locations work.
+# ---------------------------------------------------------------------------
+# Alpha10 temporarily enabled the server-style upload UI on Windows. That is
+# not the desired desktop workflow. Restore upstream desktop behavior.
+replace_once(settings_service_v8,
+'''        // V8: desktop users need the same direct save import path as web
+        // so Pokémon Uranium / Insurgence .rxdata files can be tested and used.
+        var canUploadSaves = true;
+        var canDeleteSaves = !isDesktop;
+''',
+'''        var canUploadSaves = !isDesktop;
+        var canDeleteSaves = !isDesktop;
+''')
+
+# Desktop "Add folder" stores a directory path with a trailing slash. Expand
+# those directory entries to recursive file globs before scanning, so a normal
+# Uranium/Insurgence save folder discovers Uranium.rxdata/Game.rxdata.
+replace_once(saves_essentials,
+'''        // A directory path by itself is not a reliable file match. Scan the
+        // upload directory recursively so uploaded .rxdata saves are reloaded
+        // immediately after import.
+        var uploadsGlob = MatcherUtil.NormalizePath(Path.Combine(settings.SavesUploadsPath, "**/*"));
+        string[] globs = [
+            uploadsGlob,
+            ..settings.SettingsMutable.SAVE_GLOBS
+        ];
+''',
+'''        static string ExpandSaveLocation(string raw)
+        {
+            var trimmed = raw.Trim();
+            if (trimmed.Length == 0)
+                return trimmed;
+
+            var excluded = trimmed[0] == '!';
+            var body = excluded ? trimmed[1..] : trimmed;
+            body = MatcherUtil.NormalizePath(body);
+
+            if (body.EndsWith('/'))
+                body = body.TrimEnd('/') + "/**/*";
+
+            return excluded ? "!" + body : body;
+        }
+
+        var uploadsGlob = MatcherUtil.NormalizePath(Path.Combine(settings.SavesUploadsPath, "**/*"));
+        var configuredSaveGlobs = settings.SettingsMutable.SAVE_GLOBS.Select(ExpandSaveLocation);
+        string[] globs = [
+            uploadsGlob,
+            ..configuredSaveGlobs
+        ];
+''')
+
+print("PKVault V8 alpha11 native desktop rxdata location scanning applied")
