@@ -186,7 +186,7 @@ jobs:
       - name: V8 Essentials Uranium and Insurgence parser smoke test
         run: |
           set -euo pipefail
-          mkdir -p essentials-smoke/fixtures
+          mkdir -p "essentials-smoke/fixtures/Pokemon Uranium" "essentials-smoke/fixtures/Pokemon Insurgence"
 
           cat > essentials-smoke/essentials-smoke.csproj <<'EOF'
           <Project Sdk="Microsoft.NET.Sdk">
