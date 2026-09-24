@@ -4,8 +4,15 @@ namespace PKVault.Core;
 
 /// <summary>
 /// Pokédex adapter for Too Many Types v1.6 / direct-species Gen3 saves.
-/// TMT contains post-Gen3 species and expansion forms, so the normal PKVault
-/// Gen3 dex path cannot use StaticSpecies.Forms[EntityContext.Gen3].
+///
+/// V8 alpha7 deliberately treats the TMT save as an ownership source only.
+/// The normal PKVault/National Pokédex must never inherit ROM-hack type,
+/// ability, stat, or generation presentation. Those TMT details belong on the
+/// storage Pokemon cards, where the ROM-hack profile is explicit.
+///
+/// This service therefore maps every supported TMT species/form to an official
+/// PKHeX personal entry for display, while preserving seen/caught/owned state
+/// from the actual TMT save.
 /// </summary>
 public sealed class DexTmtService(SAV3 save) : DexGenService(save)
 {
@@ -33,7 +40,8 @@ public sealed class DexTmtService(SAV3 save) : DexGenService(save)
 
             foreach (var entry in speciesGroup.OrderBy(e => e.Form))
             {
-                var pi = Gen3DirectSpecies.GetPersonal(entry.Species, entry.Form);
+                var official = GetOfficialPresentation(entry.Species, entry.Form);
+                var pi = official.PersonalInfo;
 
                 foreach (var gender in GetGenders(pi))
                 {
@@ -51,7 +59,7 @@ public sealed class DexTmtService(SAV3 save) : DexGenService(save)
                         Species: entry.Species,
                         Form: entry.Form,
                         Gender: gender,
-                        Types: GetTypes(TmtSave.Generation, pi),
+                        Types: GetTypes(official.Generation, pi),
                         Abilities: GetAbilities(pi),
                         AbilityHidden: GetAbilityHidden(pi),
                         BaseStats: GetBaseStats(pi),
@@ -61,9 +69,8 @@ public sealed class DexTmtService(SAV3 save) : DexGenService(save)
                         IsCaught: isOwned,
                         IsOwned: isOwned,
                         IsOwnedShiny: isOwnedShiny,
-                        Context: TmtSave.Context,
-                        Generation: TmtSave.Generation,
-                        RomHackTypes: entry.Types
+                        Context: official.Context,
+                        Generation: official.Generation
                     ));
                 }
             }
@@ -95,15 +102,17 @@ public sealed class DexTmtService(SAV3 save) : DexGenService(save)
         byte form,
         Gender gender)
     {
-        var entry = TooManyTypesCompat.RequireSupported(species, form);
-        var pi = Gen3DirectSpecies.GetPersonal(species, form);
+        TooManyTypesCompat.RequireSupported(species, form);
+
+        var official = GetOfficialPresentation(species, form);
+        var pi = official.PersonalInfo;
 
         return new DexItemForm(
             Id: DexLoader.GetId(species, form, gender),
             Species: species,
             Form: form,
             Gender: gender,
-            Types: GetTypes(TmtSave.Generation, pi),
+            Types: GetTypes(official.Generation, pi),
             Abilities: GetAbilities(pi),
             AbilityHidden: GetAbilityHidden(pi),
             BaseStats: GetBaseStats(pi),
@@ -113,9 +122,8 @@ public sealed class DexTmtService(SAV3 save) : DexGenService(save)
             IsCaught: isOwned,
             IsOwned: isOwned,
             IsOwnedShiny: isOwnedShiny,
-            Context: TmtSave.Context,
-            Generation: TmtSave.Generation,
-            RomHackTypes: entry.Types
+            Context: official.Context,
+            Generation: official.Generation
         );
     }
 
@@ -126,6 +134,14 @@ public sealed class DexTmtService(SAV3 save) : DexGenService(save)
         // TMT's custom dex bit layout is not mapped yet. Refuse to write
         // vanilla Emerald dex bits into a ROM-hack save.
         return Task.CompletedTask;
+    }
+
+    private static PKM GetOfficialPresentation(ushort species, byte form)
+    {
+        var blank = EntityBlank.GetIdealBlank(species, form);
+        blank.Species = species;
+        blank.Form = form;
+        return blank;
     }
 
     private static IEnumerable<Gender> GetGenders(PersonalInfo pi)
