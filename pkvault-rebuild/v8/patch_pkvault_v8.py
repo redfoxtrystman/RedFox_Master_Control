@@ -760,4 +760,160 @@ replace_once(details_attached,
 '''        ? <>{getSaveDisplayName(staticData.versions[ attachedSave.displayedVersion ]?.name, attachedSave.romHackProfile)} ({attachedSave.trainerName})</>
 ''')
 
-print("PKVault V8 TMT patch applied")
+
+# ---------------------------------------------------------------------------
+# V8 Essentials foundation: Pokémon Uranium + Pokémon Insurgence.
+# This first layer is intentionally read/import-oriented. Direct .rxdata
+# write-back is kept disabled until user-save round-trip tests are green.
+# ---------------------------------------------------------------------------
+essentials_pkhex = PKHEX / "PKHeX.Core/PKM/Shared"
+shutil.copyfile(HERE / "essentials/PKEssentials.cs", essentials_pkhex / "PKEssentials.cs")
+
+essentials_core = PKVAULT / "PKVault.Core/romhacks/essentials"
+essentials_core.mkdir(parents=True, exist_ok=True)
+shutil.copyfile(HERE / "essentials/RubyMarshal48.cs", essentials_core / "RubyMarshal48.cs")
+shutil.copyfile(HERE / "essentials/EssentialsLegacySaveReader.cs", essentials_core / "EssentialsLegacySaveReader.cs")
+
+immutable = PKVAULT / "PKVault.Core/storage/wrapper/ImmutablePKM.cs"
+replace_once(immutable,
+'''    public uint ExpToLevelUp => Experience.GetEXPToLevelUp(Pkm.CurrentLevel, Pkm.PersonalInfo.EXPGrowth);
+    public double LevelUpPercent => Experience.GetEXPToLevelUpPercentage(Pkm.CurrentLevel, Pkm.EXP, Pkm.PersonalInfo.EXPGrowth);
+''',
+'''    public uint ExpToLevelUp => Pkm is PKEssentials ? 0 : Experience.GetEXPToLevelUp(Pkm.CurrentLevel, Pkm.PersonalInfo.EXPGrowth);
+    public double LevelUpPercent => Pkm is PKEssentials ? 0 : Experience.GetEXPToLevelUpPercentage(Pkm.CurrentLevel, Pkm.EXP, Pkm.PersonalInfo.EXPGrowth);
+''')
+replace_once(immutable,
+'''    public byte CurrentLevel => Pkm.CurrentLevel;
+''',
+'''    public byte CurrentLevel => Pkm is PKEssentials essentials ? essentials.StoredLevel : Pkm.CurrentLevel;
+''')
+replace_once(immutable,
+'''    public bool IsSpeciesValid => Species > 0 && Species < GameInfo.Strings.Species.Count;
+''',
+'''    public bool IsSpeciesValid => Pkm is PKEssentials essentials
+        ? essentials.LocalSpeciesId > 0 && !string.IsNullOrWhiteSpace(essentials.ProfileId)
+        : Species > 0 && Species < GameInfo.Strings.Species.Count;
+''')
+replace_once(immutable,
+'''    public string GetPKMIdBase(Dictionary<ushort, StaticEvolve> evolves, int boxId = (int)BoxType.Box)
+    {
+        var clone = Update(clone =>
+''',
+'''    public string GetPKMIdBase(Dictionary<ushort, StaticEvolve> evolves, int boxId = (int)BoxType.Box)
+    {
+        if (Pkm is PKEssentials essentials)
+        {
+            var scoped = BoxLoader.IsScopedBox(boxId) ? $"_{boxId}" : "";
+            return $"ESS_{essentials.ProfileId}_{essentials.LocalSpeciesId}_{essentials.PID:X8}_{essentials.ID32:X8}{scoped}";
+        }
+
+        var clone = Update(clone =>
+''')
+
+# Extend the already-added ROM-hack DTO fields with profile-local Essentials identity.
+replace_once(dto,
+'''    public string? RomHackProfile => TooManyTypesCompat.IsTmt(Pkm) ? TooManyTypesProfileGenerated.ProfileId : null;
+    public string[]? RomHackTypes => TooManyTypesCompat.GetTypes(Pkm);
+    public byte? TeraType => Pkm.TeraType;
+''',
+'''    public string? RomHackProfile => Pkm.GetMutablePkm() is PKEssentials essentials
+        ? essentials.ProfileId
+        : TooManyTypesCompat.IsTmt(Pkm) ? TooManyTypesProfileGenerated.ProfileId : null;
+    public string[]? RomHackTypes => Pkm.GetMutablePkm() is PKEssentials essentials
+        ? essentials.TypeNames
+        : TooManyTypesCompat.GetTypes(Pkm);
+    public string? RomHackSpeciesName => Pkm.GetMutablePkm() is PKEssentials essentials ? essentials.SpeciesName : null;
+    public int? RomHackLocalSpeciesId => Pkm.GetMutablePkm() is PKEssentials essentials ? essentials.LocalSpeciesId : null;
+    public bool RomHackReadOnly => Pkm.GetMutablePkm() is PKEssentials { ReadOnlySource: true };
+    public byte? TeraType => Pkm.TeraType;
+''')
+replace_once(dto,
+'''    public virtual bool CanMoveToSave => IsEnabled && Pkm.Version > 0 && Pkm.Generation > 0 && CanMove;
+
+    public virtual bool CanEdit => IsEnabled && !IsEgg;
+''',
+'''    public virtual bool CanMoveToSave => IsEnabled && Pkm.GetMutablePkm() is not PKEssentials
+        && Pkm.Version > 0 && Pkm.Generation > 0 && CanMove;
+
+    public virtual bool CanEdit => IsEnabled && !IsEgg && Pkm.GetMutablePkm() is not PKEssentials;
+''')
+
+# Custom Essentials PKM files are JSON-backed profile-local records, not PKHeX
+# official binary PKM structures.
+replace_once(loader,
+'''        var star = pkm.IsShiny ? " ★" : string.Empty;
+        var speciesName = GameInfo.Strings.Species[pkm.Species].ToUpperInvariant().Replace(":", "");
+        return $"{pkm.Species:0000}{star} - {speciesName} - {id}.{pkm.Extension}";
+''',
+'''        var star = pkm.IsShiny ? " ★" : string.Empty;
+        var speciesName = pkm.GetMutablePkm() is PKEssentials essentials
+            ? essentials.SpeciesName.ToUpperInvariant().Replace(":", "")
+            : GameInfo.Strings.Species[pkm.Species].ToUpperInvariant().Replace(":", "");
+        return $"{pkm.Species:0000}{star} - {speciesName} - {id}.{pkm.Extension}";
+''')
+replace_once(loader,
+'''            if (ext.Equals("." + TooManyTypesCompat.StorageExtension, StringComparison.OrdinalIgnoreCase))
+            {
+                pkm = new PK3((byte[])entity.Data.Clone()) { DirectSpeciesIDs = true };
+            }
+            else
+''',
+'''            if (ext.Equals(".pkessentials", StringComparison.OrdinalIgnoreCase))
+            {
+                pkm = PKEssentials.Deserialize(entity.Data);
+            }
+            else if (ext.Equals("." + TooManyTypesCompat.StorageExtension, StringComparison.OrdinalIgnoreCase))
+            {
+                pkm = new PK3((byte[])entity.Data.Clone()) { DirectSpeciesIDs = true };
+            }
+            else
+''')
+replace_once(loader,
+'''    public byte[] GetPKMBytes(ImmutablePKM pkm)
+    {
+        return pkm.GetDecryptedDataParty();
+    }
+''',
+'''    public byte[] GetPKMBytes(ImmutablePKM pkm)
+    {
+        if (pkm.GetMutablePkm() is PKEssentials essentials)
+            return PKEssentials.Serialize(essentials);
+        return pkm.GetDecryptedDataParty();
+    }
+''')
+
+# OpenAPI fields used by the frontend once profile-local records are present.
+replace_once(swagger,
+'''          "romHackTypes": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "teraType": {
+''',
+'''          "romHackTypes": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "romHackSpeciesName": {
+            "type": "string",
+            "nullable": true
+          },
+          "romHackLocalSpeciesId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "romHackReadOnly": {
+            "type": "boolean"
+          },
+          "teraType": {
+''')
+
+
+print("PKVault V8 TMT + Essentials foundation patch applied")
