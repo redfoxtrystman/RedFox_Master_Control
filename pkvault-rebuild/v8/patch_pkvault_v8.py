@@ -1704,3 +1704,201 @@ replace_once(move_action,
 ''')
 
 print("PKVault V8 alpha14 Uranium species/icons and party extraction applied")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha15: hide the nonstandard party-number badge for Essentials,
+# add exact Insurgence species support, and allow safe official/MISSINGNO import.
+# ---------------------------------------------------------------------------
+shutil.copyfile(HERE / "essentials/InsurgenceProfile.Generated.cs", essentials_core / "InsurgenceProfile.Generated.cs")
+shutil.copyfile(HERE / "essentials/EssentialsInterop.cs", essentials_core / "EssentialsInterop.cs")
+
+essentials_reader_v15 = essentials_core / "EssentialsLegacySaveReader.cs"
+replace_once(essentials_reader_v15,
+'''        if (game == EssentialsGameKind.Insurgence && species > 0 && species < GameInfo.Strings.Species.Count)
+            return GameInfo.Strings.Species[species];
+''',
+'''        if (game == EssentialsGameKind.Insurgence)
+        {
+            if (InsurgenceProfileGenerated.IsOfficialSpecies(species) && species < GameInfo.Strings.Species.Count)
+                return GameInfo.Strings.Species[species];
+            if (InsurgenceProfileGenerated.TryGetCustom(species, out var insurgence))
+                return insurgence.Name;
+        }
+''')
+replace_once(essentials_reader_v15,
+'''    public static string[] GetTypes(EssentialsGameKind game, int species, int form)
+        => game == EssentialsGameKind.Uranium && UraniumProfileGenerated.TryGet(species, out var u) ? u.Types : [];
+
+    public static int[] GetBaseStats(EssentialsGameKind game, int species, int form)
+        => game == EssentialsGameKind.Uranium && UraniumProfileGenerated.TryGet(species, out var u) ? u.Stats : [1,1,1,1,1,1];
+''',
+'''    public static string[] GetTypes(EssentialsGameKind game, int species, int form)
+    {
+        if (game == EssentialsGameKind.Uranium && UraniumProfileGenerated.TryGet(species, out var u))
+            return u.Types;
+        if (game == EssentialsGameKind.Insurgence)
+        {
+            if (InsurgenceProfileGenerated.TryGetCustom(species, out var custom))
+                return custom.Types;
+            if (InsurgenceProfileGenerated.IsOfficialSpecies(species))
+            {
+                var personal = PersonalTable.AO.GetFormEntry((ushort)species, (byte)Math.Clamp(form, 0, byte.MaxValue));
+                var type1 = GameInfo.Strings.Types[personal.Type1];
+                var type2 = GameInfo.Strings.Types[personal.Type2];
+                return personal.Type1 == personal.Type2 ? [type1] : [type1, type2];
+            }
+        }
+        return [];
+    }
+
+    public static int[] GetBaseStats(EssentialsGameKind game, int species, int form)
+    {
+        if (game == EssentialsGameKind.Uranium && UraniumProfileGenerated.TryGet(species, out var u))
+            return u.Stats;
+        if (game == EssentialsGameKind.Insurgence)
+        {
+            if (InsurgenceProfileGenerated.TryGetCustom(species, out var custom))
+                return custom.Stats;
+            if (InsurgenceProfileGenerated.IsOfficialSpecies(species))
+            {
+                var personal = PersonalTable.AO.GetFormEntry((ushort)species, (byte)Math.Clamp(form, 0, byte.MaxValue));
+                return [personal.HP, personal.ATK, personal.DEF, personal.SPE, personal.SPA, personal.SPD];
+            }
+        }
+        return [1,1,1,1,1,1];
+    }
+''')
+
+# Official Insurgence species use ordinary PKVault sprites/names rather than
+# being treated as profile-local custom IDs.
+replace_once(dto,
+'''    public string? RomHackSpeciesName => Pkm.GetMutablePkm() is PKEssentials essentials ? essentials.SpeciesName : null;
+''',
+'''    public string? RomHackSpeciesName => Pkm.GetMutablePkm() is PKEssentials essentials
+        ? string.Equals(essentials.ProfileId, InsurgenceProfileGenerated.ProfileId, StringComparison.Ordinal)
+            && InsurgenceProfileGenerated.IsOfficialSpecies(essentials.LocalSpeciesId)
+                ? null
+                : essentials.SpeciesName
+        : null;
+''')
+
+# The green numeric party badge is not part of the requested Essentials UI.
+replace_once(storage_save_item,
+'''                party={savePkm.party >= 0 ? savePkm.party : undefined}
+''',
+'''                party={!romHackProfile && savePkm.party >= 0 ? savePkm.party : undefined}
+''')
+
+# Main->save: Essentials targets use explicit profile conversion and do not
+# require a synthetic PK3 "same context" variant first.
+move_action_v15 = PKVAULT / "PKVault.Core/storage/data-action/MovePkmAction.cs"
+replace_once(move_action_v15,
+'''        var pkmVariantForContext = pkmVariants.Find(version => version.Context == saveLoaders.Save.Context);
+
+        // if pkmVariant for context doesn't exist
+''',
+'''        var essentialsTarget = saveLoaders.Save.GetSave() as EssentialsLegacySaveFile;
+        var pkmVariantForContext = essentialsTarget != null
+            ? pkmVariants.Find(version => version.IsMain) ?? pkmVariants.FirstOrDefault()
+            : pkmVariants.Find(version => version.Context == saveLoaders.Save.Context);
+
+        // if pkmVariant for context doesn't exist
+''')
+replace_once(move_action_v15,
+'''        if (pkmVariantForContext == default)
+        {
+            var mainVariant = pkmVariants.Find(variant => variant.IsMain);
+''',
+'''        if (pkmVariantForContext == default)
+        {
+            if (essentialsTarget != null)
+                throw new ArgumentException("No source Pokémon variant exists for Essentials import.");
+
+            var mainVariant = pkmVariants.Find(variant => variant.IsMain);
+''')
+replace_once(move_action_v15,
+'''        if (pkmVariant.Context != saveLoaders.Save.Context)
+        {
+            throw new ArgumentException($"PkmVariantEntity Context not compatible with save for id={pkmVariant.Id}, context={pkmVariant.Context}, save.context={saveLoaders.Save.Context}");
+        }
+
+        var pkm = await pkmVariantLoader.GetPKM(pkmVariant);
+
+        if (!saveLoaders.Save.IsPkmAllowed(pkm))
+''',
+'''        if (pkmVariant.Context != saveLoaders.Save.Context && saveLoaders.Save.GetSave() is not EssentialsLegacySaveFile)
+        {
+            throw new ArgumentException($"PkmVariantEntity Context not compatible with save for id={pkmVariant.Id}, context={pkmVariant.Context}, save.context={saveLoaders.Save.Context}");
+        }
+
+        var pkm = await pkmVariantLoader.GetPKM(pkmVariant);
+        if (saveLoaders.Save.GetSave() is EssentialsLegacySaveFile essentialsSave
+            && pkm.GetMutablePkm() is not PKEssentials)
+        {
+            if (input.attached)
+                throw new ArgumentException("Cross-format attached moves into Essentials saves are not supported; use a normal move.");
+            pkm = EssentialsInterop.ImportTo(essentialsSave, pkm);
+        }
+
+        if (!saveLoaders.Save.IsPkmAllowed(pkm))
+''')
+
+# Direct save->save into Insurgence uses the same explicit import mapping.
+replace_once(move_action_v15,
+'''        if (sourcePkmDto.Context != targetSaveLoaders.Save.Context)
+        {
+            throw new ArgumentException($"Save Pkm not compatible with save for id={sourcePkmDto.Id}, context={sourcePkmDto.Context}, save.context={targetSaveLoaders.Save.Context}");
+        }
+
+        if (!targetSaveLoaders.Save.IsPkmAllowed(sourcePkmDto.Pkm))
+        {
+            throw new ArgumentException($"Save Pkm profile/species not compatible with target save for id={sourcePkmDto.Id}.");
+        }
+
+        var targetPkmDto = targetSaveLoaders.Pkms.GetDto(input.targetBoxId, targetBoxSlot);
+''',
+'''        var targetEssentials = targetSaveLoaders.Save.GetSave() as EssentialsLegacySaveFile;
+        if (sourcePkmDto.Context != targetSaveLoaders.Save.Context && targetEssentials == null)
+        {
+            throw new ArgumentException($"Save Pkm not compatible with save for id={sourcePkmDto.Id}, context={sourcePkmDto.Context}, save.context={targetSaveLoaders.Save.Context}");
+        }
+
+        var pkmForTarget = sourcePkmDto.Pkm;
+        if (targetEssentials != null && pkmForTarget.GetMutablePkm() is not PKEssentials)
+            pkmForTarget = EssentialsInterop.ImportTo(targetEssentials, pkmForTarget);
+
+        if (!targetSaveLoaders.Save.IsPkmAllowed(pkmForTarget))
+        {
+            throw new ArgumentException($"Save Pkm profile/species not compatible with target save for id={sourcePkmDto.Id}.");
+        }
+
+        var targetPkmDto = targetSaveLoaders.Pkms.GetDto(input.targetBoxId, targetBoxSlot);
+''')
+replace_once(move_action_v15,
+'''        if (targetPkmDto != null && !targetPkmDto.CanMove)
+        {
+            throw new ArgumentException("Save Pkm cannot move");
+        }
+''',
+'''        if (targetPkmDto != null && !targetPkmDto.CanMove)
+        {
+            throw new ArgumentException("Save Pkm cannot move");
+        }
+        if (targetPkmDto != null && targetEssentials != null
+            && sourcePkmDto.Pkm.GetMutablePkm() is not PKEssentials)
+        {
+            throw new ArgumentException("Cross-format save-to-save swaps require an empty target slot.");
+        }
+''')
+replace_once(move_action_v15,
+'''        sourcePkmDto = sourceSaveLoaders.Pkms.CreateDTO(
+            targetSaveLoaders.Save, sourcePkmDto.Pkm, input.targetBoxId, targetBoxSlot
+        );
+''',
+'''        sourcePkmDto = targetSaveLoaders.Pkms.CreateDTO(
+            targetSaveLoaders.Save, pkmForTarget, input.targetBoxId, targetBoxSlot
+        );
+''')
+
+print("PKVault V8 alpha15 Insurgence compatibility + no Essentials party badge applied")

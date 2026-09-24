@@ -218,6 +218,7 @@ jobs:
           grep -F 'romHackLocalSpeciesId={romHackLocalSpeciesId}' pkvault-src/frontend/src/storage/item/save/storage-save-item.tsx
           test "$(find pkvault-src/frontend/public/romhacks/uranium/icons -maxdepth 1 -name 'Icon*.gif' | wc -l)" -eq 200
           test -f pkvault-src/frontend/public/romhacks/uranium/icons/Icon003.gif
+          grep -F 'party={!romHackProfile && savePkm.party >= 0 ? savePkm.party : undefined}' pkvault-src/frontend/src/storage/item/save/storage-save-item.tsx
           echo "PASS: Windows keeps native Add saves location UI, rxdata directories expand to files, and newly added save locations auto-apply"
 
       - name: V8 Essentials Uranium and Insurgence parser smoke test
@@ -408,6 +409,111 @@ jobs:
           Need(raptorchEntry.Types.SequenceEqual(["Fire", "Ground"]), "Raptorch Uranium types mismatch");
           Need(UraniumProfileGenerated.TryGet(200, out var zephyEntry) && zephyEntry.Name == "Zephy",
               "Uranium registry lost species #200");
+
+
+          // Insurgence official/custom support regression.
+          Need(InsurgenceProfileGenerated.IsOfficialSpecies(1)
+              && InsurgenceProfileGenerated.IsOfficialSpecies(721)
+              && !InsurgenceProfileGenerated.IsOfficialSpecies(722),
+              "Insurgence official species range must be 1..721");
+          Need(InsurgenceProfileGenerated.TryGetCustom(722, out var insMissingNo)
+              && insMissingNo.Name == "MISSINGNO",
+              "Insurgence MISSINGNO #722 missing");
+          Need(!InsurgenceProfileGenerated.IsSupportedLocalSpecies(723)
+              && !InsurgenceProfileGenerated.IsSupportedLocalSpecies(726),
+              "Insurgence reserved gap 723..726 must stay unsupported");
+          Need(InsurgenceProfileGenerated.TryGetCustom(731, out var deltaCharmeleon)
+              && deltaCharmeleon.Name == "Delta Charmeleon",
+              "Insurgence Delta Charmeleon #731 mapping missing");
+          Need(InsurgenceProfileGenerated.TryGetCustom(925, out var ufi) && ufi.Name == "UFI",
+              "Insurgence UFI #925 mapping missing");
+
+          var insFacadeForImport = new EssentialsLegacySaveFile(insurgence);
+          insFacadeForImport.Metadata.SetExtraInfo(insurgencePath);
+          var officialPikachu = new PK6
+          {
+              Species = 25,
+              Nickname = "PIKACHU",
+              Stat_Level = 25,
+              EXP = 15625,
+              TID16 = 1234,
+              SID16 = 5678,
+              PID = 0x12345678,
+              Move1 = (ushort)Move.ThunderShock,
+              Move2 = (ushort)Move.QuickAttack,
+              Ball = (byte)Ball.Poke,
+          };
+          var importedPikachu = EssentialsInterop.ImportTo(insFacadeForImport, new ImmutablePKM(officialPikachu));
+          Need(importedPikachu.GetMutablePkm() is PKEssentials importedEss
+              && importedEss.ProfileId == "pokemon-insurgence"
+              && importedEss.LocalSpeciesId == 25
+              && importedEss.SpeciesName == "Pikachu",
+              "Insurgence official import support regression");
+
+          var raw50 = new PK1
+          {
+              SpeciesInternal = 0x50,
+              Stat_Level = 20,
+              EXP = 8000,
+              CatchRate = 35,
+              Move1 = (ushort)Move.WaterGun,
+              Move2 = (ushort)Move.SkyAttack,
+          };
+          var importedMissingNo = EssentialsInterop.ImportTo(insFacadeForImport, new ImmutablePKM(raw50));
+          Need(importedMissingNo.GetMutablePkm() is PKEssentials missingEss
+              && missingEss.LocalSpeciesId == 722
+              && missingEss.SpeciesName == "MISSINGNO",
+              "Gen1 raw-50 MISSINGNO -> Insurgence #722 mapping failed");
+
+          var modernUnsupported = new PK9 { Species = 906 };
+          var unsupportedBlocked = false;
+          try { _ = EssentialsInterop.ImportTo(insFacadeForImport, new ImmutablePKM(modernUnsupported)); }
+          catch (InvalidOperationException) { unsupportedBlocked = true; }
+          Need(unsupportedBlocked, "Gen7+ species not present in Insurgence must be blocked");
+
+          // Deterministic random Uranium stress save: one party Raptorch plus
+          // sixty unique Uranium species across the first two PC boxes.
+          var randomUranium = new EssentialsLegacySaveFile(earlyReload);
+          randomUranium.Metadata.SetExtraInfo("Uranium-Random-Test/Uranium.rxdata");
+          var templateMon = earlyReload.Party[0];
+          var random = new Random(0x55414E);
+          var ids = Enumerable.Range(1, UraniumProfileGenerated.SpeciesCount)
+              .OrderBy(_ => random.Next())
+              .Take(Math.Min(60, randomUranium.BoxSlotCount * 2))
+              .ToArray();
+          var randomList = new List<string>();
+          for (var i = 0; i < ids.Length; i++)
+          {
+              var id = ids[i];
+              Need(UraniumProfileGenerated.TryGet(id, out var entry), $"Missing Uranium random entry {id}");
+              var payload = templateMon.ToPayload() with
+              {
+                  SpeciesName = entry.Name,
+                  TypeNames = entry.Types,
+                  LocalSpeciesId = id,
+                  LocalFormId = 0,
+                  Nickname = entry.Name,
+                  BaseStats = entry.Stats,
+                  Level = (byte)random.Next(5, 81),
+                  SourceContainer = "random-test",
+                  SourceSlot = i,
+                  SourceFingerprint = $"random-test-{i}-{id}",
+                  ReadOnlySource = false,
+              };
+              var mon = new PKEssentials(payload);
+              var box = i / randomUranium.BoxSlotCount;
+              var slot = i % randomUranium.BoxSlotCount;
+              randomUranium.SetBoxSlotAtIndex(mon, box, slot, EntityImportSettings.None);
+              randomList.Add($"{box + 1}:{slot + 1}  #{id:000} {entry.Name}");
+          }
+          var randomBytes = randomUranium.Write().ToArray();
+          Directory.CreateDirectory("uranium-random-test");
+          File.WriteAllBytes("uranium-random-test/Uranium.rxdata", randomBytes);
+          File.WriteAllLines("uranium-random-test/RANDOM_URANIUM_POKEMON.txt", randomList);
+          Need(EssentialsLegacySaveReader.TryRead(randomBytes, "Uranium-Random-Test/Uranium.rxdata", out var randomReload, out var randomError),
+              $"Random Uranium test save failed to reparse: {randomError}");
+          Need(randomReload!.Boxes.Take(2).Sum(b => b.Pokemon.Count(p => p != null)) == ids.Length,
+              "Random Uranium stress save lost seeded Pokémon");
           _ = earlyDto.Ball;
           _ = earlyDto.Types;
           _ = earlyDto.Level;
@@ -458,6 +564,8 @@ jobs:
             -o "essentials-smoke/fixtures/Pokemon Insurgence/Game.rxdata"
 
           dotnet run --project essentials-smoke/essentials-smoke.csproj -c Release
+          test -s uranium-random-test/Uranium.rxdata
+          test "$(wc -l < uranium-random-test/RANDOM_URANIUM_POKEMON.txt)" -eq 60
 
       - name: V8 Too Many Types compatibility smoke test
         run: |
@@ -835,10 +943,10 @@ jobs:
           cd pkvault-src
           docker build . --target frontend-check -t pkvault-v8-alpha8-frontend-check
 
-      - name: Package complete v8.0.0-alpha14-Uranium-Species-Icons source snapshot
+      - name: Package complete v8.0.0-alpha15-Insurgence-Compatibility source snapshot
         run: |
           set -euo pipefail
-          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-FULL-SOURCE"
+          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-FULL-SOURCE"
           rm -rf "$SOURCE_ROOT"
           mkdir -p "$SOURCE_ROOT"
 
@@ -854,18 +962,18 @@ jobs:
           rm -rf "$SOURCE_ROOT/PKVault/.git" "$SOURCE_ROOT/PKHeX/.git"
 
           cat > "$SOURCE_ROOT/SOURCE_README.txt" <<'EOF'
-          PKVault v8.0.0-alpha14-Uranium-Species-Icons FULL SOURCE
+          PKVault v8.0.0-alpha15-Insurgence-Compatibility FULL SOURCE
           ==========================
-          Release line: V8 alpha14 Essentials guarded read/write + desktop rxdata import (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
+          Release line: V8 alpha15 Essentials guarded read/write + desktop rxdata import (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
           PKVault upstream baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec
           PKHeX upstream baseline: kwsch/PKHeX 74b88906e935e4a52d6d9243b8e373056409c738
           RedFox build branch: pkvault-v8-uranium-insurgence
 
           Contents:
-          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha14-Uranium-Species-Icons.
+          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha15-Insurgence-Compatibility.
           - PKHeX/          Exact patched PKHeX source tree used to build PKHeX.Core.
           - RedFox-Rebuild/ Reconstruction patcher, trading sources, and trading smoke harness.
-          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha14-Uranium-Species-Icons.
+          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha15-Insurgence-Compatibility.
           - SOURCE_FILE_SHA256SUMS.txt hashes every file in this source snapshot.
 
           Reproduction:
@@ -886,47 +994,49 @@ jobs:
 
           (
             cd "$GITHUB_WORKSPACE/dist"
-            zip -9 -r PKVault-v8.0.0-alpha14-Uranium-Species-Icons-FULL-SOURCE.zip PKVault-v8.0.0-alpha14-Uranium-Species-Icons-FULL-SOURCE
-            sha256sum PKVault-v8.0.0-alpha14-Uranium-Species-Icons-FULL-SOURCE.zip > PKVault-v8.0.0-alpha14-Uranium-Species-Icons-FULL-SOURCE.zip.sha256
+            zip -9 -r PKVault-v8.0.0-alpha15-Insurgence-Compatibility-FULL-SOURCE.zip PKVault-v8.0.0-alpha15-Insurgence-Compatibility-FULL-SOURCE
+            sha256sum PKVault-v8.0.0-alpha15-Insurgence-Compatibility-FULL-SOURCE.zip > PKVault-v8.0.0-alpha15-Insurgence-Compatibility-FULL-SOURCE.zip.sha256
           )
 
-      - name: Upload PKVault v8.0.0-alpha14-Uranium-Species-Icons full source
+      - name: Upload PKVault v8.0.0-alpha15-Insurgence-Compatibility full source
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha14-Uranium-Species-Icons-FULL-SOURCE
+          name: PKVault-v8.0.0-alpha15-Insurgence-Compatibility-FULL-SOURCE
           path: |
-            dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-FULL-SOURCE.zip
-            dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-FULL-SOURCE.zip.sha256
+            dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-FULL-SOURCE.zip
+            dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-FULL-SOURCE.zip.sha256
           if-no-files-found: error
           retention-days: 90
 
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha14-Uranium-Species-Icons -t pkvault-v752-description-patch
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha15-Insurgence-Compatibility -t pkvault-v752-description-patch
           docker create --name pkvault-v752-description-patch-out pkvault-v752-description-patch
           mkdir -p ../dist
-          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test-win-x64.exe
+          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test-win-x64.exe
           docker rm pkvault-v752-description-patch-out
 
-      - name: Package V8 alpha14 clean + Essentials RW + TMT visual test profiles
+      - name: Package V8 alpha15 clean + Essentials RW + TMT visual test profiles
         run: |
           set -euo pipefail
           ROOT="$GITHUB_WORKSPACE"
-          OUT="$ROOT/dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-CLEAN-TEST"
-          EXE="$ROOT/dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test-win-x64.exe"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-CLEAN-TEST"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test-win-x64.exe"
           rm -rf "$OUT"
           mkdir -p "$OUT/TMT-Type-Test"
+          mkdir -p "$OUT/Uranium-Random-Test"
 
-          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha14-Uranium-Species-Icons.exe"
+          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha15-Insurgence-Compatibility.exe"
           cp "$EXE" "$OUT/TMT-Type-Test/PKVault-TMT-Type-Test.exe"
           cp -a "$ROOT/tmt-type-test-profile/." "$OUT/TMT-Type-Test/"
+          cp -a "$ROOT/uranium-random-test/." "$OUT/Uranium-Random-Test/"
 
           cat > "$OUT/TMT_TYPE_TESTING.txt" <<'EOF'
-          PKVault V8.0.0 alpha8 - Essentials read-only + Too Many Types compatibility test
+          PKVault V8.0.0 alpha15 - Uranium + Insurgence + Too Many Types compatibility test
           ========================================================================
           Root EXE:
-            PKVault-v8.0.0-alpha14-Uranium-Species-Icons.exe
+            PKVault-v8.0.0-alpha15-Insurgence-Compatibility.exe
             Fresh profile for testing your own saves.
 
           Pre-seeded profile:
@@ -987,38 +1097,51 @@ jobs:
           - The supplied compatibility profile contains real PK1, PK2, PK3 and TMT3 records.
           EOF
 
+          cat > "$OUT/URANIUM_RANDOM_TESTING.txt" <<'EOF'
+          Pokémon Uranium random stress-save
+          ==================================
+          Uranium-Random-Test/Uranium.rxdata contains:
+          - 1 Raptorch in the party
+          - 60 deterministic random Uranium Pokémon in PC boxes 1 and 2
+          - exact Uranium local species IDs/names/types/base stats from the alpha15 registry
+
+          Add Uranium-Random-Test/Uranium.rxdata as a save location in the root alpha15 EXE.
+          RANDOM_URANIUM_POKEMON.txt lists every seeded species and slot.
+          This is a test copy only; do not overwrite your real Uranium save with it.
+          EOF
+
           (
             cd "$ROOT/dist"
-            zip -9 -r PKVault-v8.0.0-alpha14-Uranium-Species-Icons-CLEAN-TEST-win-x64.zip PKVault-v8.0.0-alpha14-Uranium-Species-Icons-CLEAN-TEST
-            sha256sum PKVault-v8.0.0-alpha14-Uranium-Species-Icons-CLEAN-TEST-win-x64.zip > PKVault-v8.0.0-alpha14-Uranium-Species-Icons-CLEAN-TEST-win-x64.zip.sha256
+            zip -9 -r PKVault-v8.0.0-alpha15-Insurgence-Compatibility-CLEAN-TEST-win-x64.zip PKVault-v8.0.0-alpha15-Insurgence-Compatibility-CLEAN-TEST
+            sha256sum PKVault-v8.0.0-alpha15-Insurgence-Compatibility-CLEAN-TEST-win-x64.zip > PKVault-v8.0.0-alpha15-Insurgence-Compatibility-CLEAN-TEST-win-x64.zip.sha256
           )
 
-      - name: Upload V8 alpha14 clean + Essentials RW + TMT visual test
+      - name: Upload V8 alpha15 clean + Essentials RW + TMT visual test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha14-Uranium-Species-Icons-CLEAN-TEST-win-x64
+          name: PKVault-v8.0.0-alpha15-Insurgence-Compatibility-CLEAN-TEST-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-CLEAN-TEST-win-x64.zip
-            dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-CLEAN-TEST-win-x64.zip.sha256
+            dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-CLEAN-TEST-win-x64.zip
+            dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-CLEAN-TEST-win-x64.zip.sha256
           if-no-files-found: error
           retention-days: 30
 
       - name: Package two isolated Windows trading profiles
         run: |
           set -euo pipefail
-          mkdir -p dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/Trader-A
-          mkdir -p dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/Trader-B
+          mkdir -p dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/Trader-A
+          mkdir -p dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/Trader-B
 
-          cp dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
-          cp dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
+          cp dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
 
-          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/Trader-A/
-          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/Trader-B/
+          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/Trader-B/
 
-          cat > dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
-          PKVault v8.0.0-alpha14-Uranium-Species-Icons Online/VPN Trading + Permanent Dex Registration test
+          cat > dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
+          PKVault v8.0.0-alpha15-Insurgence-Compatibility Online/VPN Trading + Permanent Dex Registration test
           ===================================
           Trader A starts with:
             Abra, Growlithe, Machop, Gastly, Dratini, Scyther
@@ -1063,26 +1186,26 @@ jobs:
           - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
           EOF
 
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/
-          sha256sum dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
-            | tee dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
-          sha256sum dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
-            | tee dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/
+          sha256sum dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
+            | tee dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
+          sha256sum dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
+            | tee dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
 
-          (cd dist && zip -9 -r PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test)
-          sha256sum dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test-win-x64.zip \
-            | tee dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test-win-x64.sha256
+          (cd dist && zip -9 -r PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test)
+          sha256sum dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test-win-x64.zip \
+            | tee dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test-win-x64.sha256
           ls -lah dist
-          find dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
+          find dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
 
-      - name: Upload PKVault v8.0.0-alpha14-Uranium-Species-Icons online trading dex test
+      - name: Upload PKVault v8.0.0-alpha15-Insurgence-Compatibility online trading dex test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test-win-x64
+          name: PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test-win-x64.zip
-            dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test-win-x64.sha256
-            dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test-win-x64.exe
-            dist/PKVault-v8.0.0-alpha14-Uranium-Species-Icons-Online-Trading-Dex-Test/TESTING.txt
+            dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test-win-x64.zip
+            dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test-win-x64.sha256
+            dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test-win-x64.exe
+            dist/PKVault-v8.0.0-alpha15-Insurgence-Compatibility-Online-Trading-Dex-Test/TESTING.txt
           if-no-files-found: error
           retention-days: 30

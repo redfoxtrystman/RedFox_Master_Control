@@ -146,6 +146,19 @@ public sealed class EssentialsLegacySaveFile : SaveFile, IBoxDetailNameRead
     public string GetBoxName(int box)
         => (uint)box < BoxNames.Length ? BoxNames[box] : BoxDetailNameExtensions.GetDefaultBoxName(box);
 
+    public PKEssentials CreateWritableTemplate()
+    {
+        var source = Registry.FirstOrDefault(z => !z.ReadOnlySource && z.SourceRubyMarshal.Length > 0)
+            ?? throw new InvalidOperationException(
+                "This Essentials save has no existing writable Pokémon record to use as an import template.");
+        var clone = (PKEssentials)source.Clone();
+        clone.SourceContainer = "import";
+        clone.SourceSlot = -1;
+        clone.SourceSavePath = Metadata.FilePath;
+        clone.ReadOnlySource = false;
+        return clone;
+    }
+
     protected override void WriteSlotStored(PKM pk, Span<byte> data) => WriteRegistrySlot(pk, data);
     protected override void WriteSlotParty(PKM pk, Span<byte> data) => WriteRegistrySlot(pk, data);
     protected override void SetPartyValues(PKM pk, bool isParty) { }
