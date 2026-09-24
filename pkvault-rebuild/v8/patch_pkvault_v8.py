@@ -843,13 +843,15 @@ replace_once(dto,
 replace_once(loader,
 '''        var star = pkm.IsShiny ? " ★" : string.Empty;
         var speciesName = GameInfo.Strings.Species[pkm.Species].ToUpperInvariant().Replace(":", "");
-        return $"{pkm.Species:0000}{star} - {speciesName} - {id}.{pkm.Extension}";
+        var extension = TooManyTypesCompat.GetStorageExtension(pkm);
+        return $"{pkm.Species:0000}{star} - {speciesName} - {id}.{extension}";
 ''',
 '''        var star = pkm.IsShiny ? " ★" : string.Empty;
         var speciesName = pkm.GetMutablePkm() is PKEssentials essentials
             ? essentials.SpeciesName.ToUpperInvariant().Replace(":", "")
             : GameInfo.Strings.Species[pkm.Species].ToUpperInvariant().Replace(":", "");
-        return $"{pkm.Species:0000}{star} - {speciesName} - {id}.{pkm.Extension}";
+        var extension = pkm.GetMutablePkm() is PKEssentials ? "pkessentials" : TooManyTypesCompat.GetStorageExtension(pkm);
+        return $"{pkm.Species:0000}{star} - {speciesName} - {id}.{extension}";
 ''')
 replace_once(loader,
 '''            if (ext.Equals("." + TooManyTypesCompat.StorageExtension, StringComparison.OrdinalIgnoreCase))
