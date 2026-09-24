@@ -1078,33 +1078,6 @@ replace_once(pkm_save_dto,
         && CanDelete && !IsShadow && !IsEgg && !IsLocked && Party == -1;
 ''')
 
-replace_once(wrapper,
-'''    public bool IsSpeciesAllowed(ushort species)
-    {
-        if (Save is EssentialsLegacySaveFile)
-            return false;
-
-        if (Save is SAV3 { DirectSpeciesIDs: true })
-''',
-'''    public bool IsPkmAllowed(ImmutablePKM pkm)
-    {
-        if (Save is EssentialsLegacySaveFile essentials)
-            return pkm.GetMutablePkm() is PKEssentials candidate
-                && !candidate.ReadOnlySource
-                && candidate.SourceRubyMarshal.Length > 0
-                && string.Equals(candidate.ProfileId, essentials.ProfileId, StringComparison.Ordinal);
-
-        return IsSpeciesAllowed(pkm.Species);
-    }
-
-    public bool IsSpeciesAllowed(ushort species)
-    {
-        if (Save is EssentialsLegacySaveFile)
-            return species > 0 && species <= Save.MaxSpeciesID;
-
-        if (Save is SAV3 { DirectSpeciesIDs: true })
-''')
-
 move_action = PKVAULT / "PKVault.Core/storage/data-action/MovePkmAction.cs"
 replace_once(move_action,
 '''        if (!targetSaveLoaders.Save.IsSpeciesAllowed(sourcePkmDto.Species))
@@ -1157,10 +1130,21 @@ replace_once(wrapper,
     {
         if (Save is SAV3 { DirectSpeciesIDs: true })
 ''',
-'''    public bool IsSpeciesAllowed(ushort species)
+'''    public bool IsPkmAllowed(ImmutablePKM pkm)
+    {
+        if (Save is EssentialsLegacySaveFile essentials)
+            return pkm.GetMutablePkm() is PKEssentials candidate
+                && !candidate.ReadOnlySource
+                && candidate.SourceRubyMarshal.Length > 0
+                && string.Equals(candidate.ProfileId, essentials.ProfileId, StringComparison.Ordinal);
+
+        return IsSpeciesAllowed(pkm.Species);
+    }
+
+    public bool IsSpeciesAllowed(ushort species)
     {
         if (Save is EssentialsLegacySaveFile)
-            return false;
+            return species > 0 && species <= Save.MaxSpeciesID;
 
         if (Save is SAV3 { DirectSpeciesIDs: true })
 ''')
