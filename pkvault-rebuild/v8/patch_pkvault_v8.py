@@ -1491,3 +1491,216 @@ r'''            const newValues = [ ...splittedValue, ...newValue ];
 ''')
 
 print("PKVault V8 alpha12 Essentials native location auto-apply applied")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha14: full Uranium local species registry, packaged game-style icons,
+# and safe party -> central-vault extraction.
+# ---------------------------------------------------------------------------
+shutil.copyfile(HERE / "essentials/UraniumProfile.Generated.cs", essentials_core / "UraniumProfile.Generated.cs")
+shutil.copyfile(HERE / "uranium-profile.ts", frontend_romhacks / "uranium-profile.ts")
+
+essentials_reader_v14 = essentials_core / "EssentialsLegacySaveReader.cs"
+replace_once(essentials_reader_v14,
+'''        if (game == EssentialsGameKind.Uranium && Uranium.TryGetValue(species, out var u))
+            return u.Name;
+''',
+'''        if (game == EssentialsGameKind.Uranium && UraniumProfileGenerated.TryGet(species, out var u))
+            return u.Name;
+''')
+replace_once(essentials_reader_v14,
+'''    public static string[] GetTypes(EssentialsGameKind game, int species, int form)
+        => game == EssentialsGameKind.Uranium && Uranium.TryGetValue(species, out var u) ? u.Types : [];
+
+    public static int[] GetBaseStats(EssentialsGameKind game, int species, int form)
+        => game == EssentialsGameKind.Uranium && Uranium.TryGetValue(species, out var u) ? u.Stats : [1,1,1,1,1,1];
+''',
+'''    public static string[] GetTypes(EssentialsGameKind game, int species, int form)
+        => game == EssentialsGameKind.Uranium && UraniumProfileGenerated.TryGet(species, out var u) ? u.Types : [];
+
+    public static int[] GetBaseStats(EssentialsGameKind game, int species, int form)
+        => game == EssentialsGameKind.Uranium && UraniumProfileGenerated.TryGet(species, out var u) ? u.Stats : [1,1,1,1,1,1];
+''')
+
+replace_once(species_img_ess,
+'''import { getSpritesheetUrl } from './util/get-spritesheet-url';
+''',
+'''import { getSpritesheetUrl } from './util/get-spritesheet-url';
+import { getUraniumIconPath, isUraniumSpeciesId, URANIUM_PROFILE_ID } from '../romhacks/uranium-profile';
+''')
+replace_once(species_img_ess,
+'''    allowContextFallback?: boolean;
+    profileLocalSpecies?: boolean;
+} & Omit<SpriteImgProps, 'spriteInfos' | 'size'>;
+
+export const SpeciesImg: React.FC<SpeciesImgProps> = ({ species, context, form, isFemale, isShiny, isEgg, isShadow, allowContextFallback, profileLocalSpecies, ...imgProps }) => {
+''',
+'''    allowContextFallback?: boolean;
+    profileLocalSpecies?: boolean;
+    romHackProfile?: string | null;
+    romHackLocalSpeciesId?: number | null;
+    romHackSpeciesName?: string | null;
+} & Omit<SpriteImgProps, 'spriteInfos' | 'size'>;
+
+export const SpeciesImg: React.FC<SpeciesImgProps> = ({
+    species, context, form, isFemale, isShiny, isEgg, isShadow,
+    allowContextFallback, profileLocalSpecies,
+    romHackProfile, romHackLocalSpeciesId, romHackSpeciesName,
+    ...imgProps
+}) => {
+''')
+replace_once(species_img_ess,
+'''    if (profileLocalSpecies)
+        return null;
+''',
+'''    if (profileLocalSpecies) {
+        const localSpeciesId = romHackLocalSpeciesId ?? species;
+        const isUranium = romHackProfile === URANIUM_PROFILE_ID && isUraniumSpeciesId(localSpeciesId);
+        const fallbackIcon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23444'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='20' fill='white'%3E%3F%3C/text%3E%3C/svg%3E";
+
+        return <UISpeciesImg
+            {...imgProps}
+            data-rom-hack-profile={romHackProfile ?? undefined}
+            data-local-species-id={localSpeciesId}
+            sheetUrl={isUranium ? getUraniumIconPath(localSpeciesId) : fallbackIcon}
+            spriteInfos={{ x: 0, y: 0, width: 32, height: 32 }}
+            sourceRealHeight={32}
+            species={species || localSpeciesId}
+            isShadow={false}
+            title={romHackSpeciesName ?? (romHackProfile ?? 'ROM hack') + ' #' + localSpeciesId}
+        />;
+    }
+''')
+
+replace_once(storage_item_ess,
+'''  & Pick<SpeciesImgProps, 'species' | 'context' | 'form' | 'isFemale' | 'isShiny' | 'isEgg' | 'isShadow' | 'allowContextFallback' | 'profileLocalSpecies'>;
+''',
+'''  & Pick<SpeciesImgProps, 'species' | 'context' | 'form' | 'isFemale' | 'isShiny' | 'isEgg' | 'isShadow' | 'allowContextFallback' | 'profileLocalSpecies' | 'romHackProfile' | 'romHackLocalSpeciesId' | 'romHackSpeciesName'>;
+''')
+replace_once(storage_item_ess,
+'''  profileLocalSpecies,
+
+  ...rest
+''',
+'''  profileLocalSpecies,
+  romHackProfile,
+  romHackLocalSpeciesId,
+  romHackSpeciesName,
+
+  ...rest
+''')
+replace_once(storage_item_ess,
+'''        allowContextFallback={allowContextFallback} profileLocalSpecies={profileLocalSpecies} />
+''',
+'''        allowContextFallback={allowContextFallback} profileLocalSpecies={profileLocalSpecies}
+        romHackProfile={romHackProfile} romHackLocalSpeciesId={romHackLocalSpeciesId}
+        romHackSpeciesName={romHackSpeciesName} />
+''')
+
+replace_once(storage_save_item,
+'''                    'canEvolve', 'romHackProfile', 'romHackSpeciesName',
+''',
+'''                    'canEvolve', 'romHackProfile', 'romHackSpeciesName', 'romHackLocalSpeciesId',
+''')
+replace_once(storage_save_item,
+'''        const { id, species, nickname, level, boxSlot, form, gender, contextVersion, isAlpha, isShiny, nSparkle, isEgg, isShadow, canEvolve, romHackProfile, romHackSpeciesName } = savePkm;
+''',
+'''        const { id, species, nickname, level, boxSlot, form, gender, contextVersion, isAlpha, isShiny, nSparkle, isEgg, isShadow, canEvolve, romHackProfile, romHackSpeciesName, romHackLocalSpeciesId } = savePkm;
+''')
+replace_once(storage_save_item,
+'''            profileLocalSpecies={!!romHackSpeciesName}
+            name={nickname}
+''',
+'''            profileLocalSpecies={!!romHackSpeciesName}
+            romHackProfile={romHackProfile}
+            romHackLocalSpeciesId={romHackLocalSpeciesId}
+            romHackSpeciesName={romHackSpeciesName}
+            name={romHackSpeciesName ?? nickname}
+''')
+
+replace_once(storage_main_item,
+'''                        'form', 'gender', 'isEgg', 'isAlpha', 'isShiny', 'nSparkle', 'isShadow', 'isExternal', 'heldItem', 'romHackProfile', 'romHackSpeciesName',
+''',
+'''                        'form', 'gender', 'isEgg', 'isAlpha', 'isShiny', 'nSparkle', 'isShadow', 'isExternal', 'heldItem', 'romHackProfile', 'romHackSpeciesName', 'romHackLocalSpeciesId',
+''')
+replace_once(storage_main_item,
+'''        const { id, species, nickname, level, boxSlot, contextVersion, context, form, gender, isEgg, isAlpha, isShiny, nSparkle, isShadow, isExternal, heldItem, romHackProfile, romHackSpeciesName } = mainVariant;
+''',
+'''        const { id, species, nickname, level, boxSlot, contextVersion, context, form, gender, isEgg, isAlpha, isShiny, nSparkle, isShadow, isExternal, heldItem, romHackProfile, romHackSpeciesName, romHackLocalSpeciesId } = mainVariant;
+''')
+replace_once(storage_main_item,
+'''            profileLocalSpecies={!!romHackSpeciesName}
+            name={nickname}
+''',
+'''            profileLocalSpecies={!!romHackSpeciesName}
+            romHackProfile={romHackProfile}
+            romHackLocalSpeciesId={romHackLocalSpeciesId}
+            romHackSpeciesName={romHackSpeciesName}
+            name={romHackSpeciesName ?? nickname}
+''')
+
+replace_once(details_main,
+'''            profileLocalSpecies={!!pkm.romHackSpeciesName}
+        />
+''',
+'''            profileLocalSpecies={!!pkm.romHackSpeciesName}
+            romHackProfile={pkm.romHackProfile}
+            romHackLocalSpeciesId={pkm.romHackLocalSpeciesId}
+            romHackSpeciesName={pkm.romHackSpeciesName}
+        />
+''')
+
+replace_once(pkm_save_dto,
+'''    public bool CanMoveToMain => IsEnabled
+        && (Pkm.GetMutablePkm() is PKEssentials || (Pkm.Version > 0 && Pkm.Generation > 0))
+        && CanDelete && !IsShadow && !IsEgg && !IsLocked && Party == -1;
+''',
+'''    public bool CanMoveToMain => IsEnabled
+        && (Pkm.GetMutablePkm() is PKEssentials || (Pkm.Version > 0 && Pkm.Generation > 0))
+        && CanDelete && !IsShadow && !IsEgg && !IsLocked
+        && (Party == -1 || Pkm.GetMutablePkm() is PKEssentials);
+''')
+
+replace_once(move_action,
+'''        var saveLoaders = savesLoadersService.GetLoaders(sourceSaveId);
+
+        if (savePkm.Pkm.GetMutablePkm() is IShadowCapture savePkmShadow && savePkmShadow.IsShadow)
+''',
+'''        var saveLoaders = savesLoadersService.GetLoaders(sourceSaveId);
+        var keepEssentialsParty = savePkm.Pkm.GetMutablePkm() is PKEssentials && savePkm.Party >= 0;
+        var attachToSource = input.attached || keepEssentialsParty;
+
+        if (savePkm.Pkm.GetMutablePkm() is IShadowCapture savePkmShadow && savePkmShadow.IsShadow)
+''')
+replace_once(move_action,
+'''            AttachedSaveId: input.attached ? sourceSaveId : null,
+            AttachedSavePkmIdBase: input.attached ? savePkm.IdBase : null,
+''',
+'''            AttachedSaveId: attachToSource ? sourceSaveId : null,
+            AttachedSavePkmIdBase: attachToSource ? savePkm.IdBase : null,
+''')
+replace_once(move_action,
+'''            if (!input.attached)
+            {
+                pkmVariantEntity.AttachedSaveId = null;
+''',
+'''            if (!attachToSource)
+            {
+                pkmVariantEntity.AttachedSaveId = null;
+''')
+replace_once(move_action,
+'''        if (!input.attached)
+        {
+            // remove pkm from save
+            saveLoaders.Pkms.DeleteDto(savePkm.Id);
+        }
+''',
+'''        if (!attachToSource)
+        {
+            // Remove boxed Pokemon from the save. Essentials party Pokemon stay
+            // in-place and become an attached vault copy instead.
+            saveLoaders.Pkms.DeleteDto(savePkm.Id);
+        }
+''')
+
+print("PKVault V8 alpha14 Uranium species/icons and party extraction applied")
