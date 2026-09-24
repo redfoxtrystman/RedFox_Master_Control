@@ -6,7 +6,7 @@ on:
       - pkvault-v8-romhack-tmt
     paths:
       - 'pkvault-rebuild/**'
-      - '.github/workflows/pkvault-v8-romhack-tmt.yml'
+      - '.github/workflows/pkvault-gen1-v6-rebuild.yml'
   workflow_dispatch:
 
 permissions:
@@ -274,6 +274,7 @@ jobs:
           // species do not, so TMT must use DexTmtService and never index that
           // vanilla Gen3 form dictionary.
           var dexSave = new SAV3E { DirectSpeciesIDs = true };
+          dexSave.Metadata.SetExtraInfo("TooManyTypes_PUBLIC_v1.6.sav");
           var tmtDex = new DexTmtService(dexSave);
           var dex = new Dictionary<ushort, Dictionary<uint, DexItemDTO>>();
           await tmtDex.UpdateDexWithSave(dex, new StaticSpeciesData(), null);
