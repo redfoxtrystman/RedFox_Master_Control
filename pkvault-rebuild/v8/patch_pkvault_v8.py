@@ -179,6 +179,33 @@ romhacks.mkdir(parents=True, exist_ok=True)
 shutil.copyfile(HERE / "TooManyTypesCompat.cs", romhacks / "TooManyTypesCompat.cs")
 shutil.copyfile(HERE / "TooManyTypesProfile.Generated.cs", romhacks / "TooManyTypesProfile.Generated.cs")
 
+dex_dir = PKVAULT / "PKVault.Core/dex/services/gen"
+shutil.copyfile(HERE / "DexTmtService.cs", dex_dir / "DexTmtService.cs")
+
+dex_dto = PKVAULT / "PKVault.Core/dex/dto/DexItemDTO.cs"
+replace_once(dex_dto,
+'''    bool IsOwnedShiny,
+    EntityContext Context = default,
+    byte Generation = default
+) : IWithId;
+''',
+'''    bool IsOwnedShiny,
+    EntityContext Context = default,
+    byte Generation = default,
+    string[]? RomHackTypes = null
+) : IWithId;
+''')
+
+dex_service = PKVAULT / "PKVault.Core/dex/services/DexService.cs"
+replace_once(dex_service,
+'''            SAV2 sav2 => new Dex123Service(sav2),
+            SAV3 sav3 => new Dex123Service(sav3),
+''',
+'''            SAV2 sav2 => new Dex123Service(sav2),
+            SAV3 { DirectSpeciesIDs: true } tmt3 => new DexTmtService(tmt3),
+            SAV3 sav3 => new Dex123Service(sav3),
+''')
+
 loader = PKVAULT / "PKVault.Core/db/loader/PkmFileLoader.cs"
 replace_once(loader,
 '''        return $"{pkm.Species:0000}{star} - {speciesName} - {id}.{pkm.Extension}";
