@@ -306,7 +306,7 @@ jobs:
           EOF
           dotnet run --project tmt-smoke/tmt-smoke.csproj -c Release
 
-      - name: Seed ten-Pokemon TMT visual/type test profile
+      - name: Seed 55-Pokemon mixed-format TMT compatibility profile
         run: |
           set -euo pipefail
           ROOT="$GITHUB_WORKSPACE"
@@ -320,9 +320,20 @@ jobs:
 
           test -f "$TMT_PROFILE/db/pkvault.db"
           test -f "$TMT_PROFILE/config/pkvault.json"
-          COUNT=$(find "$TMT_PROFILE/storage" -type f -name '*.tmt3' | wc -l)
-          test "$COUNT" -eq 10
-          echo "PASS: seeded 10 TMT .tmt3 Pokemon for visual/type testing"
+
+          TMT_COUNT=$(find "$TMT_PROFILE/storage" -type f -name '*.tmt3' | wc -l)
+          PK3_COUNT=$(find "$TMT_PROFILE/storage" -type f -name '*.pk3' | wc -l)
+          PK1_COUNT=$(find "$TMT_PROFILE/storage" -type f -name '*.pk1' | wc -l)
+          PK2_COUNT=$(find "$TMT_PROFILE/storage" -type f -name '*.pk2' | wc -l)
+          TOTAL=$((TMT_COUNT + PK3_COUNT + PK1_COUNT + PK2_COUNT))
+
+          test "$TMT_COUNT" -eq 10
+          test "$PK3_COUNT" -eq 15
+          test "$PK1_COUNT" -eq 15
+          test "$PK2_COUNT" -eq 15
+          test "$TOTAL" -eq 55
+
+          echo "PASS: seeded 55 mixed-format Pokemon: 10 TMT + 15 Emerald + 15 Gen1 + 15 Gen2"
 
       - name: PKVault Gen1 glitch enablement smoke test
         run: |
@@ -508,12 +519,12 @@ jobs:
       - name: Frontend SDK + typecheck with ROM-hack fields
         run: |
           cd pkvault-src
-          docker build . --target frontend-check -t pkvault-v8-alpha4-frontend-check
+          docker build . --target frontend-check -t pkvault-v8-alpha5-frontend-check
 
-      - name: Package complete v8.0.0-alpha4-TMT source snapshot
+      - name: Package complete v8.0.0-alpha5-TMT source snapshot
         run: |
           set -euo pipefail
-          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha4-TMT-FULL-SOURCE"
+          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha5-TMT-FULL-SOURCE"
           rm -rf "$SOURCE_ROOT"
           mkdir -p "$SOURCE_ROOT"
 
@@ -529,18 +540,18 @@ jobs:
           rm -rf "$SOURCE_ROOT/PKVault/.git" "$SOURCE_ROOT/PKHeX/.git"
 
           cat > "$SOURCE_ROOT/SOURCE_README.txt" <<'EOF'
-          PKVault v8.0.0-alpha4-TMT FULL SOURCE
+          PKVault v8.0.0-alpha5-TMT FULL SOURCE
           ==========================
-          Release line: V8 alpha4 ROM-Hack Compatibility + Too Many Types v1.6 + existing Trading/MissingNo support
+          Release line: V8 alpha5 ROM-Hack Compatibility + Too Many Types v1.6 + existing Trading/MissingNo support
           PKVault upstream baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec
           PKHeX upstream baseline: kwsch/PKHeX 74b88906e935e4a52d6d9243b8e373056409c738
           RedFox build branch: pkvault-v8-romhack-tmt
 
           Contents:
-          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha4-TMT.
+          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha5-TMT.
           - PKHeX/          Exact patched PKHeX source tree used to build PKHeX.Core.
           - RedFox-Rebuild/ Reconstruction patcher, trading sources, and trading smoke harness.
-          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha4-TMT.
+          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha5-TMT.
           - SOURCE_FILE_SHA256SUMS.txt hashes every file in this source snapshot.
 
           Reproduction:
@@ -561,115 +572,128 @@ jobs:
 
           (
             cd "$GITHUB_WORKSPACE/dist"
-            zip -9 -r PKVault-v8.0.0-alpha4-TMT-FULL-SOURCE.zip PKVault-v8.0.0-alpha4-TMT-FULL-SOURCE
-            sha256sum PKVault-v8.0.0-alpha4-TMT-FULL-SOURCE.zip > PKVault-v8.0.0-alpha4-TMT-FULL-SOURCE.zip.sha256
+            zip -9 -r PKVault-v8.0.0-alpha5-TMT-FULL-SOURCE.zip PKVault-v8.0.0-alpha5-TMT-FULL-SOURCE
+            sha256sum PKVault-v8.0.0-alpha5-TMT-FULL-SOURCE.zip > PKVault-v8.0.0-alpha5-TMT-FULL-SOURCE.zip.sha256
           )
 
-      - name: Upload PKVault v8.0.0-alpha4-TMT full source
+      - name: Upload PKVault v8.0.0-alpha5-TMT full source
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha4-TMT-FULL-SOURCE
+          name: PKVault-v8.0.0-alpha5-TMT-FULL-SOURCE
           path: |
-            dist/PKVault-v8.0.0-alpha4-TMT-FULL-SOURCE.zip
-            dist/PKVault-v8.0.0-alpha4-TMT-FULL-SOURCE.zip.sha256
+            dist/PKVault-v8.0.0-alpha5-TMT-FULL-SOURCE.zip
+            dist/PKVault-v8.0.0-alpha5-TMT-FULL-SOURCE.zip.sha256
           if-no-files-found: error
           retention-days: 90
 
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha4-TMT -t pkvault-v752-description-patch
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha5-TMT -t pkvault-v752-description-patch
           docker create --name pkvault-v752-description-patch-out pkvault-v752-description-patch
           mkdir -p ../dist
-          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test-win-x64.exe
+          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test-win-x64.exe
           docker rm pkvault-v752-description-patch-out
 
-      - name: Package V8 alpha4 clean + TMT visual test profiles
+      - name: Package V8 alpha5 clean + TMT visual test profiles
         run: |
           set -euo pipefail
           ROOT="$GITHUB_WORKSPACE"
-          OUT="$ROOT/dist/PKVault-v8.0.0-alpha4-TMT-CLEAN-TEST"
-          EXE="$ROOT/dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test-win-x64.exe"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha5-TMT-CLEAN-TEST"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test-win-x64.exe"
           rm -rf "$OUT"
           mkdir -p "$OUT/TMT-Type-Test"
 
-          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha4-TMT.exe"
+          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha5-TMT.exe"
           cp "$EXE" "$OUT/TMT-Type-Test/PKVault-TMT-Type-Test.exe"
           cp -a "$ROOT/tmt-type-test-profile/." "$OUT/TMT-Type-Test/"
 
           cat > "$OUT/TMT_TYPE_TESTING.txt" <<'EOF'
-          PKVault V8.0.0 alpha4 - Too Many Types visual/type test
-          ========================================================
+          PKVault V8.0.0 alpha5 - Too Many Types mixed-format compatibility test
+          ========================================================================
           Root EXE:
-            PKVault-v8.0.0-alpha4-TMT.exe
+            PKVault-v8.0.0-alpha5-TMT.exe
             Fresh profile for testing your own saves.
 
           Pre-seeded profile:
             TMT-Type-Test/PKVault-TMT-Type-Test.exe
 
-          The pre-seeded profile contains exactly 10 TMT Pokemon:
-            Braixen   - Fire / Magic / Furry
-            Ralts     - Space / Fairy
-            Popplio   - Water / Silly
-            Mimikyu   - Ghost / Sus
-            Dreepy    - Gun / Ghost / Baby
-            Snom      - Ice / Bean
-            Hatenna   - Vibe / Magic
-            Falinks   - Silly / Little / Guys
-            Oranguru  - Monke / Stinky
-            Klink     - Steel / Guys / Prime
+          The pre-seeded profile contains 55 Pokemon in four boxes:
+
+          TMT v1.6 (10 .tmt3)
+            Braixen, Ralts, Popplio, Mimikyu, Dreepy,
+            Snom, Hatenna, Falinks, Oranguru, Klink
+
+          Emerald PK3 (15 normal .pk3)
+            Blaziken, Poochyena, Lotad, Ralts, Gardevoir,
+            Shedinja, Sableye, Spinda, Altaria, Milotic,
+            Chimecho, Absol, Metagross, Rayquaza, Deoxys
+
+          Gen 1 PK1 (15 native .pk1)
+            Pikachu, Vulpix, Diglett, Mankey, Growlithe,
+            Machop, Geodude, Slowpoke, Krabby, Ditto,
+            Eevee, Vaporeon, Porygon, Snorlax, Mew
+
+          Gen 2 PK2 (15 native .pk2)
+            Chikorita, Furret, Crobat, Pichu, Marill,
+            Sudowoodo, Aipom, Espeon, Umbreon, Girafarig,
+            Dunsparce, Remoraid, Skarmory, Porygon2, Smeargle
 
           What to check:
           1. Open the TMT-Type-Test EXE from inside its folder.
-          2. The 10 Pokemon should appear in Box 1 with official sprites.
-          3. Select each Pokemon. The type badges in Details should show the TMT
-             names above AND their TMT v1.6 colors instead of black generic badges.
+          2. Confirm all four boxes exist and all 55 Pokemon have the correct sprites/names.
+          3. Click the TMT Pokemon and verify TMT type badges/colors still render.
              Exact v1.6 examples: Furry = blue, Magic = bright pink, Silly = lavender.
-             Split/multicolor types such as Gender/Smash preserve their two-color presentation.
-          4. Load a normal Pokemon Emerald save in the root/fresh profile.
-             Blaziken must remain Blaziken; moving/reordering party Pokemon must work.
-          5. Load the TMT v1.6 save. It should still use direct species IDs and the
-             dedicated TMT dex adapter.
+          4. Load your TMT v1.6 save and drag supported Pokemon from the Emerald,
+             Gen 1, and Gen 2 boxes into it. They should convert into valid TMT records.
+          5. Blaziken is intentionally included as a stock-Emerald regression Pokemon:
+             it must remain Blaziken and must never become Gardevoir.
+          6. Gardevoir and Chimecho are also included specifically to exercise Gen3's
+             non-National internal species numbering.
+          7. Load a normal Emerald save in the root/fresh profile and verify party
+             moving/reordering still works without entering TMT direct-species mode.
 
-          Alpha4 regression:
+          Alpha5 regression:
           - Stock Emerald raw IDs such as Blaziken raw 282 and Chimecho raw 411
             can no longer trigger TMT detection.
           - All 63 TMT v1.6 type names have explicit ROM-derived color styling.
           - TMT custom types no longer fall back to generic black badges.
+          - The supplied compatibility profile now contains real PK1, PK2, PK3 and
+            TMT3 source records instead of only synthetic TMT3 examples.
           EOF
 
           (
             cd "$ROOT/dist"
-            zip -9 -r PKVault-v8.0.0-alpha4-TMT-CLEAN-TEST-win-x64.zip PKVault-v8.0.0-alpha4-TMT-CLEAN-TEST
-            sha256sum PKVault-v8.0.0-alpha4-TMT-CLEAN-TEST-win-x64.zip > PKVault-v8.0.0-alpha4-TMT-CLEAN-TEST-win-x64.zip.sha256
+            zip -9 -r PKVault-v8.0.0-alpha5-TMT-CLEAN-TEST-win-x64.zip PKVault-v8.0.0-alpha5-TMT-CLEAN-TEST
+            sha256sum PKVault-v8.0.0-alpha5-TMT-CLEAN-TEST-win-x64.zip > PKVault-v8.0.0-alpha5-TMT-CLEAN-TEST-win-x64.zip.sha256
           )
 
-      - name: Upload V8 alpha4 clean + TMT visual test
+      - name: Upload V8 alpha5 clean + TMT visual test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha4-TMT-CLEAN-TEST-win-x64
+          name: PKVault-v8.0.0-alpha5-TMT-CLEAN-TEST-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha4-TMT-CLEAN-TEST-win-x64.zip
-            dist/PKVault-v8.0.0-alpha4-TMT-CLEAN-TEST-win-x64.zip.sha256
+            dist/PKVault-v8.0.0-alpha5-TMT-CLEAN-TEST-win-x64.zip
+            dist/PKVault-v8.0.0-alpha5-TMT-CLEAN-TEST-win-x64.zip.sha256
           if-no-files-found: error
           retention-days: 30
 
       - name: Package two isolated Windows trading profiles
         run: |
           set -euo pipefail
-          mkdir -p dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/Trader-A
-          mkdir -p dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/Trader-B
+          mkdir -p dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/Trader-A
+          mkdir -p dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/Trader-B
 
-          cp dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
-          cp dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
+          cp dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
 
-          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/Trader-A/
-          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/Trader-B/
+          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/Trader-B/
 
-          cat > dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
-          PKVault v8.0.0-alpha4-TMT Online/VPN Trading + Permanent Dex Registration test
+          cat > dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
+          PKVault v8.0.0-alpha5-TMT Online/VPN Trading + Permanent Dex Registration test
           ===================================
           Trader A starts with:
             Abra, Growlithe, Machop, Gastly, Dratini, Scyther
@@ -714,26 +738,26 @@ jobs:
           - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
           EOF
 
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/
-          sha256sum dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
-            | tee dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
-          sha256sum dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
-            | tee dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/
+          sha256sum dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
+            | tee dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
+          sha256sum dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
+            | tee dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
 
-          (cd dist && zip -9 -r PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test)
-          sha256sum dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test-win-x64.zip \
-            | tee dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test-win-x64.sha256
+          (cd dist && zip -9 -r PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test)
+          sha256sum dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test-win-x64.zip \
+            | tee dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test-win-x64.sha256
           ls -lah dist
-          find dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
+          find dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
 
-      - name: Upload PKVault v8.0.0-alpha4-TMT online trading dex test
+      - name: Upload PKVault v8.0.0-alpha5-TMT online trading dex test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test-win-x64
+          name: PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test-win-x64.zip
-            dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test-win-x64.sha256
-            dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test-win-x64.exe
-            dist/PKVault-v8.0.0-alpha4-TMT-Online-Trading-Dex-Test/TESTING.txt
+            dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test-win-x64.zip
+            dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test-win-x64.sha256
+            dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test-win-x64.exe
+            dist/PKVault-v8.0.0-alpha5-TMT-Online-Trading-Dex-Test/TESTING.txt
           if-no-files-found: error
           retention-days: 30
