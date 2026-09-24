@@ -1,4 +1,4 @@
-# PKVault V8 alpha2 TMT dex crash fix
+# PKVault V8 alpha3 TMT vanilla-isolation + UI/type test
 from pathlib import Path
 import shutil
 import sys
@@ -364,6 +364,265 @@ replace_once(convert,
     }
 
     private PKM ConvertRecursive(PKM current, Type targetType, LanguageID fallbackLang, PKMRndValues? rndValues)
+''')
+
+
+# ---------------------------------------------------------------------------
+# Frontend/OpenAPI: expose and visibly render TMT type names, while keeping
+# normal game types untouched. Also allow ROM-hack Pokemon to borrow an
+# official modern sprite when Gen3 has no static sprite entry for the species.
+# ---------------------------------------------------------------------------
+swagger = PKVAULT / "PKVault.Core/swagger.json"
+replace_once(swagger,
+'''          "gender": {
+            "$ref": "#/components/schemas/Gender"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "byte"
+            }
+          },
+          "teraType": {
+''',
+'''          "gender": {
+            "$ref": "#/components/schemas/Gender"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "byte"
+            }
+          },
+          "romHackProfile": {
+            "type": "string",
+            "nullable": true
+          },
+          "romHackTypes": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "teraType": {
+''')
+replace_once(swagger,
+'''          "gender": {
+            "$ref": "#/components/schemas/Gender"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "byte"
+            }
+          },
+          "abilities": {
+''',
+'''          "gender": {
+            "$ref": "#/components/schemas/Gender"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "byte"
+            }
+          },
+          "romHackTypes": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "abilities": {
+''')
+
+species_img = PKVAULT / "frontend/src/img/species-img.tsx"
+replace_once(species_img,
+'''    isEgg?: boolean;
+    isShadow?: boolean;
+} & Omit<SpriteImgProps, 'spriteInfos' | 'size'>;
+
+export const SpeciesImg: React.FC<SpeciesImgProps> = ({ species, context, form, isFemale, isShiny, isEgg, isShadow, ...imgProps }) => {
+''',
+'''    isEgg?: boolean;
+    isShadow?: boolean;
+    allowContextFallback?: boolean;
+} & Omit<SpriteImgProps, 'spriteInfos' | 'size'>;
+
+export const SpeciesImg: React.FC<SpeciesImgProps> = ({ species, context, form, isFemale, isShiny, isEgg, isShadow, allowContextFallback, ...imgProps }) => {
+''')
+replace_once(species_img,
+'''    const staticForms = staticData.species[ usedSpecies ]?.forms[ context ];
+
+    if (!staticForms?.[ form ])
+''',
+'''    const allForms = staticData.species[ usedSpecies ]?.forms;
+    const staticForms = allForms?.[ context ]
+        ?? (allowContextFallback
+            ? Object.values(allForms ?? {}).reverse().find(forms => forms?.[ form ] ?? forms?.[ 0 ])
+            : undefined);
+
+    if (!staticForms?.[ form ])
+''')
+
+storage_item = PKVAULT / "frontend/src/storage/item/storage-item.tsx"
+replace_once(storage_item,
+'''  & Pick<SpeciesImgProps, 'species' | 'context' | 'form' | 'isFemale' | 'isShiny' | 'isEgg' | 'isShadow'>;
+''',
+'''  & Pick<SpeciesImgProps, 'species' | 'context' | 'form' | 'isFemale' | 'isShiny' | 'isEgg' | 'isShadow' | 'allowContextFallback'>;
+''')
+replace_once(storage_item,
+'''  isShadow,
+
+  ...rest
+''',
+'''  isShadow,
+  allowContextFallback,
+
+  ...rest
+''')
+replace_once(storage_item,
+'''      <SpeciesImg species={species} context={context} form={form} isFemale={isFemale} isShiny={isShiny} isEgg={isEgg} isShadow={isShadow} />
+''',
+'''      <SpeciesImg species={species} context={context} form={form} isFemale={isFemale} isShiny={isShiny} isEgg={isEgg} isShadow={isShadow} allowContextFallback={allowContextFallback} />
+''')
+
+storage_main_item = PKVAULT / "frontend/src/storage/item/main/storage-main-item.tsx"
+replace_once(storage_main_item,
+'''                        'form', 'gender', 'isEgg', 'isAlpha', 'isShiny', 'nSparkle', 'isShadow', 'isExternal', 'heldItem',
+''',
+'''                        'form', 'gender', 'isEgg', 'isAlpha', 'isShiny', 'nSparkle', 'isShadow', 'isExternal', 'heldItem', 'romHackProfile',
+''')
+replace_once(storage_main_item,
+'''        const { id, species, nickname, level, boxSlot, contextVersion, context, form, gender, isEgg, isAlpha, isShiny, nSparkle, isShadow, isExternal, heldItem } = mainVariant;
+''',
+'''        const { id, species, nickname, level, boxSlot, contextVersion, context, form, gender, isEgg, isAlpha, isShiny, nSparkle, isShadow, isExternal, heldItem, romHackProfile } = mainVariant;
+''')
+replace_once(storage_main_item,
+'''            isShadow={isShadow}
+            name={nickname}
+''',
+'''            isShadow={isShadow}
+            allowContextFallback={!!romHackProfile}
+            name={nickname}
+''')
+
+storage_save_item = PKVAULT / "frontend/src/storage/item/save/storage-save-item.tsx"
+replace_once(storage_save_item,
+'''                    'canEvolve',
+''',
+'''                    'canEvolve', 'romHackProfile',
+''')
+replace_once(storage_save_item,
+'''        const { id, species, nickname, level, boxSlot, form, gender, contextVersion, isAlpha, isShiny, nSparkle, isEgg, isShadow, canEvolve } = savePkm;
+''',
+'''        const { id, species, nickname, level, boxSlot, form, gender, contextVersion, isAlpha, isShiny, nSparkle, isEgg, isShadow, canEvolve, romHackProfile } = savePkm;
+''')
+replace_once(storage_save_item,
+'''            isShadow={isShadow}
+            name={nickname}
+''',
+'''            isShadow={isShadow}
+            allowContextFallback={!!romHackProfile}
+            name={nickname}
+''')
+
+details_main = PKVAULT / "frontend/src/storage/details/details-main.tsx"
+replace_once(details_main,
+'''    const staticForms = staticData.species[ pkm.species ]?.forms[ pkm.context ];
+    const formObj = staticForms?.[ pkm.form ] ?? staticForms?.[ 0 ];
+''',
+'''    const allForms = staticData.species[ pkm.species ]?.forms;
+    const staticForms = allForms?.[ pkm.context ]
+        ?? (pkm.romHackProfile
+            ? Object.values(allForms ?? {}).reverse().find(forms => forms?.[ pkm.form ] ?? forms?.[ 0 ])
+            : undefined);
+    const formObj = staticForms?.[ pkm.form ] ?? staticForms?.[ 0 ];
+''')
+replace_once(details_main,
+'''        types={pkm.types.map(type => <TypeItem key={type} type={type} />)}
+''',
+'''        types={pkm.romHackTypes?.length
+            ? pkm.romHackTypes.map(type => <Badge key={type} variant='light' size='sm'>{type}</Badge>)
+            : pkm.types.map(type => <TypeItem key={type} type={type} />)}
+''')
+replace_once(details_main,
+'''            isEgg={pkm.isEgg}
+            isShadow={pkm.isShadow}
+        />
+''',
+'''            isEgg={pkm.isEgg}
+            isShadow={pkm.isShadow}
+            allowContextFallback={!!pkm.romHackProfile}
+        />
+''')
+
+pokedex_details = PKVAULT / "frontend/src/pokedex/details/pokedex-details.tsx"
+replace_once(pokedex_details,
+'''import { Grid, Group, Text } from '@mantine/core';
+''',
+'''import { Badge, Grid, Group, Text } from '@mantine/core';
+''')
+replace_once(pokedex_details,
+'''      types={selectedForm.types.map(type => <TypeItem key={type} type={type} />)}
+''',
+'''      types={selectedForm.romHackTypes?.length
+        ? selectedForm.romHackTypes.map(type => <Badge key={type} variant='light' size='sm'>{type}</Badge>)
+        : selectedForm.types.map(type => <TypeItem key={type} type={type} />)}
+''')
+replace_once(pokedex_details,
+'''        form={selectedForm.form}
+        isFemale={selectedForm.gender === GenderType.Female}
+''',
+'''        form={selectedForm.form}
+        allowContextFallback={!!selectedForm.romHackTypes?.length}
+        isFemale={selectedForm.gender === GenderType.Female}
+''')
+
+pokedex_items = PKVAULT / "frontend/src/pokedex/list/hooks/use-pokedex-items.ts"
+replace_once(pokedex_items,
+'''    isOwned?: boolean;
+    isOwnedShiny?: boolean;
+};
+''',
+'''    isOwned?: boolean;
+    isOwnedShiny?: boolean;
+    romHackTypes?: string[];
+};
+''')
+replace_once(pokedex_items,
+'''                    isOwned: oldGroup?.isOwned || form.isOwned,
+                    isOwnedShiny: oldGroup?.isOwnedShiny || form.isOwnedShiny,
+''',
+'''                    isOwned: oldGroup?.isOwned || form.isOwned,
+                    isOwnedShiny: oldGroup?.isOwnedShiny || form.isOwnedShiny,
+                    romHackTypes: oldGroup?.romHackTypes ?? form.romHackTypes,
+''')
+
+dex_form_item = PKVAULT / "frontend/src/pokedex/list/dex-item/dex-form-item.tsx"
+replace_once(dex_form_item,
+'''  isOwned,
+  isOwnedShiny,
+}) => {
+''',
+'''  isOwned,
+  isOwnedShiny,
+  romHackTypes,
+}) => {
+''')
+replace_once(dex_form_item,
+'''      form={form}
+      isFemale={genders[ 0 ] == GenderType.Female}
+''',
+'''      form={form}
+      allowContextFallback={!!romHackTypes?.length}
+      isFemale={genders[ 0 ] == GenderType.Female}
 ''')
 
 print("PKVault V8 TMT patch applied")
