@@ -122,9 +122,12 @@ export const TradingStoragePanel: React.FC = () => {
     }, [ queryClient ]);
 
     React.useEffect(() => {
-        void refresh();
+        const initial = window.setTimeout(() => void refresh(), 0);
         const timer = window.setInterval(() => void refresh(), 400);
-        return () => window.clearInterval(timer);
+        return () => {
+            window.clearTimeout(initial);
+            window.clearInterval(timer);
+        };
     }, [ refresh ]);
 
     const act = async (fn: () => Promise<TradeState>) => {
