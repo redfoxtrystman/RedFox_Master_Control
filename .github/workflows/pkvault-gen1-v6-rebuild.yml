@@ -273,8 +273,7 @@ jobs:
           // species has StaticSpecies.Forms[EntityContext.Gen3]. Later-gen TMT
           // species do not, so TMT must use DexTmtService and never index that
           // vanilla Gen3 form dictionary.
-          var dexSave = new SAV3E { DirectSpeciesIDs = true };
-          dexSave.Metadata.SetExtraInfo("TooManyTypes_PUBLIC_v1.6.sav");
+          var dexSave = new SAV3E { DirectSpeciesIDs = true, TID16 = 1234, SID16 = 5678 };
           var tmtDex = new DexTmtService(dexSave);
           var dex = new Dictionary<ushort, Dictionary<uint, DexItemDTO>>();
           await tmtDex.UpdateDexWithSave(dex, new StaticSpeciesData(), null);
