@@ -442,6 +442,32 @@ replace_once(swagger,
           "abilities": {
 ''')
 
+
+replace_once(swagger,
+'''          "savE_PATH_OVERRIDES": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "language": {
+            "type": "string"
+          }
+''',
+'''          "savE_PATH_OVERRIDES": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "language": {
+            "type": "string"
+          },
+          "tradeR_NAME": {
+            "type": "string"
+          }
+''')
+
 species_img = PKVAULT / "frontend/src/img/species-img.tsx"
 replace_once(species_img,
 '''    isEgg?: boolean;
@@ -593,7 +619,7 @@ replace_once(pokedex_items,
 ''',
 '''    isOwned?: boolean;
     isOwnedShiny?: boolean;
-    romHackTypes?: string[];
+    romHackTypes?: string[] | null;
 };
 ''')
 replace_once(pokedex_items,
