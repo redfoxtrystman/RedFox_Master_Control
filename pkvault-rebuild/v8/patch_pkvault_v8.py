@@ -1286,3 +1286,74 @@ replace_once(storage_item_ess,
         allowContextFallback={allowContextFallback} profileLocalSpecies={profileLocalSpecies} />
 ''')
 print("PKVault V8 alpha8 profileLocalSpecies wiring through StorageItem applied")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha10: make Essentials .rxdata support reachable from the Windows UI.
+# ---------------------------------------------------------------------------
+settings_service_v8 = PKVAULT / "PKVault.Core/settings/services/SettingsService.cs"
+replace_once(settings_service_v8,
+'''        var canUploadSaves = !isDesktop;
+        var canDeleteSaves = !isDesktop;
+''',
+'''        // V8: desktop users need the same direct save import path as web
+        // so Pokémon Uranium / Insurgence .rxdata files can be tested and used.
+        var canUploadSaves = true;
+        var canDeleteSaves = !isDesktop;
+''')
+
+replace_once(saves_essentials,
+'''        string[] globs = [
+            settings.SavesUploadsPath,
+            ..settings.SettingsMutable.SAVE_GLOBS
+        ];
+''',
+'''        // A directory path by itself is not a reliable file match. Scan the
+        // upload directory recursively so uploaded .rxdata saves are reloaded
+        // immediately after import.
+        var uploadsGlob = MatcherUtil.NormalizePath(Path.Combine(settings.SavesUploadsPath, "**/*"));
+        string[] globs = [
+            uploadsGlob,
+            ..settings.SettingsMutable.SAVE_GLOBS
+        ];
+''')
+
+save_infos_route_v8 = PKVAULT / "PKVault.Core/save-infos/routes/SaveInfosRoute.cs"
+replace_once(save_infos_route_v8,
+'''        List<string> savePaths = [];
+''',
+'''        List<string> savePaths = [];
+        List<byte[]> bufferedFiles = [];
+''')
+replace_once(save_infos_route_v8,
+'''            var save = await savesLoadersService.CheckSaveData(fileBytes, filename, overwrite);
+            ArgumentException.ThrowIfNullOrWhiteSpace(save.Metadata.FilePath);
+''',
+'''            bufferedFiles.Add(fileBytes);
+
+            var save = await savesLoadersService.CheckSaveData(fileBytes, filename, overwrite);
+            ArgumentException.ThrowIfNullOrWhiteSpace(save.Metadata.FilePath);
+''')
+replace_once(save_infos_route_v8,
+'''        for (var i = 0; i < saveFiles.Length; i++)
+        {
+            var saveFile = saveFiles[i];
+            var savePath = savePaths[i];
+
+            byte[] fileBytes;
+            using (var ms = new MemoryStream())
+            {
+                await saveFile.Stream.CopyToAsync(ms);
+                fileBytes = ms.ToArray();
+            }
+
+            await savesLoadersService.UploadSaveWithoutCheck(savePath, fileBytes);
+        }
+''',
+'''        for (var i = 0; i < bufferedFiles.Count; i++)
+        {
+            await savesLoadersService.UploadSaveWithoutCheck(savePaths[i], bufferedFiles[i]);
+        }
+''')
+
+print("PKVault V8 alpha10 Essentials desktop rxdata import plumbing applied")
