@@ -53,15 +53,25 @@ public static class TooManyTypesCompat
 
     private static bool IsExpandedTmtRecord(PK3 pkm)
     {
-        if (pkm.SpeciesInternal > LegalMaxVanillaGen3Species &&
+        // IMPORTANT: vanilla Gen 3's *internal* species IDs are not National
+        // Dex IDs above 251. For example Blaziken #257 is stored as raw 282,
+        // and Chimecho #358 is raw 411. Treating "raw > 386" as proof of a
+        // ROM hack therefore false-detects perfectly valid Emerald saves.
+        //
+        // A raw species above 411 cannot be a legal vanilla Gen-3 internal ID.
+        // Only then is the raw species itself strong enough to identify TMT.
+        if (pkm.SpeciesInternal > HighestValidVanillaGen3InternalSpecies &&
             TooManyTypesProfileGenerated.TryGetRaw(pkm.SpeciesInternal, out _))
             return true;
 
+        // Vanilla Emerald has moves 1..354. TMT/expansion move IDs above that
+        // are also unambiguous evidence that this save is not stock Emerald.
         return pkm.Move1 > VanillaGen3MaxMove || pkm.Move2 > VanillaGen3MaxMove ||
                pkm.Move3 > VanillaGen3MaxMove || pkm.Move4 > VanillaGen3MaxMove;
     }
 
     private const ushort LegalMaxVanillaGen3Species = 386;
+    private const ushort HighestValidVanillaGen3InternalSpecies = 411;
 
     public static TmtSpeciesEntry RequireSupported(ushort species, byte form)
     {
