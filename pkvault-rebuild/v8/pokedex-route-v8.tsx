@@ -1,0 +1,47 @@
+import { createFileRoute, retainSearchParams } from "@tanstack/react-router";
+import { fallback } from "@tanstack/zod-adapter";
+import z from "zod";
+import { PokedexPage } from '../pages/pokedex';
+import type { DetailsExpandedState } from './storage';
+
+const searchSchema = z.object({
+  selected: z.number().optional(),
+  selectedSaveId: z.number().optional(),
+  dexProfile: z.enum([ 'tmt' ] as const).optional(),
+  selectExpanded: z.enum([ 'none', 'expanded' ] as const satisfies DetailsExpandedState[]).optional(),
+  filterSpeciesName: z.string().optional(),
+  filterTypes: z.array(z.number()).optional(),
+  filterSeen: z.boolean().optional(),
+  filterCaught: z.boolean().optional(),
+  filterOwned: z.boolean().optional(),
+  filterOwnedShiny: z.boolean().optional(),
+  filterAlpha: z.boolean().optional(),
+  filterFromGames: z.array(z.number()).optional(),
+  filterGenerations: z.array(z.number()).optional(),
+  showForms: z.boolean().optional(),
+  showGenders: z.boolean().optional(),
+});
+
+export const Route = createFileRoute("/pokedex")({
+  component: PokedexPage,
+  validateSearch: fallback(searchSchema, {
+    selected: undefined,
+    selectedSaveId: undefined,
+    dexProfile: undefined,
+    selectExpanded: undefined,
+    filterSpeciesName: undefined,
+    filterTypes: undefined,
+    filterSeen: undefined,
+    filterCaught: undefined,
+    filterOwned: undefined,
+    filterOwnedShiny: undefined,
+    filterAlpha: undefined,
+    filterFromGames: undefined,
+    filterGenerations: undefined,
+    showForms: undefined,
+    showGenders: undefined,
+  }),
+  search: {
+    middlewares: [ retainSearchParams(true) ],
+  }
+});
