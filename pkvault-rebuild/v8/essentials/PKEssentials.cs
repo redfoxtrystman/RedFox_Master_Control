@@ -75,7 +75,7 @@ public sealed class PKEssentials : PKM
         PID = p.PID;
         EXP = p.EXP;
         Gender = p.Gender;
-        Nature = (Nature)Math.Clamp(p.Nature, 0, 24);
+        Nature = (Nature)Math.Clamp((int)p.Nature, 0, 24);
         HeldItem = p.HeldItem;
         Ability = p.Ability;
         AbilityNumber = p.AbilityNumber;
