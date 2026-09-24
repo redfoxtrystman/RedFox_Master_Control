@@ -137,8 +137,8 @@ replace_once(sav3,
     public sealed override PK3 BlankPKM => new() { DirectSpeciesIDs = DirectSpeciesIDs };
     public sealed override Type PKMType => typeof(PK3);
 
-    public sealed override ushort MaxMoveID => DirectSpeciesIDs ? Gen3DirectSpecies.MaxDirectMove : Legal.MaxMoveID_3;
-    public sealed override ushort MaxSpeciesID => DirectSpeciesIDs ? Gen3DirectSpecies.MaxBaseSpecies : Legal.MaxSpeciesID_3;
+    public sealed override ushort MaxMoveID => (ushort)(DirectSpeciesIDs ? Gen3DirectSpecies.MaxDirectMove : Legal.MaxMoveID_3);
+    public sealed override ushort MaxSpeciesID => (ushort)(DirectSpeciesIDs ? Gen3DirectSpecies.MaxBaseSpecies : Legal.MaxSpeciesID_3);
 ''')
 replace_once(sav3,
 '''    public sealed override bool IsPKMPresent(ReadOnlySpan<byte> data) => EntityDetection.IsPresentGBA(data);
