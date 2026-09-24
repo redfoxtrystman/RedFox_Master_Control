@@ -330,7 +330,7 @@ export const usePokedexItems = (): PokedexItems => {
 
     const speciesItemsByGenerationList = [
         ...canonicalSections.filter(section => section.generation <= 3),
-        ...tmtSection ? [ tmtSection ] : [],
+        ...(tmtSection ? [ tmtSection ] : []),
         ...canonicalSections.filter(section => section.generation > 3),
     ];
 
