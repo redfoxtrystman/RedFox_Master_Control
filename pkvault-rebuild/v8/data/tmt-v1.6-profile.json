@@ -1,0 +1,3650 @@
+{
+  "schemaVersion": 1,
+  "profileId": "too-many-types-v1.6",
+  "displayName": "Pokémon Too Many Types",
+  "version": "1.6",
+  "baseGame": "Pokémon Emerald",
+  "entityContext": "Gen3",
+  "romSha256": "0c31f9415c7bca12f4ecfc215c3521f400f5f992104b130a8fba5c04bbfb232b",
+  "bpsSha256": "e743bcfa632f6a45c00abc39a76e7f2e391f7241e6f581eced59423b899efb3d",
+  "bpsTargetCrc32": "E91FEF2D",
+  "rosterSource": "Too Many Types Spreadsheet - Dex - 2023-09-18 plus V1.6 Mega Metagross roster entry",
+  "pokeemeraldExpansionReferenceCommit": "8a1f166f5d792b1ade2cef94b4f8f4c915c8a5bb",
+  "entries": [
+    {
+      "displayName": "Chikorita",
+      "nationalSpecies": 152,
+      "modernForm": 0,
+      "internalSpecies": 152,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Bean"
+      ],
+      "availability": "Starter"
+    },
+    {
+      "displayName": "Bayleef",
+      "nationalSpecies": 153,
+      "modernForm": 0,
+      "internalSpecies": 153,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Bean"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Meganium",
+      "nationalSpecies": 154,
+      "modernForm": 0,
+      "internalSpecies": 154,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Bean",
+        "Fairy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Fennekin",
+      "nationalSpecies": 653,
+      "modernForm": 0,
+      "internalSpecies": 653,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Magic"
+      ],
+      "availability": "Starter"
+    },
+    {
+      "displayName": "Braixen",
+      "nationalSpecies": 654,
+      "modernForm": 0,
+      "internalSpecies": 654,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Magic",
+        "Furry"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Delphox",
+      "nationalSpecies": 655,
+      "modernForm": 0,
+      "internalSpecies": 655,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Magic",
+        "Furry"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Popplio",
+      "nationalSpecies": 728,
+      "modernForm": 0,
+      "internalSpecies": 728,
+      "formName": null,
+      "types": [
+        "Water",
+        "Silly"
+      ],
+      "availability": "Starter"
+    },
+    {
+      "displayName": "Brionne",
+      "nationalSpecies": 729,
+      "modernForm": 0,
+      "internalSpecies": 729,
+      "formName": null,
+      "types": [
+        "Water",
+        "Silly"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Primarina",
+      "nationalSpecies": 730,
+      "modernForm": 0,
+      "internalSpecies": 730,
+      "formName": null,
+      "types": [
+        "Water",
+        "Silly",
+        "Song"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Sentret",
+      "nationalSpecies": 161,
+      "modernForm": 0,
+      "internalSpecies": 161,
+      "formName": null,
+      "types": [
+        "Normal",
+        "Fluffy"
+      ],
+      "availability": "Route 101"
+    },
+    {
+      "displayName": "Furret",
+      "nationalSpecies": 162,
+      "modernForm": 0,
+      "internalSpecies": 162,
+      "formName": null,
+      "types": [
+        "Friend",
+        "Fluffy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Pidove",
+      "nationalSpecies": 519,
+      "modernForm": 0,
+      "internalSpecies": 519,
+      "formName": null,
+      "types": [
+        "Boring",
+        "Flying"
+      ],
+      "availability": "Route 101"
+    },
+    {
+      "displayName": "Tranquill",
+      "nationalSpecies": 520,
+      "modernForm": 0,
+      "internalSpecies": 520,
+      "formName": null,
+      "types": [
+        "Boring",
+        "Flying"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Unfezant",
+      "nationalSpecies": 521,
+      "modernForm": 0,
+      "internalSpecies": 521,
+      "formName": null,
+      "types": [
+        "Boring",
+        "Flying"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Rattata",
+      "nationalSpecies": 19,
+      "modernForm": 0,
+      "internalSpecies": 19,
+      "formName": null,
+      "types": [
+        "Boring"
+      ],
+      "availability": "Route 101"
+    },
+    {
+      "displayName": "Raticate",
+      "nationalSpecies": 20,
+      "modernForm": 0,
+      "internalSpecies": 20,
+      "formName": null,
+      "types": [
+        "Boring"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Poochyena",
+      "nationalSpecies": 261,
+      "modernForm": 0,
+      "internalSpecies": 261,
+      "formName": null,
+      "types": [
+        "Angy"
+      ],
+      "availability": "Route 101"
+    },
+    {
+      "displayName": "Mightyena",
+      "nationalSpecies": 262,
+      "modernForm": 0,
+      "internalSpecies": 262,
+      "formName": null,
+      "types": [
+        "Angy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Lotad",
+      "nationalSpecies": 270,
+      "modernForm": 0,
+      "internalSpecies": 270,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Vibe"
+      ],
+      "availability": "Route 102"
+    },
+    {
+      "displayName": "Lombre",
+      "nationalSpecies": 271,
+      "modernForm": 0,
+      "internalSpecies": 271,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Water",
+        "Vibe"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Ludicolo",
+      "nationalSpecies": 272,
+      "modernForm": 0,
+      "internalSpecies": 272,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Water",
+        "Dance"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Ralts",
+      "nationalSpecies": 280,
+      "modernForm": 0,
+      "internalSpecies": 280,
+      "formName": null,
+      "types": [
+        "Space",
+        "Fairy"
+      ],
+      "availability": "Route 102"
+    },
+    {
+      "displayName": "Kirlia",
+      "nationalSpecies": 281,
+      "modernForm": 0,
+      "internalSpecies": 281,
+      "formName": null,
+      "types": [
+        "Space",
+        "Fairy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Gardevoir",
+      "nationalSpecies": 282,
+      "modernForm": 0,
+      "internalSpecies": 282,
+      "formName": null,
+      "types": [
+        "Space",
+        "Fairy",
+        "Gender"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Gallade",
+      "nationalSpecies": 475,
+      "modernForm": 0,
+      "internalSpecies": 475,
+      "formName": null,
+      "types": [
+        "Bad",
+        "Sharp",
+        "Gender"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Krabby",
+      "nationalSpecies": 98,
+      "modernForm": 0,
+      "internalSpecies": 98,
+      "formName": null,
+      "types": [
+        "Crab"
+      ],
+      "availability": "Route 103"
+    },
+    {
+      "displayName": "Kingler",
+      "nationalSpecies": 99,
+      "modernForm": 0,
+      "internalSpecies": 99,
+      "formName": null,
+      "types": [
+        "Crab"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Cottonee",
+      "nationalSpecies": 546,
+      "modernForm": 0,
+      "internalSpecies": 546,
+      "formName": null,
+      "types": [
+        "Fluffy"
+      ],
+      "availability": "Petalburg Woods"
+    },
+    {
+      "displayName": "Whimsicott",
+      "nationalSpecies": 547,
+      "modernForm": 0,
+      "internalSpecies": 547,
+      "formName": null,
+      "types": [
+        "Fluffy",
+        "Prime"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Kricketot",
+      "nationalSpecies": 401,
+      "modernForm": 0,
+      "internalSpecies": 401,
+      "formName": null,
+      "types": [
+        "Bug",
+        "Song"
+      ],
+      "availability": "Route 104"
+    },
+    {
+      "displayName": "Kricketune",
+      "nationalSpecies": 402,
+      "modernForm": 0,
+      "internalSpecies": 402,
+      "formName": null,
+      "types": [
+        "Bug",
+        "Song"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Azurill",
+      "nationalSpecies": 298,
+      "modernForm": 0,
+      "internalSpecies": 298,
+      "formName": null,
+      "types": [
+        "Normal",
+        "Gender",
+        "Baby"
+      ],
+      "availability": "Route 104"
+    },
+    {
+      "displayName": "Marill",
+      "nationalSpecies": 183,
+      "modernForm": 0,
+      "internalSpecies": 183,
+      "formName": null,
+      "types": [
+        "Water",
+        "Gender"
+      ],
+      "availability": "Route 104"
+    },
+    {
+      "displayName": "Azumarill",
+      "nationalSpecies": 184,
+      "modernForm": 0,
+      "internalSpecies": 184,
+      "formName": null,
+      "types": [
+        "Water",
+        "Gender"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Slakoth",
+      "nationalSpecies": 287,
+      "modernForm": 0,
+      "internalSpecies": 287,
+      "formName": null,
+      "types": [
+        "Boring",
+        "Stinky"
+      ],
+      "availability": "Petalburg Woods"
+    },
+    {
+      "displayName": "Vigoroth",
+      "nationalSpecies": 288,
+      "modernForm": 0,
+      "internalSpecies": 288,
+      "formName": null,
+      "types": [
+        "Angy",
+        "Stinky"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Slaking",
+      "nationalSpecies": 289,
+      "modernForm": 0,
+      "internalSpecies": 289,
+      "formName": null,
+      "types": [
+        "Boring",
+        "Stinky"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Pichu",
+      "nationalSpecies": 172,
+      "modernForm": 0,
+      "internalSpecies": 172,
+      "formName": null,
+      "types": [
+        "Electric",
+        "Little",
+        "Baby"
+      ],
+      "availability": "Petalburg Woods"
+    },
+    {
+      "displayName": "Pikachu",
+      "nationalSpecies": 25,
+      "modernForm": 0,
+      "internalSpecies": 25,
+      "formName": null,
+      "types": [
+        "Pikachu"
+      ],
+      "availability": "Route 117"
+    },
+    {
+      "displayName": "Raichu",
+      "nationalSpecies": 26,
+      "modernForm": 0,
+      "internalSpecies": 26,
+      "formName": null,
+      "types": [
+        "Electric",
+        "Zoomer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Whismur",
+      "nationalSpecies": 293,
+      "modernForm": 0,
+      "internalSpecies": 293,
+      "formName": null,
+      "types": [
+        "Song"
+      ],
+      "availability": "Route 116"
+    },
+    {
+      "displayName": "Loudred",
+      "nationalSpecies": 294,
+      "modernForm": 0,
+      "internalSpecies": 294,
+      "formName": null,
+      "types": [
+        "Song",
+        "Ugly"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Exploud",
+      "nationalSpecies": 295,
+      "modernForm": 0,
+      "internalSpecies": 295,
+      "formName": null,
+      "types": [
+        "Song",
+        "Ugly",
+        "Angy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Budew",
+      "nationalSpecies": 406,
+      "modernForm": 0,
+      "internalSpecies": 406,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Poison",
+        "Baby"
+      ],
+      "availability": "Route 116"
+    },
+    {
+      "displayName": "Roselia",
+      "nationalSpecies": 315,
+      "modernForm": 0,
+      "internalSpecies": 315,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Poison",
+        "Gender"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Roserade",
+      "nationalSpecies": 407,
+      "modernForm": 0,
+      "internalSpecies": 407,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Poison",
+        "Gender"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Happiny",
+      "nationalSpecies": 440,
+      "modernForm": 0,
+      "internalSpecies": 440,
+      "formName": null,
+      "types": [
+        "Baby",
+        "Friend"
+      ],
+      "availability": "Route 116"
+    },
+    {
+      "displayName": "Chansey",
+      "nationalSpecies": 113,
+      "modernForm": 0,
+      "internalSpecies": 113,
+      "formName": null,
+      "types": [
+        "Friend"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Blissey",
+      "nationalSpecies": 242,
+      "modernForm": 0,
+      "internalSpecies": 242,
+      "formName": null,
+      "types": [
+        "Friend"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Stunky",
+      "nationalSpecies": 434,
+      "modernForm": 0,
+      "internalSpecies": 434,
+      "formName": null,
+      "types": [
+        "Stinky"
+      ],
+      "availability": "Route 116"
+    },
+    {
+      "displayName": "Skuntank",
+      "nationalSpecies": 435,
+      "modernForm": 0,
+      "internalSpecies": 435,
+      "formName": null,
+      "types": [
+        "Stinky",
+        "Angy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Vulpix",
+      "nationalSpecies": 37,
+      "modernForm": 0,
+      "internalSpecies": 37,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Fluffy"
+      ],
+      "availability": "Route 116"
+    },
+    {
+      "displayName": "Ninetales",
+      "nationalSpecies": 38,
+      "modernForm": 0,
+      "internalSpecies": 38,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Fluffy",
+        "Dream"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Magikarp",
+      "nationalSpecies": 129,
+      "modernForm": 0,
+      "internalSpecies": 129,
+      "formName": null,
+      "types": [
+        "Water",
+        "Ugly"
+      ],
+      "availability": "Old Rod"
+    },
+    {
+      "displayName": "Gyarados",
+      "nationalSpecies": 130,
+      "modernForm": 0,
+      "internalSpecies": 130,
+      "formName": null,
+      "types": [
+        "Water",
+        "Angy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Geodude",
+      "nationalSpecies": 74,
+      "modernForm": 0,
+      "internalSpecies": 74,
+      "formName": null,
+      "types": [
+        "Boring",
+        "Ugly",
+        "Rock"
+      ],
+      "availability": "Granite Cave"
+    },
+    {
+      "displayName": "Graveler",
+      "nationalSpecies": 75,
+      "modernForm": 0,
+      "internalSpecies": 75,
+      "formName": null,
+      "types": [
+        "Crab",
+        "Rock"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Golem",
+      "nationalSpecies": 76,
+      "modernForm": 0,
+      "internalSpecies": 76,
+      "formName": null,
+      "types": [
+        "Boring",
+        "Ugly",
+        "Rock"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Lileep",
+      "nationalSpecies": 345,
+      "modernForm": 0,
+      "internalSpecies": 345,
+      "formName": null,
+      "types": [
+        "Sus",
+        "Grass",
+        "Ancient"
+      ],
+      "availability": "Safari Zone"
+    },
+    {
+      "displayName": "Cradily",
+      "nationalSpecies": 346,
+      "modernForm": 0,
+      "internalSpecies": 346,
+      "formName": null,
+      "types": [
+        "Sus",
+        "Grass",
+        "Ancient"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Anorith",
+      "nationalSpecies": 347,
+      "modernForm": 0,
+      "internalSpecies": 347,
+      "formName": null,
+      "types": [
+        "Sharp",
+        "Bug",
+        "Ancient"
+      ],
+      "availability": "Safari Zone"
+    },
+    {
+      "displayName": "Armoldo",
+      "nationalSpecies": 348,
+      "modernForm": 0,
+      "internalSpecies": 348,
+      "formName": null,
+      "types": [
+        "Sharp",
+        "Bug",
+        "Ancient"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Baltoy",
+      "nationalSpecies": 343,
+      "modernForm": 0,
+      "internalSpecies": 343,
+      "formName": null,
+      "types": [
+        "Ancient",
+        "Psychic"
+      ],
+      "availability": "Route 111"
+    },
+    {
+      "displayName": "Claydol",
+      "nationalSpecies": 344,
+      "modernForm": 0,
+      "internalSpecies": 344,
+      "formName": null,
+      "types": [
+        "Ancient",
+        "Psychic"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Mankey",
+      "nationalSpecies": 56,
+      "modernForm": 0,
+      "internalSpecies": 56,
+      "formName": null,
+      "types": [
+        "Monke",
+        "Angy"
+      ],
+      "availability": "Granite Cave"
+    },
+    {
+      "displayName": "Primeape",
+      "nationalSpecies": 57,
+      "modernForm": 0,
+      "internalSpecies": 57,
+      "formName": null,
+      "types": [
+        "Monke",
+        "Angy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Klink",
+      "nationalSpecies": 599,
+      "modernForm": 0,
+      "internalSpecies": 599,
+      "formName": null,
+      "types": [
+        "Steel",
+        "Guys",
+        "Prime"
+      ],
+      "availability": "Granite Cave"
+    },
+    {
+      "displayName": "Klang",
+      "nationalSpecies": 600,
+      "modernForm": 0,
+      "internalSpecies": 600,
+      "formName": null,
+      "types": [
+        "Steel",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Klinklang",
+      "nationalSpecies": 601,
+      "modernForm": 0,
+      "internalSpecies": 601,
+      "formName": null,
+      "types": [
+        "Steel",
+        "Guys",
+        "Prime"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Bonsly",
+      "nationalSpecies": 438,
+      "modernForm": 0,
+      "internalSpecies": 438,
+      "formName": null,
+      "types": [
+        "Baby",
+        "Sus"
+      ],
+      "availability": "Granite Cave"
+    },
+    {
+      "displayName": "Sudowoodo",
+      "nationalSpecies": 185,
+      "modernForm": 0,
+      "internalSpecies": 185,
+      "formName": null,
+      "types": [
+        "Sus",
+        "Rock",
+        "Furry"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Sableye",
+      "nationalSpecies": 302,
+      "modernForm": 0,
+      "internalSpecies": 302,
+      "formName": null,
+      "types": [
+        "Gamer"
+      ],
+      "availability": "Granite Cave"
+    },
+    {
+      "displayName": "Riolu",
+      "nationalSpecies": 447,
+      "modernForm": 0,
+      "internalSpecies": 447,
+      "formName": null,
+      "types": [
+        "Fighting",
+        "Vibe",
+        "Friend"
+      ],
+      "availability": "Route 110"
+    },
+    {
+      "displayName": "Lucario",
+      "nationalSpecies": 448,
+      "modernForm": 0,
+      "internalSpecies": 448,
+      "formName": null,
+      "types": [
+        "Fighting",
+        "Vibe",
+        "Furry"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Gulpin",
+      "nationalSpecies": 316,
+      "modernForm": 0,
+      "internalSpecies": 316,
+      "formName": null,
+      "types": [
+        "Deez Nuts"
+      ],
+      "availability": "Route 110"
+    },
+    {
+      "displayName": "Swalot",
+      "nationalSpecies": 317,
+      "modernForm": 0,
+      "internalSpecies": 317,
+      "formName": null,
+      "types": [
+        "Deez Nuts"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Stufful",
+      "nationalSpecies": 759,
+      "modernForm": 0,
+      "internalSpecies": 759,
+      "formName": null,
+      "types": [
+        "Little",
+        "Fluffy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Bewear",
+      "nationalSpecies": 760,
+      "modernForm": 0,
+      "internalSpecies": 760,
+      "formName": null,
+      "types": [
+        "Fluffy",
+        "Gamer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Buizel",
+      "nationalSpecies": 418,
+      "modernForm": 0,
+      "internalSpecies": 418,
+      "formName": null,
+      "types": [
+        "Water",
+        "Fluffy"
+      ],
+      "availability": "Route 110"
+    },
+    {
+      "displayName": "Floatzel",
+      "nationalSpecies": 419,
+      "modernForm": 0,
+      "internalSpecies": 419,
+      "formName": null,
+      "types": [
+        "Water",
+        "Fluffy",
+        "Furry"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Sandshrew",
+      "nationalSpecies": 27,
+      "modernForm": 0,
+      "internalSpecies": 27,
+      "formName": null,
+      "types": [
+        "Ground",
+        "Friend"
+      ],
+      "availability": "Route 110"
+    },
+    {
+      "displayName": "Sandslash",
+      "nationalSpecies": 28,
+      "modernForm": 0,
+      "internalSpecies": 28,
+      "formName": null,
+      "types": [
+        "Ground",
+        "Sharp"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Mime Jr.",
+      "nationalSpecies": 439,
+      "modernForm": 0,
+      "internalSpecies": 439,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Little",
+        "Baby"
+      ],
+      "availability": "Route 117"
+    },
+    {
+      "displayName": "Mr. Mime",
+      "nationalSpecies": 122,
+      "modernForm": 0,
+      "internalSpecies": 122,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Psychic"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Mr. Rime",
+      "nationalSpecies": 866,
+      "modernForm": 0,
+      "internalSpecies": 866,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Ice"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Aipom",
+      "nationalSpecies": 190,
+      "modernForm": 0,
+      "internalSpecies": 190,
+      "formName": null,
+      "types": [
+        "Monke"
+      ],
+      "availability": "Route 117"
+    },
+    {
+      "displayName": "Ambipom",
+      "nationalSpecies": 424,
+      "modernForm": 0,
+      "internalSpecies": 424,
+      "formName": null,
+      "types": [
+        "Monke",
+        "Crab"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Slowpoke",
+      "nationalSpecies": 79,
+      "modernForm": 0,
+      "internalSpecies": 79,
+      "formName": null,
+      "types": [
+        "Water",
+        "Vibe"
+      ],
+      "availability": "Route 117"
+    },
+    {
+      "displayName": "Slowbro",
+      "nationalSpecies": 80,
+      "modernForm": 0,
+      "internalSpecies": 80,
+      "formName": null,
+      "types": [
+        "Water",
+        "Vibe"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Slowking",
+      "nationalSpecies": 199,
+      "modernForm": 0,
+      "internalSpecies": 199,
+      "formName": null,
+      "types": [
+        "Water",
+        "Psychic",
+        "Vibe"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Growlithe",
+      "nationalSpecies": 58,
+      "modernForm": 0,
+      "internalSpecies": 58,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Friend"
+      ],
+      "availability": "Route 117"
+    },
+    {
+      "displayName": "Aranine",
+      "nationalSpecies": 59,
+      "modernForm": 0,
+      "internalSpecies": 59,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Friend"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Doduo",
+      "nationalSpecies": 84,
+      "modernForm": 0,
+      "internalSpecies": 84,
+      "formName": null,
+      "types": [
+        "Normal",
+        "Flying",
+        "Guys"
+      ],
+      "availability": "Route 117"
+    },
+    {
+      "displayName": "Dodrio",
+      "nationalSpecies": 85,
+      "modernForm": 0,
+      "internalSpecies": 85,
+      "formName": null,
+      "types": [
+        "Normal",
+        "Flying",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Eevee",
+      "nationalSpecies": 133,
+      "modernForm": 0,
+      "internalSpecies": 133,
+      "formName": null,
+      "types": [
+        "Normal",
+        "Fluffy"
+      ],
+      "availability": "Route 117"
+    },
+    {
+      "displayName": "Vaporeon",
+      "nationalSpecies": 134,
+      "modernForm": 0,
+      "internalSpecies": 134,
+      "formName": null,
+      "types": [
+        "Water",
+        "Liquid",
+        "Furry"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Jolteon",
+      "nationalSpecies": 135,
+      "modernForm": 0,
+      "internalSpecies": 135,
+      "formName": null,
+      "types": [
+        "Electric",
+        "Sharp"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Flareon",
+      "nationalSpecies": 136,
+      "modernForm": 0,
+      "internalSpecies": 136,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Fluffy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Espeon",
+      "nationalSpecies": 196,
+      "modernForm": 0,
+      "internalSpecies": 196,
+      "formName": null,
+      "types": [
+        "Psychic",
+        "Space"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Umbreon",
+      "nationalSpecies": 197,
+      "modernForm": 0,
+      "internalSpecies": 197,
+      "formName": null,
+      "types": [
+        "Dark",
+        "Space"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Leafeon",
+      "nationalSpecies": 470,
+      "modernForm": 0,
+      "internalSpecies": 470,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Vibe"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Glaceon",
+      "nationalSpecies": 471,
+      "modernForm": 0,
+      "internalSpecies": 471,
+      "formName": null,
+      "types": [
+        "Ice",
+        "Magic"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Sylveon",
+      "nationalSpecies": 700,
+      "modernForm": 0,
+      "internalSpecies": 700,
+      "formName": null,
+      "types": [
+        "Fairy",
+        "Gender"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Girafarig",
+      "nationalSpecies": 203,
+      "modernForm": 0,
+      "internalSpecies": 203,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Psychic",
+        "Guys"
+      ],
+      "availability": "Route 112"
+    },
+    {
+      "displayName": "Stantler",
+      "nationalSpecies": 234,
+      "modernForm": 0,
+      "internalSpecies": 234,
+      "formName": null,
+      "types": [
+        "Boring",
+        "Ugly"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Buneary",
+      "nationalSpecies": 427,
+      "modernForm": 0,
+      "internalSpecies": 427,
+      "formName": null,
+      "types": [
+        "Fluffy"
+      ],
+      "availability": "Route 112"
+    },
+    {
+      "displayName": "Lopunny",
+      "nationalSpecies": 428,
+      "modernForm": 0,
+      "internalSpecies": 428,
+      "formName": null,
+      "types": [
+        "Fluffy",
+        "Furry"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Slugma",
+      "nationalSpecies": 218,
+      "modernForm": 0,
+      "internalSpecies": 218,
+      "formName": null,
+      "types": [
+        "Liquid",
+        "Deez Nuts"
+      ],
+      "availability": "Route 112"
+    },
+    {
+      "displayName": "Magcargo",
+      "nationalSpecies": 219,
+      "modernForm": 0,
+      "internalSpecies": 219,
+      "formName": null,
+      "types": [
+        "Liquid",
+        "Fire",
+        "Rock"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Dunsparce",
+      "nationalSpecies": 206,
+      "modernForm": 0,
+      "internalSpecies": 206,
+      "formName": null,
+      "types": [
+        "Boring",
+        "Silly"
+      ],
+      "availability": "Route 112"
+    },
+    {
+      "displayName": "Magby",
+      "nationalSpecies": 240,
+      "modernForm": 0,
+      "internalSpecies": 240,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Baby"
+      ],
+      "availability": "Route 112"
+    },
+    {
+      "displayName": "Magmar",
+      "nationalSpecies": 126,
+      "modernForm": 0,
+      "internalSpecies": 126,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Zoomer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Magmortar",
+      "nationalSpecies": 467,
+      "modernForm": 0,
+      "internalSpecies": 467,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Left",
+        "Gun"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Machop",
+      "nationalSpecies": 66,
+      "modernForm": 0,
+      "internalSpecies": 66,
+      "formName": null,
+      "types": [
+        "Fighting",
+        "Stinky"
+      ],
+      "availability": "Stinky Path"
+    },
+    {
+      "displayName": "Machoke",
+      "nationalSpecies": 67,
+      "modernForm": 0,
+      "internalSpecies": 67,
+      "formName": null,
+      "types": [
+        "Fighting",
+        "Stinky"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Machamp",
+      "nationalSpecies": 68,
+      "modernForm": 0,
+      "internalSpecies": 68,
+      "formName": null,
+      "types": [
+        "Fighting",
+        "Crab"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Diglett",
+      "nationalSpecies": 50,
+      "modernForm": 0,
+      "internalSpecies": 50,
+      "formName": null,
+      "types": [
+        "Smash"
+      ],
+      "availability": "Stinky Path"
+    },
+    {
+      "displayName": "Dugtrio",
+      "nationalSpecies": 51,
+      "modernForm": 0,
+      "internalSpecies": 51,
+      "formName": null,
+      "types": [
+        "Smash",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Koffing",
+      "nationalSpecies": 109,
+      "modernForm": 0,
+      "internalSpecies": 109,
+      "formName": null,
+      "types": [
+        "Poison",
+        "Stinky"
+      ],
+      "availability": "Stinky Path"
+    },
+    {
+      "displayName": "Weezing",
+      "nationalSpecies": 110,
+      "modernForm": 0,
+      "internalSpecies": 110,
+      "formName": null,
+      "types": [
+        "Poison",
+        "Stinky",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Grimer",
+      "nationalSpecies": 88,
+      "modernForm": 0,
+      "internalSpecies": 88,
+      "formName": null,
+      "types": [
+        "Liquid",
+        "Poison"
+      ],
+      "availability": "Stinky Path"
+    },
+    {
+      "displayName": "Muk",
+      "nationalSpecies": 89,
+      "modernForm": 0,
+      "internalSpecies": 89,
+      "formName": null,
+      "types": [
+        "Liquid",
+        "Poison"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Throh",
+      "nationalSpecies": 538,
+      "modernForm": 0,
+      "internalSpecies": 538,
+      "formName": null,
+      "types": [
+        "Fighting",
+        "Stinky"
+      ],
+      "availability": "Stinky Path"
+    },
+    {
+      "displayName": "Sawk",
+      "nationalSpecies": 539,
+      "modernForm": 0,
+      "internalSpecies": 539,
+      "formName": null,
+      "types": [
+        "Fighting",
+        "Deez Nuts"
+      ],
+      "availability": "Stinky Path"
+    },
+    {
+      "displayName": "Spinda",
+      "nationalSpecies": 327,
+      "modernForm": 0,
+      "internalSpecies": 327,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Dance",
+        "Friend"
+      ],
+      "availability": "Route 113"
+    },
+    {
+      "displayName": "Skarmory",
+      "nationalSpecies": 227,
+      "modernForm": 0,
+      "internalSpecies": 227,
+      "formName": null,
+      "types": [
+        "Bad",
+        "Sharp",
+        "Flying"
+      ],
+      "availability": "Route 113"
+    },
+    {
+      "displayName": "Axew",
+      "nationalSpecies": 610,
+      "modernForm": 0,
+      "internalSpecies": 610,
+      "formName": null,
+      "types": [
+        "Dragon"
+      ],
+      "availability": "Route 113"
+    },
+    {
+      "displayName": "Fraxure",
+      "nationalSpecies": 611,
+      "modernForm": 0,
+      "internalSpecies": 611,
+      "formName": null,
+      "types": [
+        "Bad",
+        "Dragon"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Haxorus",
+      "nationalSpecies": 612,
+      "modernForm": 0,
+      "internalSpecies": 612,
+      "formName": null,
+      "types": [
+        "Bad",
+        "Dragon"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Elekid",
+      "nationalSpecies": 239,
+      "modernForm": 0,
+      "internalSpecies": 239,
+      "formName": null,
+      "types": [
+        "Electric",
+        "Baby"
+      ],
+      "availability": "Route 113"
+    },
+    {
+      "displayName": "Electabuzz",
+      "nationalSpecies": 125,
+      "modernForm": 0,
+      "internalSpecies": 125,
+      "formName": null,
+      "types": [
+        "Electric",
+        "Zoomer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Electivire",
+      "nationalSpecies": 466,
+      "modernForm": 0,
+      "internalSpecies": 466,
+      "formName": null,
+      "types": [
+        "Electric",
+        "Right",
+        "Gamer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Honedge",
+      "nationalSpecies": 679,
+      "modernForm": 0,
+      "internalSpecies": 679,
+      "formName": null,
+      "types": [
+        "Sharp",
+        "Ghost"
+      ],
+      "availability": "Route 113"
+    },
+    {
+      "displayName": "Doublade",
+      "nationalSpecies": 680,
+      "modernForm": 0,
+      "internalSpecies": 680,
+      "formName": null,
+      "types": [
+        "Sharp",
+        "Ghost",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Aegislash",
+      "nationalSpecies": 681,
+      "modernForm": 0,
+      "internalSpecies": 681,
+      "formName": null,
+      "types": [
+        "Sharp",
+        "Ghost"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Binacle",
+      "nationalSpecies": 688,
+      "modernForm": 0,
+      "internalSpecies": 688,
+      "formName": null,
+      "types": [
+        "Rock",
+        "Water",
+        "Guys"
+      ],
+      "availability": "Route 114"
+    },
+    {
+      "displayName": "Barbaracle",
+      "nationalSpecies": 689,
+      "modernForm": 0,
+      "internalSpecies": 689,
+      "formName": null,
+      "types": [
+        "Rock",
+        "Crab",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Swablu",
+      "nationalSpecies": 333,
+      "modernForm": 0,
+      "internalSpecies": 333,
+      "formName": null,
+      "types": [
+        "Fluffy",
+        "Song",
+        "Flying"
+      ],
+      "availability": "Route 114"
+    },
+    {
+      "displayName": "Altaria",
+      "nationalSpecies": 334,
+      "modernForm": 0,
+      "internalSpecies": 334,
+      "formName": null,
+      "types": [
+        "Fluffy",
+        "Song",
+        "Flying"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Porygon",
+      "nationalSpecies": 137,
+      "modernForm": 0,
+      "internalSpecies": 137,
+      "formName": null,
+      "types": [
+        "Prime",
+        "Gamer"
+      ],
+      "availability": "Route 114"
+    },
+    {
+      "displayName": "Porygon 2",
+      "nationalSpecies": 233,
+      "modernForm": 0,
+      "internalSpecies": 233,
+      "formName": null,
+      "types": [
+        "Prime",
+        "Zoomer",
+        "Normal2"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Porygon-Z",
+      "nationalSpecies": 474,
+      "modernForm": 0,
+      "internalSpecies": 474,
+      "formName": null,
+      "types": [
+        "Sus",
+        "Gamer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Stunfisk",
+      "nationalSpecies": 618,
+      "modernForm": 0,
+      "internalSpecies": 618,
+      "formName": null,
+      "types": [
+        "Ground",
+        "Electric",
+        "Sus"
+      ],
+      "availability": "Meteor Falls"
+    },
+    {
+      "displayName": "Lunatone",
+      "nationalSpecies": 337,
+      "modernForm": 0,
+      "internalSpecies": 337,
+      "formName": null,
+      "types": [
+        "Rock",
+        "Space"
+      ],
+      "availability": "Meteor Falls"
+    },
+    {
+      "displayName": "Solrock",
+      "nationalSpecies": 338,
+      "modernForm": 0,
+      "internalSpecies": 338,
+      "formName": null,
+      "types": [
+        "Rock",
+        "Space"
+      ],
+      "availability": "Route 114"
+    },
+    {
+      "displayName": "Corphish",
+      "nationalSpecies": 341,
+      "modernForm": 0,
+      "internalSpecies": 341,
+      "formName": null,
+      "types": [
+        "Crab",
+        "Vibe"
+      ],
+      "availability": "Meteor Falls"
+    },
+    {
+      "displayName": "Crawdaunt",
+      "nationalSpecies": 342,
+      "modernForm": 0,
+      "internalSpecies": 342,
+      "formName": null,
+      "types": [
+        "Crab",
+        "Angy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Cleffa",
+      "nationalSpecies": 173,
+      "modernForm": 0,
+      "internalSpecies": 173,
+      "formName": null,
+      "types": [
+        "Baby",
+        "Space",
+        "Fairy"
+      ],
+      "availability": "Meteor Falls"
+    },
+    {
+      "displayName": "Clefairy",
+      "nationalSpecies": 35,
+      "modernForm": 0,
+      "internalSpecies": 35,
+      "formName": null,
+      "types": [
+        "Space",
+        "Fairy"
+      ],
+      "availability": "Meteor Falls"
+    },
+    {
+      "displayName": "Clefable",
+      "nationalSpecies": 36,
+      "modernForm": 0,
+      "internalSpecies": 36,
+      "formName": null,
+      "types": [
+        "Space",
+        "Fairy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Elgyem",
+      "nationalSpecies": 605,
+      "modernForm": 0,
+      "internalSpecies": 605,
+      "formName": null,
+      "types": [
+        "Space"
+      ],
+      "availability": "Meteor Falls"
+    },
+    {
+      "displayName": "Beheeyem",
+      "nationalSpecies": 606,
+      "modernForm": 0,
+      "internalSpecies": 606,
+      "formName": null,
+      "types": [
+        "Space"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Hatenna",
+      "nationalSpecies": 856,
+      "modernForm": 0,
+      "internalSpecies": 856,
+      "formName": null,
+      "types": [
+        "Vibe",
+        "Magic"
+      ],
+      "availability": "Meteor Falls"
+    },
+    {
+      "displayName": "Hattrem",
+      "nationalSpecies": 857,
+      "modernForm": 0,
+      "internalSpecies": 857,
+      "formName": null,
+      "types": [
+        "Vibe",
+        "Magic"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Hattrene",
+      "nationalSpecies": 858,
+      "modernForm": 0,
+      "internalSpecies": 858,
+      "formName": null,
+      "types": [
+        "Vibe",
+        "Magic"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Falinks",
+      "nationalSpecies": 870,
+      "modernForm": 0,
+      "internalSpecies": 870,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Little",
+        "Guys"
+      ],
+      "availability": "Meteor Falls"
+    },
+    {
+      "displayName": "Rockruff",
+      "nationalSpecies": 744,
+      "modernForm": 0,
+      "internalSpecies": 744,
+      "formName": null,
+      "types": [
+        "Rock",
+        "Friend"
+      ],
+      "availability": "Jagged Pass"
+    },
+    {
+      "displayName": "Lycanroc(D)",
+      "nationalSpecies": 745,
+      "modernForm": 0,
+      "internalSpecies": 745,
+      "formName": "Midday",
+      "types": [
+        "Rock",
+        "Angy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Lycanroc(N)",
+      "nationalSpecies": 745,
+      "modernForm": 1,
+      "internalSpecies": 1173,
+      "formName": "Midnight",
+      "types": [
+        "Rock",
+        "Furry"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Galarian Ponyta",
+      "nationalSpecies": 77,
+      "modernForm": 1,
+      "internalSpecies": 975,
+      "formName": "Galarian",
+      "types": [
+        "Friend",
+        "Gender",
+        "Magic"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Galarian Rapidash",
+      "nationalSpecies": 78,
+      "modernForm": 1,
+      "internalSpecies": 976,
+      "formName": "Galarian",
+      "types": [
+        "Friend",
+        "Gender",
+        "Magic"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Lickitung",
+      "nationalSpecies": 108,
+      "modernForm": 0,
+      "internalSpecies": 108,
+      "formName": null,
+      "types": [
+        "Right",
+        "Sus"
+      ],
+      "availability": "Jagged Pass"
+    },
+    {
+      "displayName": "Lickilicky",
+      "nationalSpecies": 463,
+      "modernForm": 0,
+      "internalSpecies": 463,
+      "formName": null,
+      "types": [
+        "Right",
+        "Sus",
+        "Prime"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Scraggy",
+      "nationalSpecies": 559,
+      "modernForm": 0,
+      "internalSpecies": 559,
+      "formName": null,
+      "types": [
+        "Dance",
+        "Zoomer",
+        "Fighting"
+      ],
+      "availability": "Route 111"
+    },
+    {
+      "displayName": "Scrafty",
+      "nationalSpecies": 560,
+      "modernForm": 0,
+      "internalSpecies": 560,
+      "formName": null,
+      "types": [
+        "Dance",
+        "Zoomer",
+        "Fighting"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Voltorb",
+      "nationalSpecies": 100,
+      "modernForm": 0,
+      "internalSpecies": 100,
+      "formName": null,
+      "types": [
+        "Angy",
+        "Ball"
+      ],
+      "availability": "New Mauville"
+    },
+    {
+      "displayName": "Electrode",
+      "nationalSpecies": 101,
+      "modernForm": 0,
+      "internalSpecies": 101,
+      "formName": null,
+      "types": [
+        "Angy",
+        "Ball"
+      ],
+      "availability": "New Mauville"
+    },
+    {
+      "displayName": "Sandile",
+      "nationalSpecies": 551,
+      "modernForm": 0,
+      "internalSpecies": 551,
+      "formName": null,
+      "types": [
+        "Bad",
+        "Ground"
+      ],
+      "availability": "Route 111"
+    },
+    {
+      "displayName": "Krokorok",
+      "nationalSpecies": 552,
+      "modernForm": 0,
+      "internalSpecies": 552,
+      "formName": null,
+      "types": [
+        "Bad",
+        "Ground"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Krookodile",
+      "nationalSpecies": 553,
+      "modernForm": 0,
+      "internalSpecies": 553,
+      "formName": null,
+      "types": [
+        "Bad",
+        "Ground"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Rufflet",
+      "nationalSpecies": 627,
+      "modernForm": 0,
+      "internalSpecies": 627,
+      "formName": null,
+      "types": [
+        "Flying",
+        "Baby"
+      ],
+      "availability": "Route 111"
+    },
+    {
+      "displayName": "Braviary",
+      "nationalSpecies": 628,
+      "modernForm": 0,
+      "internalSpecies": 628,
+      "formName": null,
+      "types": [
+        "Ohio",
+        "Right",
+        "Flying"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Vullaby",
+      "nationalSpecies": 629,
+      "modernForm": 0,
+      "internalSpecies": 629,
+      "formName": null,
+      "types": [
+        "Dark",
+        "Flying",
+        "Baby"
+      ],
+      "availability": "Route 111"
+    },
+    {
+      "displayName": "Mandibuzz",
+      "nationalSpecies": 630,
+      "modernForm": 0,
+      "internalSpecies": 630,
+      "formName": null,
+      "types": [
+        "Dark",
+        "Flying",
+        "Left"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Hoppip",
+      "nationalSpecies": 187,
+      "modernForm": 0,
+      "internalSpecies": 187,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Fluffy"
+      ],
+      "availability": "Route 115"
+    },
+    {
+      "displayName": "Skiploom",
+      "nationalSpecies": 188,
+      "modernForm": 0,
+      "internalSpecies": 188,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Fluffy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Jumpluff",
+      "nationalSpecies": 189,
+      "modernForm": 0,
+      "internalSpecies": 189,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Fluffy"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Tyrogue",
+      "nationalSpecies": 236,
+      "modernForm": 0,
+      "internalSpecies": 236,
+      "formName": null,
+      "types": [
+        "Fighting",
+        "Zoomer"
+      ],
+      "availability": "Route 111"
+    },
+    {
+      "displayName": "Hitmonlee",
+      "nationalSpecies": 106,
+      "modernForm": 0,
+      "internalSpecies": 106,
+      "formName": null,
+      "types": [
+        "Fighting",
+        "Left"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Hitmonchan",
+      "nationalSpecies": 107,
+      "modernForm": 0,
+      "internalSpecies": 107,
+      "formName": null,
+      "types": [
+        "Fighting",
+        "Right"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Hitmontop",
+      "nationalSpecies": 237,
+      "modernForm": 0,
+      "internalSpecies": 237,
+      "formName": null,
+      "types": [
+        "Fighting",
+        "Dance"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Lapras",
+      "nationalSpecies": 131,
+      "modernForm": 0,
+      "internalSpecies": 131,
+      "formName": null,
+      "types": [
+        "Water",
+        "Ice",
+        "Ancient"
+      ],
+      "availability": "Surf"
+    },
+    {
+      "displayName": "Remoraid",
+      "nationalSpecies": 223,
+      "modernForm": 0,
+      "internalSpecies": 223,
+      "formName": null,
+      "types": [
+        "Prime",
+        "Gun"
+      ],
+      "availability": "Fish"
+    },
+    {
+      "displayName": "Octillery",
+      "nationalSpecies": 224,
+      "modernForm": 0,
+      "internalSpecies": 224,
+      "formName": null,
+      "types": [
+        "Water",
+        "Gun"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Wishiwashi",
+      "nationalSpecies": 746,
+      "modernForm": 0,
+      "internalSpecies": 746,
+      "formName": null,
+      "types": [
+        "Little",
+        "Water"
+      ],
+      "availability": "Surf"
+    },
+    {
+      "displayName": "Wishiwasi-School",
+      "nationalSpecies": 746,
+      "modernForm": 1,
+      "internalSpecies": 1175,
+      "formName": "School",
+      "types": [
+        "Little",
+        "Water",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Horsea",
+      "nationalSpecies": 116,
+      "modernForm": 0,
+      "internalSpecies": 116,
+      "formName": null,
+      "types": [
+        "Water",
+        "Gun"
+      ],
+      "availability": "Surf"
+    },
+    {
+      "displayName": "Seadra",
+      "nationalSpecies": 117,
+      "modernForm": 0,
+      "internalSpecies": 117,
+      "formName": null,
+      "types": [
+        "Water",
+        "Gun"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Kingdra",
+      "nationalSpecies": 230,
+      "modernForm": 0,
+      "internalSpecies": 230,
+      "formName": null,
+      "types": [
+        "Water",
+        "Dragon",
+        "Gun"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Wimpod",
+      "nationalSpecies": 767,
+      "modernForm": 0,
+      "internalSpecies": 767,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Little",
+        "Bug"
+      ],
+      "availability": "Fish"
+    },
+    {
+      "displayName": "Golisopod",
+      "nationalSpecies": 768,
+      "modernForm": 0,
+      "internalSpecies": 768,
+      "formName": null,
+      "types": [
+        "Angy",
+        "Bug"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Luvdisc",
+      "nationalSpecies": 370,
+      "modernForm": 0,
+      "internalSpecies": 370,
+      "formName": null,
+      "types": [
+        "Ugly",
+        "Friend"
+      ],
+      "availability": "Fish"
+    },
+    {
+      "displayName": "Dracozolt",
+      "nationalSpecies": 880,
+      "modernForm": 0,
+      "internalSpecies": 880,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Ancient",
+        "Electric"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Arctozolt",
+      "nationalSpecies": 881,
+      "modernForm": 0,
+      "internalSpecies": 881,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Ancient",
+        "Ice"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Dracovish",
+      "nationalSpecies": 882,
+      "modernForm": 0,
+      "internalSpecies": 882,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Ancient",
+        "Dragon"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Arctovish",
+      "nationalSpecies": 883,
+      "modernForm": 0,
+      "internalSpecies": 883,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Ancient",
+        "Water"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Foongus",
+      "nationalSpecies": 590,
+      "modernForm": 0,
+      "internalSpecies": 590,
+      "formName": null,
+      "types": [
+        "Sus"
+      ],
+      "availability": "Route 119"
+    },
+    {
+      "displayName": "Amoongus",
+      "nationalSpecies": 591,
+      "modernForm": 0,
+      "internalSpecies": 591,
+      "formName": null,
+      "types": [
+        "Sus"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Zorua",
+      "nationalSpecies": 570,
+      "modernForm": 0,
+      "internalSpecies": 570,
+      "formName": null,
+      "types": [
+        "Sus",
+        "Fluffy"
+      ],
+      "availability": "Route 119"
+    },
+    {
+      "displayName": "Zoroark",
+      "nationalSpecies": 571,
+      "modernForm": 0,
+      "internalSpecies": 571,
+      "formName": null,
+      "types": [
+        "Sus",
+        "Furry"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Venonat",
+      "nationalSpecies": 48,
+      "modernForm": 0,
+      "internalSpecies": 48,
+      "formName": null,
+      "types": [
+        "Bug",
+        "Poison",
+        "Fluffy"
+      ],
+      "availability": "Route 119"
+    },
+    {
+      "displayName": "Venomoth",
+      "nationalSpecies": 49,
+      "modernForm": 0,
+      "internalSpecies": 49,
+      "formName": null,
+      "types": [
+        "Bug",
+        "Poison",
+        "Magic"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Zangoose",
+      "nationalSpecies": 335,
+      "modernForm": 0,
+      "internalSpecies": 335,
+      "formName": null,
+      "types": [
+        "Normal",
+        "Left"
+      ],
+      "availability": "Route 119"
+    },
+    {
+      "displayName": "Seviper",
+      "nationalSpecies": 336,
+      "modernForm": 0,
+      "internalSpecies": 336,
+      "formName": null,
+      "types": [
+        "Poison",
+        "Right"
+      ],
+      "availability": "Route 119"
+    },
+    {
+      "displayName": "Kangaskhan",
+      "nationalSpecies": 115,
+      "modernForm": 0,
+      "internalSpecies": 115,
+      "formName": null,
+      "types": [
+        "Normal",
+        "Guys"
+      ],
+      "availability": "Route 119"
+    },
+    {
+      "displayName": "Feebas",
+      "nationalSpecies": 349,
+      "modernForm": 0,
+      "internalSpecies": 349,
+      "formName": null,
+      "types": [
+        "Water",
+        "Ugly"
+      ],
+      "availability": "Route 119"
+    },
+    {
+      "displayName": "Milotic",
+      "nationalSpecies": 350,
+      "modernForm": 0,
+      "internalSpecies": 350,
+      "formName": null,
+      "types": [
+        "Water",
+        "Gender"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Ditto",
+      "nationalSpecies": 132,
+      "modernForm": 0,
+      "internalSpecies": 132,
+      "formName": null,
+      "types": [
+        "Sus",
+        "Liquid"
+      ],
+      "availability": "Weather Institute"
+    },
+    {
+      "displayName": "Kecleon",
+      "nationalSpecies": 352,
+      "modernForm": 0,
+      "internalSpecies": 352,
+      "formName": null,
+      "types": [
+        "Type"
+      ],
+      "availability": "Route 120"
+    },
+    {
+      "displayName": "Bouffalant",
+      "nationalSpecies": 626,
+      "modernForm": 0,
+      "internalSpecies": 626,
+      "formName": null,
+      "types": [
+        "Ohio"
+      ],
+      "availability": "Route 120"
+    },
+    {
+      "displayName": "Absol",
+      "nationalSpecies": 359,
+      "modernForm": 0,
+      "internalSpecies": 359,
+      "formName": null,
+      "types": [
+        "Prime",
+        "Bad"
+      ],
+      "availability": "Route 120"
+    },
+    {
+      "displayName": "Deino",
+      "nationalSpecies": 633,
+      "modernForm": 0,
+      "internalSpecies": 633,
+      "formName": null,
+      "types": [
+        "Angy",
+        "Dragon"
+      ],
+      "availability": "Route 120"
+    },
+    {
+      "displayName": "Zweilous",
+      "nationalSpecies": 634,
+      "modernForm": 0,
+      "internalSpecies": 634,
+      "formName": null,
+      "types": [
+        "Angy",
+        "Dragon",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Hydreigon",
+      "nationalSpecies": 635,
+      "modernForm": 0,
+      "internalSpecies": 635,
+      "formName": null,
+      "types": [
+        "Angy",
+        "Dragon",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Komala",
+      "nationalSpecies": 775,
+      "modernForm": 0,
+      "internalSpecies": 775,
+      "formName": null,
+      "types": [
+        "Dream",
+        "Fluffy"
+      ],
+      "availability": "Route 121"
+    },
+    {
+      "displayName": "Dwebble",
+      "nationalSpecies": 557,
+      "modernForm": 0,
+      "internalSpecies": 557,
+      "formName": null,
+      "types": [
+        "Rock",
+        "Crab"
+      ],
+      "availability": "Route 121"
+    },
+    {
+      "displayName": "Crustle",
+      "nationalSpecies": 558,
+      "modernForm": 0,
+      "internalSpecies": 558,
+      "formName": null,
+      "types": [
+        "Rock",
+        "Crab"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Teddiursa",
+      "nationalSpecies": 216,
+      "modernForm": 0,
+      "internalSpecies": 216,
+      "formName": null,
+      "types": [
+        "Baby",
+        "Zoomer"
+      ],
+      "availability": "Route 121"
+    },
+    {
+      "displayName": "Ursaring",
+      "nationalSpecies": 217,
+      "modernForm": 0,
+      "internalSpecies": 217,
+      "formName": null,
+      "types": [
+        "Boomer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Bounsweet",
+      "nationalSpecies": 761,
+      "modernForm": 0,
+      "internalSpecies": 761,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Bean"
+      ],
+      "availability": "Route 121"
+    },
+    {
+      "displayName": "Steene",
+      "nationalSpecies": 762,
+      "modernForm": 0,
+      "internalSpecies": 762,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Bean"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Tsareena",
+      "nationalSpecies": 763,
+      "modernForm": 0,
+      "internalSpecies": 763,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Smash"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Mimikyu",
+      "nationalSpecies": 778,
+      "modernForm": 0,
+      "internalSpecies": 778,
+      "formName": null,
+      "types": [
+        "Ghost",
+        "Sus"
+      ],
+      "availability": "Safari Zone"
+    },
+    {
+      "displayName": "Maractus",
+      "nationalSpecies": 556,
+      "modernForm": 0,
+      "internalSpecies": 556,
+      "formName": null,
+      "types": [
+        "Grass",
+        "Dance"
+      ],
+      "availability": "Safari Zone"
+    },
+    {
+      "displayName": "Seedot",
+      "nationalSpecies": 273,
+      "modernForm": 0,
+      "internalSpecies": 273,
+      "formName": null,
+      "types": [
+        "Bean"
+      ],
+      "availability": "Safari Zone"
+    },
+    {
+      "displayName": "Nuzleaf",
+      "nationalSpecies": 274,
+      "modernForm": 0,
+      "internalSpecies": 274,
+      "formName": null,
+      "types": [
+        "Bean",
+        "Zoomer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Shiftry",
+      "nationalSpecies": 275,
+      "modernForm": 0,
+      "internalSpecies": 275,
+      "formName": null,
+      "types": [
+        "Bean",
+        "Ugly"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Snubbull",
+      "nationalSpecies": 209,
+      "modernForm": 0,
+      "internalSpecies": 209,
+      "formName": null,
+      "types": [
+        "Ugly"
+      ],
+      "availability": "Safari Zone"
+    },
+    {
+      "displayName": "Granbul",
+      "nationalSpecies": 210,
+      "modernForm": 0,
+      "internalSpecies": 210,
+      "formName": null,
+      "types": [
+        "Boomer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Smeargul",
+      "nationalSpecies": 235,
+      "modernForm": 0,
+      "internalSpecies": 235,
+      "formName": null,
+      "types": [
+        "Type"
+      ],
+      "availability": "Safari Zone"
+    },
+    {
+      "displayName": "Type: Null",
+      "nationalSpecies": 772,
+      "modernForm": 0,
+      "internalSpecies": 772,
+      "formName": null,
+      "types": [
+        "Type"
+      ],
+      "availability": "Safari Zone"
+    },
+    {
+      "displayName": "Silvally",
+      "nationalSpecies": 773,
+      "modernForm": 0,
+      "internalSpecies": 773,
+      "formName": null,
+      "types": [
+        "Normal2",
+        "Type"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Crabrawler",
+      "nationalSpecies": 739,
+      "modernForm": 0,
+      "internalSpecies": 739,
+      "formName": null,
+      "types": [
+        "Prime",
+        "Fighting",
+        "Crab"
+      ],
+      "availability": "Safari Zone"
+    },
+    {
+      "displayName": "Crabominable",
+      "nationalSpecies": 740,
+      "modernForm": 0,
+      "internalSpecies": 740,
+      "formName": null,
+      "types": [
+        "Ugly",
+        "Ice",
+        "Crab"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Drowzee",
+      "nationalSpecies": 96,
+      "modernForm": 0,
+      "internalSpecies": 96,
+      "formName": null,
+      "types": [
+        "Dream"
+      ],
+      "availability": "Safari Zone"
+    },
+    {
+      "displayName": "Hypno",
+      "nationalSpecies": 97,
+      "modernForm": 0,
+      "internalSpecies": 97,
+      "formName": null,
+      "types": [
+        "Right",
+        "Boomer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Duskull",
+      "nationalSpecies": 355,
+      "modernForm": 0,
+      "internalSpecies": 355,
+      "formName": null,
+      "types": [
+        "Ghost",
+        "Gamer"
+      ],
+      "availability": "Mt. Pyre Int"
+    },
+    {
+      "displayName": "Dusclops",
+      "nationalSpecies": 356,
+      "modernForm": 0,
+      "internalSpecies": 356,
+      "formName": null,
+      "types": [
+        "Ghost",
+        "Reverse",
+        "Gamer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Dusknoir",
+      "nationalSpecies": 477,
+      "modernForm": 0,
+      "internalSpecies": 477,
+      "formName": null,
+      "types": [
+        "Ghost",
+        "Reverse",
+        "Gamer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Klefki",
+      "nationalSpecies": 707,
+      "modernForm": 0,
+      "internalSpecies": 707,
+      "formName": null,
+      "types": [
+        "Little",
+        "Boring"
+      ],
+      "availability": "Mt. Pyre Int"
+    },
+    {
+      "displayName": "Munna",
+      "nationalSpecies": 517,
+      "modernForm": 0,
+      "internalSpecies": 517,
+      "formName": null,
+      "types": [
+        "Dream",
+        "Magic"
+      ],
+      "availability": "Mt. Pyre Int"
+    },
+    {
+      "displayName": "Musharna",
+      "nationalSpecies": 518,
+      "modernForm": 0,
+      "internalSpecies": 518,
+      "formName": null,
+      "types": [
+        "Dream",
+        "Magic"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Chingling",
+      "nationalSpecies": 433,
+      "modernForm": 0,
+      "internalSpecies": 433,
+      "formName": null,
+      "types": [
+        "Song"
+      ],
+      "availability": "Mt. Pyre Ext"
+    },
+    {
+      "displayName": "Chimecho",
+      "nationalSpecies": 358,
+      "modernForm": 0,
+      "internalSpecies": 358,
+      "formName": null,
+      "types": [
+        "Song"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Dreepy",
+      "nationalSpecies": 885,
+      "modernForm": 0,
+      "internalSpecies": 885,
+      "formName": null,
+      "types": [
+        "Gun",
+        "Ghost",
+        "Baby"
+      ],
+      "availability": "Mt. Pyre Ext"
+    },
+    {
+      "displayName": "Drakloak",
+      "nationalSpecies": 886,
+      "modernForm": 0,
+      "internalSpecies": 886,
+      "formName": null,
+      "types": [
+        "Gun",
+        "Ghost",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Dragapult",
+      "nationalSpecies": 887,
+      "modernForm": 0,
+      "internalSpecies": 887,
+      "formName": null,
+      "types": [
+        "Gun",
+        "Ghost",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Oranguru",
+      "nationalSpecies": 765,
+      "modernForm": 0,
+      "internalSpecies": 765,
+      "formName": null,
+      "types": [
+        "Monke",
+        "Stinky"
+      ],
+      "availability": "Route 123"
+    },
+    {
+      "displayName": "Passimian",
+      "nationalSpecies": 766,
+      "modernForm": 0,
+      "internalSpecies": 766,
+      "formName": null,
+      "types": [
+        "Monke",
+        "Ball"
+      ],
+      "availability": "Route 123"
+    },
+    {
+      "displayName": "Chatot",
+      "nationalSpecies": 441,
+      "modernForm": 0,
+      "internalSpecies": 441,
+      "formName": null,
+      "types": [
+        "Song"
+      ],
+      "availability": "Route 123"
+    },
+    {
+      "displayName": "Wailmer",
+      "nationalSpecies": 320,
+      "modernForm": 0,
+      "internalSpecies": 320,
+      "formName": null,
+      "types": [
+        "Smash"
+      ],
+      "availability": "Route 126"
+    },
+    {
+      "displayName": "Wailord",
+      "nationalSpecies": 321,
+      "modernForm": 0,
+      "internalSpecies": 321,
+      "formName": null,
+      "types": [
+        "Smash"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Spheal",
+      "nationalSpecies": 363,
+      "modernForm": 0,
+      "internalSpecies": 363,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Friend",
+        "Ball"
+      ],
+      "availability": "Shoal Cave"
+    },
+    {
+      "displayName": "Sealeo",
+      "nationalSpecies": 364,
+      "modernForm": 0,
+      "internalSpecies": 364,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Ice",
+        "Ball"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Walrein",
+      "nationalSpecies": 365,
+      "modernForm": 0,
+      "internalSpecies": 365,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Ice",
+        "Ball"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Shellos",
+      "nationalSpecies": 422,
+      "modernForm": 0,
+      "internalSpecies": 422,
+      "formName": null,
+      "types": [
+        "Water",
+        "Vibe"
+      ],
+      "availability": "Underwater"
+    },
+    {
+      "displayName": "Gastrodon",
+      "nationalSpecies": 423,
+      "modernForm": 0,
+      "internalSpecies": 423,
+      "formName": null,
+      "types": [
+        "OU",
+        "Ground"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Pyukumuku",
+      "nationalSpecies": 771,
+      "modernForm": 0,
+      "internalSpecies": 771,
+      "formName": null,
+      "types": [
+        "Water",
+        "Bean"
+      ],
+      "availability": "Underwater"
+    },
+    {
+      "displayName": "Relicanth",
+      "nationalSpecies": 369,
+      "modernForm": 0,
+      "internalSpecies": 369,
+      "formName": null,
+      "types": [
+        "Water",
+        "Ancient"
+      ],
+      "availability": "Underwater"
+    },
+    {
+      "displayName": "Impidimp",
+      "nationalSpecies": 859,
+      "modernForm": 0,
+      "internalSpecies": 859,
+      "formName": null,
+      "types": [
+        "Dark",
+        "Reverse",
+        "Gamer"
+      ],
+      "availability": "Seafloor Cavern"
+    },
+    {
+      "displayName": "Morgrem",
+      "nationalSpecies": 860,
+      "modernForm": 0,
+      "internalSpecies": 860,
+      "formName": null,
+      "types": [
+        "Dark",
+        "Reverse",
+        "Gamer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Grimsnarl",
+      "nationalSpecies": 861,
+      "modernForm": 0,
+      "internalSpecies": 861,
+      "formName": null,
+      "types": [
+        "Dark",
+        "Reverse",
+        "Gamer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Zubat",
+      "nationalSpecies": 41,
+      "modernForm": 0,
+      "internalSpecies": 41,
+      "formName": null,
+      "types": [
+        "Boring",
+        "Poison",
+        "Flying"
+      ],
+      "availability": "Seafloor Cavern"
+    },
+    {
+      "displayName": "Golbat",
+      "nationalSpecies": 42,
+      "modernForm": 0,
+      "internalSpecies": 42,
+      "formName": null,
+      "types": [
+        "Boring",
+        "Poison",
+        "Flying"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Crobat",
+      "nationalSpecies": 169,
+      "modernForm": 0,
+      "internalSpecies": 169,
+      "formName": null,
+      "types": [
+        "Flying",
+        "Poison",
+        "Friend"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Darumaka",
+      "nationalSpecies": 554,
+      "modernForm": 0,
+      "internalSpecies": 554,
+      "formName": null,
+      "types": [
+        "Fire",
+        "Monke",
+        "Dance"
+      ],
+      "availability": "Magma Hideout"
+    },
+    {
+      "displayName": "Darmanitan",
+      "nationalSpecies": 555,
+      "modernForm": 0,
+      "internalSpecies": 555,
+      "formName": null,
+      "types": [
+        "Angy",
+        "Fire",
+        "Monke"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Vanillite",
+      "nationalSpecies": 582,
+      "modernForm": 0,
+      "internalSpecies": 582,
+      "formName": null,
+      "types": [
+        "Ice",
+        "Baby"
+      ],
+      "availability": "Shoal Cave"
+    },
+    {
+      "displayName": "Vanillish",
+      "nationalSpecies": 583,
+      "modernForm": 0,
+      "internalSpecies": 583,
+      "formName": null,
+      "types": [
+        "Ice"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Vaniluxe",
+      "nationalSpecies": 584,
+      "modernForm": 0,
+      "internalSpecies": 584,
+      "formName": null,
+      "types": [
+        "Ice",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Snover",
+      "nationalSpecies": 459,
+      "modernForm": 0,
+      "internalSpecies": 459,
+      "formName": null,
+      "types": [
+        "Ice",
+        "Grass",
+        "Left"
+      ],
+      "availability": "Shoal Cave"
+    },
+    {
+      "displayName": "Abombasnow",
+      "nationalSpecies": 460,
+      "modernForm": 0,
+      "internalSpecies": 460,
+      "formName": null,
+      "types": [
+        "Ice",
+        "Grass",
+        "Left"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Snom",
+      "nationalSpecies": 872,
+      "modernForm": 0,
+      "internalSpecies": 872,
+      "formName": null,
+      "types": [
+        "Ice",
+        "Bean"
+      ],
+      "availability": "Shoal Cave"
+    },
+    {
+      "displayName": "Frosmoth",
+      "nationalSpecies": 873,
+      "modernForm": 0,
+      "internalSpecies": 873,
+      "formName": null,
+      "types": [
+        "Ice",
+        "Bug",
+        "Magic"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Nincada",
+      "nationalSpecies": 290,
+      "modernForm": 0,
+      "internalSpecies": 290,
+      "formName": null,
+      "types": [
+        "Bug",
+        "Crab"
+      ],
+      "availability": "Sky Pillar"
+    },
+    {
+      "displayName": "Ninjask",
+      "nationalSpecies": 291,
+      "modernForm": 0,
+      "internalSpecies": 291,
+      "formName": null,
+      "types": [
+        "Sharp",
+        "Zoomer"
+      ],
+      "availability": "Safari Zone"
+    },
+    {
+      "displayName": "Shedinja",
+      "nationalSpecies": 292,
+      "modernForm": 0,
+      "internalSpecies": 292,
+      "formName": null,
+      "types": [
+        "Sans"
+      ],
+      "availability": "Sky Pillar"
+    },
+    {
+      "displayName": "Golett",
+      "nationalSpecies": 622,
+      "modernForm": 0,
+      "internalSpecies": 622,
+      "formName": null,
+      "types": [
+        "Ancient"
+      ],
+      "availability": "Sky Pillar"
+    },
+    {
+      "displayName": "Golurk",
+      "nationalSpecies": 623,
+      "modernForm": 0,
+      "internalSpecies": 623,
+      "formName": null,
+      "types": [
+        "Ancient"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Duraludon",
+      "nationalSpecies": 884,
+      "modernForm": 0,
+      "internalSpecies": 884,
+      "formName": null,
+      "types": [
+        "Gun"
+      ],
+      "availability": "Sky Pillar"
+    },
+    {
+      "displayName": "Nosepass",
+      "nationalSpecies": 299,
+      "modernForm": 0,
+      "internalSpecies": 299,
+      "formName": null,
+      "types": [
+        "Rock",
+        "Vibe"
+      ],
+      "availability": "Victory Road"
+    },
+    {
+      "displayName": "Probopass",
+      "nationalSpecies": 476,
+      "modernForm": 0,
+      "internalSpecies": 476,
+      "formName": null,
+      "types": [
+        "Boomer",
+        "Gun"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Shieldon",
+      "nationalSpecies": 410,
+      "modernForm": 0,
+      "internalSpecies": 410,
+      "formName": null,
+      "types": [
+        "Ancient",
+        "Steel"
+      ],
+      "availability": "Victory Road"
+    },
+    {
+      "displayName": "Bastiodon",
+      "nationalSpecies": 411,
+      "modernForm": 0,
+      "internalSpecies": 411,
+      "formName": null,
+      "types": [
+        "Ancient",
+        "Steel",
+        "Boomer"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Rotom",
+      "nationalSpecies": 479,
+      "modernForm": 0,
+      "internalSpecies": 479,
+      "formName": null,
+      "types": [
+        "Prime"
+      ],
+      "availability": "Victory Road"
+    },
+    {
+      "displayName": "Inkay",
+      "nationalSpecies": 686,
+      "modernForm": 0,
+      "internalSpecies": 686,
+      "formName": null,
+      "types": [
+        "Silly",
+        "Psychic"
+      ],
+      "availability": "Victory Road"
+    },
+    {
+      "displayName": "Malamar",
+      "nationalSpecies": 687,
+      "modernForm": 0,
+      "internalSpecies": 687,
+      "formName": null,
+      "types": [
+        "Dark",
+        "Reverse",
+        "Psychic"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Munchlax",
+      "nationalSpecies": 446,
+      "modernForm": 0,
+      "internalSpecies": 446,
+      "formName": null,
+      "types": [
+        "Ohio",
+        "Friend"
+      ],
+      "availability": "In Game Trade"
+    },
+    {
+      "displayName": "Snorlax",
+      "nationalSpecies": 143,
+      "modernForm": 0,
+      "internalSpecies": 143,
+      "formName": null,
+      "types": [
+        "Ohio",
+        "Friend"
+      ],
+      "availability": "Victory Road"
+    },
+    {
+      "displayName": "Beldum",
+      "nationalSpecies": 374,
+      "modernForm": 0,
+      "internalSpecies": 374,
+      "formName": null,
+      "types": [
+        "Steel",
+        "Space"
+      ],
+      "availability": "Meteor Falls"
+    },
+    {
+      "displayName": "Metang",
+      "nationalSpecies": 375,
+      "modernForm": 0,
+      "internalSpecies": 375,
+      "formName": null,
+      "types": [
+        "Steel",
+        "Space",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Metagross",
+      "nationalSpecies": 376,
+      "modernForm": 0,
+      "internalSpecies": 376,
+      "formName": null,
+      "types": [
+        "Steel",
+        "Space",
+        "Guys"
+      ],
+      "availability": null
+    },
+    {
+      "displayName": "Rayquaza",
+      "nationalSpecies": 384,
+      "modernForm": 0,
+      "internalSpecies": 384,
+      "formName": null,
+      "types": [
+        "Emerald"
+      ],
+      "availability": "Sky Pillar"
+    },
+    {
+      "displayName": "Mew",
+      "nationalSpecies": 151,
+      "modernForm": 0,
+      "internalSpecies": 151,
+      "formName": null,
+      "types": [
+        "Prime"
+      ],
+      "availability": "Truck"
+    },
+    {
+      "displayName": "Latios",
+      "nationalSpecies": 381,
+      "modernForm": 0,
+      "internalSpecies": 381,
+      "formName": null,
+      "types": [
+        "OU"
+      ],
+      "availability": "Roaming"
+    },
+    {
+      "displayName": "Latias",
+      "nationalSpecies": 380,
+      "modernForm": 0,
+      "internalSpecies": 380,
+      "formName": null,
+      "types": [
+        "OU"
+      ],
+      "availability": "N/A"
+    },
+    {
+      "displayName": "Wynaut",
+      "nationalSpecies": 360,
+      "modernForm": 0,
+      "internalSpecies": 360,
+      "formName": null,
+      "types": [
+        "Reverse",
+        "Baby"
+      ],
+      "availability": "N/A"
+    },
+    {
+      "displayName": "Deoxys (N)",
+      "nationalSpecies": 386,
+      "modernForm": 0,
+      "internalSpecies": 386,
+      "formName": "Normal",
+      "types": [
+        "Space",
+        "Crab"
+      ],
+      "availability": "N/A"
+    },
+    {
+      "displayName": "Metagross (Mega)",
+      "nationalSpecies": 376,
+      "modernForm": 1,
+      "internalSpecies": 943,
+      "formName": "Mega",
+      "types": [
+        "Steel",
+        "Space",
+        "Guys"
+      ],
+      "availability": "V1.6 roster entry"
+    }
+  ]
+}
