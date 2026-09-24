@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDexGetAll } from '../../../data/sdk/dex/dex.gen';
-import { EntityContext, type DexItemDTO, type DexItemForm, type SaveInfosDTO } from '../../../data/sdk/model';
+import { EntityContext, type DexItemForm, type SaveInfosDTO } from '../../../data/sdk/model';
 import { useSaveInfosGetAll } from '../../../data/sdk/save-infos/save-infos.gen';
 import { useStaticData } from '../../../hooks/use-static-data';
 import { Route } from '../../../routes/pokedex';
@@ -10,7 +10,6 @@ import { useSelectCallback } from '../../../util/use-select-callback';
 export const usePokedexDetailsSelect = () => {
     const selectedSpecies = Route.useSearch({ select: search => search.selected });
     const selectedSaveId = Route.useSearch({ select: search => search.selectedSaveId });
-    const dexProfile = Route.useSearch({ select: search => search.dexProfile });
 
     const navigate = Route.useNavigate();
     const staticData = useStaticData();
@@ -28,19 +27,7 @@ export const usePokedexDetailsSelect = () => {
     const [ selectedFormId, setSelectedFormId ] = React.useState('');
 
     const savesRecord = saveInfosMainQuery.data?.data ?? {};
-    const speciesValuesRaw = Object.values(speciesValuesQuery.data ?? {});
-
-    // TMT and National Dex are two presentations of the same ownership history.
-    // In TMT mode keep only ROM-hack forms. In canonical mode deliberately
-    // remove the ROM-hack presentation metadata so official types are shown.
-    const speciesValues: DexItemDTO[] = speciesValuesRaw
-        .map(value => ({
-            ...value,
-            forms: value.forms
-                .filter(form => dexProfile === 'tmt' ? !!form.romHackTypes?.length : true)
-                .map(form => dexProfile === 'tmt' ? form : { ...form, romHackTypes: null }),
-        }))
-        .filter(value => value.forms.length > 0);
+    const speciesValues = Object.values(speciesValuesQuery.data ?? {});
 
     type GameSave = Pick<
         SaveInfosDTO,
@@ -117,10 +104,11 @@ export const usePokedexDetailsSelect = () => {
 
     const allStaticForms = staticData.species[ selectedSpecies ]?.forms ?? {};
 
-    // A TMT save is Gen3, but species such as Braixen have no official Gen3
-    // static form table. Fall back to the newest official context containing
-    // the selected form. This keeps the National Dex entry fully selectable.
-    const staticForms = allStaticForms[ selectedSave.context ]
+    // DexTmtService now supplies an official presentation context. Prefer the
+    // form's own context, not the Emerald-based save context. The fallback is
+    // kept for older cached data and unusual cross-generation forms.
+    const staticForms = allStaticForms[ selectedForm.context ]
+        ?? allStaticForms[ selectedSave.context ]
         ?? Object.values(allStaticForms)
             .reverse()
             .find(forms => forms?.[ selectedForm.form ] ?? forms?.[ 0 ])
@@ -137,7 +125,6 @@ export const usePokedexDetailsSelect = () => {
     }
 
     return {
-        dexProfile,
         selectedSaveId,
         selectedSpecies,
         selectedSave,
