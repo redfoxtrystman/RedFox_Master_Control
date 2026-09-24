@@ -183,20 +183,6 @@ shutil.copyfile(HERE / "TooManyTypesProfile.Generated.cs", romhacks / "TooManyTy
 dex_dir = PKVAULT / "PKVault.Core/dex/services/gen"
 shutil.copyfile(HERE / "DexTmtService.cs", dex_dir / "DexTmtService.cs")
 
-dex_dto = PKVAULT / "PKVault.Core/dex/dto/DexItemDTO.cs"
-replace_once(dex_dto,
-'''    bool IsOwnedShiny,
-    EntityContext Context = default,
-    byte Generation = default
-) : IWithId;
-''',
-'''    bool IsOwnedShiny,
-    EntityContext Context = default,
-    byte Generation = default,
-    string[]? RomHackTypes = null
-) : IWithId;
-''')
-
 dex_service = PKVAULT / "PKVault.Core/dex/services/DexService.cs"
 replace_once(dex_service,
 '''            SAV2 sav2 => new Dex123Service(sav2),
@@ -409,40 +395,6 @@ replace_once(swagger,
           },
           "teraType": {
 ''')
-replace_once(swagger,
-'''          "gender": {
-            "$ref": "#/components/schemas/Gender"
-          },
-          "types": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "byte"
-            }
-          },
-          "abilities": {
-''',
-'''          "gender": {
-            "$ref": "#/components/schemas/Gender"
-          },
-          "types": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "byte"
-            }
-          },
-          "romHackTypes": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string"
-            }
-          },
-          "abilities": {
-''')
-
-
 replace_once(swagger,
 '''          "savE_PATH_OVERRIDES": {
             "type": "object",
@@ -664,8 +616,9 @@ replace_once(dex_form_item,
 
 
 # ---------------------------------------------------------------------------
-# V8 alpha6: split canonical National Dex presentation from the TMT dex, and
-# expose the save's ROM-hack identity so Emerald TMT is labelled correctly.
+# V8 alpha7: TMT is an ownership source for the normal National Dex only.
+# TMT-specific typing/presentation stays exclusively in Storage/box details.
+# Also reduce Pokédex rendering work while scrolling.
 # ---------------------------------------------------------------------------
 save_infos_dto = PKVAULT / "PKVault.Core/save-infos/dto/SaveInfosDTO.cs"
 replace_once(save_infos_dto,
@@ -709,9 +662,6 @@ replace_once(swagger,
           "tid": {
 ''')
 
-# Replace the two complex pokedex hooks wholesale after the earlier alpha
-# patches. Keeping the reconstruction deterministic is safer than stacking
-# fragile local edits on those reducers/selectors.
 shutil.copyfile(HERE / "use-pokedex-items-v8.ts",
                 PKVAULT / "frontend/src/pokedex/list/hooks/use-pokedex-items.ts")
 shutil.copyfile(HERE / "use-pokedex-details-select-v8.ts",
@@ -725,55 +675,12 @@ shutil.copyfile(HERE / "pokedex-item-v8.tsx",
                 PKVAULT / "frontend/src/pokedex/list/pokedex-item.tsx")
 shutil.copyfile(HERE / "pokedex-list-v8.tsx",
                 PKVAULT / "frontend/src/pokedex/list/pokedex-list.tsx")
-
-# Pokedex details: only the dedicated TMT section displays TMT type names.
-# Canonical entries still receive seen/caught/owned state from TMT but use
-# official species presentation.
-replace_once(pokedex_details,
-'''    selectedSpecies,
-    selectedSave,
-    selectedForm,
-''',
-'''    dexProfile,
-    selectedSpecies,
-    selectedSave,
-    selectedForm,
-''')
-replace_once(pokedex_details,
-'''  const isMega = !!staticData.species[ selectedSpecies ]?.forms[ selectedSave.context ]?.[ selectedStaticFormWithIndex.index ]?.isMega;
-''',
-'''  const isMega = !!selectedStaticFormWithIndex.isMega;
-''')
-replace_once(pokedex_details,
-'''      types={selectedForm.romHackTypes?.length
-        ? selectedForm.romHackTypes.map(type => <TmtTypeItem key={type} type={type} />)
-        : selectedForm.types.map(type => <TypeItem key={type} type={type} />)}
-''',
-'''      types={dexProfile === 'tmt' && selectedForm.romHackTypes?.length
-        ? selectedForm.romHackTypes.map(type => <TmtTypeItem key={type} type={type} />)
-        : selectedForm.types.map(type => <TypeItem key={type} type={type} />)}
-''')
-replace_once(pokedex_details,
-'''        allowContextFallback={!!selectedForm.romHackTypes?.length}
-''',
-'''        allowContextFallback={!!selectedSave.romHackProfile}
-''')
-replace_once(pokedex_details,
-'''    onClose={() => navigate({
-      search: {
-        selected: undefined,
-      }
-    })}
-''',
-'''    onClose={() => navigate({
-      search: search => ({
-        ...search,
-        selected: undefined,
-        dexProfile: undefined,
-        selectedSaveId: undefined,
-      })
-    })}
-''')
+shutil.copyfile(HERE / "dex-form-item-v8.tsx",
+                PKVAULT / "frontend/src/pokedex/list/dex-item/dex-form-item.tsx")
+shutil.copyfile(HERE / "pokedex-details-v8.tsx",
+                PKVAULT / "frontend/src/pokedex/details/pokedex-details.tsx")
+shutil.copyfile(HERE / "ui-pokedex-main-section-v8.tsx",
+                PKVAULT / "frontend/src/ui/pokedex/main/section/ui-pokedex-main-section.tsx")
 
 pokedex_owned = PKVAULT / "frontend/src/pokedex/details/content/pokedex-details-owned.tsx"
 replace_once(pokedex_owned,
