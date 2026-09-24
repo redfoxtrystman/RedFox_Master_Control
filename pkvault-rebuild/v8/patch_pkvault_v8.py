@@ -662,4 +662,303 @@ replace_once(dex_form_item,
       isFemale={genders[ 0 ] == GenderType.Female}
 ''')
 
+
+# ---------------------------------------------------------------------------
+# V8 alpha6: split canonical National Dex presentation from the TMT dex, and
+# expose the save's ROM-hack identity so Emerald TMT is labelled correctly.
+# ---------------------------------------------------------------------------
+save_infos_dto = PKVAULT / "PKVault.Core/save-infos/dto/SaveInfosDTO.cs"
+replace_once(save_infos_dto,
+'''    EntityContext Context,
+    byte Generation,
+    uint TID,
+''',
+'''    EntityContext Context,
+    byte Generation,
+    string? RomHackProfile,
+    uint TID,
+''')
+replace_once(save_infos_dto,
+'''            Context: save.Context,
+            Generation: save.Generation,
+            TID: save.TID,
+''',
+'''            Context: save.Context,
+            Generation: save.Generation,
+            RomHackProfile: save.GetSave() is SAV3 { DirectSpeciesIDs: true }
+                ? TooManyTypesProfileGenerated.ProfileId
+                : null,
+            TID: save.TID,
+''')
+
+replace_once(swagger,
+'''          "generation": {
+            "type": "integer",
+            "format": "byte"
+          },
+          "tid": {
+''',
+'''          "generation": {
+            "type": "integer",
+            "format": "byte"
+          },
+          "romHackProfile": {
+            "type": "string",
+            "nullable": true
+          },
+          "tid": {
+''')
+
+# Replace the two complex pokedex hooks wholesale after the earlier alpha
+# patches. Keeping the reconstruction deterministic is safer than stacking
+# fragile local edits on those reducers/selectors.
+shutil.copyfile(HERE / "use-pokedex-items-v8.ts",
+                PKVAULT / "frontend/src/pokedex/list/hooks/use-pokedex-items.ts")
+shutil.copyfile(HERE / "use-pokedex-details-select-v8.ts",
+                PKVAULT / "frontend/src/pokedex/details/hooks/use-pokedex-details-select.ts")
+shutil.copyfile(HERE / "get-save-display-name.ts",
+                frontend_romhacks / "get-save-display-name.ts")
+
+pokedex_route = PKVAULT / "frontend/src/routes/pokedex.tsx"
+replace_once(pokedex_route,
+'''  selectedSaveId: z.number().optional(),
+  selectExpanded: z.enum([ 'none', 'expanded' ] as const satisfies DetailsExpandedState[]).optional(),
+''',
+'''  selectedSaveId: z.number().optional(),
+  dexProfile: z.enum([ 'tmt' ] as const).optional(),
+  selectExpanded: z.enum([ 'none', 'expanded' ] as const satisfies DetailsExpandedState[]).optional(),
+''')
+replace_once(pokedex_route,
+'''    selectedSaveId: undefined,
+    selectExpanded: undefined,
+''',
+'''    selectedSaveId: undefined,
+    dexProfile: undefined,
+    selectExpanded: undefined,
+''')
+
+pokedex_item = PKVAULT / "frontend/src/pokedex/list/pokedex-item.tsx"
+replace_once(pokedex_item,
+'''import { Route } from "../../routes/pokedex";
+''',
+'''import { Route } from "../../routes/pokedex";
+import type { DexProfile } from "./hooks/use-pokedex-items";
+''')
+replace_once(pokedex_item,
+'''  isSeen: boolean;
+  children: React.ReactNode[];
+};
+''',
+'''  isSeen: boolean;
+  dexProfile?: DexProfile;
+  children: React.ReactNode[];
+};
+''')
+replace_once(pokedex_item,
+'''export const PokedexItem: React.FC<PokedexItemProps> = withErrorCatcher("item", React.memo(({ species, speciesName, isSeen, children }) => {
+  const navigate = Route.useNavigate();
+
+  const selected = Route.useSearch({ select: (search) => search.selected === species });
+
+  const onClick = React.useMemo(() => isSeen
+    ? () =>
+      navigate({
+        search: {
+          selected: selected ? undefined : species,
+        },
+      })
+    : undefined,
+    [ navigate, isSeen, selected, species ],
+  );
+
+  return <UIPokedexItem
+    id={\`species-\${species}\`}
+''',
+'''export const PokedexItem: React.FC<PokedexItemProps> = withErrorCatcher("item", React.memo(({ species, speciesName, isSeen, dexProfile, children }) => {
+  const navigate = Route.useNavigate();
+
+  const selected = Route.useSearch({
+    select: (search) => search.selected === species && search.dexProfile === dexProfile
+  });
+
+  const onClick = React.useMemo(() => isSeen
+    ? () =>
+      navigate({
+        search: search => ({
+          ...search,
+          selected: selected ? undefined : species,
+          dexProfile: selected ? undefined : dexProfile,
+          selectedSaveId: undefined,
+        }),
+      })
+    : undefined,
+    [ navigate, isSeen, selected, species, dexProfile ],
+  );
+
+  return <UIPokedexItem
+    id={\`species-\${dexProfile ?? 'national'}-\${species}\`}
+''')
+
+pokedex_list = PKVAULT / "frontend/src/pokedex/list/pokedex-list.tsx"
+replace_once(pokedex_list,
+'''        itemsCount,
+      }, i) => [
+''',
+'''        itemsCount,
+        dexProfile,
+        sectionLabel,
+        sectionRegions,
+      }, i) => [
+''')
+replace_once(pokedex_list,
+'''              generation={t('dex.list.title', { generation })}
+              regions={staticData.generations[ generation ]?.regions ?? []}
+''',
+'''              generation={sectionLabel ?? t('dex.list.title', { generation })}
+              regions={sectionRegions ?? staticData.generations[ generation ]?.regions ?? []}
+''')
+replace_once(pokedex_list,
+'''                <PokedexItem
+                  key={species}
+                  species={species}
+                  speciesName={speciesName}
+                  isSeen={isSeen}
+                >
+''',
+'''                <PokedexItem
+                  key={\`\${dexProfile ?? 'national'}-\${species}\`}
+                  species={species}
+                  speciesName={speciesName}
+                  isSeen={isSeen}
+                  dexProfile={dexProfile}
+                >
+''')
+
+# Pokedex details: only the dedicated TMT section displays TMT type names.
+# Canonical entries still receive seen/caught/owned state from TMT but use
+# official species presentation.
+replace_once(pokedex_details,
+'''    selectedSpecies,
+    selectedSave,
+    selectedForm,
+''',
+'''    dexProfile,
+    selectedSpecies,
+    selectedSave,
+    selectedForm,
+''')
+replace_once(pokedex_details,
+'''  const isMega = !!staticData.species[ selectedSpecies ]?.forms[ selectedSave.context ]?.[ selectedStaticFormWithIndex.index ]?.isMega;
+''',
+'''  const isMega = !!selectedStaticFormWithIndex.isMega;
+''')
+replace_once(pokedex_details,
+'''      types={selectedForm.romHackTypes?.length
+        ? selectedForm.romHackTypes.map(type => <TmtTypeItem key={type} type={type} />)
+        : selectedForm.types.map(type => <TypeItem key={type} type={type} />)}
+''',
+'''      types={dexProfile === 'tmt' && selectedForm.romHackTypes?.length
+        ? selectedForm.romHackTypes.map(type => <TmtTypeItem key={type} type={type} />)
+        : selectedForm.types.map(type => <TypeItem key={type} type={type} />)}
+''')
+replace_once(pokedex_details,
+'''        allowContextFallback={!!selectedForm.romHackTypes?.length}
+''',
+'''        allowContextFallback={!!selectedSave.romHackProfile}
+''')
+replace_once(pokedex_details,
+'''    onClose={() => navigate({
+      search: {
+        selected: undefined,
+      }
+    })}
+''',
+'''    onClose={() => navigate({
+      search: search => ({
+        ...search,
+        selected: undefined,
+        dexProfile: undefined,
+        selectedSaveId: undefined,
+      })
+    })}
+''')
+
+pokedex_owned = PKVAULT / "frontend/src/pokedex/details/content/pokedex-details-owned.tsx"
+replace_once(pokedex_owned,
+'''        <SpeciesImg species={species} context={pkm.context} form={pkm.form} isFemale={pkm.gender === Gender.Female}
+            isShiny={pkm.isShiny} isEgg={pkm.isEgg} isShadow={pkm.isShadow} />
+''',
+'''        <SpeciesImg species={species} context={pkm.context} form={pkm.form} isFemale={pkm.gender === Gender.Female}
+            isShiny={pkm.isShiny} isEgg={pkm.isEgg} isShadow={pkm.isShadow}
+            allowContextFallback={!!pkm.romHackProfile} />
+''')
+
+# Save labels: never masquerade a TMT save as plain Emerald in the UI.
+saves_page = PKVAULT / "frontend/src/pages/saves.tsx"
+replace_once(saves_page,
+'''import { getGameInfos } from '../pokedex/details/util/get-game-infos';
+''',
+'''import { getGameInfos } from '../pokedex/details/util/get-game-infos';
+import { getSaveDisplayName } from '../romhacks/get-save-display-name';
+''')
+replace_once(saves_page,
+'''                label={staticData.versions[ save.displayedVersion ]?.name}
+''',
+'''                label={getSaveDisplayName(staticData.versions[ save.displayedVersion ]?.name, save.romHackProfile)}
+''')
+
+game_list = PKVAULT / "frontend/src/storage/panel/game-list/storage-panel-game-list.tsx"
+replace_once(game_list,
+'''import { getGameInfos } from '../../../pokedex/details/util/get-game-infos';
+''',
+'''import { getGameInfos } from '../../../pokedex/details/util/get-game-infos';
+import { getSaveDisplayName } from '../../../romhacks/get-save-display-name';
+''')
+replace_once(game_list,
+'''            ...saveInfos.map(({ id, displayedVersion, duplicates }): UIGameData => ({
+                id: id.toString(),
+                imgSrc: getGameInfos(displayedVersion).img,
+                label: staticData.versions[ displayedVersion ]?.name ?? '',
+                hasDuplicates: duplicates.length > 0,
+            })),
+''',
+'''            ...saveInfos.map(({ id, displayedVersion, duplicates, romHackProfile }): UIGameData => ({
+                id: id.toString(),
+                imgSrc: getGameInfos(displayedVersion).img,
+                label: getSaveDisplayName(staticData.versions[ displayedVersion ]?.name, romHackProfile),
+                hasDuplicates: duplicates.length > 0,
+            })),
+''')
+
+save_item_edit = PKVAULT / "frontend/src/saves/save-item/save-item-edit.tsx"
+replace_once(save_item_edit,
+'''import { getGameInfos } from '../../pokedex/details/util/get-game-infos';
+''',
+'''import { getGameInfos } from '../../pokedex/details/util/get-game-infos';
+import { getSaveDisplayName } from '../../romhacks/get-save-display-name';
+''')
+replace_once(save_item_edit,
+'''                        label={staticData.versions[ save.displayedVersion ]?.name}
+''',
+'''                        label={getSaveDisplayName(staticData.versions[ save.displayedVersion ]?.name, save.romHackProfile)}
+''')
+replace_once(save_item_edit,
+'''                            label={staticData.versions[ s.displayedVersion ]?.name}
+''',
+'''                            label={getSaveDisplayName(staticData.versions[ s.displayedVersion ]?.name, s.romHackProfile)}
+''')
+
+details_attached = PKVAULT / "frontend/src/storage/details/details-attached-button.tsx"
+replace_once(details_attached,
+'''import { Route } from '../../routes/storage';
+''',
+'''import { Route } from '../../routes/storage';
+import { getSaveDisplayName } from '../../romhacks/get-save-display-name';
+''')
+replace_once(details_attached,
+'''        ? <>{staticData.versions[ attachedSave.displayedVersion ]?.name} ({attachedSave.trainerName})</>
+''',
+'''        ? <>{getSaveDisplayName(staticData.versions[ attachedSave.displayedVersion ]?.name, attachedSave.romHackProfile)} ({attachedSave.trainerName})</>
+''')
+
 print("PKVault V8 TMT patch applied")
