@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PKHeX.Core;
 
@@ -188,12 +189,17 @@ public sealed class PKEssentials : PKM
     };
 
     public static byte[] Serialize(PKEssentials pkm) =>
-        JsonSerializer.SerializeToUtf8Bytes(pkm.ToPayload());
+        JsonSerializer.SerializeToUtf8Bytes(
+            pkm.ToPayload(),
+            EssentialsJsonContext.Default.EssentialsPkmPayload
+        );
 
     public static PKEssentials Deserialize(ReadOnlySpan<byte> data)
     {
-        var payload = JsonSerializer.Deserialize<EssentialsPkmPayload>(data)
-            ?? throw new InvalidDataException("Invalid PKVault Essentials Pokémon payload.");
+        var payload = JsonSerializer.Deserialize(
+            data,
+            EssentialsJsonContext.Default.EssentialsPkmPayload
+        ) ?? throw new InvalidDataException("Invalid PKVault Essentials Pokémon payload.");
         return new(payload);
     }
 
@@ -431,4 +437,14 @@ public sealed record EssentialsPkmPayload
     public byte HatchCycles { get; init; }
     public int BaseEXP { get; init; }
     public int[]? AbilityIds { get; init; }
+}
+
+
+[JsonSourceGenerationOptions(
+    GenerationMode = JsonSourceGenerationMode.Metadata,
+    PropertyNamingPolicy = JsonKnownNamingPolicy.Unspecified
+)]
+[JsonSerializable(typeof(EssentialsPkmPayload))]
+internal partial class EssentialsJsonContext : JsonSerializerContext
+{
 }
