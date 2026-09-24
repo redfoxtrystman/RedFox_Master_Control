@@ -96,7 +96,17 @@ static async Task Seed(IServiceProvider sp, string profile)
 
 static async Task SeedTmt(IServiceProvider sp)
 {
-    var set = new (ushort Species, byte Form, string Name, byte Level)[]
+    // Mixed-format compatibility profile:
+    // - TMT v1.6 direct-species .tmt3
+    // - stock Emerald .pk3
+    // - native Gen 1 .pk1
+    // - native Gen 2 .pk2
+    //
+    // This is intentionally not one homogeneous format. The whole point is to
+    // exercise PKVault's conversion path when the user drags older/vanilla
+    // Pokemon into the loaded Too Many Types save.
+
+    var tmtSet = new (ushort Species, byte Form, string Name, byte Level)[]
     {
         (654, 0, "BRAIXEN", 24),   // Fire / Magic / Furry
         (280, 0, "RALTS", 18),     // Space / Fairy
@@ -110,13 +120,70 @@ static async Task SeedTmt(IServiceProvider sp)
         (599, 0, "KLINK", 21),     // Steel / Guys / Prime
     };
 
+    var emeraldSet = new (ushort Species, string Name, byte Level)[]
+    {
+        (257, "BLAZIKEN", 36),   // regression: stock Gen3 internal id 282
+        (261, "POOCHYENA", 12),
+        (270, "LOTAD", 14),
+        (280, "RALTS", 16),
+        (282, "GARDEVOIR", 38),
+        (292, "SHEDINJA", 25),
+        (302, "SABLEYE", 27),
+        (327, "SPINDA", 24),
+        (334, "ALTARIA", 39),
+        (350, "MILOTIC", 42),
+        (358, "CHIMECHO", 35),   // regression: stock Gen3 internal id 411
+        (359, "ABSOL", 37),
+        (376, "METAGROSS", 50),
+        (384, "RAYQUAZA", 70),
+        (386, "DEOXYS", 50),
+    };
+
+    var gen1Set = new (ushort Species, string Name, byte Level)[]
+    {
+        (25, "PIKACHU", 20),
+        (37, "VULPIX", 22),
+        (50, "DIGLETT", 19),
+        (56, "MANKEY", 21),
+        (58, "GROWLITHE", 23),
+        (66, "MACHOP", 24),
+        (74, "GEODUDE", 20),
+        (79, "SLOWPOKE", 25),
+        (98, "KRABBY", 22),
+        (132, "DITTO", 25),
+        (133, "EEVEE", 20),
+        (134, "VAPOREON", 30),
+        (137, "PORYGON", 28),
+        (143, "SNORLAX", 35),
+        (151, "MEW", 40),
+    };
+
+    var gen2Set = new (ushort Species, string Name, byte Level)[]
+    {
+        (152, "CHIKORITA", 18),
+        (162, "FURRET", 24),
+        (169, "CROBAT", 32),
+        (172, "PICHU", 12),
+        (183, "MARILL", 20),
+        (185, "SUDOWOODO", 25),
+        (190, "AIPOM", 22),
+        (196, "ESPEON", 30),
+        (197, "UMBREON", 30),
+        (203, "GIRAFARIG", 28),
+        (206, "DUNSPARCE", 24),
+        (223, "REMORAID", 21),
+        (227, "SKARMORY", 30),
+        (233, "PORYGON2", 32),
+        (235, "SMEARGLE", 26),
+    };
+
     var settingsService = sp.GetRequiredService<ISettingsService>();
     var currentSettings = settingsService.GetSettings();
     await settingsService.UpdateSettingsSimple(
         currentSettings.SettingsMutable with
         {
             SAVE_GLOBS = [],
-            TRADER_NAME = "TMT Type Test",
+            TRADER_NAME = "TMT Compatibility Test",
         },
         currentSettings.UserId
     );
@@ -126,14 +193,62 @@ static async Task SeedTmt(IServiceProvider sp)
     var loader = scope.ServiceProvider.GetRequiredService<IPkmVariantLoader>();
     var session = sp.GetRequiredService<ISessionService>();
 
-    var box = await boxes.GetDto("0") ?? throw new Exception("Default Box 0 missing.");
-
     if ((await loader.GetAllEntities()).Count != 0)
-        throw new Exception("Refusing to seed non-empty PKVault TMT test profile.");
+        throw new Exception("Refusing to seed non-empty PKVault TMT compatibility profile.");
 
-    for (var i = 0; i < set.Length; i++)
+    var defaultBoxEntity = await boxes.GetEntity("0") ?? throw new Exception("Default Box 0 missing.");
+    defaultBoxEntity.Name = "TMT v1.6";
+    defaultBoxEntity.SlotCount = 30;
+    await boxes.UpdateEntity(defaultBoxEntity);
+
+    async Task<BoxDTO> CreateTestBox(string name)
     {
-        var s = set[i];
+        var bankBoxes = await boxes.GetEntitiesByBank(defaultBoxEntity.BankId);
+        var maxId = await boxes.GetMaxId();
+        var maxOrder = bankBoxes.Count == 0 ? 0 : bankBoxes.Values.Max(x => x.Order);
+
+        var entity = await boxes.AddEntity(new BoxEntity
+        {
+            Id = (maxId + 1).ToString(),
+            IdInt = maxId + 1,
+            Name = name,
+            Order = maxOrder + BoxLoader.OrderGap,
+            Type = BoxType.Box,
+            SlotCount = 30,
+            BankId = defaultBoxEntity.BankId,
+        });
+        await boxes.NormalizeOrders();
+        return boxes.CreateDTO(entity);
+    }
+
+    var tmtBox = await boxes.GetDto("0") ?? throw new Exception("TMT test box missing.");
+    var emeraldBox = await CreateTestBox("Emerald PK3");
+    var gen1Box = await CreateTestBox("Gen 1 PK1");
+    var gen2Box = await CreateTestBox("Gen 2 PK2");
+
+    async Task AddToBox(BoxDTO box, int slot, PKM pkm, string id)
+    {
+        var immutable = new ImmutablePKM(pkm);
+        if (!immutable.IsEnabled)
+            throw new Exception($"Seed Pokemon {pkm.Species} ({id}) is disabled.");
+
+        await loader.AddEntity(new(
+            Box: box,
+            BoxSlot: slot,
+            IsMain: true,
+            IsExternal: false,
+            AttachedSaveId: null,
+            AttachedSavePkmIdBase: null,
+            Context: pkm.Context,
+            Generation: pkm.Generation,
+            Pkm: immutable,
+            Id: id
+        ));
+    }
+
+    for (var i = 0; i < tmtSet.Length; i++)
+    {
+        var s = tmtSet[i];
         var entry = TooManyTypesCompat.RequireSupported(s.Species, s.Form);
 
         var p = new PK3
@@ -152,32 +267,88 @@ static async Task SeedTmt(IServiceProvider sp)
         p.CurrentLevel = s.Level;
         p.OriginalTrainerName = "TMTTEST";
         p.Nickname = s.Name;
-        p.Move1 = 33; // harmless canonical move for the visual/type test profile
+        p.Move1 = 33;
         p.Move1_PP = 35;
         p.RefreshChecksum();
 
         var immutable = new ImmutablePKM(p);
-        if (!immutable.IsEnabled)
-            throw new Exception($"TMT seed Pokemon {s.Name} is disabled.");
         if (TooManyTypesCompat.GetTypes(immutable) is not { Length: > 0 })
             throw new Exception($"TMT seed Pokemon {s.Name} lost ROM-hack type metadata.");
 
-        await loader.AddEntity(new(
-            Box: box,
-            BoxSlot: i,
-            IsMain: true,
-            IsExternal: false,
-            AttachedSaveId: null,
-            AttachedSavePkmIdBase: null,
-            Context: EntityContext.Gen3,
-            Generation: 3,
-            Pkm: immutable,
-            Id: $"tmt-type-test-{i}"
-        ));
+        await AddToBox(tmtBox, i, p, $"compat-tmt-{i:00}");
+    }
+
+    for (var i = 0; i < emeraldSet.Length; i++)
+    {
+        var s = emeraldSet[i];
+        var p = new PK3
+        {
+            PID = (uint)(0x24680000 + i * 0x111),
+            TID16 = (ushort)(22000 + i),
+            SID16 = (ushort)(32000 + i),
+            Version = GameVersion.E,
+            Language = (int)LanguageID.English,
+            Ball = 4,
+            OriginalTrainerGender = 0,
+            Species = s.Species,
+            CurrentLevel = s.Level,
+            Move1 = 33,
+            Move1_PP = 35,
+        };
+        p.OriginalTrainerName = "EMERALD";
+        p.Nickname = s.Name;
+        p.RefreshChecksum();
+
+        if (p.DirectSpeciesIDs)
+            throw new Exception($"Vanilla Emerald seed {s.Name} incorrectly entered direct-species mode.");
+
+        await AddToBox(emeraldBox, i, p, $"compat-emerald-{i:00}");
+    }
+
+    for (var i = 0; i < gen1Set.Length; i++)
+    {
+        var s = gen1Set[i];
+        if (!TooManyTypesProfileGenerated.Entries.Any(e => e.Species == s.Species && e.Form == 0))
+            throw new Exception($"Gen1 test species {s.Name} is not supported by TMT v1.6.");
+
+        var p = new PK1
+        {
+            Species = s.Species,
+            TID16 = (ushort)(11000 + i),
+            DV16 = (ushort)(0x1111 + (i * 0x0101)),
+            CurrentLevel = s.Level,
+        };
+        p.OriginalTrainerName = "GEN1TEST";
+        p.Nickname = s.Name;
+        await AddToBox(gen1Box, i, p, $"compat-gen1-{i:00}");
+    }
+
+    for (var i = 0; i < gen2Set.Length; i++)
+    {
+        var s = gen2Set[i];
+        if (!TooManyTypesProfileGenerated.Entries.Any(e => e.Species == s.Species && e.Form == 0))
+            throw new Exception($"Gen2 test species {s.Name} is not supported by TMT v1.6.");
+
+        var p = new PK2
+        {
+            Species = s.Species,
+            TID16 = (ushort)(12000 + i),
+            DV16 = (ushort)(0x2222 + (i * 0x0101)),
+            CurrentLevel = s.Level,
+            Version = GameVersion.C,
+        };
+        p.OriginalTrainerName = "GEN2TEST";
+        p.Nickname = s.Name;
+        await AddToBox(gen2Box, i, p, $"compat-gen2-{i:00}");
     }
 
     await session.PersistSession(scope);
-    Console.WriteLine($"SEEDED TMT TYPE TEST: {string.Join(",", set.Select(x => x.Species))}");
+
+    var all = await loader.GetAllEntities();
+    if (all.Count != 55)
+        throw new Exception($"Expected exactly 55 compatibility test Pokemon, got {all.Count}.");
+
+    Console.WriteLine("SEEDED TMT COMPATIBILITY PROFILE: 10 TMT + 15 Emerald + 15 Gen1 + 15 Gen2 = 55");
 }
 
 static async Task<List<PkmVariantDTO>> MainPkms(IServiceProvider sp)
