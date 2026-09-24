@@ -719,120 +719,12 @@ shutil.copyfile(HERE / "use-pokedex-details-select-v8.ts",
 shutil.copyfile(HERE / "get-save-display-name.ts",
                 frontend_romhacks / "get-save-display-name.ts")
 
-pokedex_route = PKVAULT / "frontend/src/routes/pokedex.tsx"
-replace_once(pokedex_route,
-'''  selectedSaveId: z.number().optional(),
-  selectExpanded: z.enum([ 'none', 'expanded' ] as const satisfies DetailsExpandedState[]).optional(),
-''',
-'''  selectedSaveId: z.number().optional(),
-  dexProfile: z.enum([ 'tmt' ] as const).optional(),
-  selectExpanded: z.enum([ 'none', 'expanded' ] as const satisfies DetailsExpandedState[]).optional(),
-''')
-replace_once(pokedex_route,
-'''    selectedSaveId: undefined,
-    selectExpanded: undefined,
-''',
-'''    selectedSaveId: undefined,
-    dexProfile: undefined,
-    selectExpanded: undefined,
-''')
-
-pokedex_item = PKVAULT / "frontend/src/pokedex/list/pokedex-item.tsx"
-replace_once(pokedex_item,
-'''import { Route } from "../../routes/pokedex";
-''',
-'''import { Route } from "../../routes/pokedex";
-import type { DexProfile } from "./hooks/use-pokedex-items";
-''')
-replace_once(pokedex_item,
-'''  isSeen: boolean;
-  children: React.ReactNode[];
-};
-''',
-'''  isSeen: boolean;
-  dexProfile?: DexProfile;
-  children: React.ReactNode[];
-};
-''')
-replace_once(pokedex_item,
-'''export const PokedexItem: React.FC<PokedexItemProps> = withErrorCatcher("item", React.memo(({ species, speciesName, isSeen, children }) => {
-  const navigate = Route.useNavigate();
-
-  const selected = Route.useSearch({ select: (search) => search.selected === species });
-
-  const onClick = React.useMemo(() => isSeen
-    ? () =>
-      navigate({
-        search: {
-          selected: selected ? undefined : species,
-        },
-      })
-    : undefined,
-    [ navigate, isSeen, selected, species ],
-  );
-
-  return <UIPokedexItem
-    id={\`species-\${species}\`}
-''',
-'''export const PokedexItem: React.FC<PokedexItemProps> = withErrorCatcher("item", React.memo(({ species, speciesName, isSeen, dexProfile, children }) => {
-  const navigate = Route.useNavigate();
-
-  const selected = Route.useSearch({
-    select: (search) => search.selected === species && search.dexProfile === dexProfile
-  });
-
-  const onClick = React.useMemo(() => isSeen
-    ? () =>
-      navigate({
-        search: search => ({
-          ...search,
-          selected: selected ? undefined : species,
-          dexProfile: selected ? undefined : dexProfile,
-          selectedSaveId: undefined,
-        }),
-      })
-    : undefined,
-    [ navigate, isSeen, selected, species, dexProfile ],
-  );
-
-  return <UIPokedexItem
-    id={\`species-\${dexProfile ?? 'national'}-\${species}\`}
-''')
-
-pokedex_list = PKVAULT / "frontend/src/pokedex/list/pokedex-list.tsx"
-replace_once(pokedex_list,
-'''        itemsCount,
-      }, i) => [
-''',
-'''        itemsCount,
-        dexProfile,
-        sectionLabel,
-        sectionRegions,
-      }, i) => [
-''')
-replace_once(pokedex_list,
-'''              generation={t('dex.list.title', { generation })}
-              regions={staticData.generations[ generation ]?.regions ?? []}
-''',
-'''              generation={sectionLabel ?? t('dex.list.title', { generation })}
-              regions={sectionRegions ?? staticData.generations[ generation ]?.regions ?? []}
-''')
-replace_once(pokedex_list,
-'''                <PokedexItem
-                  key={species}
-                  species={species}
-                  speciesName={speciesName}
-                  isSeen={isSeen}
-                >
-''',
-'''                <PokedexItem
-                  key={\`\${dexProfile ?? 'national'}-\${species}\`}
-                  species={species}
-                  speciesName={speciesName}
-                  isSeen={isSeen}
-                  dexProfile={dexProfile}
-                >
-''')
+shutil.copyfile(HERE / "pokedex-route-v8.tsx",
+                PKVAULT / "frontend/src/routes/pokedex.tsx")
+shutil.copyfile(HERE / "pokedex-item-v8.tsx",
+                PKVAULT / "frontend/src/pokedex/list/pokedex-item.tsx")
+shutil.copyfile(HERE / "pokedex-list-v8.tsx",
+                PKVAULT / "frontend/src/pokedex/list/pokedex-list.tsx")
 
 # Pokedex details: only the dedicated TMT section displays TMT type names.
 # Canonical entries still receive seen/caught/owned state from TMT but use
