@@ -282,7 +282,7 @@ public sealed class PKEssentials : PKM
     public override int Stat_SPA { get; set; }
     public override int Stat_SPD { get; set; }
 
-    public override GameVersion Version { get; set; } = GameVersion.Invalid;
+    public override GameVersion Version { get; set; } = GameVersion.E;
     public override uint ID32
     {
         get => (uint)(TID16 | (SID16 << 16));
@@ -307,7 +307,8 @@ public sealed class PKEssentials : PKM
     public override int MaxItemID => ushort.MaxValue;
     public override int MaxAbilityID => ushort.MaxValue;
     public override int MaxBallID => byte.MaxValue;
-    public override GameVersion MaxGameID => GameVersion.Invalid;
+    public override GameVersion MaxGameID => GameVersion.E;
+    public override GameVersion MinGameID => GameVersion.E;
     public override int MaxIV => 31;
     public override int MaxEV => 252;
     public override int MaxStringLengthTrainer => 32;
