@@ -93,6 +93,93 @@ static async Task Seed(IServiceProvider sp, string profile)
     Console.WriteLine($"SEEDED {profile}: {string.Join(",", set.Select(x => x.Species))}");
 }
 
+
+static async Task SeedTmt(IServiceProvider sp)
+{
+    var set = new (ushort Species, byte Form, string Name, byte Level)[]
+    {
+        (654, 0, "BRAIXEN", 24),   // Fire / Magic / Furry
+        (280, 0, "RALTS", 18),     // Space / Fairy
+        (728, 0, "POPPLIO", 20),   // Water / Silly
+        (778, 0, "MIMIKYU", 28),   // Ghost / Sus
+        (885, 0, "DREEPY", 22),    // Gun / Ghost / Baby
+        (872, 0, "SNOM", 16),      // Ice / Bean
+        (856, 0, "HATENNA", 19),   // Vibe / Magic
+        (870, 0, "FALINKS", 30),   // Silly / Little / Guys
+        (765, 0, "ORANGURU", 27),  // Monke / Stinky
+        (599, 0, "KLINK", 21),     // Steel / Guys / Prime
+    };
+
+    var settingsService = sp.GetRequiredService<ISettingsService>();
+    var currentSettings = settingsService.GetSettings();
+    await settingsService.UpdateSettingsSimple(
+        currentSettings.SettingsMutable with
+        {
+            SAVE_GLOBS = [],
+            TRADER_NAME = "TMT Type Test",
+        },
+        currentSettings.UserId
+    );
+
+    using var scope = sp.CreateScope();
+    var boxes = scope.ServiceProvider.GetRequiredService<IBoxLoader>();
+    var loader = scope.ServiceProvider.GetRequiredService<IPkmVariantLoader>();
+    var session = sp.GetRequiredService<ISessionService>();
+
+    var box = await boxes.GetDto("0") ?? throw new Exception("Default Box 0 missing.");
+
+    if ((await loader.GetAllEntities()).Count != 0)
+        throw new Exception("Refusing to seed non-empty PKVault TMT test profile.");
+
+    for (var i = 0; i < set.Length; i++)
+    {
+        var s = set[i];
+        var entry = TooManyTypesCompat.RequireSupported(s.Species, s.Form);
+
+        var p = new PK3
+        {
+            DirectSpeciesIDs = true,
+            PID = (uint)(0x13570000 + i * 0x101),
+            TID16 = (ushort)(51000 + i),
+            SID16 = (ushort)(61000 + i),
+            Version = GameVersion.E,
+            Language = (int)LanguageID.English,
+            Ball = 4,
+            OriginalTrainerGender = 0,
+        };
+
+        p.SpeciesInternal = entry.RawSpecies;
+        p.CurrentLevel = s.Level;
+        p.OriginalTrainerName = "TMTTEST";
+        p.Nickname = s.Name;
+        p.Move1 = 33; // harmless canonical move for the visual/type test profile
+        p.Move1_PP = 35;
+        p.RefreshChecksum();
+
+        var immutable = new ImmutablePKM(p);
+        if (!immutable.IsEnabled)
+            throw new Exception($"TMT seed Pokemon {s.Name} is disabled.");
+        if (TooManyTypesCompat.GetTypes(immutable) is not { Length: > 0 })
+            throw new Exception($"TMT seed Pokemon {s.Name} lost ROM-hack type metadata.");
+
+        await loader.AddEntity(new(
+            Box: box,
+            BoxSlot: i,
+            IsMain: true,
+            IsExternal: false,
+            AttachedSaveId: null,
+            AttachedSavePkmIdBase: null,
+            Context: EntityContext.Gen3,
+            Generation: 3,
+            Pkm: immutable,
+            Id: $"tmt-type-test-{i}"
+        ));
+    }
+
+    await session.PersistSession(scope);
+    Console.WriteLine($"SEEDED TMT TYPE TEST: {string.Join(",", set.Select(x => x.Species))}");
+}
+
 static async Task<List<PkmVariantDTO>> MainPkms(IServiceProvider sp)
 {
     var q = sp.GetRequiredService<StorageQueryService>();
@@ -324,7 +411,7 @@ static async Task Verify(IServiceProvider sp, string expected)
 }
 
 if (args.Length == 0)
-    throw new ArgumentException("usage: seed A|B | host | join | direct-host address-file | direct-join address-file | verify csv");
+    throw new ArgumentException("usage: seed A|B | seed-tmt | host | join | direct-host address-file | direct-join address-file | verify csv");
 
 var sp = await Boot();
 
@@ -332,6 +419,9 @@ switch (args[0].ToLowerInvariant())
 {
     case "seed":
         await Seed(sp, args[1]);
+        break;
+    case "seed-tmt":
+        await SeedTmt(sp);
         break;
     case "host":
         await Trade(sp, host: true);
