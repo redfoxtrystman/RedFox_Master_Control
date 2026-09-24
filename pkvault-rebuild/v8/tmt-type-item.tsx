@@ -10,7 +10,7 @@ type TmtTypeStyle = {
 // type icon graphics/palettes. Single-color entries use the icon's primary
 // background color; genuinely split/multicolor icons preserve that presentation
 // with a CSS gradient instead of collapsing them to one arbitrary color.
-export const TMT_TYPE_STYLES: Record<string, TmtTypeStyle> = {
+const TMT_TYPE_STYLES: Record<string, TmtTypeStyle> = {
     normal:    { background: '#ACAC7B' },
     fighting:  { background: '#C53129' },
     flying:    { background: '#AC94F6' },
