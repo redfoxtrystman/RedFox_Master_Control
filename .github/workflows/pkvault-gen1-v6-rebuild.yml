@@ -222,6 +222,8 @@ jobs:
           using PKHeX.Core;
           using PKVault.Core;
 
+          AppContext.SetSwitch("System.Text.Json.JsonSerializer.IsReflectionEnabledByDefault", false);
+
           static void Need(bool value, string message)
           {
               if (!value) throw new Exception(message);
