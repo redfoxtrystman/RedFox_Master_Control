@@ -181,11 +181,11 @@ public sealed class PKEssentials : PKM
     };
 
     public static byte[] Serialize(PKEssentials pkm) =>
-        JsonSerializer.SerializeToUtf8Bytes(pkm.ToPayload(), EssentialsJsonContext.Default.EssentialsPkmPayload);
+        JsonSerializer.SerializeToUtf8Bytes(pkm.ToPayload());
 
     public static PKEssentials Deserialize(ReadOnlySpan<byte> data)
     {
-        var payload = JsonSerializer.Deserialize(data, EssentialsJsonContext.Default.EssentialsPkmPayload)
+        var payload = JsonSerializer.Deserialize<EssentialsPkmPayload>(data)
             ?? throw new InvalidDataException("Invalid PKVault Essentials Pokémon payload.");
         return new(payload);
     }
@@ -423,6 +423,3 @@ public sealed record EssentialsPkmPayload
     public int BaseEXP { get; init; }
     public int[]? AbilityIds { get; init; }
 }
-
-[JsonSerializable(typeof(EssentialsPkmPayload))]
-internal partial class EssentialsJsonContext : JsonSerializerContext;
