@@ -1,4 +1,4 @@
-# PKVault V8 alpha3 TMT vanilla-isolation + UI/type test
+# PKVault V8 alpha4 TMT exact type colors + vanilla-isolation + UI/type test
 from pathlib import Path
 import shutil
 import sys
@@ -468,6 +468,10 @@ replace_once(swagger,
           }
 ''')
 
+frontend_romhacks = PKVAULT / "frontend/src/romhacks"
+frontend_romhacks.mkdir(parents=True, exist_ok=True)
+shutil.copyfile(HERE / "tmt-type-item.tsx", frontend_romhacks / "tmt-type-item.tsx")
+
 species_img = PKVAULT / "frontend/src/img/species-img.tsx"
 replace_once(species_img,
 '''    isEgg?: boolean;
@@ -561,6 +565,12 @@ replace_once(storage_save_item,
 
 details_main = PKVAULT / "frontend/src/storage/details/details-main.tsx"
 replace_once(details_main,
+'''import { TypeItem } from './type-item/type-item';
+''',
+'''import { TypeItem } from './type-item/type-item';
+import { TmtTypeItem } from '../../romhacks/tmt-type-item';
+''')
+replace_once(details_main,
 '''    const staticForms = staticData.species[ pkm.species ]?.forms[ pkm.context ];
     const formObj = staticForms?.[ pkm.form ] ?? staticForms?.[ 0 ];
 ''',
@@ -575,7 +585,7 @@ replace_once(details_main,
 '''        types={pkm.types.map(type => <TypeItem key={type} type={type} />)}
 ''',
 '''        types={pkm.romHackTypes?.length
-            ? pkm.romHackTypes.map(type => <Badge key={type} variant='light' size='sm'>{type}</Badge>)
+            ? pkm.romHackTypes.map(type => <TmtTypeItem key={type} type={type} />)
             : pkm.types.map(type => <TypeItem key={type} type={type} />)}
 ''')
 replace_once(details_main,
@@ -591,15 +601,16 @@ replace_once(details_main,
 
 pokedex_details = PKVAULT / "frontend/src/pokedex/details/pokedex-details.tsx"
 replace_once(pokedex_details,
-'''import { Grid, Group, Text } from '@mantine/core';
+'''import { TypeItem } from '../../storage/details/type-item/type-item';
 ''',
-'''import { Badge, Grid, Group, Text } from '@mantine/core';
+'''import { TypeItem } from '../../storage/details/type-item/type-item';
+import { TmtTypeItem } from '../../romhacks/tmt-type-item';
 ''')
 replace_once(pokedex_details,
 '''      types={selectedForm.types.map(type => <TypeItem key={type} type={type} />)}
 ''',
 '''      types={selectedForm.romHackTypes?.length
-        ? selectedForm.romHackTypes.map(type => <Badge key={type} variant='light' size='sm'>{type}</Badge>)
+        ? selectedForm.romHackTypes.map(type => <TmtTypeItem key={type} type={type} />)
         : selectedForm.types.map(type => <TypeItem key={type} type={type} />)}
 ''')
 replace_once(pokedex_details,
