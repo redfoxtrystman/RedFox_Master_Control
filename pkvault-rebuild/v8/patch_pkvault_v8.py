@@ -1165,3 +1165,31 @@ replace_once(path_icon,
 ''')
 
 print("PKVault V8 alpha8 Essentials read-only save integration applied")
+
+
+# Alpha8: pass the profile-local sprite guard through the shared StorageItem.
+storage_item_ess = PKVAULT / "frontend/src/storage/item/storage-item.tsx"
+replace_once(storage_item_ess,
+'''  & Pick<SpeciesImgProps, 'species' | 'context' | 'form' | 'isFemale' | 'isShiny' | 'isEgg' | 'isShadow' | 'allowContextFallback'>;
+''',
+'''  & Pick<SpeciesImgProps, 'species' | 'context' | 'form' | 'isFemale' | 'isShiny' | 'isEgg' | 'isShadow' | 'allowContextFallback' | 'profileLocalSpecies'>;
+''')
+replace_once(storage_item_ess,
+'''  isShadow,
+  allowContextFallback,
+
+  ...rest
+''',
+'''  isShadow,
+  allowContextFallback,
+  profileLocalSpecies,
+
+  ...rest
+''')
+replace_once(storage_item_ess,
+'''      <SpeciesImg species={species} context={context} form={form} isFemale={isFemale} isShiny={isShiny} isEgg={isEgg} isShadow={isShadow} allowContextFallback={allowContextFallback} />
+''',
+'''      <SpeciesImg species={species} context={context} form={form} isFemale={isFemale} isShiny={isShiny} isEgg={isEgg} isShadow={isShadow}
+        allowContextFallback={allowContextFallback} profileLocalSpecies={profileLocalSpecies} />
+''')
+print("PKVault V8 alpha8 profileLocalSpecies wiring through StorageItem applied")
