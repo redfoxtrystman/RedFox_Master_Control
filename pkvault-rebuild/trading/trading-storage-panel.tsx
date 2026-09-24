@@ -101,7 +101,7 @@ export const TradingStoragePanel: React.FC = () => {
     const [ address, setAddress ] = React.useState('localhost:0000');
     const [ busy, setBusy ] = React.useState(false);
     const [ error, setError ] = React.useState<string | null>(null);
-    const previousStatus = React.useRef<string>();
+    const previousStatus = React.useRef<string | undefined>(undefined);
 
     const refresh = React.useCallback(async () => {
         try {
