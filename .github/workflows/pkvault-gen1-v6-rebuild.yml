@@ -229,6 +229,14 @@ jobs:
           Need(uranium.Party[0].ProfileId == "pokemon-uranium", "Uranium PKM profile ID missing");
           Need(uranium.Party[0].LocalSpeciesId == 170, $"Unexpected Uranium first party species {uranium.Party[0].LocalSpeciesId}");
 
+          var uraniumFacade = new EssentialsReadOnlySaveFile(uranium);
+          Need(uraniumFacade.PartyCount == 6, "Uranium read-only facade lost party count");
+          Need(uraniumFacade.BoxCount == 35, $"Expected 35 Uranium boxes, got {uraniumFacade.BoxCount}");
+          Need(uraniumFacade.GetBoxSlotFlags(0).HasFlag(StorageSlotSource.Locked), "Uranium box slot is not write-locked");
+          Need(uraniumFacade.GetBoxSlotFlags(-uraniumFacade.BoxSlotCount).HasFlag(StorageSlotSource.Locked), "Uranium party slot is not write-locked");
+          Need(((PKEssentials)uraniumFacade.PartyData[0]).ProfileId == "pokemon-uranium", "Uranium facade lost profile-local PKM identity");
+          Need(uraniumFacade.Write().ToArray().SequenceEqual(uranium.OriginalBytes), "Uranium facade write path changed original rxdata bytes");
+
           var uraniumRoundTrip = PKEssentials.Deserialize(PKEssentials.Serialize(uranium.Party[0]));
           Need(uraniumRoundTrip.ProfileId == uranium.Party[0].ProfileId, "Uranium PKM profile lost on serialize");
           Need(uraniumRoundTrip.LocalSpeciesId == uranium.Party[0].LocalSpeciesId, "Uranium local species lost on serialize");
@@ -241,6 +249,12 @@ jobs:
           Need(insurgence.PokemonCount == 4, $"Expected 4 Insurgence Pokemon, got {insurgence.PokemonCount}");
           Need(insurgence.Party[0].ProfileId == "pokemon-insurgence", "Insurgence PKM profile ID missing");
           Need(insurgence.Party[0].LocalSpeciesId == 731, $"Unexpected Insurgence first party species {insurgence.Party[0].LocalSpeciesId}");
+
+          var insurgenceFacade = new EssentialsReadOnlySaveFile(insurgence);
+          Need(insurgenceFacade.PartyCount == 4, "Insurgence read-only facade lost party count");
+          Need(insurgenceFacade.BoxCount == 24, $"Expected 24 Insurgence boxes, got {insurgenceFacade.BoxCount}");
+          Need(insurgenceFacade.GetBoxSlotFlags(0).HasFlag(StorageSlotSource.Locked), "Insurgence box slot is not write-locked");
+          Need(insurgenceFacade.Write().ToArray().SequenceEqual(insurgence.OriginalBytes), "Insurgence facade write path changed original rxdata bytes");
 
           // Most important collision regression: Essentials-local species 1 is
           // allowed to remain profile-local rather than being treated as Bulbasaur.
@@ -627,7 +641,8 @@ jobs:
           ! grep -q "RomHackTypes" pkvault-src/PKVault.Core/dex/dto/DexItemDTO.cs
 
           grep -q "GetOfficialPresentation" pkvault-src/PKVault.Core/dex/services/gen/DexTmtService.cs
-          grep -q "RomHackTypes => TooManyTypesCompat.GetTypes" pkvault-src/PKVault.Core/storage/dto/PkmBaseDTO.cs
+          grep -q "TooManyTypesCompat.GetTypes(Pkm)" pkvault-src/PKVault.Core/storage/dto/PkmBaseDTO.cs
+          grep -q "PKEssentials essentials" pkvault-src/PKVault.Core/storage/dto/PkmBaseDTO.cs
           grep -q "TmtTypeItem" pkvault-src/frontend/src/storage/details/details-main.tsx
 
           grep -q "margin='250px'" pkvault-src/frontend/src/ui/pokedex/main/section/ui-pokedex-main-section.tsx
@@ -642,12 +657,12 @@ jobs:
       - name: Frontend SDK + typecheck with ROM-hack fields
         run: |
           cd pkvault-src
-          docker build . --target frontend-check -t pkvault-v8-alpha7-frontend-check
+          docker build . --target frontend-check -t pkvault-v8-alpha8-frontend-check
 
-      - name: Package complete v8.0.0-alpha7-TMT source snapshot
+      - name: Package complete v8.0.0-alpha8-Essentials source snapshot
         run: |
           set -euo pipefail
-          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha7-TMT-FULL-SOURCE"
+          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha8-Essentials-FULL-SOURCE"
           rm -rf "$SOURCE_ROOT"
           mkdir -p "$SOURCE_ROOT"
 
@@ -663,18 +678,18 @@ jobs:
           rm -rf "$SOURCE_ROOT/PKVault/.git" "$SOURCE_ROOT/PKHeX/.git"
 
           cat > "$SOURCE_ROOT/SOURCE_README.txt" <<'EOF'
-          PKVault v8.0.0-alpha7-TMT FULL SOURCE
+          PKVault v8.0.0-alpha8-Essentials FULL SOURCE
           ==========================
-          Release line: V8 alpha7 ROM-Hack Compatibility + Too Many Types v1.6 + existing Trading/MissingNo support
+          Release line: V8 alpha8 Essentials read-only foundation (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
           PKVault upstream baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec
           PKHeX upstream baseline: kwsch/PKHeX 74b88906e935e4a52d6d9243b8e373056409c738
-          RedFox build branch: pkvault-v8-romhack-tmt
+          RedFox build branch: pkvault-v8-uranium-insurgence
 
           Contents:
-          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha7-TMT.
+          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha8-Essentials.
           - PKHeX/          Exact patched PKHeX source tree used to build PKHeX.Core.
           - RedFox-Rebuild/ Reconstruction patcher, trading sources, and trading smoke harness.
-          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha7-TMT.
+          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha8-Essentials.
           - SOURCE_FILE_SHA256SUMS.txt hashes every file in this source snapshot.
 
           Reproduction:
@@ -695,47 +710,47 @@ jobs:
 
           (
             cd "$GITHUB_WORKSPACE/dist"
-            zip -9 -r PKVault-v8.0.0-alpha7-TMT-FULL-SOURCE.zip PKVault-v8.0.0-alpha7-TMT-FULL-SOURCE
-            sha256sum PKVault-v8.0.0-alpha7-TMT-FULL-SOURCE.zip > PKVault-v8.0.0-alpha7-TMT-FULL-SOURCE.zip.sha256
+            zip -9 -r PKVault-v8.0.0-alpha8-Essentials-FULL-SOURCE.zip PKVault-v8.0.0-alpha8-Essentials-FULL-SOURCE
+            sha256sum PKVault-v8.0.0-alpha8-Essentials-FULL-SOURCE.zip > PKVault-v8.0.0-alpha8-Essentials-FULL-SOURCE.zip.sha256
           )
 
-      - name: Upload PKVault v8.0.0-alpha7-TMT full source
+      - name: Upload PKVault v8.0.0-alpha8-Essentials full source
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha7-TMT-FULL-SOURCE
+          name: PKVault-v8.0.0-alpha8-Essentials-FULL-SOURCE
           path: |
-            dist/PKVault-v8.0.0-alpha7-TMT-FULL-SOURCE.zip
-            dist/PKVault-v8.0.0-alpha7-TMT-FULL-SOURCE.zip.sha256
+            dist/PKVault-v8.0.0-alpha8-Essentials-FULL-SOURCE.zip
+            dist/PKVault-v8.0.0-alpha8-Essentials-FULL-SOURCE.zip.sha256
           if-no-files-found: error
           retention-days: 90
 
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha7-TMT -t pkvault-v752-description-patch
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha8-Essentials -t pkvault-v752-description-patch
           docker create --name pkvault-v752-description-patch-out pkvault-v752-description-patch
           mkdir -p ../dist
-          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test-win-x64.exe
+          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test-win-x64.exe
           docker rm pkvault-v752-description-patch-out
 
-      - name: Package V8 alpha7 clean + TMT visual test profiles
+      - name: Package V8 alpha8 clean + TMT visual test profiles
         run: |
           set -euo pipefail
           ROOT="$GITHUB_WORKSPACE"
-          OUT="$ROOT/dist/PKVault-v8.0.0-alpha7-TMT-CLEAN-TEST"
-          EXE="$ROOT/dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test-win-x64.exe"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha8-Essentials-CLEAN-TEST"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test-win-x64.exe"
           rm -rf "$OUT"
           mkdir -p "$OUT/TMT-Type-Test"
 
-          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha7-TMT.exe"
+          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha8-Essentials.exe"
           cp "$EXE" "$OUT/TMT-Type-Test/PKVault-TMT-Type-Test.exe"
           cp -a "$ROOT/tmt-type-test-profile/." "$OUT/TMT-Type-Test/"
 
           cat > "$OUT/TMT_TYPE_TESTING.txt" <<'EOF'
-          PKVault V8.0.0 alpha7 - Too Many Types mixed-format compatibility test
+          PKVault V8.0.0 alpha8 - Essentials read-only + Too Many Types compatibility test
           ========================================================================
           Root EXE:
-            PKVault-v8.0.0-alpha7-TMT.exe
+            PKVault-v8.0.0-alpha8-Essentials.exe
             Fresh profile for testing your own saves.
 
           Pre-seeded profile:
@@ -798,36 +813,36 @@ jobs:
 
           (
             cd "$ROOT/dist"
-            zip -9 -r PKVault-v8.0.0-alpha7-TMT-CLEAN-TEST-win-x64.zip PKVault-v8.0.0-alpha7-TMT-CLEAN-TEST
-            sha256sum PKVault-v8.0.0-alpha7-TMT-CLEAN-TEST-win-x64.zip > PKVault-v8.0.0-alpha7-TMT-CLEAN-TEST-win-x64.zip.sha256
+            zip -9 -r PKVault-v8.0.0-alpha8-Essentials-CLEAN-TEST-win-x64.zip PKVault-v8.0.0-alpha8-Essentials-CLEAN-TEST
+            sha256sum PKVault-v8.0.0-alpha8-Essentials-CLEAN-TEST-win-x64.zip > PKVault-v8.0.0-alpha8-Essentials-CLEAN-TEST-win-x64.zip.sha256
           )
 
-      - name: Upload V8 alpha7 clean + TMT visual test
+      - name: Upload V8 alpha8 clean + TMT visual test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha7-TMT-CLEAN-TEST-win-x64
+          name: PKVault-v8.0.0-alpha8-Essentials-CLEAN-TEST-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha7-TMT-CLEAN-TEST-win-x64.zip
-            dist/PKVault-v8.0.0-alpha7-TMT-CLEAN-TEST-win-x64.zip.sha256
+            dist/PKVault-v8.0.0-alpha8-Essentials-CLEAN-TEST-win-x64.zip
+            dist/PKVault-v8.0.0-alpha8-Essentials-CLEAN-TEST-win-x64.zip.sha256
           if-no-files-found: error
           retention-days: 30
 
       - name: Package two isolated Windows trading profiles
         run: |
           set -euo pipefail
-          mkdir -p dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/Trader-A
-          mkdir -p dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/Trader-B
+          mkdir -p dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/Trader-A
+          mkdir -p dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/Trader-B
 
-          cp dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
-          cp dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
+          cp dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
 
-          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/Trader-A/
-          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/Trader-B/
+          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/Trader-B/
 
-          cat > dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
-          PKVault v8.0.0-alpha7-TMT Online/VPN Trading + Permanent Dex Registration test
+          cat > dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
+          PKVault v8.0.0-alpha8-Essentials Online/VPN Trading + Permanent Dex Registration test
           ===================================
           Trader A starts with:
             Abra, Growlithe, Machop, Gastly, Dratini, Scyther
@@ -872,26 +887,26 @@ jobs:
           - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
           EOF
 
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/
-          sha256sum dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
-            | tee dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
-          sha256sum dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
-            | tee dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/
+          sha256sum dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
+            | tee dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
+          sha256sum dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
+            | tee dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
 
-          (cd dist && zip -9 -r PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test)
-          sha256sum dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test-win-x64.zip \
-            | tee dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test-win-x64.sha256
+          (cd dist && zip -9 -r PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test)
+          sha256sum dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test-win-x64.zip \
+            | tee dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test-win-x64.sha256
           ls -lah dist
-          find dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
+          find dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
 
-      - name: Upload PKVault v8.0.0-alpha7-TMT online trading dex test
+      - name: Upload PKVault v8.0.0-alpha8-Essentials online trading dex test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test-win-x64
+          name: PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test-win-x64.zip
-            dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test-win-x64.sha256
-            dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test-win-x64.exe
-            dist/PKVault-v8.0.0-alpha7-TMT-Online-Trading-Dex-Test/TESTING.txt
+            dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test-win-x64.zip
+            dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test-win-x64.sha256
+            dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test-win-x64.exe
+            dist/PKVault-v8.0.0-alpha8-Essentials-Online-Trading-Dex-Test/TESTING.txt
           if-no-files-found: error
           retention-days: 30

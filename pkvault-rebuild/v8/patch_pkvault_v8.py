@@ -927,3 +927,241 @@ replace_once(swagger,
 
 
 print("PKVault V8 TMT + Essentials foundation patch applied")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha8 Essentials read-only save integration.
+# ---------------------------------------------------------------------------
+shutil.copyfile(HERE / "essentials/EssentialsReadOnlySaveFile.cs",
+                essentials_core / "EssentialsReadOnlySaveFile.cs")
+
+saves_essentials = PKVAULT / "PKVault.Core/db/loader/save/SavesLoadersService.cs"
+replace_once(saves_essentials,
+'''            if (!SaveUtil.TryGetSaveFile((byte[])data.Clone(), out var saveRaw))
+                return null;
+
+            saveRaw.Metadata.SetExtraInfo(path);
+''',
+'''            if (Path.GetExtension(path).Equals(".rxdata", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!EssentialsLegacySaveReader.TryRead(data, path, out var essentials, out var essentialsError)
+                    || essentials == null
+                    || essentials.Game is not (EssentialsGameKind.Uranium or EssentialsGameKind.Insurgence))
+                {
+                    Log.Warning("Unsupported Essentials .rxdata save {Path}: {Error}", path, essentialsError);
+                    return null;
+                }
+
+                var essentialsSave = new EssentialsReadOnlySaveFile(essentials);
+                essentialsSave.Metadata.SetExtraInfo(path);
+                Log.Information("Loaded read-only Essentials save {Profile} ({Count} Pokemon) from {Path}",
+                    essentials.ProfileId, essentials.PokemonCount, path);
+                return new SaveWrapper(essentialsSave);
+            }
+
+            if (!SaveUtil.TryGetSaveFile((byte[])data.Clone(), out var saveRaw))
+                return null;
+
+            saveRaw.Metadata.SetExtraInfo(path);
+''')
+
+replace_once(immutable,
+'''    public string GetOriginMetLocation(string language) => GameInfo.GetStrings(language)
+        .GetLocationName(Pkm.WasEgg, Pkm.MetLocation, Pkm.Format, Pkm.Generation, Pkm.Version);
+''',
+'''    public string GetOriginMetLocation(string language) => Pkm is PKEssentials
+        ? ""
+        : GameInfo.GetStrings(language).GetLocationName(Pkm.WasEgg, Pkm.MetLocation, Pkm.Format, Pkm.Generation, Pkm.Version);
+''')
+replace_once(immutable,
+'''    public int[] GetStats()
+    {
+        Pkm.SetStats(Pkm.GetStats(Pkm.PersonalInfo));
+        return [
+            Pkm.Stat_HPMax,
+            Pkm.Stat_ATK,
+            Pkm.Stat_DEF,
+            Pkm.Stat_SPA,
+            Pkm.Stat_SPD,
+            Pkm.Stat_SPE,
+        ];
+    }
+''',
+'''    public int[] GetStats()
+    {
+        if (Pkm is PKEssentials)
+        {
+            return [
+                Pkm.Stat_HPMax,
+                Pkm.Stat_ATK,
+                Pkm.Stat_DEF,
+                Pkm.Stat_SPA,
+                Pkm.Stat_SPD,
+                Pkm.Stat_SPE,
+            ];
+        }
+
+        Pkm.SetStats(Pkm.GetStats(Pkm.PersonalInfo));
+        return [
+            Pkm.Stat_HPMax,
+            Pkm.Stat_ATK,
+            Pkm.Stat_DEF,
+            Pkm.Stat_SPA,
+            Pkm.Stat_SPD,
+            Pkm.Stat_SPE,
+        ];
+    }
+''')
+
+legality = PKVAULT / "PKVault.Core/storage/services/LegalityAnalysisService.cs"
+replace_once(legality,
+'''    public LegalityAnalysisWrapper GetLegalitySafe(ImmutablePKM pkm, SaveWrapper? save = null, StorageSlotType slotType = StorageSlotType.None)
+    {
+        if (settingsService.GetSettings().SettingsMutable.SKIP_LEGALITY_CHECKS)
+''',
+'''    public LegalityAnalysisWrapper GetLegalitySafe(ImmutablePKM pkm, SaveWrapper? save = null, StorageSlotType slotType = StorageSlotType.None)
+    {
+        if (pkm.GetMutablePkm() is PKEssentials)
+            return new(null);
+
+        if (settingsService.GetSettings().SettingsMutable.SKIP_LEGALITY_CHECKS)
+''')
+
+variant_dto = PKVAULT / "PKVault.Core/storage/dto/PkmVariantDTO.cs"
+replace_once(variant_dto,
+'''    public IReadOnlyList<GameVersion> CompatibleWithVersions => VersionChecker.GetCompatibleVersionsForSpecies(Pkm.Species);
+''',
+'''    public IReadOnlyList<GameVersion> CompatibleWithVersions => Pkm.GetMutablePkm() is PKEssentials
+        ? []
+        : VersionChecker.GetCompatibleVersionsForSpecies(Pkm.Species);
+''')
+
+replace_once(wrapper,
+'''            string rawKey = $"{(byte)Save.Version}-{Save.Language}-{ID32}-{Save.OT}-{(byte)Save.Gender}";
+''',
+'''            string rawKey = Save is EssentialsReadOnlySaveFile essentials
+                ? $"essentials-{essentials.ProfileId}-{ID32}-{Save.OT}-{Save.Metadata.FilePath}"
+                : $"{(byte)Save.Version}-{Save.Language}-{ID32}-{Save.OT}-{(byte)Save.Gender}";
+''')
+replace_once(wrapper,
+'''    public bool IsSpeciesAllowed(ushort species)
+    {
+        if (Save is SAV3 { DirectSpeciesIDs: true })
+''',
+'''    public bool IsSpeciesAllowed(ushort species)
+    {
+        if (Save is EssentialsReadOnlySaveFile)
+            return false;
+
+        if (Save is SAV3 { DirectSpeciesIDs: true })
+''')
+
+replace_once(save_infos_dto,
+'''            RomHackProfile: save.GetSave() is SAV3 { DirectSpeciesIDs: true }
+                ? TooManyTypesProfileGenerated.ProfileId
+                : null,
+''',
+'''            RomHackProfile: save.GetSave() switch
+            {
+                EssentialsReadOnlySaveFile essentials => essentials.ProfileId,
+                SAV3 { DirectSpeciesIDs: true } => TooManyTypesProfileGenerated.ProfileId,
+                _ => null,
+            },
+''')
+
+species_img_ess = PKVAULT / "frontend/src/img/species-img.tsx"
+replace_once(species_img_ess,
+'''    allowContextFallback?: boolean;
+} & Omit<SpriteImgProps, 'spriteInfos' | 'size'>;
+
+export const SpeciesImg: React.FC<SpeciesImgProps> = ({ species, context, form, isFemale, isShiny, isEgg, isShadow, allowContextFallback, ...imgProps }) => {
+''',
+'''    allowContextFallback?: boolean;
+    profileLocalSpecies?: boolean;
+} & Omit<SpriteImgProps, 'spriteInfos' | 'size'>;
+
+export const SpeciesImg: React.FC<SpeciesImgProps> = ({ species, context, form, isFemale, isShiny, isEgg, isShadow, allowContextFallback, profileLocalSpecies, ...imgProps }) => {
+''')
+replace_once(species_img_ess,
+'''    const usedSpecies = species === 0
+        ? 1
+        : species;
+''',
+'''    if (profileLocalSpecies)
+        return null;
+
+    const usedSpecies = species === 0
+        ? 1
+        : species;
+''')
+
+replace_once(details_main,
+'''    const staticForms = allForms?.[ pkm.context ]
+        ?? (pkm.romHackProfile
+            ? Object.values(allForms ?? {}).reverse().find(forms => forms?.[ pkm.form ] ?? forms?.[ 0 ])
+            : undefined);
+    const formObj = staticForms?.[ pkm.form ] ?? staticForms?.[ 0 ];
+    const speciesName = formObj?.name ?? '';
+''',
+'''    const staticForms = allForms?.[ pkm.context ]
+        ?? (pkm.romHackProfile && !pkm.romHackSpeciesName
+            ? Object.values(allForms ?? {}).reverse().find(forms => forms?.[ pkm.form ] ?? forms?.[ 0 ])
+            : undefined);
+    const formObj = staticForms?.[ pkm.form ] ?? staticForms?.[ 0 ];
+    const speciesName = pkm.romHackSpeciesName ?? formObj?.name ?? '';
+''')
+replace_once(details_main,
+'''            allowContextFallback={!!pkm.romHackProfile}
+        />
+''',
+'''            allowContextFallback={!!pkm.romHackProfile && !pkm.romHackSpeciesName}
+            profileLocalSpecies={!!pkm.romHackSpeciesName}
+        />
+''')
+
+replace_once(storage_save_item,
+'''                    'canEvolve', 'romHackProfile',
+''',
+'''                    'canEvolve', 'romHackProfile', 'romHackSpeciesName',
+''')
+replace_once(storage_save_item,
+'''        const { id, species, nickname, level, boxSlot, form, gender, contextVersion, isAlpha, isShiny, nSparkle, isEgg, isShadow, canEvolve, romHackProfile } = savePkm;
+''',
+'''        const { id, species, nickname, level, boxSlot, form, gender, contextVersion, isAlpha, isShiny, nSparkle, isEgg, isShadow, canEvolve, romHackProfile, romHackSpeciesName } = savePkm;
+''')
+replace_once(storage_save_item,
+'''            allowContextFallback={!!romHackProfile}
+            name={nickname}
+''',
+'''            allowContextFallback={!!romHackProfile && !romHackSpeciesName}
+            profileLocalSpecies={!!romHackSpeciesName}
+            name={nickname}
+''')
+
+replace_once(storage_main_item,
+'''                        'form', 'gender', 'isEgg', 'isAlpha', 'isShiny', 'nSparkle', 'isShadow', 'isExternal', 'heldItem', 'romHackProfile',
+''',
+'''                        'form', 'gender', 'isEgg', 'isAlpha', 'isShiny', 'nSparkle', 'isShadow', 'isExternal', 'heldItem', 'romHackProfile', 'romHackSpeciesName',
+''')
+replace_once(storage_main_item,
+'''        const { id, species, nickname, level, boxSlot, contextVersion, context, form, gender, isEgg, isAlpha, isShiny, nSparkle, isShadow, isExternal, heldItem, romHackProfile } = mainVariant;
+''',
+'''        const { id, species, nickname, level, boxSlot, contextVersion, context, form, gender, isEgg, isAlpha, isShiny, nSparkle, isShadow, isExternal, heldItem, romHackProfile, romHackSpeciesName } = mainVariant;
+''')
+replace_once(storage_main_item,
+'''            allowContextFallback={!!romHackProfile}
+            name={nickname}
+''',
+'''            allowContextFallback={!!romHackProfile && !romHackSpeciesName}
+            profileLocalSpecies={!!romHackSpeciesName}
+            name={nickname}
+''')
+
+path_icon = PKVAULT / "frontend/src/ui/form/globs-input/util/get-path-icon.tsx"
+replace_once(path_icon,
+'''const saveExts = new Set([ 'sav', 'dsv', 'dat', 'gci', 'srm', 'fla', 'bin' ]);
+''',
+'''const saveExts = new Set([ 'sav', 'dsv', 'dat', 'gci', 'srm', 'fla', 'bin', 'rxdata' ]);
+''')
+
+print("PKVault V8 alpha8 Essentials read-only save integration applied")
