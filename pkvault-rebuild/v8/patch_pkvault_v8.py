@@ -2006,3 +2006,34 @@ replace_once(pokedex_wrapper_v16,
 ''')
 
 print("PKVault V8 alpha16 Uranium overlay dex + static front battlers applied")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha17: normalize Uranium front-sprite artwork to PKVault icon scale.
+#
+# PKVault's UISpeciesImg reserves the normal 96px species slot. Uranium's
+# static 80x80 battle frames were filling that entire slot, making them look
+# much larger than the native PKVault artwork. Keep the 96px layout footprint
+# so cards/rows do not move, but scale the custom artwork itself to 56px,
+# matching the established custom-icon normalization used by PKVault.
+# ---------------------------------------------------------------------------
+ui_sprite_css_v17 = PKVAULT / "frontend/src/ui/sprite-img/ui-sprite-img.module.css"
+replace_once(ui_sprite_css_v17,
+'''    transform: scale(var(--scale));
+''',
+'''    transform: scale(calc(var(--scale) * var(--sprite-content-scale, 1)));
+''')
+
+replace_once(species_img_ess,
+'''            sourceRealHeight={isUranium ? 80 : 32}
+            species={species || localSpeciesId}
+''',
+'''            sourceRealHeight={isUranium ? 80 : 32}
+            style={{
+                ...imgProps.style,
+                '--sprite-content-scale': isUranium ? (56 / 96) : undefined,
+            } as React.CSSProperties}
+            species={species || localSpeciesId}
+''')
+
+print("PKVault V8 alpha17 Uranium front-sprite sizing normalized to 56px art in the native 96px slot")
