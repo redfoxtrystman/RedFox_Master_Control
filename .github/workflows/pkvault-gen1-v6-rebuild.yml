@@ -288,21 +288,34 @@ jobs:
           Need(vanilla.SpeciesInternal != 280,
               "TMT direct raw species id was not remapped to vanilla Gen3 internal numbering");
 
-          // Regression for alpha1 crash: normal DexGenService assumes every
-          // species has StaticSpecies.Forms[EntityContext.Gen3]. Later-gen TMT
-          // species do not, so TMT must use DexTmtService and never index that
-          // vanilla Gen3 form dictionary.
+          // TMT is an ownership source for the normal National Dex only.
+          // The dex adapter must never leak TMT-specific presentation/types.
           var dexSave = new SAV3E { DirectSpeciesIDs = true, TID16 = 1234, SID16 = 5678 };
           var tmtDex = new DexTmtService(dexSave);
           var dex = new Dictionary<ushort, Dictionary<uint, DexItemDTO>>();
           await tmtDex.UpdateDexWithSave(dex, new StaticSpeciesData(), null);
-          Need(dex.ContainsKey(654), "TMT dex did not include Braixen");
+          Need(dex.ContainsKey(654), "TMT ownership source did not include Braixen");
           var braixenDex = dex[654].Values.Single();
-          Need(braixenDex.Forms.Count > 0, "TMT Braixen dex entry has no forms");
-          Need(braixenDex.Forms.All(f => f.RomHackTypes is ["Fire", "Magic", "Furry"]),
-              "TMT Braixen dex entry lost ROM-hack type metadata");
+          Need(braixenDex.Forms.Count > 0, "TMT-owned Braixen dex entry has no forms");
 
-          Console.WriteLine("PASS: PKVault V8 TMT direct species, forms, roster, types, dex adapter, clone, storage and vanilla downgrade");
+          var officialBraixen = EntityBlank.GetIdealBlank(654, 0);
+          officialBraixen.Species = 654;
+          officialBraixen.Form = 0;
+          var officialBraixenTypes = DexGenService.GetTypes(officialBraixen.Generation, officialBraixen.PersonalInfo);
+          Need(braixenDex.Forms.All(f => f.Types.SequenceEqual(officialBraixenTypes)),
+              "TMT-owned Braixen leaked ROM-hack typing into the National Dex");
+          Need(braixenDex.Forms.All(f => f.Context == officialBraixen.Context),
+              "TMT-owned Braixen did not use an official presentation context");
+
+          var officialRalts = EntityBlank.GetIdealBlank(280, 0);
+          officialRalts.Species = 280;
+          officialRalts.Form = 0;
+          var officialRaltsTypes = DexGenService.GetTypes(officialRalts.Generation, officialRalts.PersonalInfo);
+          var raltsDex = dex[280].Values.Single();
+          Need(raltsDex.Forms.All(f => f.Types.SequenceEqual(officialRaltsTypes)),
+              "TMT-owned Ralts leaked Space/Fairy presentation into the National Dex");
+
+          Console.WriteLine("PASS: PKVault V8 TMT direct species, forms, roster, storage types, canonical dex ownership, clone and vanilla downgrade");
           EOF
           dotnet run --project tmt-smoke/tmt-smoke.csproj -c Release
 
