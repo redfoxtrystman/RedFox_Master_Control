@@ -1419,17 +1419,17 @@ print("PKVault V8 alpha11 native desktop rxdata location scanning applied")
 # ---------------------------------------------------------------------------
 settings_main_right_v8 = PKVAULT / "frontend/src/settings/main/settings-main-right.tsx"
 replace_once(settings_main_right_v8,
-'''import { useSettingsGet } from '../../data/sdk/settings/settings.gen';
+r'''import { useSettingsGet } from '../../data/sdk/settings/settings.gen';
 ''',
-'''import { useSettingsEdit, useSettingsGet } from '../../data/sdk/settings/settings.gen';
+r'''import { useSettingsEdit, useSettingsGet } from '../../data/sdk/settings/settings.gen';
 ''')
 replace_once(settings_main_right_v8,
-'''    const settingsQuery = useSettingsGet();
+r'''    const settingsQuery = useSettingsGet();
     const settings = settingsQuery.data?.data;
 
     const form = useFormContext<SettingsFormData>();
 ''',
-'''    const settingsQuery = useSettingsGet();
+r'''    const settingsQuery = useSettingsGet();
     const settingsMutation = useSettingsEdit();
     const settings = settingsQuery.data?.data;
 
@@ -1454,35 +1454,35 @@ replace_once(settings_main_right_v8,
     };
 ''')
 replace_once(settings_main_right_v8,
-'''            onChange={(value) => form.setValue('savE_GLOBS', value, { shouldDirty: true })}
+r'''            onChange={(value) => form.setValue('savE_GLOBS', value, { shouldDirty: true })}
             disabled={!settings?.canUpdateSettings}
 ''',
-'''            onChange={(value) => form.setValue('savE_GLOBS', value, { shouldDirty: true })}
+r'''            onChange={(value) => form.setValue('savE_GLOBS', value, { shouldDirty: true })}
             onAddCommitted={commitAddedSaveLocations}
             disabled={!settings?.canUpdateSettings || settingsMutation.isPending}
 ''')
 
 globs_list_v8 = PKVAULT / "frontend/src/settings/globs-input/globs-input-list.tsx"
 replace_once(globs_list_v8,
-'''        onChange: (value: string) => void;
+r'''        onChange: (value: string) => void;
         limit: number;
 ''',
-'''        onChange: (value: string) => void;
+r'''        onChange: (value: string) => void;
         onAddCommitted?: (value: string) => void | Promise<void>;
         limit: number;
 ''')
 replace_once(globs_list_v8,
-'''export const GlobsInputList: React.FC<GlobsInputListProps> = ({ name, value, onChange, limit, disabled, extraValue, ...rest }) => {
+r'''export const GlobsInputList: React.FC<GlobsInputListProps> = ({ name, value, onChange, limit, disabled, extraValue, ...rest }) => {
 ''',
-'''export const GlobsInputList: React.FC<GlobsInputListProps> = ({ name, value, onChange, onAddCommitted, limit, disabled, extraValue, ...rest }) => {
+r'''export const GlobsInputList: React.FC<GlobsInputListProps> = ({ name, value, onChange, onAddCommitted, limit, disabled, extraValue, ...rest }) => {
 ''')
 replace_once(globs_list_v8,
-'''            const newValues = [ ...splittedValue, ...newValue ];
+r'''            const newValues = [ ...splittedValue, ...newValue ];
             onChange(newValues.join('\n'));
 
             if (!desktopMessage.fileExplore) {
 ''',
-'''            const newValues = [ ...splittedValue, ...newValue ];
+r'''            const newValues = [ ...splittedValue, ...newValue ];
             const nextValue = newValues.join('\n');
             onChange(nextValue);
             await onAddCommitted?.(nextValue);
