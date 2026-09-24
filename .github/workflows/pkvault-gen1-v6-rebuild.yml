@@ -1,9 +1,10 @@
-name: PKVault V8 TMT ROM-Hack Compatibility
+name: PKVault V8 Essentials + TMT Compatibility
 
 on:
   push:
     branches:
       - pkvault-v8-romhack-tmt
+      - pkvault-v8-uranium-insurgence
     paths:
       - 'pkvault-rebuild/**'
       - '.github/workflows/pkvault-gen1-v6-rebuild.yml'
@@ -181,6 +182,92 @@ jobs:
       - name: Build PKVault Core with patched library
         run: |
           dotnet build pkvault-src/PKVault.Core/PKVault.Core.csproj -c Release --nologo
+
+      - name: V8 Essentials Uranium and Insurgence parser smoke test
+        run: |
+          set -euo pipefail
+          mkdir -p essentials-smoke/fixtures
+
+          cat > essentials-smoke/essentials-smoke.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+            </PropertyGroup>
+            <ItemGroup>
+              <ProjectReference Include="../pkvault-src/PKVault.Core/PKVault.Core.csproj" />
+              <Reference Include="PKHeX.Core">
+                <HintPath>../pkvault-src/PKVault.Core/PKHeX.Core.dll</HintPath>
+              </Reference>
+            </ItemGroup>
+          </Project>
+          EOF
+
+          cat > essentials-smoke/Program.cs <<'EOF'
+          using PKHeX.Core;
+          using PKVault.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          static EssentialsLegacySaveData Load(string path)
+          {
+              var bytes = File.ReadAllBytes(path);
+              Need(EssentialsLegacySaveReader.TryRead(bytes, path, out var save, out var error),
+                  $"Failed to parse {path}: {error}");
+              return save!;
+          }
+
+          var uranium = Load("essentials-smoke/fixtures/Pokemon Uranium/Uranium.rxdata");
+          Need(uranium.Game == EssentialsGameKind.Uranium, "Uranium profile detection failed");
+          Need(uranium.Documents.Count == 15, $"Expected 15 Uranium Marshal streams, got {uranium.Documents.Count}");
+          Need(uranium.Party.Count == 6, $"Expected 6 Uranium party Pokemon, got {uranium.Party.Count}");
+          Need(uranium.PokemonCount == 215, $"Expected 215 Uranium Pokemon, got {uranium.PokemonCount}");
+          Need(uranium.Party[0].ProfileId == "pokemon-uranium", "Uranium PKM profile ID missing");
+          Need(uranium.Party[0].LocalSpeciesId == 170, $"Unexpected Uranium first party species {uranium.Party[0].LocalSpeciesId}");
+
+          var uraniumRoundTrip = PKEssentials.Deserialize(PKEssentials.Serialize(uranium.Party[0]));
+          Need(uraniumRoundTrip.ProfileId == uranium.Party[0].ProfileId, "Uranium PKM profile lost on serialize");
+          Need(uraniumRoundTrip.LocalSpeciesId == uranium.Party[0].LocalSpeciesId, "Uranium local species lost on serialize");
+          Need(uraniumRoundTrip.PID == uranium.Party[0].PID, "Uranium PID lost on serialize");
+
+          var insurgence = Load("essentials-smoke/fixtures/Pokemon Insurgence/Game.rxdata");
+          Need(insurgence.Game == EssentialsGameKind.Insurgence, "Insurgence profile detection failed");
+          Need(insurgence.Documents.Count == 15, $"Expected 15 Insurgence Marshal streams, got {insurgence.Documents.Count}");
+          Need(insurgence.Party.Count == 4, $"Expected 4 Insurgence party Pokemon, got {insurgence.Party.Count}");
+          Need(insurgence.PokemonCount == 4, $"Expected 4 Insurgence Pokemon, got {insurgence.PokemonCount}");
+          Need(insurgence.Party[0].ProfileId == "pokemon-insurgence", "Insurgence PKM profile ID missing");
+          Need(insurgence.Party[0].LocalSpeciesId == 731, $"Unexpected Insurgence first party species {insurgence.Party[0].LocalSpeciesId}");
+
+          // Most important collision regression: Essentials-local species 1 is
+          // allowed to remain profile-local rather than being treated as Bulbasaur.
+          var orchynx = new PKEssentials(new EssentialsPkmPayload {
+              ProfileId = "pokemon-uranium",
+              SpeciesName = "Orchynx",
+              LocalSpeciesId = 1,
+              LocalFormId = 0,
+              Level = 5,
+              TypeNames = ["Grass", "Steel"],
+              BaseStats = [50,55,55,50,70,70],
+          });
+          Need(orchynx.Species == 1 && orchynx.LocalSpeciesId == 1 && orchynx.SpeciesName == "Orchynx",
+              "Profile-local Uranium species 1 was aliased incorrectly");
+
+          Console.WriteLine("PASS: Uranium + Insurgence Ruby Marshal reader and profile-local PKM foundation");
+          EOF
+
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/AlphaKyogre/pokemon-uranium/master/Uranium.rxdata \
+            -o "essentials-smoke/fixtures/Pokemon Uranium/Uranium.rxdata"
+
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/ShockingZebstrika/pokemon-insurgence/master/Game.rxdata \
+            -o "essentials-smoke/fixtures/Pokemon Insurgence/Game.rxdata"
+
+          dotnet run --project essentials-smoke/essentials-smoke.csproj -c Release
 
       - name: V8 Too Many Types compatibility smoke test
         run: |
