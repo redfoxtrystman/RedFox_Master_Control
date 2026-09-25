@@ -2211,7 +2211,7 @@ replace_once(desktop_program_v20,
     private static void ShowAlreadyRunningMessage()
     {
         const string message =
-            "PKVault is already running from this folder.\n\n"
+            "PKVault is already running from this folder.\\n\\n"
             + "Close the existing PKVault window/process before launching this copy again. "
             + "Separate PKVault folders can still run at the same time.";
 
