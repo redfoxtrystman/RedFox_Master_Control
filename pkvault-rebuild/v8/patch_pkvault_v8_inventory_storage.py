@@ -1089,7 +1089,7 @@ export const InventoryPanel: React.FC<InventoryPanelProps> = ({
         ? state.bankPages.find(p => p.page === selection.page) ?? state.bankPages[0]
         : undefined;
 
-    const selectedPocket: SaveInventoryPocket | undefined = selectedSave
+    const selectedPocket: SaveInventoryPocket | undefined = selection.kind === 'save' && selectedSave
         ? selectedSave.pockets.find(p => p.pouch === selection.pouch) ?? selectedSave.pockets[0]
         : undefined;
 
