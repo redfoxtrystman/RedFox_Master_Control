@@ -2572,3 +2572,7 @@ replace_once(details_content_v23,
 ''')
 
 print("PKVault V8 alpha23 converted save copies now display provenance from the original main variant")
+
+
+# V8 alpha24 inventory bank
+exec((Path(__file__).with_name("patch_pkvault_v8_inventory.py")).read_text(encoding="utf-8"), globals())
