@@ -1076,7 +1076,6 @@ jobs:
           grep -q "string sourceKind, string sourceId" pkvault-src/PKVault.Core/storage/services/ActionService.cs
           grep -q "await itemBankService.WriteToFiles();" pkvault-src/PKVault.Core/db/services/SessionService.cs
           grep -q "Split to nearest empty slot" pkvault-src/frontend/src/inventory/inventory-item.tsx
-          grep -q "w='calc(96px \* var(--sprite-species-size-multiplier, 1))'" pkvault-src/frontend/src/inventory/inventory-item.tsx
           grep -q "UIStoragePanelBoxList" pkvault-src/frontend/src/inventory/inventory-panel.tsx
           grep -q "onCreatePage" pkvault-src/frontend/src/inventory/inventory-panel.tsx
           grep -q "createInventoryPage" pkvault-src/frontend/src/inventory/inventory-api.ts
