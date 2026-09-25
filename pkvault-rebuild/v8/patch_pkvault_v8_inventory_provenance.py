@@ -28,6 +28,7 @@ replace_once(meta_entity29,
 ''')
 
 put29("PKVault.Core/storage/services/ItemBankService.cs", r'''using System.Text.Json;
+using System.Text.Json.Serialization;
 using PKHeX.Core;
 
 namespace PKVault.Core;
@@ -119,6 +120,13 @@ internal record ItemBankFileDTO(
     List<ItemOriginDTO> Origins
 );
 
+[JsonSerializable(typeof(ItemBankFileDTO))]
+[JsonSerializable(typeof(List<BankStack>))]
+[JsonSerializable(typeof(Dictionary<string, List<ItemOriginDTO>>))]
+internal partial class ItemBankJsonContext : JsonSerializerContext
+{
+}
+
 public class ItemBankService(
     ISavesLoadersService savesLoadersService,
     IMetaLoader metaLoader,
@@ -132,6 +140,7 @@ public class ItemBankService(
     {
         WriteIndented = true,
         PropertyNameCaseInsensitive = true,
+        TypeInfoResolver = ItemBankJsonContext.Default,
     };
 
     private static string InventoryRoot
