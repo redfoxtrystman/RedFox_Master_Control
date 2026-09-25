@@ -1748,7 +1748,7 @@ const OriginLine: React.FC<{ origin: ItemOrigin }> = ({ origin }) => {
     </Stack>;
 };
 
-const InventoryOccupiedItem: React.FC<InventoryItemProps> = ({
+const InventoryFilledItem: React.FC<InventoryItemProps> = ({
     slot,
     location,
     isBank,
@@ -1770,6 +1770,7 @@ const InventoryOccupiedItem: React.FC<InventoryItemProps> = ({
     };
 
     const itemId = String(slot.slot);
+
     const dragging = useDragging(itemId, container);
     const draggingMove = dragging.useDrag();
 
@@ -2006,30 +2007,25 @@ const InventoryOccupiedItem: React.FC<InventoryItemProps> = ({
     </>;
 };
 
-export const InventoryItem: React.FC<InventoryItemProps> = (props) => {
-    const {
-        slot,
-        location,
-        globalOrder,
-        nodeId,
-    } = props;
+export const InventoryItem: React.FC<InventoryItemProps> = props => {
+    const { slot, location, nodeId, globalOrder } = props;
+    const hasItem = !!slot.itemKey && slot.count > 0;
 
-    if (!slot.itemKey || slot.count <= 0) {
-        const container: InventoryMoveContainer = {
-            kind: location.kind,
-            id: location.id,
-            pouch: location.pouch,
-        };
+    if (hasItem)
+        return <InventoryFilledItem {...props} />;
 
-        return <UIStorageItemPlaceholder
-            nodeId={nodeId}
-            container={container}
-            slot={slot.slot}
-            globalOrder={globalOrder}
-        />;
-    }
+    const container: InventoryMoveContainer = {
+        kind: location.kind,
+        id: location.id,
+        pouch: location.pouch,
+    };
 
-    return <InventoryOccupiedItem {...props} />;
+    return <UIStorageItemPlaceholder
+        nodeId={nodeId}
+        container={container}
+        slot={slot.slot}
+        globalOrder={globalOrder}
+    />;
 };
 ''')
 
