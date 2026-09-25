@@ -2370,4 +2370,19 @@ for old,new in [
         raise SystemExit(f"missing help-text replacement: {old}")
     help_text_v21.write_text(help_content.replace(old, new))
 
+
+# PKEssentials variants must never advertise official-version compatibility.
+# Their PKM.Species value may be a profile-local ID and therefore cannot safely
+# be passed to GameVersionUtil's National-Dex compatibility cache.
+variant_dto_v21 = PKVAULT / "PKVault.Core/storage/dto/PkmVariantDTO.cs"
+replace_once(variant_dto_v21,
+'''    public IReadOnlyList<GameVersion> CompatibleWithVersions => VersionChecker.GetCompatibleVersionsForSpecies(Pkm.Species);
+''',
+'''    public IReadOnlyList<GameVersion> CompatibleWithVersions
+        => Pkm.GetMutablePkm() is PKEssentials
+            ? []
+            : VersionChecker.GetCompatibleVersionsForSpecies(Pkm.Species);
+''')
+
 print("PKVault V8 alpha21 ROM-hack drag validation now uses profile identity instead of aliased official species IDs")
+
