@@ -372,12 +372,12 @@ public class ItemBankService(
             var page = ParseBankPage(input.TargetId);
             ValidateBankSlot(input.TargetSlot);
             var key = BankKey(page, input.TargetSlot);
-            var target = bank.GetValueOrDefault(key);
+            var bankTarget = bank.GetValueOrDefault(key);
 
-            if (target is not null && target.ItemKey != source.ItemKey)
+            if (bankTarget is not null && bankTarget.ItemKey != source.ItemKey)
                 throw new InvalidOperationException("Target PKVault inventory slot contains a different item.");
 
-            if (target is null)
+            if (bankTarget is null)
             {
                 bank[key] = new(
                     Page: page,
@@ -389,7 +389,7 @@ public class ItemBankService(
             }
             else
             {
-                bank[key] = target with { Count = checked(target.Count + requested) };
+                bank[key] = bankTarget with { Count = checked(bankTarget.Count + requested) };
             }
 
             return new(requested, null, true);
@@ -430,27 +430,27 @@ public class ItemBankService(
         if (!pouch.CanContain(targetItemId))
             throw new InvalidOperationException($"{source.ItemName} does not belong in the {GetPouchLabel(pouch.Type)} pocket.");
 
-        var target = pouch.Items[input.TargetSlot];
-        if (target.Index != 0 && target.Index != targetItemId)
+        var saveTarget = pouch.Items[input.TargetSlot];
+        if (saveTarget.Index != 0 && saveTarget.Index != targetItemId)
             throw new InvalidOperationException("Target save slot contains a different item.");
 
         var max = bag.GetMaxCount(pouch.Type, targetItemId);
-        var before = target.Index == targetItemId ? target.Count : 0;
+        var before = saveTarget.Index == targetItemId ? saveTarget.Count : 0;
         var capacity = Math.Max(0, max - before);
         var moved = Math.Min(requested, capacity);
 
         if (moved <= 0)
             return new(0, save.Version, false);
 
-        if (target.Index == 0)
+        if (saveTarget.Index == 0)
         {
-            target.Index = targetItemId;
-            target.SetNewDetails(0);
-            target.Count = moved;
+            saveTarget.Index = targetItemId;
+            saveTarget.SetNewDetails(0);
+            saveTarget.Count = moved;
         }
         else
         {
-            target.Count = before + moved;
+            saveTarget.Count = before + moved;
         }
 
         bag.CopyTo(save.GetSave());
@@ -534,10 +534,10 @@ public class ItemBankService(
                 && long.TryParse(parts[1], out var legacyCount)
                 && legacyCount > 0)
             {
-                var page = legacySlot / BankPageSlots + 1;
-                var slot = legacySlot % BankPageSlots;
-                var stack = new BankStack(page, slot, parts[0], legacyCount, GameVersion.RD);
-                result[BankKey(page, slot)] = stack;
+                var legacyPage = legacySlot / BankPageSlots + 1;
+                var legacySlotIndex = legacySlot % BankPageSlots;
+                var stack = new BankStack(legacyPage, legacySlotIndex, parts[0], legacyCount, GameVersion.RD);
+                result[BankKey(legacyPage, legacySlotIndex)] = stack;
                 legacySlot++;
             }
         }
