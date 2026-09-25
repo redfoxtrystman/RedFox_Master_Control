@@ -2584,3 +2584,7 @@ exec((Path(__file__).with_name("patch_pkvault_v8_inventory_storage.py")).read_te
 
 # V8 alpha26 item-storage parity
 exec((Path(__file__).with_name("patch_pkvault_v8_inventory_storage_parity.py")).read_text(encoding="utf-8"), globals())
+
+
+# V8 alpha27 true Storage-clone inventory
+exec((Path(__file__).with_name("patch_pkvault_v8_inventory_storage_clone.py")).read_text(encoding="utf-8"), globals())
