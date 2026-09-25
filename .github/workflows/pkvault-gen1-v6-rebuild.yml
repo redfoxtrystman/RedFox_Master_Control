@@ -1063,7 +1063,8 @@ jobs:
           grep -q "version={originPkm.version}" pkvault-src/frontend/src/storage/details/details-content.tsx
           grep -q "class ItemBankService" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q "MetaKey.ITEM_BANK" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
-          grep -q "InventoryType.KeyItems => false" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "InventoryType.KeyItems => true" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "private static bool IsProtectedPouch" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q "DataActionType.MOVE_ITEM" pkvault-src/PKVault.Core/storage/data-action/MoveInventoryItemAction.cs
           grep -q "to={\"/inventory\"}" pkvault-src/frontend/src/header/header.tsx
           test -f pkvault-src/frontend/src/pages/inventory.tsx
