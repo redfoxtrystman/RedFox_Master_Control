@@ -453,7 +453,7 @@ public class ItemBankService(
                     "The source PKVault inventory slot is empty."
                 );
 
-            var origins = ReconcileOrigins(
+            var bankOrigins = ReconcileOrigins(
                 stack.Origins,
                 stack.Count,
                 LegacyOrigin(stack.SpriteVersion, stack.Count)
@@ -467,7 +467,7 @@ public class ItemBankService(
                 null,
                 true,
                 false,
-                origins,
+                bankOrigins,
                 moved =>
                 {
                     var left = stack.Count - moved;
@@ -481,7 +481,7 @@ public class ItemBankService(
                     bank[key] = stack with
                     {
                         Count = left,
-                        Origins = RemoveOrigins(origins, moved),
+                        Origins = RemoveOrigins(bankOrigins, moved),
                     };
                 }
             );
@@ -527,7 +527,7 @@ public class ItemBankService(
         }
 
         var provenanceKey = SaveProvenanceKey(save.Id, pouch.Type, itemKey);
-        var origins = GetEffectiveSaveOrigins(
+        var saveOrigins = GetEffectiveSaveOrigins(
             saveProvenance,
             save,
             pouch.Type,
@@ -543,7 +543,7 @@ public class ItemBankService(
             save.Version,
             false,
             true,
-            origins,
+            saveOrigins,
             moved =>
             {
                 item.Count -= moved;
@@ -557,7 +557,7 @@ public class ItemBankService(
                 else
                 {
                     saveProvenance[provenanceKey] =
-                        RemoveOrigins(origins, moved);
+                        RemoveOrigins(saveOrigins, moved);
                 }
 
                 pouch.ClearCount0();
@@ -838,7 +838,7 @@ public class ItemBankService(
                             )
                         );
 
-                        var stack = new BankStack(
+                        var parsedStack = new BankStack(
                             Id: string.IsNullOrWhiteSpace(data.Id)
                                 ? NewStackId()
                                 : data.Id,
@@ -850,7 +850,7 @@ public class ItemBankService(
                             Origins: origins
                         );
 
-                        result[BankKey(stack.Page, stack.Slot)] = stack;
+                        result[BankKey(parsedStack.Page, parsedStack.Slot)] = parsedStack;
                         continue;
                     }
                     catch (JsonException)
@@ -889,7 +889,7 @@ public class ItemBankService(
                     spriteVersion = (GameVersion)rawVersion;
                 }
 
-                var stack = new BankStack(
+                var legacyFileStack = new BankStack(
                     Id: NewStackId(),
                     Page: legacyPage,
                     Slot: legacySlot,
@@ -899,7 +899,7 @@ public class ItemBankService(
                     Origins: LegacyOrigin(spriteVersion, count)
                 );
 
-                result[BankKey(legacyPage, legacySlot)] = stack;
+                result[BankKey(legacyPage, legacySlot)] = legacyFileStack;
             }
         }
 
@@ -981,8 +981,8 @@ public class ItemBankService(
 
                 var stack = new BankStack(
                     Id: NewStackId(),
-                    Page: page,
-                    Slot: slot,
+                    Page: legacyPage2,
+                    Slot: legacySlot2,
                     ItemKey: parts[2],
                     Count: count,
                     SpriteVersion: spriteVersion,
@@ -999,8 +999,8 @@ public class ItemBankService(
                 && long.TryParse(parts[1], out var legacyCount)
                 && legacyCount > 0)
             {
-                var page = legacySlotCounter / BankPageSlots + 1;
-                var slot = legacySlotCounter % BankPageSlots;
+                var legacyPage2 = legacySlotCounter / BankPageSlots + 1;
+                var legacySlot2 = legacySlotCounter % BankPageSlots;
                 var spriteVersion = GameVersion.RD;
 
                 var stack = new BankStack(
@@ -1013,7 +1013,7 @@ public class ItemBankService(
                     Origins: LegacyOrigin(spriteVersion, legacyCount)
                 );
 
-                result[BankKey(page, slot)] = stack;
+                result[BankKey(legacyPage2, legacySlot2)] = stack;
                 legacySlotCounter++;
             }
         }
