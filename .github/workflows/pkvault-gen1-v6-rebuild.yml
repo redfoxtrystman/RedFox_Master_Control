@@ -1024,12 +1024,12 @@ jobs:
           grep -q "getSaveDisplayName" pkvault-src/frontend/src/pages/saves.tsx
           grep -q "getSaveDisplayName" pkvault-src/frontend/src/storage/panel/game-list/storage-panel-game-list.tsx
 
-          # Alpha18 regression guard: Uranium front battlers keep the normal
+          # Alpha19 regression guard: Uranium front battlers keep the normal
           # 96px PKVault species slot but their artwork is normalized to 56px.
           grep -q -- "--sprite-content-scale" pkvault-src/frontend/src/ui/sprite-img/ui-sprite-img.module.css
           grep -q "56 / 96" pkvault-src/frontend/src/img/species-img.tsx
 
-          # Alpha18 regression guard: normal Essentials/Uranium party drags must
+          # Alpha19 regression guard: normal Essentials/Uranium party drags must
           # be true moves. Only an explicitly attached operation may link back
           # to the source save; party membership alone must never force a link.
           grep -q "var attachToSource = input.attached;" pkvault-src/PKVault.Core/storage/data-action/MovePkmAction.cs
@@ -1037,6 +1037,10 @@ jobs:
             echo "ERROR: Essentials party Pokemon are still being forced into attached/link mode"
             exit 1
           fi
+          grep -q "Target PKVault slot is occupied by" pkvault-src/PKVault.Core/storage/data-action/MovePkmAction.cs
+          grep -q "EssentialsInterop.CanImportTo(essentialsSource, displacedPkm)" pkvault-src/PKVault.Core/storage/data-action/MovePkmAction.cs
+          grep -q 'pkm.GetMutablePkm() is PKEssentials ? "pkessentials"' pkvault-src/PKVault.Core/db/loader/PkmFileLoader.cs
+          grep -q "PKEssentials.Deserialize(entity.Data)" pkvault-src/PKVault.Core/db/loader/PkmFileLoader.cs
 
           echo "PASS: Pokédex is canonical-only; TMT typing remains in boxes; Uranium sprite scale is normalized"
 
@@ -1045,10 +1049,10 @@ jobs:
           cd pkvault-src
           docker build . --target frontend-check -t pkvault-v8-alpha8-frontend-check
 
-      - name: Package complete v8.0.0-alpha18-Uranium-Overlay-Dex source snapshot
+      - name: Package complete v8.0.0-alpha19-Uranium-Overlay-Dex source snapshot
         run: |
           set -euo pipefail
-          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-FULL-SOURCE"
+          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-FULL-SOURCE"
           rm -rf "$SOURCE_ROOT"
           mkdir -p "$SOURCE_ROOT"
 
@@ -1064,18 +1068,18 @@ jobs:
           rm -rf "$SOURCE_ROOT/PKVault/.git" "$SOURCE_ROOT/PKHeX/.git"
 
           cat > "$SOURCE_ROOT/SOURCE_README.txt" <<'EOF'
-          PKVault v8.0.0-alpha18-Uranium-Overlay-Dex FULL SOURCE
+          PKVault v8.0.0-alpha19-Uranium-Overlay-Dex FULL SOURCE
           ==========================
-          Release line: V8 alpha18 Essentials guarded read/write + desktop rxdata import (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
+          Release line: V8 alpha19 Essentials guarded read/write + desktop rxdata import (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
           PKVault upstream baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec
           PKHeX upstream baseline: kwsch/PKHeX 74b88906e935e4a52d6d9243b8e373056409c738
           RedFox build branch: pkvault-v8-uranium-insurgence
 
           Contents:
-          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha18-Uranium-Overlay-Dex.
+          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha19-Uranium-Overlay-Dex.
           - PKHeX/          Exact patched PKHeX source tree used to build PKHeX.Core.
           - RedFox-Rebuild/ Reconstruction patcher, trading sources, and trading smoke harness.
-          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha18-Uranium-Overlay-Dex.
+          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha19-Uranium-Overlay-Dex.
           - SOURCE_FILE_SHA256SUMS.txt hashes every file in this source snapshot.
 
           Reproduction:
@@ -1096,156 +1100,154 @@ jobs:
 
           (
             cd "$GITHUB_WORKSPACE/dist"
-            zip -9 -r PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-FULL-SOURCE.zip PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-FULL-SOURCE
-            sha256sum PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-FULL-SOURCE.zip > PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-FULL-SOURCE.zip.sha256
+            zip -9 -r PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-FULL-SOURCE.zip PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-FULL-SOURCE
+            sha256sum PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-FULL-SOURCE.zip > PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-FULL-SOURCE.zip.sha256
           )
 
-      - name: Upload PKVault v8.0.0-alpha18-Uranium-Overlay-Dex full source
+      - name: Upload PKVault v8.0.0-alpha19-Uranium-Overlay-Dex full source
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-FULL-SOURCE
+          name: PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-FULL-SOURCE
           path: |
-            dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-FULL-SOURCE.zip
-            dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-FULL-SOURCE.zip.sha256
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-FULL-SOURCE.zip
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-FULL-SOURCE.zip.sha256
           if-no-files-found: error
           retention-days: 90
 
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha18-Uranium-Overlay-Dex -t pkvault-v752-description-patch
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha19-Uranium-Overlay-Dex -t pkvault-v752-description-patch
           docker create --name pkvault-v752-description-patch-out pkvault-v752-description-patch
           mkdir -p ../dist
-          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
+          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
           docker rm pkvault-v752-description-patch-out
 
-      - name: Package V8 alpha18 clean + Essentials RW + TMT visual test profiles
+      - name: Package V8 alpha19 truly clean Windows profile
         run: |
           set -euo pipefail
           ROOT="$GITHUB_WORKSPACE"
-          OUT="$ROOT/dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-CLEAN-TEST"
-          EXE="$ROOT/dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-CLEAN"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
           rm -rf "$OUT"
-          mkdir -p "$OUT/TMT-Type-Test"
-          mkdir -p "$OUT/Uranium-Random-Test"
+          mkdir -p "$OUT"
 
-          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex.exe"
-          cp "$EXE" "$OUT/TMT-Type-Test/PKVault-TMT-Type-Test.exe"
-          cp -a "$ROOT/tmt-type-test-profile/." "$OUT/TMT-Type-Test/"
-          cp -a "$ROOT/uranium-random-test/." "$OUT/Uranium-Random-Test/"
+          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex.exe"
 
-          cat > "$OUT/TMT_TYPE_TESTING.txt" <<'EOF'
-          PKVault V8.0.0 alpha15 - Uranium + Insurgence + Too Many Types compatibility test
-          ========================================================================
-          Root EXE:
-            PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex.exe
-            Fresh profile for testing your own saves.
+          cat > "$OUT/README.txt" <<'EOF'
+          PKVault V8.0.0 alpha19 - CLEAN PROFILE
+          ======================================
+          This package contains NO seeded PKVault database, NO TMT compatibility
+          Pokemon, and NO preloaded storage records.
 
-          Pre-seeded profile:
-            TMT-Type-Test/PKVault-TMT-Type-Test.exe
+          Use this executable for your real Pokémon Uranium / Insurgence / normal
+          PKVault testing.
 
-          The pre-seeded profile contains 55 Pokemon in four boxes:
-
-          TMT v1.6 (10 .tmt3)
-            Braixen, Ralts, Popplio, Mimikyu, Dreepy,
-            Snom, Hatenna, Falinks, Oranguru, Klink
-
-          Emerald PK3 (15 normal .pk3)
-            Blaziken, Poochyena, Lotad, Ralts, Gardevoir,
-            Shedinja, Sableye, Spinda, Altaria, Milotic,
-            Chimecho, Absol, Metagross, Rayquaza, Deoxys
-
-          Gen 1 PK1 (15 native .pk1)
-            Pikachu, Vulpix, Diglett, Mankey, Growlithe,
-            Machop, Geodude, Slowpoke, Krabby, Ditto,
-            Eevee, Vaporeon, Porygon, Snorlax, Mew
-
-          Gen 2 PK2 (15 native .pk2)
-            Chikorita, Furret, Crobat, Pichu, Marill,
-            Sudowoodo, Aipom, Espeon, Umbreon, Girafarig,
-            Dunsparce, Remoraid, Skarmory, Porygon2, Smeargle
-
-          What to check:
-          1. Open the TMT-Type-Test EXE from inside its folder.
-          2. Confirm all four boxes exist and all 55 Pokemon have the correct sprites/names.
-          3. Open Pokedex. It should be the normal National Dex only.
-             - There must be NO separate Emerald TMT / Too Many Types dex section.
-             - TMT-owned Pokemon still unlock their normal official dex entries.
-             - Ralts in the Pokedex must use official typing, never Space/Fairy.
-             - Braixen should open normally under Generation 6.
-          4. Scroll from Generation 3 down through later generations. The old heavy
-             slowdown below the TMT section should be gone/reduced.
-          5. The loaded TMT save must still be labelled "Emerald TMT", not plain "Emerald".
-          6. In Storage/boxes, click TMT Pokemon and verify TMT type badges/colors still render.
-             Exact v1.6 examples: Furry = blue, Magic = bright pink, Silly = lavender.
-          7. Load your TMT v1.6 save and drag supported Pokemon from the Emerald,
-             Gen 1, and Gen 2 boxes into it. They should convert into valid TMT records.
-          8. Blaziken is intentionally included as a stock-Emerald regression Pokemon:
-             it must remain Blaziken and must never become Gardevoir.
-          9. Gardevoir and Chimecho are also included specifically to exercise Gen3's
-             non-National internal species numbering.
-          10. Load a normal Emerald save in the root/fresh profile and verify party
-             moving/reordering still works without entering TMT direct-species mode.
-
-          Alpha7 regression:
-          - Stock Emerald raw IDs such as Blaziken raw 282 and Chimecho raw 411
-            can no longer trigger TMT detection.
-          - All 63 TMT v1.6 type names retain ROM-derived color styling in Storage.
-          - The special TMT/Emerald Pokédex section has been removed completely.
-          - TMT saves contribute caught/owned state to the normal National Dex only.
-          - National Dex presentation uses official Pokemon metadata, not TMT types.
-          - Pokédex generation rendering is throttled more aggressively for smoother scrolling.
-          - TMT saves are explicitly labelled Emerald TMT.
-          - The supplied compatibility profile contains real PK1, PK2, PK3 and TMT3 records.
+          Alpha19:
+          - normal Uranium/Insurgence party -> PKVault drags are real moves
+          - occupied PKVault slots are preflighted before an Essentials swap
+          - an incompatible occupant is rejected before either side is changed
+          - Uranium PKEssentials records retain their profile/local-species data
+            in .pkessentials central-vault files
           EOF
 
-          cat > "$OUT/URANIUM_RANDOM_TESTING.txt" <<'EOF'
-          Pokémon Uranium random stress-save
-          ==================================
-          Uranium-Random-Test/Uranium.rxdata contains:
-          - 1 Raptorch in the party
-          - 60 deterministic random Uranium Pokémon in PC boxes 1 and 2
-          - exact Uranium local species IDs/names/types/base stats from the alpha18 registry
-          - official reused species (for example Glaceon) present as normal National Dex Pokémon
-          - Uranium-added species present in the dedicated Pokémon Uranium dex section
+          test ! -d "$OUT/TMT-Type-Test"
+          test ! -d "$OUT/Uranium-Random-Test"
+          test -z "$(find "$OUT" -type f \( -name 'compat-tmt-*' -o -name '*.tmt3' \) -print -quit)"
 
-          Add Uranium-Random-Test/Uranium.rxdata as a save location in the root alpha15 EXE.
-          RANDOM_URANIUM_POKEMON.txt lists every seeded species and slot.
-          This is a test copy only; do not overwrite your real Uranium save with it.
+          (
+            cd "$ROOT/dist"
+            zip -9 -r PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-CLEAN-win-x64.zip PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-CLEAN
+            ! unzip -l PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'compat-tmt-'
+            ! unzip -l PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'TMT-Type-Test'
+            sha256sum PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-CLEAN-win-x64.zip > PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-CLEAN-win-x64.zip.sha256
+          )
+
+      - name: Upload V8 alpha19 truly clean Windows profile
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-CLEAN-win-x64
+          path: |
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-CLEAN-win-x64.zip
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-CLEAN-win-x64.zip.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Package V8 alpha19 isolated compatibility test profiles
+        run: |
+          set -euo pipefail
+          ROOT="$GITHUB_WORKSPACE"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
+          rm -rf "$OUT"
+          mkdir -p "$OUT/TMT-Type-Test" "$OUT/Uranium-Random-Test"
+
+          cp "$EXE" "$OUT/TMT-Type-Test/PKVault-TMT-Type-Test.exe"
+          cp -a "$ROOT/tmt-type-test-profile/." "$OUT/TMT-Type-Test/"
+
+          cp "$EXE" "$OUT/Uranium-Random-Test/PKVault-Uranium-Random-Test.exe"
+          cp -a "$ROOT/uranium-random-test/." "$OUT/Uranium-Random-Test/"
+
+          cat > "$OUT/README.txt" <<'EOF'
+          PKVault V8.0.0 alpha19 - ISOLATED COMPATIBILITY TEST PROFILES
+          ============================================================
+          These folders are intentionally PRE-SEEDED and are NOT the clean build.
+
+          TMT-Type-Test/
+            Contains the 55-Pokémon compatibility profile, including
+            compat-tmt-01 (the seeded Too Many Types Ralts).
+
+          Uranium-Random-Test/
+            Contains a disposable Uranium.rxdata stress-test save and its own EXE.
+
+          Keep these test folders separate from the clean alpha19 executable.
+          EOF
+
+          cat > "$OUT/TMT-Type-Test/TMT_TYPE_TESTING.txt" <<'EOF'
+          The TMT profile contains 55 seeded Pokémon spanning TMT3, PK3, PK2 and
+          PK1. compat-tmt-01 is the seeded Too Many Types Ralts. This profile is
+          for compatibility testing only and must not be mistaken for a clean
+          central PKVault.
+          EOF
+
+          cat > "$OUT/Uranium-Random-Test/URANIUM_RANDOM_TESTING.txt" <<'EOF'
+          Uranium.rxdata is a disposable stress-test save containing one party
+          Raptorch plus 60 deterministic random Uranium Pokémon in PC boxes.
+          Do not overwrite your real Pokémon Uranium save with this test copy.
           EOF
 
           (
             cd "$ROOT/dist"
-            zip -9 -r PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-CLEAN-TEST-win-x64.zip PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-CLEAN-TEST
-            sha256sum PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-CLEAN-TEST-win-x64.zip > PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-CLEAN-TEST-win-x64.zip.sha256
+            zip -9 -r PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES
+            sha256sum PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip > PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip.sha256
           )
 
-      - name: Upload V8 alpha18 clean + Essentials RW + TMT visual test
+      - name: Upload V8 alpha19 isolated compatibility test profiles
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-CLEAN-TEST-win-x64
+          name: PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-CLEAN-TEST-win-x64.zip
-            dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-CLEAN-TEST-win-x64.zip.sha256
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip.sha256
           if-no-files-found: error
           retention-days: 30
 
       - name: Package two isolated Windows trading profiles
         run: |
           set -euo pipefail
-          mkdir -p dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A
-          mkdir -p dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B
+          mkdir -p dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A
+          mkdir -p dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B
 
-          cp dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
-          cp dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
+          cp dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
 
-          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/
-          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/
+          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/
 
-          cat > dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
-          PKVault v8.0.0-alpha18-Uranium-Overlay-Dex Online/VPN Trading + Permanent Dex Registration test
+          cat > dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
+          PKVault v8.0.0-alpha19-Uranium-Overlay-Dex Online/VPN Trading + Permanent Dex Registration test
           ===================================
           Trader A starts with:
             Abra, Growlithe, Machop, Gastly, Dratini, Scyther
@@ -1290,26 +1292,26 @@ jobs:
           - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
           EOF
 
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/
-          sha256sum dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
-            | tee dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
-          sha256sum dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
-            | tee dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/
+          sha256sum dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe \
+            | tee dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.sha256
+          sha256sum dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe \
+            | tee dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.sha256
 
-          (cd dist && zip -9 -r PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test)
-          sha256sum dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip \
-            | tee dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.sha256
+          (cd dist && zip -9 -r PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test)
+          sha256sum dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip \
+            | tee dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.sha256
           ls -lah dist
-          find dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
+          find dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
 
-      - name: Upload PKVault v8.0.0-alpha18-Uranium-Overlay-Dex online trading dex test
+      - name: Upload PKVault v8.0.0-alpha19-Uranium-Overlay-Dex online trading dex test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64
+          name: PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip
-            dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.sha256
-            dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
-            dist/PKVault-v8.0.0-alpha18-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.sha256
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
+            dist/PKVault-v8.0.0-alpha19-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt
           if-no-files-found: error
           retention-days: 30
