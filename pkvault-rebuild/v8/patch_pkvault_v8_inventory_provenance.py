@@ -981,8 +981,8 @@ public class ItemBankService(
 
                 var stack = new BankStack(
                     Id: NewStackId(),
-                    Page: legacyPage2,
-                    Slot: legacySlot2,
+                    Page: page,
+                    Slot: slot,
                     ItemKey: parts[2],
                     Count: count,
                     SpriteVersion: spriteVersion,
@@ -1005,8 +1005,8 @@ public class ItemBankService(
 
                 var stack = new BankStack(
                     Id: NewStackId(),
-                    Page: page,
-                    Slot: slot,
+                    Page: legacyPage2,
+                    Slot: legacySlot2,
                     ItemKey: parts[0],
                     Count: legacyCount,
                     SpriteVersion: spriteVersion,
