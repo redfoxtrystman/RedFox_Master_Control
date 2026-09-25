@@ -2271,3 +2271,103 @@ replace_once(desktop_program_v20,
 ''')
 
 print("PKVault V8 alpha20 same-folder single-instance crash guard applied")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha21: profile-aware ROM-hack drag compatibility.
+#
+# Upstream frontend validates main->save moves with CompatibleWithVersions,
+# which is calculated from Pkm.Species. For PKEssentials custom species that
+# property is only a PKHeX-facing placeholder and may numerically overlap an
+# unrelated official Pokémon. This caused a Uranium Pokémon moved into PKVault
+# to become undroppable back into the SAME Uranium save and the refusal toast
+# could name a different Pokémon.
+#
+# ROM-hack profile identity is authoritative:
+# - source profile == target profile => compatible; do not interpret the local
+#   species ID as an official National Dex ID.
+# - source profile != target profile => reject in the frontend before backend.
+# - ordinary Pokémon keep the normal CompatibleWithVersions behavior.
+# Backend EssentialsInterop / SaveWrapper.IsPkmAllowed remains the final guard.
+# ---------------------------------------------------------------------------
+validate_root_v21 = PKVAULT / "frontend/src/storage/move/validation/rules/validate-root.ts"
+replace_once(validate_root_v21,
+'''    sourcePkm: Pick<PkmBaseDTO, 'boxSlot' | 'canMove' | 'nickname' | 'context'>;
+    targetBox?: Pick<BoxDTO, 'name' | 'slotCount'>;
+    targetPkm?: Pick<PkmBaseDTO, 'boxSlot' | 'canMove' | 'nickname' | 'context'>;
+''',
+'''    sourcePkm: Pick<PkmBaseDTO, 'boxSlot' | 'canMove' | 'nickname' | 'context' | 'romHackProfile' | 'romHackSpeciesName'>;
+    targetBox?: Pick<BoxDTO, 'name' | 'slotCount'>;
+    targetPkm?: Pick<PkmBaseDTO, 'boxSlot' | 'canMove' | 'nickname' | 'context' | 'romHackProfile' | 'romHackSpeciesName'>;
+''')
+
+validate_save_to_main_v21 = PKVAULT / "frontend/src/storage/move/validation/rules/validate-save-to-main.ts"
+replace_once(validate_save_to_main_v21,
+'''  sourceSave: Pick<SaveInfosDTO, 'version' | 'context'>;
+''',
+'''  sourceSave: Pick<SaveInfosDTO, 'version' | 'context' | 'romHackProfile'>;
+''')
+
+validate_main_to_save_v21 = PKVAULT / "frontend/src/storage/move/validation/rules/validate-main-to-save.ts"
+replace_once(validate_main_to_save_v21,
+'''  sourcePkm: Pick<PkmVariantDTO, 'boxId' | 'canMoveToSave' | 'canMoveAttachedToSave' | 'compatibleWithVersions'>;
+''',
+'''  sourcePkm: Pick<PkmVariantDTO, 'boxId' | 'canMoveToSave' | 'canMoveAttachedToSave' | 'compatibleWithVersions' | 'romHackProfile'>;
+''')
+replace_once(validate_main_to_save_v21,
+'''  if (slotInfos.targetSave && !slotInfos.sourcePkm.compatibleWithVersions.includes(slotInfos.targetSave.version)) {
+    return {
+      canDrop: false,
+      reason: 'main-to-save-incompatible-version',
+      slotInfos,
+    };
+  }
+''',
+'''  if (slotInfos.targetSave) {
+    const sourceProfile = slotInfos.sourcePkm.romHackProfile;
+    const targetProfile = slotInfos.targetSave.romHackProfile;
+
+    if (sourceProfile) {
+      if (sourceProfile !== targetProfile) {
+        return {
+          canDrop: false,
+          reason: 'main-to-save-incompatible-version',
+          slotInfos,
+        };
+      }
+      // Matching ROM-hack profiles own their local species namespace. Do not
+      // feed that local ID into official-game version compatibility.
+    } else if (!slotInfos.sourcePkm.compatibleWithVersions.includes(slotInfos.targetSave.version)) {
+      return {
+        canDrop: false,
+        reason: 'main-to-save-incompatible-version',
+        slotInfos,
+      };
+    }
+  }
+''')
+
+help_text_v21 = PKVAULT / "frontend/src/storage/move/validation/utils/get-help-text.ts"
+replace_once(help_text_v21,
+'''    const sourcePkm = info?.sourcePkm;
+    const targetPkm = info?.targetPkm;
+
+    switch (reason) {
+''',
+'''    const sourcePkm = info?.sourcePkm;
+    const targetPkm = info?.targetPkm;
+    const sourceName = sourcePkm?.romHackSpeciesName ?? sourcePkm?.nickname;
+    const targetName = targetPkm?.romHackSpeciesName ?? targetPkm?.nickname;
+
+    switch (reason) {
+''')
+for old,new in [
+    ("name: sourcePkm?.nickname,", "name: sourceName,"),
+    ("name: targetPkm?.nickname,", "name: targetName,"),
+]:
+    help_content = help_text_v21.read_text()
+    if old not in help_content:
+        raise SystemExit(f"missing help-text replacement: {old}")
+    help_text_v21.write_text(help_content.replace(old, new))
+
+print("PKVault V8 alpha21 ROM-hack drag validation now uses profile identity instead of aliased official species IDs")
