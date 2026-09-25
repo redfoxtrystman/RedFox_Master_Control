@@ -16,7 +16,7 @@ public record SaveInventoryItemDTO(
     string Name,
     int ItemId,
     int Count,
-    InventoryType Pouch,
+    string Pouch,
     int MaxCount
 );
 
@@ -103,7 +103,7 @@ public class ItemBankService(
                         GetItemName(others, itemKey),
                         item.Index,
                         item.Count,
-                        pouch.Type,
+                        pouch.Type.ToString(),
                         bag.GetMaxCount(pouch.Type, item.Index)
                     ));
                 }
@@ -515,6 +515,7 @@ put("frontend/src/pages/inventory.tsx", r'''import {
   Title,
 } from '@mantine/core';
 import { PackageOpenIcon, ShieldAlertIcon } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { customInstance } from '../data/mutator/custom-instance';
 import type { GameVersion } from '../data/sdk/model';
@@ -557,6 +558,7 @@ const moveInventory = async (params: URLSearchParams) =>
 
 export const InventoryPage: React.FC = withErrorCatcher('default', () => {
   const staticData = useStaticData();
+  const queryClient = useQueryClient();
   const [state, setState] = React.useState<InventoryState>();
   const [saveId, setSaveId] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState<string | null>(null);
@@ -582,6 +584,7 @@ export const InventoryPage: React.FC = withErrorCatcher('default', () => {
     setBusy(key);
     try {
       setState(await moveInventory(params));
+      await queryClient.invalidateQueries();
     } finally {
       setBusy(null);
     }
