@@ -1494,34 +1494,41 @@ public class ItemBankService(
         SaveFile save
     )
     {
+        // Gen 1 MUST bypass PKVault's ordinary per-version static map.
+        // That map is based on Pokemon held-item support, and Gen 1 has none.
+        // Some lumped GameVersion entries can still resolve to a non-empty
+        // unrelated map, which causes every real SAV1 bag item to fail lookup
+        // and render as an empty slot. The actual Gen1 item string table is
+        // authoritative for SAV1 bag + PC inventory IDs.
+        if (save.Generation == 1)
+            return GetGenerationOneItemMap(save);
+
         var mapped = others.Items.VersionItems
             .FirstOrDefault(
                 x => x.Versions.Contains((byte)save.Version)
             )
             ?.ComboItems;
 
-        if (mapped is { Count: > 0 })
-            return mapped;
+        return mapped ?? [];
+    }
 
-        // Gen 1 has no held items, so the ordinary static item map is empty.
-        // PlayerBag1 still exposes the complete bag/PC item table.
+    private static Dictionary<int, string> GetGenerationOneItemMap(
+        SaveFile save
+    )
+    {
         var result = new Dictionary<int, string>();
         var itemNames = GameInfo.Strings.GetItemStrings(
-            save.Context,
-            save.Version
+            EntityContext.Gen1,
+            GameVersion.RD
         );
 
-        // Do not gate Gen1 bag items on PKVault's generated static item set.
-        // Gen1 has no held items, which is how PKVault normally builds its
-        // per-version item map. The SAV1 bag itself is authoritative here.
-        // Walk every named Gen1 item ID so hacked-but-valid quantities and
-        // PC item stacks still render instead of being mistaken for empties.
         for (var itemId = 1; itemId < itemNames.Length; itemId++)
         {
             var name = itemNames[itemId];
 
             if (string.IsNullOrWhiteSpace(name)
                 || name == "???"
+                || name.StartsWith("?????", StringComparison.Ordinal)
                 || name.StartsWith("Teru-sama", StringComparison.Ordinal))
             {
                 continue;
