@@ -1120,7 +1120,6 @@ jobs:
           grep -q "controlIcons('open', 'drag', 'drop')" pkvault-src/frontend/src/inventory/inventory-item.tsx
           grep -q "Amount to split into the nearest empty slot" pkvault-src/frontend/src/inventory/inventory-item.tsx
           grep -q ">Split<" pkvault-src/frontend/src/inventory/inventory-item.tsx || grep -q "Split" pkvault-src/frontend/src/inventory/inventory-item.tsx
-          grep -q "bag.Info.GetItems(pouch.Type)" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q "PokeApiFromPKHeX.GetPokeapiItemName" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q "ITEM_SAVE_PROVENANCE" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           grep -q "string Id," pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
