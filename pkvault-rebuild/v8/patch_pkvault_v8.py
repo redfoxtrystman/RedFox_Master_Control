@@ -2037,3 +2037,34 @@ replace_once(species_img_ess,
 ''')
 
 print("PKVault V8 alpha17 Uranium front-sprite sizing normalized to 56px art in the native 96px slot")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha18: Essentials party drags are real moves, not implicit links.
+#
+# Alpha14 kept party Pokemon in-place by forcing every Essentials party drag
+# into attached mode. SavePkmLoader.DeleteDto() already marks party edits for
+# FlushParty(), and SaveToMain() performs that flush after the move. Therefore
+# normal party extraction can safely use the same move semantics as box
+# extraction: delete the source slot, compact the party, and leave no attached
+# save metadata. Explicit attached/link operations still remain attached.
+# ---------------------------------------------------------------------------
+move_action_v18 = PKVAULT / "PKVault.Core/storage/data-action/MovePkmAction.cs"
+replace_once(move_action_v18,
+'''        var keepEssentialsParty = savePkm.Pkm.GetMutablePkm() is PKEssentials && savePkm.Party >= 0;
+        var attachToSource = input.attached || keepEssentialsParty;
+''',
+'''        var attachToSource = input.attached;
+''')
+
+replace_once(move_action_v18,
+'''            // Remove boxed Pokemon from the save. Essentials party Pokemon stay
+            // in-place and become an attached vault copy instead.
+            saveLoaders.Pkms.DeleteDto(savePkm.Id);
+''',
+'''            // Normal save-to-vault moves remove the source Pokemon. Party
+            // removal is compacted by SaveToMain() via SavePkmLoader.FlushParty().
+            saveLoaders.Pkms.DeleteDto(savePkm.Id);
+''')
+
+print("PKVault V8 alpha18 Essentials party extraction now performs a real move")
