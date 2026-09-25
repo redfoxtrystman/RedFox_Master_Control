@@ -1510,28 +1510,32 @@ public class ItemBankService(
             save.Context,
             save.Version
         );
-        var bag = save.Inventory;
 
-        foreach (var pouch in bag.Pouches)
+        // Do not gate Gen1 bag items on PKVault's generated static item set.
+        // Gen1 has no held items, which is how PKVault normally builds its
+        // per-version item map. The SAV1 bag itself is authoritative here.
+        // Walk every named Gen1 item ID so hacked-but-valid quantities and
+        // PC item stacks still render instead of being mistaken for empties.
+        for (var itemId = 1; itemId < itemNames.Length; itemId++)
         {
-            foreach (var itemId in bag.Info.GetItems(pouch.Type))
+            var name = itemNames[itemId];
+
+            if (string.IsNullOrWhiteSpace(name)
+                || name == "???"
+                || name.StartsWith("Teru-sama", StringComparison.Ordinal))
             {
-                if (itemId <= 0 || itemId >= itemNames.Length)
-                    continue;
-
-                var key = PokeApiFromPKHeX.GetPokeapiItemName(
-                    itemNames[itemId]
-                );
-
-                if (string.IsNullOrWhiteSpace(key)
-                    || key == "???")
-                {
-                    continue;
-                }
-
-                if (others.Items.Items.ContainsKey(key))
-                    result[itemId] = key;
+                continue;
             }
+
+            var key = PokeApiFromPKHeX.GetPokeapiItemName(name);
+
+            if (string.IsNullOrWhiteSpace(key)
+                || key == "???")
+            {
+                continue;
+            }
+
+            result[itemId] = key;
         }
 
         return result;
