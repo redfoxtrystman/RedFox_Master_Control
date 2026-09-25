@@ -2592,3 +2592,7 @@ exec((Path(__file__).with_name("patch_pkvault_v8_inventory_storage_clone.py")).r
 
 # V8 alpha28 exact Storage drag controls + Gen1 inventory
 exec((Path(__file__).with_name("patch_pkvault_v8_inventory_storage_drag.py")).read_text(encoding="utf-8"), globals())
+
+
+# V8 alpha29 item provenance + generation-folder persistence
+exec((Path(__file__).with_name("patch_pkvault_v8_inventory_provenance.py")).read_text(encoding="utf-8"), globals())
