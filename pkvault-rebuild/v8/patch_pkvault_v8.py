@@ -2458,3 +2458,117 @@ replace_once(share_props_tests_v22,
 ''')
 
 print("PKVault V8 alpha22 legality-skip synchronization null guard applied")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha23: preserve original-game provenance in converted save copies.
+#
+# PKVault represents cross-generation compatibility by keeping the original
+# main variant (for example HeartGold PK4) and creating a secondary context
+# variant (for example Red PK1). The generated PK1 must identify as a Gen1
+# target-game Pokémon at the byte-format level because PK1 cannot encode a
+# HeartGold origin game. However PKVault still knows the true provenance from
+# the grouped main variant. When viewing an attached converted Pokémon inside a
+# save, use that main variant for the Origin panel instead of the lossy target
+# format. This preserves HeartGold as the displayed origin without corrupting
+# the actual Red-compatible PK1 data.
+# ---------------------------------------------------------------------------
+details_content_v23 = PKVAULT / "frontend/src/storage/details/details-content.tsx"
+
+replace_once(details_content_v23,
+'''import { usePkmIndex } from '../../data/hooks/use-pkm-index';
+import { usePkmLegality } from '../../data/hooks/use-pkm-legality';
+''',
+'''import { usePkmIndex } from '../../data/hooks/use-pkm-index';
+import { usePkmLegality } from '../../data/hooks/use-pkm-legality';
+import { usePkmVariantIndex } from '../../data/hooks/use-pkm-variant-index';
+''')
+
+replace_once(details_content_v23,
+'''import { switchUtilRequired } from '../../util/switch-util';
+import { useCurrentStorage } from '../panel/storage-panel-context';
+''',
+'''import { switchUtilRequired } from '../../util/switch-util';
+import { useSelectCallback } from '../../util/use-select-callback';
+import { useCurrentStorage } from '../panel/storage-panel-context';
+''')
+
+replace_once(details_content_v23,
+'''    const pkmIndexQuery = usePkmIndex(selectedSaveId, data => data.data.byId[ selectedId ?? '' ]);
+    const pkm = pkmIndexQuery.data;
+
+    const getPkmVariantAttach = usePkmVariantAttach();
+''',
+'''    const pkmIndexQuery = usePkmIndex(selectedSaveId, data => data.data.byId[ selectedId ?? '' ]);
+    const pkm = pkmIndexQuery.data;
+
+    // A cross-generation save copy (for example PK4 HeartGold -> PK1 Red)
+    // cannot physically retain the newer origin-game field in the older PKM
+    // format. If that save copy is attached to a grouped PKVault variant,
+    // resolve its original/main variant and use that as provenance in Origin.
+    const provenanceVariantQuery = usePkmVariantIndex(
+        useSelectCallback(data => {
+            if (!selectedSaveId || !pkm?.idBase)
+                return undefined;
+
+            const attachedVariant = data.data.byAttachedSave[ selectedSaveId ]?.[ pkm.idBase ];
+            if (!attachedVariant)
+                return undefined;
+
+            const groupedVariants = data.data.byBox[ attachedVariant.boxId ]?.[ attachedVariant.boxSlot ] ?? [];
+            return groupedVariants.find(variant => variant.isMain) ?? attachedVariant;
+        }, [ selectedSaveId, pkm?.idBase ])
+    );
+    const provenancePkm = provenanceVariantQuery.data;
+
+    const getPkmVariantAttach = usePkmVariantAttach();
+''')
+
+replace_once(details_content_v23,
+'''    const natureObj = pkm.nature === undefined ? undefined : staticData.natures[ pkm.nature ];
+''',
+'''    const natureObj = pkm.nature === undefined ? undefined : staticData.natures[ pkm.nature ];
+    const originPkm = provenancePkm ?? pkm;
+''')
+
+replace_once(details_content_v23,
+'''                game={<Group>
+                    <UIGameImg
+                        size='1lh'
+                        version={pkm.version}
+                        name={staticData.versions[ pkm.version ]?.name}
+                    />
+                    {staticData.versions[ pkm.version ]?.name}
+                </Group>}
+                ot={pkm.originTrainerName}
+                otGender={pkm.originTrainerGender}
+                ht={pkm.handlingTrainerName}
+                htGender={pkm.handlingTrainerGender}
+                tid={pkm.tid}
+                sid={pkm.sid}
+                originMetLocation={pkm.originMetLocation}
+                originMetLevel={pkm.originMetLevel}
+                originMetDate={pkm.originMetDate}
+                fatefulEncounter={pkm.fatefulEncounter}
+''',
+'''                game={<Group>
+                    <UIGameImg
+                        size='1lh'
+                        version={originPkm.version}
+                        name={staticData.versions[ originPkm.version ]?.name}
+                    />
+                    {staticData.versions[ originPkm.version ]?.name}
+                </Group>}
+                ot={originPkm.originTrainerName}
+                otGender={originPkm.originTrainerGender}
+                ht={originPkm.handlingTrainerName}
+                htGender={originPkm.handlingTrainerGender}
+                tid={originPkm.tid}
+                sid={originPkm.sid}
+                originMetLocation={originPkm.originMetLocation}
+                originMetLevel={originPkm.originMetLevel}
+                originMetDate={originPkm.originMetDate}
+                fatefulEncounter={originPkm.fatefulEncounter}
+''')
+
+print("PKVault V8 alpha23 converted save copies now display provenance from the original main variant")
