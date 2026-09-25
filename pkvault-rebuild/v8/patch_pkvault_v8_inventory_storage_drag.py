@@ -211,8 +211,8 @@ export const InventoryMoveProvider: React.FC<InventoryMoveProviderProps> = ({
                     canDrop,
                     helpText: canDrop
                         ? slot.itemKey === sourceItem?.itemKey
-                            ? 'Restack ' + sourceItem.name
-                            : 'Move ' + sourceItem?.name
+                            ? 'Restack ' + (sourceItem?.name ?? 'item')
+                            : 'Move ' + (sourceItem?.name ?? 'item')
                         : 'Cannot move item here',
                 };
             }
