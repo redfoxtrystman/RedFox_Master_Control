@@ -1049,6 +1049,8 @@ jobs:
           grep -q "romHackProfile" pkvault-src/frontend/src/storage/move/validation/rules/validate-save-to-main.ts
           grep -q "romHackSpeciesName" pkvault-src/frontend/src/storage/move/validation/rules/validate-root.ts
           grep -q "sourceName = sourcePkm?.romHackSpeciesName" pkvault-src/frontend/src/storage/move/validation/utils/get-help-text.ts
+          grep -q "Pkm.GetMutablePkm() is PKEssentials" pkvault-src/PKVault.Core/storage/dto/PkmVariantDTO.cs
+          grep -q "VersionChecker.GetCompatibleVersionsForSpecies" pkvault-src/PKVault.Core/storage/dto/PkmVariantDTO.cs
 
           echo "PASS: Pokédex is canonical-only; TMT typing remains in boxes; Uranium sprite scale is normalized"
 
