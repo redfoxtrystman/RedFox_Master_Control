@@ -2068,3 +2068,68 @@ replace_once(move_action_v18,
 ''')
 
 print("PKVault V8 alpha18 Essentials party extraction now performs a real move")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha19: preflight incompatible Essentials swaps before touching either
+# side of the move.
+#
+# A save -> main drag onto an occupied PKVault slot is a SWAP in upstream
+# PKVault. If the source is Uranium/Insurgence, the existing central-vault
+# Pokemon must be legal to move back into that Essentials save. Previously we
+# moved the source Pokemon first and only discovered the incompatibility while
+# trying to send the displaced vault Pokemon back, which made the failure look
+# like the Uranium Pokemon had turned into the occupant.
+#
+# Reject that impossible swap up-front with a precise message. Empty PKVault
+# slots continue to perform the real move added in alpha18.
+# ---------------------------------------------------------------------------
+move_action_v19 = PKVAULT / "PKVault.Core/storage/data-action/MovePkmAction.cs"
+replace_once(move_action_v19,
+'''        var existingSlots = (await pkmVariantLoader.GetEntitiesByBox(input.targetBoxId, targetBoxSlot)).Values.ToList();
+        if (input.attached && existingSlots.Count > 0)
+        {
+            throw new ArgumentException("Switch not possible with attached move");
+        }
+
+        await SaveToMainWithoutCheckTarget(
+''',
+'''        var existingSlots = (await pkmVariantLoader.GetEntitiesByBox(input.targetBoxId, targetBoxSlot)).Values.ToList();
+        if (input.attached && existingSlots.Count > 0)
+        {
+            throw new ArgumentException("Switch not possible with attached move");
+        }
+
+        if (!input.attached && existingSlots.Count > 0
+            && saveLoaders.Save.GetSave() is EssentialsLegacySaveFile essentialsSource)
+        {
+            // Upstream save->main behavior swaps the existing vault occupant
+            // back into the exact source save slot. Validate that displaced
+            // Pokemon before moving/deleting anything.
+            var displacedVariant = existingSlots.Find(v => v.Context == saveLoaders.Save.Context)
+                ?? existingSlots.Find(v => v.IsMain)
+                ?? existingSlots.First();
+
+            var displacedPkm = await pkmVariantLoader.GetPKM(displacedVariant);
+            if (!EssentialsInterop.CanImportTo(essentialsSource, displacedPkm))
+            {
+                var gameName = essentialsSource.Game switch
+                {
+                    EssentialsGameKind.Uranium => "Pokémon Uranium",
+                    EssentialsGameKind.Insurgence => "Pokémon Insurgence",
+                    _ => essentialsSource.ProfileId,
+                };
+                var displacedName = displacedPkm.GetMutablePkm() is PKEssentials displacedEssentials
+                    ? displacedEssentials.SpeciesName
+                    : displacedPkm.Nickname;
+
+                throw new ArgumentException(
+                    $"Target PKVault slot is occupied by {displacedName}, which cannot be swapped into {gameName}. "
+                    + "Drop the Pokémon into an empty PKVault slot instead.");
+            }
+        }
+
+        await SaveToMainWithoutCheckTarget(
+''')
+
+print("PKVault V8 alpha19 Essentials occupied-slot swap preflight applied")
