@@ -2580,3 +2580,7 @@ exec((Path(__file__).with_name("patch_pkvault_v8_inventory.py")).read_text(encod
 
 # V8 alpha25 storage-style inventory
 exec((Path(__file__).with_name("patch_pkvault_v8_inventory_storage.py")).read_text(encoding="utf-8"), globals())
+
+
+# V8 alpha26 item-storage parity
+exec((Path(__file__).with_name("patch_pkvault_v8_inventory_storage_parity.py")).read_text(encoding="utf-8"), globals())
