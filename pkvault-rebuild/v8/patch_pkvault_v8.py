@@ -2133,3 +2133,141 @@ replace_once(move_action_v19,
 ''')
 
 print("PKVault V8 alpha19 Essentials occupied-slot swap preflight applied")
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha20: prevent same-folder concurrent desktop instances.
+#
+# PKVault uses a fixed db/pkvault-session.db per working directory. Upstream
+# desktop startup resets/deletes that file. Launching a second EXE from the
+# same folder while the first process is still alive therefore throws
+# IOException ("file is being used by another process") and the frontend sees
+# HTTP 500. Use a named mutex scoped to the normalized working directory:
+# - same PKVault folder => second launch is blocked cleanly
+# - separate folders => still allowed (required by our Trader A/B test)
+# ---------------------------------------------------------------------------
+desktop_program_v20 = PKVAULT / "PKVault.Desktop/Program.cs"
+
+replace_once(desktop_program_v20,
+'''using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text.Encodings.Web;
+''',
+'''using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Encodings.Web;
+''')
+
+replace_once(desktop_program_v20,
+'''    private static IServiceProvider? ServiceProvider = null;
+    private static Task SetupTask = Task.CompletedTask;
+
+    [DllImport("kernel32.dll")]
+''',
+'''    private static IServiceProvider? ServiceProvider = null;
+    private static Task SetupTask = Task.CompletedTask;
+    private static Mutex? InstanceMutex = null;
+    private static bool OwnsInstanceMutex = false;
+
+    [DllImport("kernel32.dll")]
+''')
+
+replace_once(desktop_program_v20,
+'''    const uint ATTACH_PARENT_PROCESS = 0x0ffffffff;
+
+    [STAThread]
+    static void Main(string[] args)
+''',
+'''    const uint ATTACH_PARENT_PROCESS = 0x0ffffffff;
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern int MessageBoxW(IntPtr hWnd, string text, string caption, uint type);
+
+    private static bool TryAcquireInstanceMutex()
+    {
+        var directory = Path.GetFullPath(Directory.GetCurrentDirectory())
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .ToUpperInvariant();
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(directory)));
+        var mutexName = $"{(WindowsOS ? @"Local\" : "")}PKVault-{hash}";
+
+        InstanceMutex = new Mutex(initiallyOwned: false, mutexName);
+        try
+        {
+            OwnsInstanceMutex = InstanceMutex.WaitOne(0, false);
+        }
+        catch (AbandonedMutexException)
+        {
+            // The previous process died without releasing the mutex. Ownership
+            // is transferred to this process, so startup may safely continue.
+            OwnsInstanceMutex = true;
+        }
+
+        return OwnsInstanceMutex;
+    }
+
+    private static void ShowAlreadyRunningMessage()
+    {
+        const string message =
+            "PKVault is already running from this folder.\n\n"
+            + "Close the existing PKVault window/process before launching this copy again. "
+            + "Separate PKVault folders can still run at the same time.";
+
+        if (WindowsOS)
+            _ = MessageBoxW(IntPtr.Zero, message, "PKVault already running", 0x00000040);
+        else
+            Console.Error.WriteLine(message);
+    }
+
+    [STAThread]
+    static void Main(string[] args)
+''')
+
+replace_once(desktop_program_v20,
+'''        Core.Program.Initialize();
+
+        if (LinuxOS)
+''',
+'''        Core.Program.Initialize();
+
+        if (!TryAcquireInstanceMutex())
+        {
+            ShowAlreadyRunningMessage();
+            InstanceMutex?.Dispose();
+            InstanceMutex = null;
+            return;
+        }
+
+        if (LinuxOS)
+''')
+
+replace_once(desktop_program_v20,
+'''        finally
+        {
+            LogUtil.Dispose();
+        }
+''',
+'''        finally
+        {
+            if (OwnsInstanceMutex && InstanceMutex != null)
+            {
+                try
+                {
+                    InstanceMutex.ReleaseMutex();
+                }
+                catch (ApplicationException)
+                {
+                    // Process teardown safety: nothing else should be attempted.
+                }
+            }
+
+            InstanceMutex?.Dispose();
+            InstanceMutex = null;
+            OwnsInstanceMutex = false;
+            LogUtil.Dispose();
+        }
+''')
+
+print("PKVault V8 alpha20 same-folder single-instance crash guard applied")
