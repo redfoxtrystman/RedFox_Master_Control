@@ -895,10 +895,6 @@ export const InventoryItem: React.FC<InventoryItemProps> = ({
     const [ opened, setOpened ] = React.useState(false);
     const [ amount, setAmount ] = React.useState<number>(Math.max(1, Number(slot.count)));
 
-    React.useEffect(() => {
-        setAmount(Math.max(1, Number(slot.count)));
-    }, [ slot.count ]);
-
     const hasItem = !!slot.itemKey && slot.count > 0;
     const canDrag = hasItem && slot.movable;
     const transferAmount = Math.max(1, Math.min(Number(slot.count), amount || Number(slot.count)));
@@ -1075,12 +1071,6 @@ export const InventoryPanel: React.FC<InventoryPanelProps> = ({
     const staticData = useStaticData();
     const [ selection, setSelection ] = React.useState<ContainerSelection>(initial);
 
-    React.useEffect(() => {
-        if (selection.kind === 'save' && !state.saves.some(s => s.saveId === selection.saveId)) {
-            setSelection({ kind: 'bank', page: 1 });
-        }
-    }, [ selection, state.saves ]);
-
     const selectedSave: SaveInventory | undefined = selection.kind === 'save'
         ? state.saves.find(s => s.saveId === selection.saveId)
         : undefined;
@@ -1092,16 +1082,6 @@ export const InventoryPanel: React.FC<InventoryPanelProps> = ({
     const selectedPocket: SaveInventoryPocket | undefined = selection.kind === 'save' && selectedSave
         ? selectedSave.pockets.find(p => p.pouch === selection.pouch) ?? selectedSave.pockets[0]
         : undefined;
-
-    React.useEffect(() => {
-        if (selection.kind === 'save' && selectedSave && !selection.pouch && selectedSave.pockets[0]) {
-            setSelection({
-                kind: 'save',
-                saveId: selectedSave.saveId,
-                pouch: selectedSave.pockets[0].pouch,
-            });
-        }
-    }, [ selection, selectedSave ]);
 
     const gameValue = selection.kind === 'bank' ? pkvaultId : String(selection.saveId);
     const gameData: UIGameData[] = [
