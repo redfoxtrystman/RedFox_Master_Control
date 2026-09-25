@@ -671,27 +671,37 @@ replace_once(inventory_page,
 ''')
 
 replace_once(inventory_page,
-'''                onMove={onMove}
+'''            left={<InventoryPanel
+                state={state}
+                initial={{ kind: 'bank', page: 1 }}
+                onMove={onMove}
+                onError={setError}
+            />}
+            right={<InventoryPanel
+                state={state}
+                initial={firstSave
+                    ? { kind: 'save', saveId: firstSave.saveId, pouch: firstSave.pockets[0]?.pouch }
+                    : { kind: 'bank', page: 1 }}
+                onMove={onMove}
                 onError={setError}
             />}
 ''',
-'''                onMove={onMove}
+'''            left={<InventoryPanel
+                state={state}
+                initial={{ kind: 'bank', page: 1 }}
+                onMove={onMove}
                 onCreatePage={onCreatePage}
                 onError={setError}
             />}
-''')
-
-replace_once(inventory_page,
-'''                onMove={onMove}
-                onError={setError}
-            />}
-            middle=
-''',
-'''                onMove={onMove}
+            right={<InventoryPanel
+                state={state}
+                initial={firstSave
+                    ? { kind: 'save', saveId: firstSave.saveId, pouch: firstSave.pockets[0]?.pouch }
+                    : { kind: 'bank', page: 1 }}
+                onMove={onMove}
                 onCreatePage={onCreatePage}
                 onError={setError}
             />}
-            middle=
 ''')
 
 print("PKVault V8 alpha26 item-storage parity pass applied")
