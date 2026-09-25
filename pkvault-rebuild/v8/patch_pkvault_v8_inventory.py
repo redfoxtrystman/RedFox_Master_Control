@@ -519,7 +519,7 @@ import React from 'react';
 import { customInstance } from '../data/mutator/custom-instance';
 import type { GameVersion } from '../data/sdk/model';
 import { useStaticData } from '../hooks/use-static-data';
-import { withErrorCatcher } from '../ui/error-boundary/error-boundary';
+import { withErrorCatcher } from '../error/with-error-catcher';
 
 type InventoryType =
   | 'None' | 'Items' | 'KeyItems' | 'TMHMs' | 'Medicine' | 'Berries'
