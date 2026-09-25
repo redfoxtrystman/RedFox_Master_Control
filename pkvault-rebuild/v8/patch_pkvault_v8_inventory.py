@@ -366,21 +366,21 @@ replace_once(meta_entity,
 
 program = PKVAULT / "PKVault.Core/Program.cs"
 replace_once(program,
-'''        services.AddSingleton<PkmLegalityService>();
+'''        services.AddSingleton<TradingService>();
 
         Log.Information($"Setup services - Actions");
 ''',
-'''        services.AddSingleton<PkmLegalityService>();
+'''        services.AddSingleton<TradingService>();
         services.AddScoped<ItemBankService>();
 
         Log.Information($"Setup services - Actions");
 ''')
 replace_once(program,
-'''        services.AddScoped<DexSyncAction>();
+'''        services.AddScoped<TradeSwapAction>();
 
         Log.Information($"Setup services - Loaders");
 ''',
-'''        services.AddScoped<DexSyncAction>();
+'''        services.AddScoped<TradeSwapAction>();
         services.AddScoped<MoveInventoryItemAction>();
 
         Log.Information($"Setup services - Loaders");
