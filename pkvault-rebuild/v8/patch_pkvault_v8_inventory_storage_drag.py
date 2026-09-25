@@ -97,7 +97,7 @@ const getContainerValue = (hash: string): InventoryMoveContainer => {
     };
 };
 
-export const inventoryContainerFns = {
+const inventoryContainerFns = {
     getContainerHash,
     getContainerValue,
 };
@@ -157,9 +157,17 @@ export const InventoryMoveProvider: React.FC<InventoryMoveProviderProps> = ({
     const onMoveRef = React.useRef(onMove);
     const onErrorRef = React.useRef(onError);
 
-    stateRef.current = state;
-    onMoveRef.current = onMove;
-    onErrorRef.current = onError;
+    React.useEffect(() => {
+        stateRef.current = state;
+    }, [ state ]);
+
+    React.useEffect(() => {
+        onMoveRef.current = onMove;
+    }, [ onMove ]);
+
+    React.useEffect(() => {
+        onErrorRef.current = onError;
+    }, [ onError ]);
 
     const useFilterStartDragIds:
         MoveProviderProps<InventoryMoveContainer, never>[ 'useFilterStartDragIds' ] =
