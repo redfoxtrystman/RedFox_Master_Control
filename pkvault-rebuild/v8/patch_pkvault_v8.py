@@ -2373,3 +2373,88 @@ for old,new in [
 
 print("PKVault V8 alpha21 ROM-hack drag validation now uses profile identity instead of aliased official species IDs")
 
+
+
+# ---------------------------------------------------------------------------
+# V8 alpha22: legality-skip synchronization null guard.
+#
+# LegalityAnalysisService intentionally returns LegalityAnalysisWrapper(null)
+# when SKIP_LEGALITY_CHECKS is enabled. PkmSharePropertiesService then
+# unconditionally dereferenced legality.la.Info while synchronizing another
+# stored variant after a backward-generation move. Example from the field:
+# HeartGold Caterpie PK4 -> Red PK1 conversion succeeds, then synchronization
+# of the PK1 back to the existing PK4 variant crashes with NullReferenceException.
+#
+# Ribbon cleanup requires legality encounter data, so skip only that cleanup
+# when there is no analysis. All conversion/property copy work still runs.
+# ---------------------------------------------------------------------------
+share_props_v22 = PKVAULT / "PKVault.Core/storage/services/PkmConvertService/PkmSharePropertiesService.cs"
+replace_once(share_props_v22,
+'''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
+        var args = new RibbonVerifierArguments(
+            legality.la.Info.Entity,
+            legality.la.EncounterMatch,
+            legality.la.Info.EvoChainsAllGens
+        );
+        RibbonApplicator.FixInvalidRibbons(args);
+
+        targetPkm.Heal();
+''',
+'''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
+        if (legality.la is not null)
+        {
+            var args = new RibbonVerifierArguments(
+                legality.la.Info.Entity,
+                legality.la.EncounterMatch,
+                legality.la.Info.EvoChainsAllGens
+            );
+            RibbonApplicator.FixInvalidRibbons(args);
+        }
+
+        targetPkm.Heal();
+''')
+
+# Regression coverage for the exact null-analysis contract used by
+# SKIP_LEGALITY_CHECKS. This does not need a special Caterpie fixture: the bug
+# was an unconditional dereference after SharePropertiesTo's normal copy path.
+share_props_tests_v22 = PKVAULT / "PKVault.Core.Tests/storage/services/PkmConvertService/PkmSharePropertiesServiceTests.cs"
+replace_once(share_props_tests_v22,
+'''    private PkmSharePropertiesService GetService()
+    {
+''',
+'''    private PkmSharePropertiesService GetService(bool skipLegalityChecks = false)
+    {
+''')
+replace_once(share_props_tests_v22,
+'''                LANGUAGE: "fr", HIDE_CHEATS: false, SKIP_LEGALITY_CHECKS: false
+''',
+'''                LANGUAGE: "fr", HIDE_CHEATS: false, SKIP_LEGALITY_CHECKS: skipLegalityChecks
+''')
+replace_once(share_props_tests_v22,
+'''    [Fact]
+    public void SharePropertiesTo_CopiesUnique3Ribbons()
+''',
+'''    [Fact]
+    public void SharePropertiesTo_SkipLegalityChecks_DoesNotDereferenceMissingAnalysis()
+    {
+        var service = GetService(skipLegalityChecks: true);
+
+        var sourcePkm = new PK3
+        {
+            Species = 25,
+            TID16 = 1234,
+        };
+
+        var targetPkm = new PK3 { Species = 25 };
+
+        service.SharePropertiesTo(new(sourcePkm), targetPkm, null);
+
+        Assert.Equal((ushort)25, targetPkm.Species);
+        Assert.Equal((ushort)1234, targetPkm.TID16);
+    }
+
+    [Fact]
+    public void SharePropertiesTo_CopiesUnique3Ribbons()
+''')
+
+print("PKVault V8 alpha22 legality-skip synchronization null guard applied")
