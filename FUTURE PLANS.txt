@@ -6,17 +6,21 @@ Purpose
 This file records planned PKVault features that are intentionally NOT implemented yet.
 It is the design source of truth for the future Shop, Daily Quest, Quest, and Achievement systems.
 
-CURRENT IMPLEMENTATION STATUS - ALPHA41
+CURRENT IMPLEMENTATION STATUS - ALPHA42
 ---------------------------------------
-- Legendary first-catch achievements: live prototype implemented.
+- Legendary first-catch achievements are live and permanently claimed across PKVault.
 - Completed Daily Quest / Quest / Achievement cards turn green.
-- Permanent caught-species history persists even after the originating save is removed.
+- Permanent caught-species, Pokédex, playtime, Legendary, and reward history persists even after the originating save is removed.
 - Generated PKVault sample save is excluded from all quest, achievement, and daily progress.
-- Saved Pokémon fingerprint baselines are implemented for live daily catch detection.
-- Initial Daily Quests: Catch 1 Pokémon, Catch 3 Pokémon, and catch 1 species new to PKVault history.
-- Initial permanent catch milestones: 10 / 25 / 50 / 100 unique species and 3 unique Legendaries.
-- One-time completion/reward ledgers remain authoritative so deleting/re-adding a save cannot farm rewards.
-- More planned categories remain: playtime, evolution, shiny, game-specific, cross-game, richer daily pools, rerolls, and balance passes.
+- Saved Pokémon fingerprint and playtime baselines are implemented for live daily activity detection.
+- Daily quest pool now includes catch-count, different-species, new-Dex-entry, and short-playtime objectives.
+- Daily rerolls are live: 1 FREE reroll each local day, then paid rerolls from the PKVault Pokédollar Bank.
+- Paid rerolls use the implemented escalating curve: ₽2,500, ₽5,000, ₽7,500, ... increasing by ₽2,500 and capped at ₽50,000 per reroll until the next daily reset.
+- Playtime quest ladder is live per real loaded game/save profile: 15 minutes -> ₽2,000; 2 hours -> ₽10,000; 10 hours -> ₽25,000.
+- Game-aware Pokédex quests are live at 25 / 50 / 100 caught, 75% completion, and full applicable Pokédex completion.
+- Full-Dex target reward is live: 1 Master Ball + 15 Ultra Balls + 10 Potions.
+- Existing permanent catch milestones and Legendary achievements remain one-time and cannot be farmed by removing/re-adding saves.
+- More planned categories remain: evolution, shiny, richer game-specific/cross-game objectives, conditional activities where verifiable, and further balance passes.
 
 Core design rule:
 PKVault should add a cross-game progression layer without turning supported Pokémon games
@@ -314,7 +318,9 @@ Daily rerolls:
 - Paid rerolls should not become cheaper than simply completing an easy daily.
 - Consider escalating the price for multiple paid rerolls on the same day to discourage
   endlessly rerolling until the easiest possible quest appears.
-- The exact reroll price curve is still to be decided before implementation.
+- Implemented Alpha42 curve: first reroll is FREE; paid rerolls are ₽2,500, ₽5,000,
+  ₽7,500, and so on, increasing by ₽2,500 per paid reroll and capped at ₽50,000
+  per reroll until the next local daily reset.
 
 Permanent quest rewards:
 - Larger but controlled cash.
