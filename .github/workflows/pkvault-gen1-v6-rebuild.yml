@@ -53,6 +53,7 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha37.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha38.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha39.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha40.py pkvault-src
           test -f pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs
           test "$(grep -c '] = new(' pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs)" -ge 500
           git -C pkvault-src diff --check
@@ -189,7 +190,7 @@ jobs:
               canvas.save(out / f"{species_id:03d}.png", format="PNG", optimize=True)
 
           # MISSINGNO (#722) deliberately has no generated ROM-hack sprite file.
-          # Alpha39 renders it with PKVault's existing Gen-1 MISSINGNO image so
+          # Alpha40 renders it with PKVault's existing Gen-1 MISSINGNO image so
           # Insurgence #722 is visually identical to the supported Gen-1 glitch.
 
           # The pinned public sprite pack ends at #924. UFI (#925) is still
@@ -374,7 +375,7 @@ jobs:
         run: |
           dotnet build pkvault-src/PKVault.Core/PKVault.Core.csproj -c Release --nologo
 
-      - name: Alpha39 Gen1 inventory mapping regression test
+      - name: Alpha40 Gen1 inventory mapping regression test
         run: |
           set -euo pipefail
           mkdir -p gen1-inventory-map-smoke
@@ -457,13 +458,13 @@ jobs:
 
           Console.WriteLine("PASS: Gen1 SAV1 item map + uploaded-save style bag/PC quantities");
 
-          // alpha39 regression: same-save Red PC -> PC must use the atomic
+          // alpha40 regression: same-save Red PC -> PC must use the atomic
           // same-pouch helper so the target cannot be erased by a stale write.
           var samePouchMove = typeof(ItemBankService).GetMethod(
               "MoveWithinSamePouch",
               BindingFlags.NonPublic | BindingFlags.Static
           );
-          Need(samePouchMove is not null, "alpha39 same-pouch move helper not found");
+          Need(samePouchMove is not null, "alpha40 same-pouch move helper not found");
 
           var pcMoveSave = new SAV1(LanguageID.English, GameVersion.RB);
           var pcMoveBag = pcMoveSave.Inventory;
@@ -475,7 +476,7 @@ jobs:
               null,
               [pcMoveBag, pcMovePouch, 0, 1, 77]
           )!;
-          Need(moved == 77, $"alpha39 Red PC move moved {moved}, expected 77");
+          Need(moved == 77, $"alpha40 Red PC move moved {moved}, expected 77");
 
           pcMoveBag.CopyTo(pcMoveSave);
           var pcMoveReload = new SAV1(
@@ -486,14 +487,14 @@ jobs:
           var pcMoveReloadPouch = pcMoveReload.Inventory.GetPouch(InventoryType.PCItems);
           Need(
               pcMoveReloadPouch.Items.Any(x => x.Index == 1 && x.Count == 77),
-              "alpha39 Red PC -> PC move deleted the item after save/reload"
+              "alpha40 Red PC -> PC move deleted the item after save/reload"
           );
 
-          Console.WriteLine("PASS: alpha39 atomic Red PC -> PC item move");
+          Console.WriteLine("PASS: alpha40 atomic Red PC -> PC item move");
           EOF
           dotnet run --project gen1-inventory-map-smoke/gen1-inventory-map-smoke.csproj -c Release
 
-      - name: Alpha39 skip-legality synchronization regression test
+      - name: Alpha40 skip-legality synchronization regression test
         run: |
           set -euo pipefail
           grep -F 'if (legality.la is not null)' pkvault-src/PKVault.Core/storage/services/PkmConvertService/PkmSharePropertiesService.cs
@@ -836,7 +837,7 @@ jobs:
           Need(missingReload.SeenSpecies.Contains(722) && missingReload.OwnedSpecies.Contains(722),
               "Insurgence MISSINGNO #722 Pokédex registration did not persist");
 
-          // Alpha39: official Pokémon caught/seen in fan-game saves must
+          // Alpha40: official Pokémon caught/seen in fan-game saves must
           // contribute to PKVault's normal National Dex even after the actual
           // Pokémon is no longer present in party/boxes.
           var staticSpeciesForFanDex = await StaticSpeciesLoader.LoadData("en");
@@ -969,6 +970,217 @@ jobs:
           dotnet run --project essentials-smoke/essentials-smoke.csproj -c Release
           test -s uranium-random-test/Uranium.rxdata
           test "$(wc -l < uranium-random-test/RANDOM_URANIUM_POKEMON.txt)" -eq 60
+
+      - name: Generate Alpha40 quest achievement test saves
+        run: |
+          set -euo pipefail
+          rm -rf quest-test-generator quest-test-saves
+          mkdir -p quest-test-generator "quest-test-saves/Pokemon Red" "quest-test-saves/Pokemon Silver" "quest-test-saves/Pokemon Insurgence"
+
+          cat > quest-test-generator/quest-test-generator.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+            </PropertyGroup>
+            <ItemGroup>
+              <ProjectReference Include="../pkvault-src/PKVault.Core/PKVault.Core.csproj" />
+              <Reference Include="PKHeX.Core">
+                <HintPath>../pkvault-src/PKVault.Core/PKHeX.Core.dll</HintPath>
+              </Reference>
+            </ItemGroup>
+          </Project>
+          EOF
+
+          cat > quest-test-generator/Program.cs <<'EOF'
+          using PKHeX.Core;
+          using PKVault.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          static PK1 MakeGen1(ushort species, byte level, ushort tid, ushort dvs)
+          {
+              return new PK1
+              {
+                  Species = species,
+                  Stat_Level = level,
+                  EXP = (uint)(level * level * level),
+                  TID16 = tid,
+                  DV16 = dvs,
+                  Move1 = (ushort)Move.Tackle,
+                  Move2 = (ushort)Move.Growl,
+              };
+          }
+
+          static PK2 MakeGen2(ushort species, byte level, ushort tid, ushort dvs)
+          {
+              return new PK2
+              {
+                  Species = species,
+                  Stat_Level = level,
+                  EXP = (uint)(level * level * level),
+                  TID16 = tid,
+                  DV16 = dvs,
+                  Move1 = (ushort)Move.Tackle,
+                  Move2 = (ushort)Move.Growl,
+                  CurrentFriendship = 100,
+              };
+          }
+
+          // Red-compatible Generation 1 save.
+          var red = new SAV1(LanguageID.English, GameVersion.RD)
+          {
+              OT = "QRED",
+              TID16 = 40101,
+              Money = 12000,
+              PlayedHours = 3,
+              PlayedMinutes = 12,
+          };
+          ushort[] redSpecies = [16, 25, 133, 144, 150]; // Pidgey, Pikachu, Eevee, Articuno, Mewtwo
+          for (var i = 0; i < redSpecies.Length; i++)
+          {
+              var species = redSpecies[i];
+              red.SetBoxSlotAtIndex(MakeGen1(species, (byte)(20 + i * 8), red.TID16, (ushort)(0x1234 + i * 0x1111)), 0, i, EntityImportSettings.None);
+              red.SetSeen(species, true);
+              red.SetCaught(species, true);
+          }
+          var redBytes = red.Write().ToArray();
+          var redPath = "quest-test-saves/Pokemon Red/Pokemon Red - PKVault Quest Test.sav";
+          File.WriteAllBytes(redPath, redBytes);
+          var redReload = SaveUtil.GetSaveFile(redBytes, redPath) as SAV1;
+          Need(redReload is not null, "Generated Red save did not parse");
+          foreach (var species in redSpecies)
+              Need(redReload.GetSeen(species) && redReload.GetCaught(species), $"Red dex lost species {species}");
+          Need(redReload.GetBoxSlotAtIndex(0, 3).Species == 144, "Red Articuno missing from box");
+          Need(redReload.GetBoxSlotAtIndex(0, 4).Species == 150, "Red Mewtwo missing from box");
+
+          // Silver-compatible Generation 2 save.
+          var silver = new SAV2(LanguageID.English, GameVersion.SI)
+          {
+              OT = "QSILVER",
+              TID16 = 40202,
+              Money = 18000,
+              PlayedHours = 6,
+              PlayedMinutes = 34,
+          };
+          ushort[] silverSpecies = [179, 197, 212, 243, 249]; // Mareep, Umbreon, Scizor, Raikou, Lugia
+          for (var i = 0; i < silverSpecies.Length; i++)
+          {
+              var species = silverSpecies[i];
+              silver.SetBoxSlotAtIndex(MakeGen2(species, (byte)(22 + i * 9), silver.TID16, (ushort)(0x2345 + i * 0x1111)), 0, i, EntityImportSettings.None);
+              silver.SetSeen(species, true);
+              silver.SetCaught(species, true);
+          }
+          var silverBytes = silver.Write().ToArray();
+          var silverPath = "quest-test-saves/Pokemon Silver/Pokemon Silver - PKVault Quest Test.sav";
+          File.WriteAllBytes(silverPath, silverBytes);
+          var silverReload = SaveUtil.GetSaveFile(silverBytes, silverPath) as SAV2;
+          Need(silverReload is not null, "Generated Silver save did not parse");
+          foreach (var species in silverSpecies)
+              Need(silverReload.GetSeen(species) && silverReload.GetCaught(species), $"Silver dex lost species {species}");
+          Need(silverReload.GetBoxSlotAtIndex(0, 3).Species == 243, "Silver Raikou missing from box");
+          Need(silverReload.GetBoxSlotAtIndex(0, 4).Species == 249, "Silver Lugia missing from box");
+
+          // Insurgence save: start from a real public Insurgence Marshal fixture,
+          // then add official species and register all of them as caught.
+          var insPath = "quest-test-generator/InsurgenceBase.rxdata";
+          var insBytes = File.ReadAllBytes(insPath);
+          Need(EssentialsLegacySaveReader.TryRead(insBytes, insPath, out var insData, out var insError),
+              $"Insurgence fixture failed to parse: {insError}");
+          var insurgence = new EssentialsLegacySaveFile(insData!);
+          insurgence.Metadata.SetExtraInfo("Pokemon Insurgence/Game.rxdata");
+
+          ushort[] insurgenceSpecies = [25, 133, 150, 382, 384]; // Pikachu, Eevee, Mewtwo, Kyogre, Rayquaza
+          for (var i = 0; i < insurgenceSpecies.Length; i++)
+          {
+              var species = insurgenceSpecies[i];
+              var pk6 = new PK6
+              {
+                  Species = species,
+                  Nickname = $"TEST{species}",
+                  Stat_Level = (byte)(30 + i * 10),
+                  EXP = (uint)((30 + i * 10) * (30 + i * 10) * (30 + i * 10)),
+                  TID16 = 40303,
+                  SID16 = 40404,
+                  PID = 0x12340000u + species,
+                  Move1 = (ushort)Move.Tackle,
+                  Ball = (byte)Ball.Poke,
+              };
+              var imported = EssentialsInterop.ImportTo(insurgence, new ImmutablePKM(pk6));
+              var ess = imported.GetMutablePkm() as PKEssentials;
+              Need(ess is not null && ess.OfficialNationalDexId == species,
+                  $"Insurgence import did not preserve official species {species}");
+              insurgence.SetBoxSlotAtIndex(ess!, 0, i, EntityImportSettings.None);
+              insurgence.RegisterDexSpecies(species);
+          }
+
+          var insOut = insurgence.Write().ToArray();
+          var insOutPath = "quest-test-saves/Pokemon Insurgence/Game.rxdata";
+          File.WriteAllBytes(insOutPath, insOut);
+          Need(EssentialsLegacySaveReader.TryRead(insOut, insOutPath, out var insReload, out var insReloadError),
+              $"Generated Insurgence save did not reparse: {insReloadError}");
+          foreach (var species in insurgenceSpecies)
+              Need(insReload!.SeenSpecies.Contains(species) && insReload.OwnedSpecies.Contains(species),
+                  $"Insurgence dex lost species {species}");
+
+          Console.WriteLine("PASS: generated Red, Silver, and Insurgence quest test saves with caught dex state");
+          EOF
+
+          curl -fL --retry 3             https://raw.githubusercontent.com/ShockingZebstrika/pokemon-insurgence/master/Game.rxdata             -o quest-test-generator/InsurgenceBase.rxdata
+
+          dotnet run --project quest-test-generator/quest-test-generator.csproj -c Release
+
+          cat > quest-test-saves/README.txt <<'EOF'
+          PKVault V8 alpha40 - QUEST / ACHIEVEMENT LIVE TEST SAVES
+          ========================================================
+
+          These are disposable TEST SAVES. Keep them separate from your real game saves.
+
+          Add them to PKVault ONE AT A TIME and use Reload all data & saves after each:
+          1. Pokemon Red/Pokemon Red - PKVault Quest Test.sav
+             Contains Pidgey, Pikachu, Eevee, Articuno, and Mewtwo.
+             All five are marked Seen + Caught in the save's Pokédex.
+             Articuno and Mewtwo should complete their one-time Legendary achievements.
+
+          2. Pokemon Silver/Pokemon Silver - PKVault Quest Test.sav
+             Contains Mareep, Umbreon, Scizor, Raikou, and Lugia.
+             All five are marked Seen + Caught.
+             Raikou and Lugia should complete their one-time Legendary achievements.
+
+          3. Pokemon Insurgence/Game.rxdata
+             Contains the original fixture Pokémon plus test Pikachu, Eevee, Mewtwo,
+             Kyogre, and Rayquaza. Those five are registered Seen + Caught.
+             Mewtwo should already be completed if Red was loaded first; it MUST NOT
+             reward twice. Kyogre and Rayquaza should complete once.
+
+          Expected UI behavior:
+          - Top-right notification title: "Quest completed".
+          - Legendary achievement reward: 1 Master Ball each, sent to the PKVault item bank.
+          - Each species achievement is global and one-time across every save/game.
+          - Open Quests > Achievements to see permanent completion state.
+          - Preloaded Pokémon in these files are for achievement testing only; they do not
+            count as a "caught today" daily event.
+
+          Note: Generation 1 Red/Blue saves and Generation 2 Gold/Silver saves do not encode
+          the retail cartridge color as strongly as later games. The files are deliberately
+          named and generated as Red- and Silver-targeted test saves.
+          EOF
+
+          test -s "quest-test-saves/Pokemon Red/Pokemon Red - PKVault Quest Test.sav"
+          test -s "quest-test-saves/Pokemon Silver/Pokemon Silver - PKVault Quest Test.sav"
+          test -s "quest-test-saves/Pokemon Insurgence/Game.rxdata"
+
+      - name: Upload Alpha40 quest achievement test saves
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-v8.0.0-alpha40-QUEST-TEST-SAVES
+          path: quest-test-saves
+          if-no-files-found: error
+          retention-days: 30
 
       - name: V8 Too Many Types compatibility smoke test
         run: |
@@ -1339,12 +1551,12 @@ jobs:
           grep -q "getSaveDisplayName" pkvault-src/frontend/src/pages/saves.tsx
           grep -q "getSaveDisplayName" pkvault-src/frontend/src/storage/panel/game-list/storage-panel-game-list.tsx
 
-          # Alpha39 regression guard: Uranium front battlers keep the normal
+          # Alpha40 regression guard: Uranium front battlers keep the normal
           # 96px PKVault species slot but their artwork is normalized to 56px.
           grep -q -- "--sprite-content-scale" pkvault-src/frontend/src/ui/sprite-img/ui-sprite-img.module.css
           grep -q "56 / 96" pkvault-src/frontend/src/img/species-img.tsx
 
-          # Alpha39 regression guard: normal Essentials/Uranium party drags must
+          # Alpha40 regression guard: normal Essentials/Uranium party drags must
           # be true moves. Only an explicitly attached operation may link back
           # to the source save; party membership alone must never force a link.
           grep -q "var attachToSource = input.attached;" pkvault-src/PKVault.Core/storage/data-action/MovePkmAction.cs
@@ -1449,6 +1661,13 @@ jobs:
           grep -q "Gen 6 (Pokémon Insurgence — Torren)" pkvault-src/frontend/src/pokedex/filters/components/filter-generation.tsx
           grep -q "generation === 6" pkvault-src/frontend/src/pokedex/filters/components/filter-generation.tsx
           grep -q "PKVault Pokédollar Bank" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
+          grep -q "onClick={isSeen ?" pkvault-src/frontend/src/romhacks/uranium-pokedex.tsx
+          grep -q "onClick={isSeen ?" pkvault-src/frontend/src/romhacks/insurgence-pokedex.tsx
+          grep -q "Quest completed" pkvault-src/frontend/src/quests/quest-toast.tsx
+          grep -q "Each Legendary can award exactly one Master Ball" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q 'HttpGet("state")' pkvault-src/PKVault.Core/quest/routes/QuestRoute.cs
+          grep -q 'QUEST_COMPLETED' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'GrantQuestReward' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q "style={{ flexShrink: 0, overflow: 'visible' }}" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
           grep -q "cols={{ base: 1, sm: 2, lg: 4 }}" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
           grep -q "color='red'" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
@@ -1501,13 +1720,13 @@ jobs:
           second = pokedex.index("<InsurgencePokedexSection />")
           if first > second:
               raise SystemExit("Expected Uranium before Insurgence at the Gen6 boundary")
-          print("PASS: alpha39 active-save Gen6 fan-game dex visibility guards")
+          print("PASS: alpha40 active-save Gen6 fan-game dex visibility guards")
           PY
           grep -q "TypeInfoResolver = ItemBankJsonContext.Default" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q "JsonSerializable(typeof(ItemBankFileDTO))" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q ">Split<" pkvault-src/frontend/src/inventory/inventory-item.tsx || grep -q "Split" pkvault-src/frontend/src/inventory/inventory-item.tsx
           if grep -q "return <Box h='100%'" pkvault-src/frontend/src/inventory/inventory-page.tsx; then
-            echo "ERROR: alpha39 inventory still uses the short-height wrapper"
+            echo "ERROR: alpha40 inventory still uses the short-height wrapper"
             exit 1
           fi
 
@@ -1518,10 +1737,10 @@ jobs:
           cd pkvault-src
           docker build . --target frontend-check -t pkvault-v8-alpha8-frontend-check
 
-      - name: Package complete v8.0.0-alpha39-Uranium-Overlay-Dex source snapshot
+      - name: Package complete v8.0.0-alpha40-Uranium-Overlay-Dex source snapshot
         run: |
           set -euo pipefail
-          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-FULL-SOURCE"
+          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-FULL-SOURCE"
           rm -rf "$SOURCE_ROOT"
           mkdir -p "$SOURCE_ROOT"
 
@@ -1538,18 +1757,18 @@ jobs:
           rm -rf "$SOURCE_ROOT/PKVault/.git" "$SOURCE_ROOT/PKHeX/.git"
 
           cat > "$SOURCE_ROOT/SOURCE_README.txt" <<'EOF'
-          PKVault v8.0.0-alpha39-Uranium-Overlay-Dex FULL SOURCE
+          PKVault v8.0.0-alpha40-Uranium-Overlay-Dex FULL SOURCE
           ==========================
-          Release line: V8 alpha39 Essentials guarded read/write + desktop rxdata import (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
+          Release line: V8 alpha40 Essentials guarded read/write + desktop rxdata import (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
           PKVault upstream baseline: Chnapy/PKVault 88993b8702a3ec7fc54b67ea1e2dbb1827822cec
           PKHeX upstream baseline: kwsch/PKHeX 74b88906e935e4a52d6d9243b8e373056409c738
           RedFox build branch: pkvault-v8-uranium-insurgence
 
           Contents:
-          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha39-Uranium-Overlay-Dex.
+          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha40-Uranium-Overlay-Dex.
           - PKHeX/          Exact patched PKHeX source tree used to build PKHeX.Core.
           - RedFox-Rebuild/ Reconstruction patcher, trading sources, and trading smoke harness.
-          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha39-Uranium-Overlay-Dex.
+          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha40-Uranium-Overlay-Dex.
           - FUTURE PLANS.txt Planned Shop, Daily Quest, Quest, Achievement, tracking, and balance design.
 
           Reproduction:
@@ -1563,40 +1782,40 @@ jobs:
 
           (
             cd "$GITHUB_WORKSPACE/dist"
-            zip -9 -r PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-FULL-SOURCE.zip PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-FULL-SOURCE
+            zip -9 -r PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-FULL-SOURCE.zip PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-FULL-SOURCE
           )
 
-      - name: Upload PKVault v8.0.0-alpha39-Uranium-Overlay-Dex full source
+      - name: Upload PKVault v8.0.0-alpha40-Uranium-Overlay-Dex full source
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-FULL-SOURCE
+          name: PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-FULL-SOURCE
           path: |
-            dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-FULL-SOURCE.zip
+            dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-FULL-SOURCE.zip
           if-no-files-found: error
           retention-days: 90
 
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha39-Uranium-Overlay-Dex -t pkvault-v752-description-patch
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha40-Uranium-Overlay-Dex -t pkvault-v752-description-patch
           docker create --name pkvault-v752-description-patch-out pkvault-v752-description-patch
           mkdir -p ../dist
-          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
+          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
           docker rm pkvault-v752-description-patch-out
 
-      - name: Package V8 alpha39 truly clean Windows profile
+      - name: Package V8 alpha40 truly clean Windows profile
         run: |
           set -euo pipefail
           ROOT="$GITHUB_WORKSPACE"
-          OUT="$ROOT/dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-CLEAN"
-          EXE="$ROOT/dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-CLEAN"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
           rm -rf "$OUT"
           mkdir -p "$OUT"
 
-          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex.exe"
+          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex.exe"
 
           cat > "$OUT/README.txt" <<'EOF'
-          PKVault V8.0.0 alpha39 - CLEAN PROFILE
+          PKVault V8.0.0 alpha40 - CLEAN PROFILE
           ======================================
           This package contains NO seeded PKVault database, NO TMT compatibility
           Pokemon, and NO preloaded storage records.
@@ -1604,7 +1823,11 @@ jobs:
           Use this executable for your real Pokémon Uranium / Insurgence / normal
           PKVault testing.
 
-          Alpha39:
+          Alpha40:
+          - First live PKVault quest/achievement prototype with a Quests tab.
+          - One-time Legendary catch achievements award 1 Master Ball each to the PKVault item bank.
+          - Top-right "Quest completed" notifications queue as achievements are detected from loaded saves.
+          - Uranium/Insurgence unseen custom Dex entries now match vanilla behavior and cannot be opened until Seen.
           - Compact Pokédollar bank: From / Amount / To / red Transfer now stay visible in a short top bar.
           - Deposit-all remains a secondary two-click confirmation action.
           - Large item-bank pages (including 150 slots) wrap across available width like Pokémon storage instead of forcing 6 columns.
@@ -1622,26 +1845,26 @@ jobs:
 
           (
             cd "$ROOT/dist"
-            zip -9 -r PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-CLEAN-win-x64.zip PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-CLEAN
-            ! unzip -l PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'compat-tmt-'
-            ! unzip -l PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'TMT-Type-Test'
+            zip -9 -r PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-CLEAN-win-x64.zip PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-CLEAN
+            ! unzip -l PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'compat-tmt-'
+            ! unzip -l PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'TMT-Type-Test'
           )
 
-      - name: Upload V8 alpha39 truly clean Windows profile
+      - name: Upload V8 alpha40 truly clean Windows profile
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-CLEAN-win-x64
+          name: PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-CLEAN-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-CLEAN-win-x64.zip
+            dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-CLEAN-win-x64.zip
           if-no-files-found: error
           retention-days: 30
 
-      - name: Package V8 alpha39 isolated compatibility test profiles
+      - name: Package V8 alpha40 isolated compatibility test profiles
         run: |
           set -euo pipefail
           ROOT="$GITHUB_WORKSPACE"
-          OUT="$ROOT/dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES"
-          EXE="$ROOT/dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
           rm -rf "$OUT"
           mkdir -p "$OUT/TMT-Type-Test" "$OUT/Uranium-Random-Test"
 
@@ -1652,7 +1875,7 @@ jobs:
           cp -a "$ROOT/uranium-random-test/." "$OUT/Uranium-Random-Test/"
 
           cat > "$OUT/README.txt" <<'EOF'
-          PKVault V8.0.0 alpha39 - ISOLATED COMPATIBILITY TEST PROFILES
+          PKVault V8.0.0 alpha40 - ISOLATED COMPATIBILITY TEST PROFILES
           ============================================================
           These folders are intentionally PRE-SEEDED and are NOT the clean build.
 
@@ -1663,7 +1886,7 @@ jobs:
           Uranium-Random-Test/
             Contains a disposable Uranium.rxdata stress-test save and its own EXE.
 
-          Keep these test folders separate from the clean alpha39 executable.
+          Keep these test folders separate from the clean alpha40 executable.
           EOF
 
           cat > "$OUT/TMT-Type-Test/TMT_TYPE_TESTING.txt" <<'EOF'
@@ -1681,34 +1904,34 @@ jobs:
 
           (
             cd "$ROOT/dist"
-            zip -9 -r PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES
+            zip -9 -r PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES
           )
 
-      - name: Upload V8 alpha39 isolated compatibility test profiles
+      - name: Upload V8 alpha40 isolated compatibility test profiles
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64
+          name: PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip
+            dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip
           if-no-files-found: error
           retention-days: 30
 
       - name: Package two isolated Windows trading profiles
         run: |
           set -euo pipefail
-          mkdir -p dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A
-          mkdir -p dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B
+          mkdir -p dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A
+          mkdir -p dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B
 
-          cp dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
-          cp dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
+          cp dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
 
-          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/
-          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/
+          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/
 
-          cat > dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
-          PKVault v8.0.0-alpha39-Uranium-Overlay-Dex Online/VPN Trading + Permanent Dex Registration test
+          cat > dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
+          PKVault v8.0.0-alpha40-Uranium-Overlay-Dex Online/VPN Trading + Permanent Dex Registration test
           ===================================
           Trader A starts with:
             Abra, Growlithe, Machop, Gastly, Dratini, Scyther
@@ -1753,19 +1976,19 @@ jobs:
           - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
           EOF
 
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test/
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test/
 
-          (cd dist && zip -9 -r PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test)
+          (cd dist && zip -9 -r PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test)
           ls -lah dist
-          find dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
+          find dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
 
-      - name: Upload PKVault v8.0.0-alpha39-Uranium-Overlay-Dex online trading dex test
+      - name: Upload PKVault v8.0.0-alpha40-Uranium-Overlay-Dex online trading dex test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64
+          name: PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip
-            dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
-            dist/PKVault-v8.0.0-alpha39-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt
+            dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip
+            dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
+            dist/PKVault-v8.0.0-alpha40-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt
           if-no-files-found: error
           retention-days: 30
