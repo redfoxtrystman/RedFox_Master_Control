@@ -1,0 +1,298 @@
+PKVAULT - FUTURE PLANS
+======================
+
+Purpose
+-------
+This file records planned PKVault features that are intentionally NOT implemented yet.
+It is the design source of truth for the future Shop, Daily Quest, Quest, and Achievement systems.
+
+Core design rule:
+PKVault should add a cross-game progression layer without turning supported Pokémon games
+into ROM hacks and without making their economies trivial.
+
+
+============================================================
+1. PKVAULT SHOP / SHARED ECONOMY
+============================================================
+
+PKVault already has:
+- Shared Pokédollar Bank.
+- Cross-save item storage.
+- Game/profile-aware item compatibility.
+
+Future plan:
+Add a PKVault Shop where items can be bought and sold using Pokédollars.
+
+Canonical pricing
+-----------------
+PKVault must use ONE canonical price table.
+
+Example:
+If Poké Balls are ₽200 in the PKVault price table, they cost ₽200 regardless of whether
+the destination is Pokémon Red, Silver, Uranium, Insurgence, or another supported game.
+
+The selected game/save controls:
+- Whether an item is compatible with that game.
+- Whether the item can be delivered to that save.
+- Which game-specific items are shown.
+
+The selected game/save does NOT change the shared PKVault price of a common item.
+
+This prevents cross-game buy-low/sell-high exploits.
+
+Fangame-only items may receive their own canonical PKVault prices when no official shared
+item equivalent exists.
+
+Potential Shop features:
+- Buy.
+- Sell.
+- Quantity selector.
+- MAX purchase based on money and destination capacity.
+- Shopping cart / bulk purchases.
+- Search and item-category filters.
+- Pay from PKVault Bank or a selected game's wallet.
+- Send sale proceeds to PKVault Bank or a selected game's wallet.
+- Sell duplicates while keeping a user-selected minimum quantity.
+- Per-game compatibility filtering.
+- Never offer an item to a destination that cannot safely represent/store it.
+
+
+============================================================
+2. THREE DISTINCT PROGRESSION SYSTEMS
+============================================================
+
+The UI should eventually separate:
+
+DAILY QUESTS | QUESTS | ACHIEVEMENTS
+
+Daily Quests
+------------
+Small repeatable tasks that refresh each day.
+
+They should:
+- Be short.
+- Be reliably detectable.
+- Give modest rewards.
+- Avoid unique/rare accomplishments better suited to Achievements.
+- Only generate objectives compatible with currently loaded/recognized saves.
+
+Quests
+------
+Permanent progression tracks organized into categories.
+
+Candidate categories:
+- Playtime.
+- Pokédex.
+- Catching.
+- Evolution.
+- Legendary / Mythical.
+- Shiny.
+- Collection.
+- Game-Specific.
+- Cross-Game / PKVault.
+
+Achievements
+------------
+Permanent one-time accomplishments.
+
+Achievements can be larger, rarer, and more rewarding than dailies.
+They must never become repeatable reward farms.
+
+
+============================================================
+3. SAVE-BASED TRACKING - NO ROM HACKS REQUIRED
+============================================================
+
+PKVault should track progression externally.
+
+For older games, PKVault does NOT need to patch or modify ROMs.
+
+Basic approach:
+1. Snapshot a supported save.
+2. Record stable Pokémon fingerprints and relevant save statistics.
+3. Watch/reload the save when it changes.
+4. Compare the new save against PKVault's previous snapshot.
+5. Convert verified changes into quest events.
+6. Exclude known PKVault transfers/imports from "caught" progress.
+7. Update PKVault's own permanent quest/event ledger.
+
+Gen 1 identity is less rich than later generations, so use a stable external fingerprint
+based on available Pokémon data such as:
+- OT Trainer ID.
+- OT name.
+- Species.
+- DVs.
+- Other stable data that survives normal gameplay.
+
+Gen 3+ has stronger identity/origin data and can be tracked more confidently.
+
+Important limitation:
+If a Pokémon is caught and then released before any save state visible to PKVault ever
+contains it, a save-only tracker cannot know that catch occurred.
+
+Optional future emulator integration could improve live detection without modifying ROMs,
+but the base quest system must work from normal save files.
+
+
+============================================================
+4. PLAYTIME QUESTS
+============================================================
+
+Use each game's stored playtime and compare it against PKVault's previous snapshot.
+
+Current intended early balance:
+
+Pokémon Red example progression:
+- Play 15 minutes -> ₽2,000.
+- Play 2 hours -> ₽10,000.
+- Play 10 hours -> ₽25,000.
+
+Later playtime rewards should rise slowly and must not trivialize the games.
+
+General balance rule:
+Do NOT hand out huge cash rewards simply for leaving a save running.
+PKVault progression should feel useful, not like an infinite-money cheat.
+
+
+============================================================
+5. POKÉDEX QUESTS
+============================================================
+
+Pokédex quests are permanent milestone quests.
+
+Example milestone ladder:
+- 25 caught -> small Ball reward.
+- 50 caught -> modest Great Ball reward.
+- 100 caught -> modest Ultra Ball reward.
+- 75% complete -> larger but still reasonable item bundle.
+- Complete the game's full applicable Pokédex -> major completion reward.
+
+Current full-Dex reward target:
+- 1 Master Ball.
+- 15 Ultra Balls.
+- 10 Potions.
+
+A game's completion target must be game-aware.
+Pokémon Red, Uranium, Insurgence, and later official games do not necessarily have the
+same applicable Dex requirements.
+
+
+============================================================
+6. LEGENDARY ACHIEVEMENTS
+============================================================
+
+Each unique Legendary should have a permanent first-catch achievement.
+
+Example:
+- First verified Mewtwo catch -> one-time Master Ball reward.
+- First verified Articuno catch -> its own one-time reward.
+- First verified Lugia catch -> its own one-time reward.
+
+A specific Legendary may only trigger its unique reward ONCE across PKVault.
+
+Moving the same Legendary between saves, withdrawing/redepositing it, or importing a
+Pokémon PKVault already knows must NOT retrigger the achievement.
+
+PKVault should maintain a permanent claimed ledger per qualifying species.
+
+
+============================================================
+7. DAILY QUEST PHILOSOPHY
+============================================================
+
+Dailies should NOT duplicate permanent achievements.
+
+Good daily territory:
+- Ordinary catches.
+- Short playtime.
+- Common type/species targets.
+- Small cross-game activity goals.
+- Small inventory/economy tasks where PKVault can exclude its own transfers.
+- Variety goals using only games currently available to the user.
+
+Bad daily territory:
+- First shiny.
+- First Legendary.
+- Catch Mewtwo.
+- Complete a Pokédex.
+- Own every starter.
+- Long lifetime playtime milestones.
+- Any other unique collection milestone.
+
+Those belong to Quests or Achievements.
+
+
+============================================================
+8. REWARD BALANCE
+============================================================
+
+Daily rewards:
+- Hundreds to low-thousands of Pokédollars.
+- Small numbers of Poké Balls / Great Balls.
+- Basic healing/status items.
+- Occasional modest Ultra Ball rewards for harder dailies.
+- Avoid Master Balls as ordinary daily rewards.
+
+Permanent quest rewards:
+- Larger but controlled cash.
+- Better item bundles.
+- Progression-appropriate Balls and healing items.
+
+Major achievements:
+- Unique/premium rewards can be appropriate.
+- Master Balls should remain special.
+- Full-Dex completion and unique Legendary accomplishments justify stronger rewards.
+
+Core rule:
+PKVault should reward playing Pokémon, not remove the need to play Pokémon.
+
+
+============================================================
+9. POSSIBLE UI
+============================================================
+
+Top-level:
+- Daily Quests
+- Quests
+- Achievements
+
+Quest category tabs:
+- Playtime
+- Pokédex
+- Catching
+- Evolution
+- Legendary
+- Shiny
+- Collection
+- Game-Specific
+- PKVault / Cross-Game
+
+Possible Daily card:
+Catch 5 Pidgey
+Progress: 3 / 5
+Reward: 10 Poké Balls
+Expires: next daily reset
+
+Possible permanent quest card:
+Kanto Traveler
+Play Pokémon Red for 2 hours
+Progress: 1h 26m / 2h
+Reward: ₽10,000
+
+
+============================================================
+10. IMPORTANT IMPLEMENTATION RULES
+============================================================
+
+- Never require ROM modification for the base quest/achievement system.
+- PKVault must keep its own event/history ledger.
+- PKVault-originated transfers must not count as catches.
+- Re-moving the same Pokémon between saves must not farm progress.
+- Daily generation must respect the user's actually loaded/supported games.
+- Do not generate Insurgence-only dailies without an Insurgence save.
+- Do not generate Uranium-only dailies without a Uranium save.
+- Reward delivery should normally go to the PKVault item/money banks, allowing the user
+  to decide which compatible save receives the reward.
+- Shared shop prices must stay canonical across games.
+- Preserve save-specific money/item capacity limits when withdrawing rewards.
+- Keep the economy intentionally conservative.
