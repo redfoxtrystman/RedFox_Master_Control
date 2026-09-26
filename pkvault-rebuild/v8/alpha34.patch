@@ -572,24 +572,6 @@
 +                Protected: protectedPocket,
 +                Slots: slots
 +            ));
-+
-+        }
-+
-+        return new(
-+            SaveId: save.Id,
-+            Version: save.Version,
-+            TrainerName: save.OT,
-+            RomHackProfile: essentials.ProfileId,
-+            Supported: essentials.InventoryPockets.Count > 0,
-+            Pockets: pockets
-+        );
-+    }
-+
-+                Label: pocket.Label,
-+                SlotCount: slotCount,
-+                Protected: protectedPocket,
-+                Slots: slots
-+            ));
 +        }
 +
 +        return new(
