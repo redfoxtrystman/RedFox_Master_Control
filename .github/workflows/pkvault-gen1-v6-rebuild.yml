@@ -1752,7 +1752,7 @@ jobs:
           grep -q 'quest-shiny-100' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'quest-evolution-50' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'region-complete-all' pkvault-src/PKVault.Core/quest/QuestService.cs
-          grep -q 'collection-eeveelutions' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'new("eeveelutions", "All Eeveelutions"' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'daily-evolve-1' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'daily-levels-10' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'Mythicals award Master Balls' pkvault-src/frontend/src/quests/quest-page.tsx
