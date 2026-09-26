@@ -217,9 +217,46 @@ Bad daily territory:
 - Complete a Pokédex.
 - Own every starter.
 - Long lifetime playtime milestones.
+- "Old Save Day" / "play a save you have not used recently" objectives.
+- "Game Hopper" / "make progress in several different saves today" objectives.
 - Any other unique collection milestone.
 
 Those belong to Quests or Achievements.
+
+Daily quest candidate pool
+--------------------------
+Examples that fit the repeatable daily system without colliding with permanent achievements:
+- Catch 3 Pokémon.
+- Catch 5 Pokémon.
+- Catch 3 different species.
+- Catch 3 Pokémon of a generated common type.
+- Catch 2 of a generated common species.
+- Catch 5 of a generated common species.
+- Add 1 new species to a save's Dex.
+- Add 3 new species to a save's Dex.
+- Gain 5 total Pokémon levels.
+- Gain 10 total Pokémon levels.
+- Train one Pokémon by 3 levels.
+- Evolve 1 Pokémon.
+- Play one supported game for 15 minutes.
+- Play one supported game for 30 minutes.
+- Play two supported games for 10 minutes each.
+- Catch a Pokémon in two different supported games.
+- Game Focus: catch 3 Pokémon in a specific loaded game.
+- Uranium-specific: catch 2 Uranium-original species, only when the save makes this reasonable.
+- Insurgence-specific: catch 3 Pokémon in Insurgence.
+- Variety Hunt: catch one Pokémon of three different common types.
+- No Repeats: catch 5 Pokémon, all different species.
+- Regional Catch: catch 3 Pokémon from a generated supported region.
+
+Specific-species dailies must avoid:
+- Legendary/Mythical Pokémon.
+- One-of-a-kind encounters.
+- Gift-only/event-only species.
+- Starter-only species unless the objective is explicitly designed around a repeatable source.
+- Species the player has not plausibly reached.
+
+Prefer selecting ordinary species already marked Seen in one of the relevant saves.
 
 
 ============================================================
@@ -232,6 +269,16 @@ Daily rewards:
 - Basic healing/status items.
 - Occasional modest Ultra Ball rewards for harder dailies.
 - Avoid Master Balls as ordinary daily rewards.
+
+Daily rerolls:
+- The player receives 1 FREE daily quest reroll per daily reset.
+- After the free reroll is used, additional rerolls cost Pokédollars.
+- Paid reroll cost should be taken from the PKVault Pokédollar Bank.
+- The reroll price should be meaningful but not punishing.
+- Paid rerolls should not become cheaper than simply completing an easy daily.
+- Consider escalating the price for multiple paid rerolls on the same day to discourage
+  endlessly rerolling until the easiest possible quest appears.
+- The exact reroll price curve is still to be decided before implementation.
 
 Permanent quest rewards:
 - Larger but controlled cash.
@@ -296,3 +343,6 @@ Reward: ₽10,000
 - Shared shop prices must stay canonical across games.
 - Preserve save-specific money/item capacity limits when withdrawing rewards.
 - Keep the economy intentionally conservative.
+- Never generate Old Save Day or Game Hopper daily objectives.
+- Allow exactly one free daily reroll per reset; further rerolls consume Pokédollars.
+- Paid rerolls should debit the PKVault Pokédollar Bank and may use an escalating same-day cost.
