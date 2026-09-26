@@ -6,7 +6,7 @@ Purpose
 This file records planned PKVault features that are intentionally NOT implemented yet.
 It is the design source of truth for the future Shop, Daily Quest, Quest, and Achievement systems.
 
-CURRENT IMPLEMENTATION STATUS - ALPHA43
+CURRENT IMPLEMENTATION STATUS - ALPHA44
 ---------------------------------------
 - Legendary first-catch achievements are live and permanently claimed across PKVault.
 - Completed Daily Quest / Quest / Achievement cards turn green.
@@ -21,6 +21,11 @@ CURRENT IMPLEMENTATION STATUS - ALPHA43
 - Full-Dex target reward is live: 1 Master Ball + 15 Ultra Balls + 10 Potions.
 - Existing permanent catch milestones and Legendary achievements remain one-time and cannot be farmed by removing/re-adding saves.
 - Alpha43 adds Mythical first-catch rewards, rebalanced Legendary rewards, Shiny counts/species counts, evolution tracking, training dailies, longer playtime ladders, regional-origin Pokédex collections, starter sets, Eeveelutions, and Legendary-group collections.
+- Alpha44 adds quest text/category/status filtering and rebalances ordinary Quest/Daily rewards away from repetitive Ultra Ball/Rare Candy/Nugget payouts.
+- Ordinary quest rewards now intentionally use a broad lower-power pool: Potions, Super/Hyper Potions, status healing, Revives, Repels, Escape Ropes, Ether, vitamins, Poké/Great Balls, occasional Ultra Balls, and modest Pokédollar payouts.
+- Each loaded game's applicable Pokédex now has 10%-90% progression Quests in 10% steps; 100% full-game completion is an Achievement.
+- Regional-origin Pokédex progress follows the same 10%-90% Quest / 100% Achievement split. Multi-region full-completion milestones are Achievements.
+- Legendary/Mythical milestone chains and Legendary collection sets are Achievements rather than normal Quests.
 - Remaining expansion areas include richer game-specific/cross-game objectives, type/species hunts, conditional activities where verifiable, voucher quests tied to the future Shop, and further balance passes.
 
 Core design rule:
@@ -175,19 +180,17 @@ PKVault progression should feel useful, not like an infinite-money cheat.
 5. POKÉDEX QUESTS
 ============================================================
 
-Pokédex quests are permanent milestone quests.
+Pokédex progression is split between Quests and Achievements.
 
-Example milestone ladder:
-- 25 caught -> small Ball reward.
-- 50 caught -> modest Great Ball reward.
-- 100 caught -> modest Ultra Ball reward.
-- 75% complete -> larger but still reasonable item bundle.
-- Complete the game's full applicable Pokédex -> major completion reward.
+Progression Quest ladder:
+- 10%, 20%, 30%, 40%, 50%, 60%, 70%, 80%, and 90% of the applicable Pokédex.
+- Absolute caught-count milestones can coexist with the percentage ladder where useful.
+- Normal progression rewards should stay varied and moderate rather than defaulting to Ultra Balls/Rare Candies/Nuggets.
 
-Current full-Dex reward target:
-- 1 Master Ball.
-- 15 Ultra Balls.
-- 10 Potions.
+100% completion:
+- Completing a game's full applicable Pokédex is an Achievement, not a normal Quest.
+- Completing a full regional-origin Pokédex is also an Achievement.
+- Full-Dex rewards may be premium because they are major one-time accomplishments.
 
 A game's completion target must be game-aware.
 Pokémon Red, Uranium, Insurgence, and later official games do not necessarily have the
@@ -311,6 +314,19 @@ Daily rewards:
 - Occasional modest Ultra Ball rewards for harder dailies.
 - Avoid Master Balls as ordinary daily rewards.
 
+Ordinary permanent Quest rewards should use a broad pool rather than repeating the same
+three premium items:
+- Potions / Super Potions / Hyper Potions.
+- Full Heals and other status recovery.
+- Revives / occasional Max Revives for harder milestones.
+- Repels / Super Repels / Max Repels.
+- Escape Ropes and Ether-family utility items.
+- Vitamins where the milestone reasonably justifies them.
+- Poké Balls / Great Balls as common rewards.
+- Ultra Balls only occasionally, especially later in progression.
+- Modest Pokédollar payouts on some milestones.
+- Rare Candies and Nuggets should be uncommon outside major accomplishments.
+
 Daily rerolls:
 - The player receives 1 FREE daily quest reroll per daily reset.
 - After the free reroll is used, additional rerolls cost Pokédollars.
@@ -362,6 +378,16 @@ Quest category tabs:
 - Collection
 - Game-Specific
 - PKVault / Cross-Game
+
+
+Quest filtering
+---------------
+The Quest page should support:
+- Text search across title, description, category, and reward.
+- Category filtering.
+- Completion-status filtering: All / Incomplete / Completed.
+- A visible Clear Filters action when any filter is active.
+- Filtering must work consistently across Daily Quests, Quests, and Achievements.
 
 Quest game-availability indicators
 ----------------------------------
