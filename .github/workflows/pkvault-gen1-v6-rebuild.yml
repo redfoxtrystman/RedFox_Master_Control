@@ -55,6 +55,7 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha39.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha40.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha40b.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha40c.py pkvault-src
           test -f pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs
           test "$(grep -c '] = new(' pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs)" -ge 500
           git -C pkvault-src diff --check
@@ -1700,6 +1701,7 @@ jobs:
           grep -q "onClick={isSeen ?" pkvault-src/frontend/src/romhacks/insurgence-pokedex.tsx
           grep -q "Quest completed" pkvault-src/frontend/src/quests/quest-toast.tsx
           grep -q "createFileRoute('/quests')" pkvault-src/frontend/src/routes/quests.tsx
+          grep -q "window.setTimeout" pkvault-src/frontend/src/quests/quest-toast.tsx
           grep -q "Each Legendary can award exactly one Master Ball" pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q 'HttpGet("state")' pkvault-src/PKVault.Core/quest/routes/QuestRoute.cs
           grep -q 'QUEST_COMPLETED' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
