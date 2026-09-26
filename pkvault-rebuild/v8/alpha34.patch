@@ -1,0 +1,288 @@
+--- a/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs	1970-01-01 00:00:00.000000000 +0000
++++ b/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs	2026-09-26 02:40:34.531002674 +0000
+@@ -0,0 +1,45 @@
++namespace PKVault.Core;
++
++public sealed record EssentialsItemDefinition(
++    int Id,
++    string Name,
++    int Pocket,
++    string KeyHint
++);
++
++public static class EssentialsItemProfile
++{
++    public const int InsurgenceSharedBaseMaxId = 525;
++
++    private static readonly IReadOnlyDictionary<int, EssentialsItemDefinition> Uranium =
++        new Dictionary<int, EssentialsItemDefinition>
++    {
++        [1] = new(1, "Repel", 1, "repel"),
++        [217] = new(217, "Potion", 2, "potion"),
++        [275] = new(275, "Poké Ball", 3, "poke-ball"),
++        [526] = new(526, "Custom Thing", 1, "custom-thing"),
++    };
++
++    public static EssentialsItemDefinition? Get(string profileId, int itemId)
++    {
++        if (string.Equals(profileId, "pokemon-uranium", StringComparison.Ordinal))
++            return Uranium.GetValueOrDefault(itemId);
++
++        if (string.Equals(profileId, "pokemon-insurgence", StringComparison.Ordinal)
++            && itemId <= InsurgenceSharedBaseMaxId)
++            return Uranium.GetValueOrDefault(itemId);
++
++        return null;
++    }
++
++    public static IEnumerable<EssentialsItemDefinition> GetAll(string profileId)
++    {
++        if (string.Equals(profileId, "pokemon-uranium", StringComparison.Ordinal))
++            return Uranium.Values;
++
++        if (string.Equals(profileId, "pokemon-insurgence", StringComparison.Ordinal))
++            return Uranium.Values.Where(x => x.Id <= InsurgenceSharedBaseMaxId);
++
++        return [];
++    }
++}
+--- a/PKVault.Core/romhacks/essentials/EssentialsLegacySaveFile.cs	2026-09-26 01:50:51.000000000 +0000
++++ b/PKVault.Core/romhacks/essentials/EssentialsLegacySaveFile.cs	2026-09-26 02:40:34.534391373 +0000
+@@ -18,6 +18,10 @@
+     private readonly int BoxSlots;
+     private bool Dirty;
+ 
++    public List<EssentialsBagPocketData> InventoryPockets { get; }
++    public HashSet<int> SeenSpecies { get; }
++    public HashSet<int> OwnedSpecies { get; }
++
+     private sealed record BuildResult(
+         byte[] Buffer,
+         List<PKEssentials> Registry,
+@@ -39,6 +43,15 @@
+         BoxNames = built.BoxNames;
+         BoxSlots = built.BoxSlotCount;
+         LocalMaxSpecies = built.MaxSpecies;
++        InventoryPockets = source.BagPockets
++            .Select(p => new EssentialsBagPocketData(
++                p.PocketIndex,
++                p.Label,
++                [.. p.Items]
++            ))
++            .ToList();
++        SeenSpecies = [.. source.SeenSpecies];
++        OwnedSpecies = [.. source.OwnedSpecies];
+ 
+         Party = 0;
+         Box = source.Boxes.Count > 0 ? 0 : int.MinValue;
+@@ -182,6 +195,31 @@
+ 
+         Registry.Add((PKEssentials)essentials.Clone());
+         BinaryPrimitives.WriteInt32LittleEndian(data[..SlotBytes], Registry.Count);
++        RegisterDexSpecies(essentials.LocalSpeciesId);
++        Dirty = true;
++    }
++
++    public EssentialsBagPocketData GetInventoryPocket(string? pouchName)
++    {
++        if (string.IsNullOrWhiteSpace(pouchName)
++            || !pouchName.StartsWith("essentials:", StringComparison.OrdinalIgnoreCase)
++            || !int.TryParse(pouchName["essentials:".Length..], out var pocketIndex))
++        {
++            throw new ArgumentException($"Invalid Essentials inventory pocket: {pouchName}");
++        }
++
++        return InventoryPockets.FirstOrDefault(p => p.PocketIndex == pocketIndex)
++            ?? throw new InvalidOperationException($"Essentials save does not contain pocket {pocketIndex}.");
++    }
++
++    public void MarkInventoryDirty() => Dirty = true;
++
++    public void RegisterDexSpecies(int localSpeciesId)
++    {
++        if (localSpeciesId <= 0)
++            return;
++        SeenSpecies.Add(localSpeciesId);
++        OwnedSpecies.Add(localSpeciesId);
+         Dirty = true;
+     }
+ 
+@@ -195,6 +233,16 @@
+         clone.Registry.AddRange(Registry.Select(z => (PKEssentials)z.Clone()));
+         clone.PartyCount = PartyCount;
+         clone.CurrentBox = CurrentBox;
++        clone.InventoryPockets.Clear();
++        clone.InventoryPockets.AddRange(InventoryPockets.Select(p => new EssentialsBagPocketData(
++            p.PocketIndex,
++            p.Label,
++            [.. p.Items]
++        )));
++        clone.SeenSpecies.Clear();
++        clone.SeenSpecies.UnionWith(SeenSpecies);
++        clone.OwnedSpecies.Clear();
++        clone.OwnedSpecies.UnionWith(OwnedSpecies);
+         clone.Dirty = Dirty;
+         return clone;
+     }
+@@ -223,7 +271,14 @@
+             boxes.Add(new EssentialsBoxData(GetBoxName(box), slots));
+         }
+ 
+-        var bytes = EssentialsLegacySaveWriter.Write(Source, party, boxes);
++        var bytes = EssentialsLegacySaveWriter.Write(
++            Source,
++            party,
++            boxes,
++            InventoryPockets,
++            SeenSpecies,
++            OwnedSpecies
++        );
+         var validationPath = Game == EssentialsGameKind.Uranium
+             ? "Pokemon Uranium/Uranium.rxdata"
+             : "Pokemon Insurgence/Game.rxdata";
+@@ -231,7 +286,10 @@
+             || validation == null
+             || validation.Game != Game
+             || validation.Party.Count != party.Count
+-            || validation.Boxes.Count != boxes.Count)
++            || validation.Boxes.Count != boxes.Count
++            || validation.BagPockets.Sum(p => p.Items.Count) != InventoryPockets.Sum(p => p.Items.Count)
++            || !SeenSpecies.IsSubsetOf(validation.SeenSpecies)
++            || !OwnedSpecies.IsSubsetOf(validation.OwnedSpecies))
+         {
+             throw new InvalidDataException($"Essentials write validation failed: {error ?? "round-trip structure mismatch"}");
+         }
+--- a/PKVault.Core/romhacks/essentials/EssentialsLegacySaveReader.cs	2026-09-26 01:50:51.000000000 +0000
++++ b/PKVault.Core/romhacks/essentials/EssentialsLegacySaveReader.cs	2026-09-26 02:40:34.532047182 +0000
+@@ -10,6 +10,14 @@
+     Insurgence = 2,
+ }
+ 
++public sealed record EssentialsBagSlotData(int ItemId, int Count);
++
++public sealed record EssentialsBagPocketData(
++    int PocketIndex,
++    string Label,
++    List<EssentialsBagSlotData> Items
++);
++
+ public sealed record EssentialsLegacySaveData(
+     EssentialsGameKind Game,
+     string ProfileId,
+@@ -18,6 +26,9 @@
+     uint TrainerId,
+     IReadOnlyList<PKEssentials> Party,
+     IReadOnlyList<EssentialsBoxData> Boxes,
++    IReadOnlyList<EssentialsBagPocketData> BagPockets,
++    IReadOnlySet<int> SeenSpecies,
++    IReadOnlySet<int> OwnedSpecies,
+     IReadOnlyList<RubyMarshalDocument> Documents,
+     byte[] OriginalBytes
+ )
+@@ -53,6 +64,8 @@
+ 
+             var trainer = (RubyObject)trainerDoc.Root!;
+             var storage = (RubyObject)storageDoc.Root!;
++            var bagDoc = documents.FirstOrDefault(z => RubyValue.Object(z.Root, "PokemonBag") != null);
++            var bag = bagDoc?.Root as RubyObject;
+ 
+             var trainerName = RubyValue.Text(Get(trainer, "@name"), "TRAINER");
+             var trainerId = unchecked((uint)RubyValue.Int(Get(trainer, "@id"), 0));
+@@ -111,6 +124,10 @@
+                 }
+             }
+ 
++            var bagPockets = ReadBagPockets(bag);
++            var seenSpecies = ReadDexSet(Get(trainer, "@seen"));
++            var ownedSpecies = ReadDexSet(Get(trainer, "@owned"));
++
+             save = new(
+                 Game: game,
+                 ProfileId: profileId,
+@@ -119,6 +136,9 @@
+                 TrainerId: trainerId,
+                 Party: party,
+                 Boxes: boxes,
++                BagPockets: bagPockets,
++                SeenSpecies: seenSpecies,
++                OwnedSpecies: ownedSpecies,
+                 Documents: documents,
+                 OriginalBytes: bytes
+             );
+@@ -188,6 +208,79 @@
+             .ToList();
+     }
+ 
++    private static List<EssentialsBagPocketData> ReadBagPockets(RubyObject? bag)
++    {
++        var result = new List<EssentialsBagPocketData>();
++        var rawPockets = bag == null ? null : RubyValue.Array(Get(bag, "@pockets"));
++        if (rawPockets == null)
++            return result;
++
++        for (var pocketIndex = 1; pocketIndex < rawPockets.Items.Count; pocketIndex++)
++        {
++            var rawPocket = RubyValue.Array(rawPockets.Items[pocketIndex]);
++            if (rawPocket == null)
++                continue;
++
++            var items = new List<EssentialsBagSlotData>();
++            foreach (var rawSlotValue in rawPocket.Items)
++            {
++                var rawSlot = RubyValue.Array(rawSlotValue);
++                if (rawSlot == null || rawSlot.Items.Count < 2)
++                    continue;
++
++                var itemId = checked((int)RubyValue.Int(rawSlot.Items[0], 0));
++                var count = checked((int)RubyValue.Int(rawSlot.Items[1], 0));
++                if (itemId > 0 && count > 0)
++                    items.Add(new(itemId, count));
++            }
++
++            result.Add(new(
++                PocketIndex: pocketIndex,
++                Label: GetLegacyPocketLabel(pocketIndex),
++                Items: items
++            ));
++        }
++
++        return result;
++    }
++
++    private static HashSet<int> ReadDexSet(object? value)
++    {
++        var result = new HashSet<int>();
++        var values = RubyValue.Array(value);
++        if (values == null)
++            return result;
++
++        for (var species = 1; species < values.Items.Count; species++)
++        {
++            var entry = values.Items[species];
++            var enabled = entry switch
++            {
++                bool b => b,
++                int i => i != 0,
++                long l => l != 0,
++                _ => entry != null,
++            };
++            if (enabled)
++                result.Add(species);
++        }
++
++        return result;
++    }
++
++    private static string GetLegacyPocketLabel(int pocket) => pocket switch
++    {
++        1 => "Items",
++        2 => "Medicine",
++        3 => "Poké Balls",
++        4 => "TMs / HMs",
++        5 => "Berries",
++        6 => "Mail",
++        7 => "Battle Items",
++        8 => "Key Items",
++        _ => $"Pocket {pocket}",
++    };
++
