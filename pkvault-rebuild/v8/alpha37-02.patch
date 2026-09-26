@@ -1,0 +1,239 @@
+diff --git a/PKVault.Core/storage/services/ActionService.cs b/PKVault.Core/storage/services/ActionService.cs
+index 6665410..c21fda3 100644
+--- a/PKVault.Core/storage/services/ActionService.cs
++++ b/PKVault.Core/storage/services/ActionService.cs
+@@ -279,6 +279,17 @@ public class ActionService(
+         );
+     }
+ 
++    public async Task<DataUpdateFlags> MoveMoney(uint saveId, string direction, long amount)
++    {
++        using var scope = sp.CreateScope();
++
++        return await AddAction(
++            scope,
++            (scope) => scope.ServiceProvider.GetRequiredService<MoveMoneyAction>(),
++            new(saveId, direction, amount)
++        );
++    }
++
+     public async Task<DataUpdateFlags> CreateInventoryPage()
+     {
+         using var scope = sp.CreateScope();
+diff --git a/PKVault.Core/storage/services/ItemBankService.cs b/PKVault.Core/storage/services/ItemBankService.cs
+index 1c06eb7..3594e8c 100644
+--- a/PKVault.Core/storage/services/ItemBankService.cs
++++ b/PKVault.Core/storage/services/ItemBankService.cs
+@@ -1,4 +1,6 @@
+ using System.Globalization;
++using System.Numerics;
++using System.Reflection;
+ using System.Text;
+ using System.Text.Json;
+ using System.Text.Json.Serialization;
+@@ -50,9 +52,25 @@ public record SaveInventoryDTO(
+     List<SaveInventoryPocketDTO> Pockets
+ );
+ 
++public record MoneySaveDTO(
++    uint SaveId,
++    GameVersion Version,
++    string TrainerName,
++    string? RomHackProfile,
++    long Money,
++    long MaxMoney,
++    bool Supported
++);
++
++public record MoneyBankDTO(
++    string Balance,
++    List<MoneySaveDTO> Saves
++);
++
+ public record ItemInventoryStateDTO(
+     List<InventoryBankPageDTO> BankPages,
+-    List<SaveInventoryDTO> Saves
++    List<SaveInventoryDTO> Saves,
++    MoneyBankDTO MoneyBank
+ );
+ 
+ public record MoveInventoryItemActionInput(
+@@ -74,6 +92,19 @@ public record ItemBankMoveResult(
+     GameVersion? TargetVersion
+ );
+ 
++public record MoveMoneyActionInput(
++    uint SaveId,
++    string Direction,
++    long Amount
++);
++
++public record MoneyMoveResult(
++    long MovedAmount,
++    GameVersion Version,
++    string Direction,
++    string TrainerName
++);
++
+ internal record BankStack(
+     string Id,
+     int Page,
+@@ -253,7 +284,157 @@ public class ItemBankService(
+             ));
+         }
+ 
+-        return new(bankPages, saves);
++        var moneyBank = await BuildMoneyBankState();
++        return new(bankPages, saves, moneyBank);
++    }
++
++    private async Task<MoneyBankDTO> BuildMoneyBankState()
++    {
++        var balance = await LoadPokedollarBalance();
++        var saves = savesLoadersService.GetAllLoaders()
++            .OrderBy(x => x.Save.Version)
++            .ThenBy(x => x.Save.OT)
++            .Select(loaders =>
++            {
++                var save = loaders.Save;
++                var saveFile = save.GetSave();
++                var supported = SupportsMoney(saveFile);
++                var maxMoney = supported ? Math.Max(0, saveFile.MaxMoney) : 0;
++                var money = supported ? Math.Min((long)saveFile.Money, maxMoney) : 0;
++                return new MoneySaveDTO(
++                    SaveId: save.Id,
++                    Version: save.Version,
++                    TrainerName: save.OT,
++                    RomHackProfile: saveFile is EssentialsLegacySaveFile essentials
++                        ? essentials.ProfileId
++                        : null,
++                    Money: money,
++                    MaxMoney: maxMoney,
++                    Supported: supported
++                );
++            })
++            .ToList();
++
++        return new(
++            Balance: balance.ToString(CultureInfo.InvariantCulture),
++            Saves: saves
++        );
++    }
++
++    public async Task<MoneyMoveResult> MoveMoney(MoveMoneyActionInput input)
++    {
++        if (input.Amount <= 0)
++            throw new ArgumentOutOfRangeException(nameof(input.Amount), "Pokédollar transfer amount must be positive.");
++
++        var loaders = savesLoadersService.GetAllLoaders()
++            .FirstOrDefault(x => x.Save.Id == input.SaveId)
++            ?? throw new InvalidOperationException($"Save {input.SaveId} is not loaded.");
++
++        var save = loaders.Save;
++        var saveFile = save.GetSave();
++        if (!SupportsMoney(saveFile))
++            throw new InvalidOperationException($"{save.OT}'s save does not expose a writable Pokédollar balance.");
++
++        var maxMoney = Math.Max(0, saveFile.MaxMoney);
++        var currentMoney = Math.Min((long)saveFile.Money, maxMoney);
++        var bank = await LoadPokedollarBalance();
++        long moved;
++
++        switch (input.Direction.Trim().ToLowerInvariant())
++        {
++            case "deposit":
++            {
++                moved = Math.Min(input.Amount, currentMoney);
++                if (moved <= 0)
++                    throw new InvalidOperationException("That save has no Pokédollars available to deposit.");
++
++                saveFile.Money = checked((uint)(currentMoney - moved));
++                bank += moved;
++                break;
++            }
++            case "withdraw":
++            {
++                var room = Math.Max(0L, maxMoney - currentMoney);
++                if (room <= 0)
++                    throw new InvalidOperationException($"That save is already at its Pokédollar cap of ₽{maxMoney:N0}.");
++
++                var available = bank > long.MaxValue ? long.MaxValue : (long)bank;
++                moved = Math.Min(input.Amount, Math.Min(room, available));
++                if (moved <= 0)
++                    throw new InvalidOperationException("The PKVault Pokédollar bank is empty.");
++
++                saveFile.Money = checked((uint)(currentMoney + moved));
++                bank -= moved;
++                break;
++            }
++            default:
++                throw new ArgumentException($"Unknown Pokédollar transfer direction: {input.Direction}");
++        }
++
++        if (saveFile is EssentialsLegacySaveFile essentialsSave)
++            essentialsSave.MarkInventoryDirty();
++
++        loaders.Pkms.HasWritten = true;
++        await SavePokedollarBalance(bank);
++
++        return new(
++            MovedAmount: moved,
++            Version: save.Version,
++            Direction: input.Direction.Trim().ToLowerInvariant(),
++            TrainerName: save.OT
++        );
++    }
++
++    private static bool SupportsMoney(SaveFile saveFile)
++    {
++        if (saveFile is FakeSaveFile)
++            return false;
++
++        var property = saveFile.GetType().GetProperty(
++            nameof(SaveFile.Money),
++            BindingFlags.Instance | BindingFlags.Public
++        );
++
++        return property?.DeclaringType != typeof(SaveFile)
++            && saveFile.MaxMoney > 0;
++    }
++
++    private async Task<BigInteger> LoadPokedollarBalance()
++    {
++        var entity = await metaLoader.GetEntity(MetaKey.POKEDOLLAR_BANK);
++        if (entity is null || string.IsNullOrWhiteSpace(entity.Value))
++            return BigInteger.Zero;
++
++        return BigInteger.TryParse(
++            entity.Value,
++            NumberStyles.None,
++            CultureInfo.InvariantCulture,
++            out var parsed
++        ) && parsed >= 0
++            ? parsed
++            : BigInteger.Zero;
++    }
++
++    private async Task SavePokedollarBalance(BigInteger balance)
++    {
++        if (balance < 0)
++            throw new InvalidOperationException("PKVault Pokédollar bank cannot have a negative balance.");
++
++        var value = balance.ToString(CultureInfo.InvariantCulture);
++        var entity = await metaLoader.GetEntity(MetaKey.POKEDOLLAR_BANK);
++        if (entity is null)
++        {
++            await metaLoader.AddEntity(new()
++            {
++                Key = MetaKey.POKEDOLLAR_BANK,
++                Value = value,
++            });
++        }
++        else
++        {
++            entity.Value = value;
++            await metaLoader.UpdateEntity(entity);
++        }
+     }
+ 
+     public async Task<int> CreatePage()
