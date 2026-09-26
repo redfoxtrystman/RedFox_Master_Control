@@ -44,9 +44,9 @@ jobs:
         run: |
           set -euo pipefail
           python3 pkvault-rebuild/v8/patch_pkvault_v8.py pkvault-src pkhex-src
-          git -C pkvault-src apply "$GITHUB_WORKSPACE/pkvault-rebuild/v8/alpha35-core.patch"
-          git -C pkvault-src apply "$GITHUB_WORKSPACE/pkvault-rebuild/v8/alpha35-inventory.patch"
-          git -C pkvault-src apply "$GITHUB_WORKSPACE/pkvault-rebuild/v8/alpha35-dex.patch"
+          git -C pkvault-src apply "$GITHUB_WORKSPACE/pkvault-rebuild/v8/alpha34-core.patch"
+          git -C pkvault-src apply "$GITHUB_WORKSPACE/pkvault-rebuild/v8/alpha34-inventory.patch"
+          git -C pkvault-src apply "$GITHUB_WORKSPACE/pkvault-rebuild/v8/alpha34-dex.patch"
           python3 pkvault-rebuild/v8/generate_uranium_item_profile.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha35.py pkvault-src
           test -f pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs
