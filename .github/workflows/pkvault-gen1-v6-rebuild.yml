@@ -57,6 +57,7 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha40b.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha40c.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha41.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha41d.py pkvault-src
           test -f pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs
           test "$(grep -c '] = new(' pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs)" -ge 500
           git -C pkvault-src diff --check
@@ -1713,6 +1714,7 @@ jobs:
           grep -q 'QUEST_CAUGHT_HISTORY' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           grep -q 'QUEST_PKM_FINGERPRINTS' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           grep -q 'QUEST_DAILY_STATE' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'JsonSerializable(typeof(QuestEntryDTO))' pkvault-src/PKVault.Core/router/RouteJsonContext.cs
           grep -q 'SettingsService.DefaultSavePath' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'GetSaveBaselineMarker' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'daily-catch-3' pkvault-src/PKVault.Core/quest/QuestService.cs
