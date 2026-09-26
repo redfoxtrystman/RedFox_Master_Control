@@ -585,3 +585,282 @@
 +        );
 +    }
 +
++                Label: pocket.Label,
++                SlotCount: slotCount,
++                Protected: protectedPocket,
++                Slots: slots
++            ));
++        }
++
++        return new(
++            SaveId: save.Id,
++            Version: save.Version,
++            TrainerName: save.OT,
++            RomHackProfile: essentials.ProfileId,
++            Supported: essentials.InventoryPockets.Count > 0,
++            Pockets: pockets
++        );
++    }
++
++    private SourceStack ResolveEssentialsSource(
++        MoveInventoryItemActionInput input,
++        SaveWrapper save,
++        SaveLoadersRecord loaders,
++        EssentialsLegacySaveFile essentials,
++        StaticOthersData others)
++    {
++        var pocket = essentials.GetInventoryPocket(input.SourcePouch);
++        if (IsProtectedEssentialsPocket(pocket.PocketIndex))
++            throw new InvalidOperationException($"{pocket.Label} is protected and cannot be moved.");
++
++        if ((uint)input.SourceSlot >= pocket.Items.Count)
++            throw new InvalidOperationException("The source save inventory slot is empty.");
++
++        var item = pocket.Items[input.SourceSlot];
++        if (item.ItemId <= 0 || item.Count <= 0)
++            throw new InvalidOperationException("The source save inventory slot is empty.");
++
++        var itemKey = ResolveEssentialsItemKey(
++            others,
++            essentials.ProfileId,
++            item.ItemId,
++            pocket.PocketIndex
++        );
++        var itemName = GetEssentialsItemName(essentials.ProfileId, item.ItemId);
++        var origins = DefaultOrigin(save, item.Count);
++
++        return new(
++            ItemKey: itemKey,
++            ItemName: itemName,
++            Available: item.Count,
++            SpriteVersion: save.Version,
++            Version: save.Version,
++            UsesBank: false,
++            UsesSaveProvenance: false,
++            Origins: origins,
++            Deduct: moved =>
++            {
++                if ((uint)input.SourceSlot >= pocket.Items.Count)
++                    throw new InvalidOperationException("Essentials source item moved before deduction.");
++
++                var current = pocket.Items[input.SourceSlot];
++                var left = current.Count - moved;
++                if (left <= 0)
++                    pocket.Items.RemoveAt(input.SourceSlot);
++                else
++                    pocket.Items[input.SourceSlot] = current with { Count = left };
++
++                essentials.MarkInventoryDirty();
++                loaders.Pkms.HasWritten = true;
++            }
++        );
++    }
++
++    private TargetResult ApplyEssentialsTarget(
++        MoveInventoryItemActionInput input,
++        SourceStack source,
++        int requested,
++        SaveWrapper save,
++        SaveLoadersRecord loaders,
++        EssentialsLegacySaveFile essentials,
++        StaticOthersData others)
++    {
++        var pocket = essentials.GetInventoryPocket(input.TargetPouch);
++        if (IsProtectedEssentialsPocket(pocket.PocketIndex))
++            throw new InvalidOperationException($"{pocket.Label} is protected and cannot receive transferred items.");
++
++        if (!TryResolveEssentialsTargetItem(
++            others,
++            essentials.ProfileId,
++            source.ItemKey,
++            pocket.PocketIndex,
++            out var targetItemId))
++        {
++            throw new InvalidOperationException(
++                $"{source.ItemName} does not exist in {GetEssentialsProfileName(essentials.ProfileId)} or does not belong in {pocket.Label}."
++            );
++        }
++
++        var existingIndex = pocket.Items.FindIndex(x => x.ItemId == targetItemId);
++        if (existingIndex >= 0)
++        {
++            var existing = pocket.Items[existingIndex];
++            var moved = Math.Min(requested, Math.Max(0, 99 - existing.Count));
++            if (moved <= 0)
++                return new(0, save.Version, false, false);
++
++            pocket.Items[existingIndex] = existing with { Count = existing.Count + moved };
++            essentials.MarkInventoryDirty();
++            loaders.Pkms.HasWritten = true;
++            return new(moved, save.Version, false, false);
++        }
++
++        var insertAt = Math.Clamp(input.TargetSlot, 0, pocket.Items.Count);
++        var firstMove = Math.Min(requested, 99);
++        if (firstMove <= 0)
++            return new(0, save.Version, false, false);
++
++        pocket.Items.Insert(insertAt, new(targetItemId, firstMove));
++        essentials.MarkInventoryDirty();
++        loaders.Pkms.HasWritten = true;
++        return new(firstMove, save.Version, false, false);
++    }
++
++    private ItemBankMoveResult MoveWithinSameEssentialsPouch(
++        MoveInventoryItemActionInput input,
++        SaveWrapper save,
++        SaveLoadersRecord loaders,
++        EssentialsLegacySaveFile essentials,
++        StaticOthersData others)
++    {
++        var pocket = essentials.GetInventoryPocket(input.SourcePouch);
++        if (IsProtectedEssentialsPocket(pocket.PocketIndex))
++            throw new InvalidOperationException($"{pocket.Label} is protected and cannot be moved.");
++        if ((uint)input.SourceSlot >= pocket.Items.Count)
++            throw new InvalidOperationException("The source save inventory slot is empty.");
++
++        var source = pocket.Items[input.SourceSlot];
++        var itemName = GetEssentialsItemName(essentials.ProfileId, source.ItemId);
++
++        if (input.TargetSlot < pocket.Items.Count)
++        {
++            var target = pocket.Items[input.TargetSlot];
++            if (target.ItemId == source.ItemId)
++            {
++                var moved = Math.Min(source.Count, Math.Max(0, 99 - target.Count));
++                if (moved <= 0)
++                    throw new InvalidOperationException("The target stack has no room; nothing was moved.");
++
++                pocket.Items[input.TargetSlot] = target with { Count = target.Count + moved };
++                if (moved >= source.Count)
++                {
++                    var removeIndex = input.SourceSlot;
++                    if (removeIndex == input.TargetSlot)
++                        return new(itemName, 0, save.Version, save.Version);
++                    pocket.Items.RemoveAt(removeIndex);
++                }
++                else
++                {
++                    pocket.Items[input.SourceSlot] = source with { Count = source.Count - moved };
++                }
++
++                essentials.MarkInventoryDirty();
++                loaders.Pkms.HasWritten = true;
++                return new(itemName, moved, save.Version, save.Version);
++            }
++
++            pocket.Items[input.SourceSlot] = target;
++            pocket.Items[input.TargetSlot] = source;
++        }
++        else
++        {
++            pocket.Items.RemoveAt(input.SourceSlot);
++            pocket.Items.Insert(Math.Min(input.TargetSlot, pocket.Items.Count), source);
++        }
++
++        essentials.MarkInventoryDirty();
++        loaders.Pkms.HasWritten = true;
++        return new(itemName, source.Count, save.Version, save.Version);
++    }
++
++    private static bool IsProtectedEssentialsPocket(int pocketIndex)
++        => pocketIndex is 4 or 8;
++
++    private static string GetEssentialsProfileName(string profileId) => profileId switch
++    {
++        "pokemon-uranium" => "Pokémon Uranium",
++        "pokemon-insurgence" => "Pokémon Insurgence",
++        _ => "Pokémon Essentials",
++    };
++
++    private static string GetEssentialsItemName(string profileId, int itemId)
++    {
++        var definition = EssentialsItemProfile.Get(profileId, itemId);
++        return definition?.Name ?? $"{GetEssentialsProfileName(profileId)} Item #{itemId}";
++    }
++
++    private static string ResolveEssentialsItemKey(
++        StaticOthersData others,
++        string profileId,
++        int itemId,
++        int pocketIndex)
++    {
++        var definition = EssentialsItemProfile.Get(profileId, itemId);
++        if (definition != null)
++        {
++            if (others.Items.Items.ContainsKey(definition.KeyHint))
++                return definition.KeyHint;
++
++            var normalizedName = NormalizeItemName(definition.Name);
++            foreach (var pair in others.Items.Items)
++            {
++                if (NormalizeItemName(pair.Value.Name) == normalizedName)
++                    return pair.Key;
++            }
++        }
++
++        return $"{profileId}:item:{itemId}:p{pocketIndex}";
++    }
++
++    private static bool TryResolveEssentialsTargetItem(
++        StaticOthersData others,
++        string profileId,
++        string itemKey,
++        int pocketIndex,
++        out int itemId)
++    {
++        var prefix = $"{profileId}:item:";
++        if (itemKey.StartsWith(prefix, StringComparison.Ordinal))
++        {
++            var rest = itemKey[prefix.Length..];
++            var split = rest.Split(":p", StringSplitOptions.None);
++            if (split.Length == 2
++                && int.TryParse(split[0], out var parsedId)
++                && int.TryParse(split[1], out var parsedPocket)
++                && parsedPocket == pocketIndex)
++            {
++                itemId = parsedId;
++                return true;
++            }
++        }
++
++        foreach (var definition in EssentialsItemProfile.GetAll(profileId))
++        {
++            if (definition.Pocket != pocketIndex)
++                continue;
++            var resolved = ResolveEssentialsItemKey(
++                others,
++                profileId,
++                definition.Id,
++                definition.Pocket
++            );
++            if (string.Equals(resolved, itemKey, StringComparison.Ordinal))
++            {
++                itemId = definition.Id;
++                return true;
++            }
++        }
++
++        itemId = 0;
++        return false;
++    }
++
++    private static string NormalizeItemName(string value)
++        => new(value
++            .Normalize(NormalizationForm.FormD)
++            .Where(ch => CharUnicodeInfo.GetUnicodeCategory(ch) != UnicodeCategory.NonSpacingMark)
++            .Select(char.ToLowerInvariant)
++            .Where(char.IsLetterOrDigit)
++            .ToArray());
++
+     private TargetResult ApplyTarget(
+         MoveInventoryItemActionInput input,
+         SourceStack source,
+@@ -779,6 +1128,10 @@
+ 
+         var save = loaders.Save;
+         var saveFile = save.GetSave();
++
++        if (saveFile is EssentialsLegacySaveFile essentials)
++            return ApplyEssentialsTarget(input, source, requested, save, loaders, essentials, others);
++
