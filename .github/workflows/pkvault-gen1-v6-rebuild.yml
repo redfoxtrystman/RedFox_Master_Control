@@ -1711,7 +1711,7 @@ jobs:
           grep -q "Quest completed" pkvault-src/frontend/src/quests/quest-toast.tsx
           grep -q "createFileRoute('/quests')" pkvault-src/frontend/src/routes/quests.tsx
           grep -q "window.setTimeout" pkvault-src/frontend/src/quests/quest-toast.tsx
-          grep -q "Each Legendary can award exactly one Master Ball" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "Mythicals award Master Balls" pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q 'HttpGet("state")' pkvault-src/PKVault.Core/quest/routes/QuestRoute.cs
           grep -q 'QUEST_COMPLETED' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           grep -q 'GrantQuestReward' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
@@ -1737,7 +1737,7 @@ jobs:
           grep -q 'daily-play-30' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'GetPaidRerollCost' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q '2_500L' pkvault-src/PKVault.Core/quest/QuestService.cs
-          grep -q 'Master Ball + 15 Ultra Balls + 10 Potions' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'Master Ball + 50 Ultra Balls + 10 Rare Candies + 10 Full Restores' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'GrantQuestMoneyReward' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'SpendMoneyBank' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'Reroll — FREE' pkvault-src/frontend/src/quests/quest-page.tsx
