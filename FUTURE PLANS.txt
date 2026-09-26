@@ -248,6 +248,30 @@ Examples that fit the repeatable daily system without colliding with permanent a
 - Variety Hunt: catch one Pokémon of three different common types.
 - No Repeats: catch 5 Pokémon, all different species.
 - Regional Catch: catch 3 Pokémon from a generated supported region.
+- Fishing: fish X times, but ONLY for games/integrations where PKVault can reliably
+  detect fishing attempts. Do not enable this from save-only tracking when the save
+  format does not preserve a fishing counter/event history.
+
+Conditional activity dailies
+----------------------------
+Some activity quests are good ideas but cannot be universally verified from a normal
+save file.
+
+Fishing is the first example:
+- "Fish 5 times."
+- "Fish 10 times."
+- "Catch 3 Pokémon while fishing."
+
+Rules:
+- Enable a fishing daily only when that game's save data or a supported emulator/live
+  integration exposes enough information to verify fishing activity.
+- Never guess fishing attempts from the presence of Water-type Pokémon.
+- Never infer that a Pokémon was fished solely because that species can be encountered
+  with a rod.
+- For older games whose save files do not record fishing attempts, leave "Fish X times"
+  out of the generated daily pool unless future emulator/live tracking is active.
+- A save-only fallback may use a different objective such as "Catch X Water-type
+  Pokémon", but it must be presented as a different quest, not as fishing.
 
 Specific-species dailies must avoid:
 - Legendary/Mythical Pokémon.
