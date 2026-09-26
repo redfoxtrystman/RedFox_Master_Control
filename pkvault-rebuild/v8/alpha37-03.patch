@@ -1,0 +1,47 @@
+diff --git a/frontend/public/romhacks/insurgence/front/722.png b/frontend/public/romhacks/insurgence/front/722.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..f5eccd15bf3b82960cb6f6624a989d10ae05e920
+GIT binary patch
+literal 600
+zcmeAS@N?(olHy`uVBq!ia0vp^0U*r51|<6gKdoh8V3PNAaSW-L^Y)IlH?yM%>w}LM
+zm-2T!u;1``qEoft8W#a>&*X(`Id61y^-frFwQQq+V^D{{o2?!F=jsIn6#q_J)as&i
+z<nG?;XYbCaJzvcvslNNT^~{qgn~w<y_O3I$&VE6-?csE{{jE-pUuBM)TFbLeUdOMn
+z^7F6SC!edQPVMP?q93Nv!Pq2$O8f}qJHo}X@^ASxvF#yRr=}fWuC4w292bkB!-UPA
+zOUf>l7#&&d{yOZurTOj1W}E%{RPuHkn6EG5kvXKm#!+O|GQIol4Kx0`L2T}m<g^8j
+zFgWsnh@EllS!>^_L^LYAJJtXs**JnE554VPb^Y-6<y)eg&(9a-NNP}6f4wo&Txe2G
+z(2YYtCxkzE^KIjbzqgmJ*_*w_L4cWsH?|?tPvIC(VnbwdgTmIx9YTBl+i;XM#LarN
+ze~0glb#e2=zT0wuEzNSiaZTXk+^r1e*ZAtTZ;;ZB-h1lp`nt4VRdM-hOD<;ky4dAg
+zC*(8ntm7BnuA4t^S)Hu(>=l14IvXSuPRv%+QT-bfTV%M51>u8xK1wHUol^}{IB{#$
+zp8uOS7#^!BvEH^T?BMFnHU}9TvnHPiDRf(%ed6rh$ba?P>NkVBZqF;~b(R2n{+`Z~
+z|H?NrdKYhuDF4))eNy$nrPaF^W!yQ~43_2*c=BeMa8$Wg*P-tY{DvT(8agbB`OQ}R
+XExbvT@AExiied0{^>bP0l+XkK$omAJ
+
+literal 0
+HcmV?d00001
+
+diff --git a/frontend/src/inventory/inventory-api.ts b/frontend/src/inventory/inventory-api.ts
+index 6b01592..5b1dde4 100644
+--- a/frontend/src/inventory/inventory-api.ts
++++ b/frontend/src/inventory/inventory-api.ts
+@@ -46,3 +46,21 @@ export const moveInventory = async (
+         { method: 'PUT' }
+     )).data;
+ };
++
++
++export const moveMoney = async (
++    saveId: number,
++    direction: 'deposit' | 'withdraw',
++    amount: number,
++) => {
++    const p = new URLSearchParams({
++        saveId: String(saveId),
++        direction,
++        amount: String(Math.trunc(amount)),
++    });
++
++    return (await customInstance<{ data: InventoryState; status: number; headers: Headers }>(
++        '/api/storage/inventory/money?' + p.toString(),
++        { method: 'PUT' }
++    )).data;
++};
