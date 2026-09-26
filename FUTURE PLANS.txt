@@ -338,8 +338,37 @@ Quest category tabs:
 - Game-Specific
 - PKVault / Cross-Game
 
+Quest game-availability indicators
+----------------------------------
+Every Daily Quest, Quest, and Achievement should show which supported game(s) can
+actually satisfy that objective.
+
+UI concept:
+- Show one or more small game icons/badges on the quest card.
+- Hovering an icon/group opens a tooltip listing the compatible games by name.
+- If several games share the same objective, group them compactly instead of filling
+  the card with text.
+- The tooltip should use full names, for example:
+  "Pokémon X"
+  "Pokémon Y"
+- A combined quest that works in both can show the X/Y game badges and a hover tooltip:
+  "Can be completed in Pokémon X or Pokémon Y."
+- Fangames should use their own recognizable badges/icons:
+  Pokémon Uranium, Pokémon Insurgence, etc.
+- Cross-game quests should explicitly say that progress may be combined across the
+  listed compatible games when that is actually allowed.
+- Game-specific quests should show only the relevant game.
+- A quest must never display a game badge unless PKVault's tracker can actually verify
+  that objective in that game.
+- Conditional activities such as fishing may therefore show fewer compatible games
+  than a generic catch quest.
+
+The game indicator is informational only; it does not change canonical shop pricing or
+reward values.
+
 Possible Daily card:
 Catch 5 Pidgey
+[Red] [Blue] [Yellow]
 Progress: 3 / 5
 Reward: 10 Poké Balls
 Expires: next daily reset
