@@ -1,0 +1,185 @@
+diff --git a/PKVault.Core/Program.cs b/PKVault.Core/Program.cs
+index cb1c822..5625e9c 100644
+--- a/PKVault.Core/Program.cs
++++ b/PKVault.Core/Program.cs
+@@ -120,6 +120,7 @@ public class Program
+         services.AddScoped<DexSyncAction>();
+         services.AddScoped<TradeSwapAction>();
+         services.AddScoped<MoveInventoryItemAction>();
++        services.AddScoped<MoveMoneyAction>();
+         services.AddScoped<CreateInventoryPageAction>();
+ 
+         Log.Information($"Setup services - Loaders");
+diff --git a/PKVault.Core/db/entity/MetaEntity.cs b/PKVault.Core/db/entity/MetaEntity.cs
+index 9fc5e56..d444cf3 100644
+--- a/PKVault.Core/db/entity/MetaEntity.cs
++++ b/PKVault.Core/db/entity/MetaEntity.cs
+@@ -12,4 +12,5 @@ public enum MetaKey
+     ITEM_BANK_PAGES,
+     ITEM_BANK_PAGE_SIZES,
+     ITEM_SAVE_PROVENANCE,
++    POKEDOLLAR_BANK,
+ }
+diff --git a/PKVault.Core/romhacks/essentials/EssentialsLegacySaveFile.cs b/PKVault.Core/romhacks/essentials/EssentialsLegacySaveFile.cs
+index c8e5f5d..cc40535 100644
+--- a/PKVault.Core/romhacks/essentials/EssentialsLegacySaveFile.cs
++++ b/PKVault.Core/romhacks/essentials/EssentialsLegacySaveFile.cs
+@@ -16,6 +16,7 @@ public sealed class EssentialsLegacySaveFile : SaveFile, IBoxDetailNameRead
+     private readonly string[] BoxNames;
+     private readonly int LocalMaxSpecies;
+     private readonly int BoxSlots;
++    private uint StoredMoney;
+     private bool Dirty;
+ 
+     public List<EssentialsBagPocketData> InventoryPockets { get; }
+@@ -60,6 +61,7 @@ public sealed class EssentialsLegacySaveFile : SaveFile, IBoxDetailNameRead
+ 
+         ID32 = source.TrainerId;
+         OT = source.TrainerName;
++        StoredMoney = Math.Min(source.Money, 999999u);
+         Language = (int)LanguageID.English;
+     }
+ 
+@@ -97,6 +99,16 @@ public sealed class EssentialsLegacySaveFile : SaveFile, IBoxDetailNameRead
+     public override int Language { get; set; } = (int)LanguageID.English;
+     public override uint ID32 { get; set; }
+     public override string OT { get; set; } = "";
++    public override uint Money
++    {
++        get => StoredMoney;
++        set
++        {
++            StoredMoney = Math.Min(value, 999999u);
++            Dirty = true;
++        }
++    }
++    public override int MaxMoney => 999999;
+     public override int BoxCount => Source.Boxes.Count;
+     public override int BoxSlotCount => BoxSlots;
+     public override int SlotCount => BoxCount * BoxSlotCount;
+@@ -233,6 +245,7 @@ public sealed class EssentialsLegacySaveFile : SaveFile, IBoxDetailNameRead
+         clone.Registry.AddRange(Registry.Select(z => (PKEssentials)z.Clone()));
+         clone.PartyCount = PartyCount;
+         clone.CurrentBox = CurrentBox;
++        clone.StoredMoney = StoredMoney;
+         clone.InventoryPockets.Clear();
+         clone.InventoryPockets.AddRange(InventoryPockets.Select(p => new EssentialsBagPocketData(
+             p.PocketIndex,
+@@ -277,7 +290,8 @@ public sealed class EssentialsLegacySaveFile : SaveFile, IBoxDetailNameRead
+             boxes,
+             InventoryPockets,
+             SeenSpecies,
+-            OwnedSpecies
++            OwnedSpecies,
++            Money
+         );
+         var validationPath = Game == EssentialsGameKind.Uranium
+             ? "Pokemon Uranium/Uranium.rxdata"
+@@ -289,7 +303,8 @@ public sealed class EssentialsLegacySaveFile : SaveFile, IBoxDetailNameRead
+             || validation.Boxes.Count != boxes.Count
+             || validation.BagPockets.Sum(p => p.Items.Count) != InventoryPockets.Sum(p => p.Items.Count)
+             || !SeenSpecies.IsSubsetOf(validation.SeenSpecies)
+-            || !OwnedSpecies.IsSubsetOf(validation.OwnedSpecies))
++            || !OwnedSpecies.IsSubsetOf(validation.OwnedSpecies)
++            || validation.Money != Money)
+         {
+             throw new InvalidDataException($"Essentials write validation failed: {error ?? "round-trip structure mismatch"}");
+         }
+diff --git a/PKVault.Core/romhacks/essentials/EssentialsLegacySaveReader.cs b/PKVault.Core/romhacks/essentials/EssentialsLegacySaveReader.cs
+index d86965e..8c0b764 100644
+--- a/PKVault.Core/romhacks/essentials/EssentialsLegacySaveReader.cs
++++ b/PKVault.Core/romhacks/essentials/EssentialsLegacySaveReader.cs
+@@ -24,6 +24,7 @@ public sealed record EssentialsLegacySaveData(
+     string ProfileVersion,
+     string TrainerName,
+     uint TrainerId,
++    uint Money,
+     IReadOnlyList<PKEssentials> Party,
+     IReadOnlyList<EssentialsBoxData> Boxes,
+     IReadOnlyList<EssentialsBagPocketData> BagPockets,
+@@ -69,6 +70,7 @@ public static class EssentialsLegacySaveReader
+ 
+             var trainerName = RubyValue.Text(Get(trainer, "@name"), "TRAINER");
+             var trainerId = unchecked((uint)RubyValue.Int(Get(trainer, "@id"), 0));
++            var money = checked((uint)Math.Clamp(RubyValue.Int(Get(trainer, "@money"), 0), 0, 999999));
+ 
+             var rawParty = RubyValue.Array(Get(trainer, "@party"));
+             var rawBoxes = RubyValue.Array(Get(storage, "@boxes"));
+@@ -134,6 +136,7 @@ public static class EssentialsLegacySaveReader
+                 ProfileVersion: profileVersion,
+                 TrainerName: trainerName,
+                 TrainerId: trainerId,
++                Money: money,
+                 Party: party,
+                 Boxes: boxes,
+                 BagPockets: bagPockets,
+diff --git a/PKVault.Core/romhacks/essentials/EssentialsLegacySaveWriter.cs b/PKVault.Core/romhacks/essentials/EssentialsLegacySaveWriter.cs
+index 5c15aff..b2c7d9a 100644
+--- a/PKVault.Core/romhacks/essentials/EssentialsLegacySaveWriter.cs
++++ b/PKVault.Core/romhacks/essentials/EssentialsLegacySaveWriter.cs
+@@ -16,7 +16,8 @@ public static class EssentialsLegacySaveWriter
+         IReadOnlyList<EssentialsBoxData> boxes,
+         IReadOnlyList<EssentialsBagPocketData> bagPockets,
+         IReadOnlySet<int> seenSpecies,
+-        IReadOnlySet<int> ownedSpecies)
++        IReadOnlySet<int> ownedSpecies,
++        uint money)
+     {
+         ValidateProfiles(source.ProfileId, party, boxes);
+ 
+@@ -30,6 +31,7 @@ public static class EssentialsLegacySaveWriter
+         var storage = CloneObject((RubyObject)storageDoc.Root!, "PokemonStorage");
+         var bag = bagDoc == null ? null : CloneObject((RubyObject)bagDoc.Root!, "PokemonBag");
+ 
++        SetInt(trainer, "@money", Math.Min(money, 999999u));
+         PatchDexArray(trainer, "@seen", seenSpecies);
+         PatchDexArray(trainer, "@owned", ownedSpecies);
+         if (bag != null)
+diff --git a/PKVault.Core/storage/data-action/MoveMoneyAction.cs b/PKVault.Core/storage/data-action/MoveMoneyAction.cs
+new file mode 100644
+index 0000000..6ee502d
+--- /dev/null
++++ b/PKVault.Core/storage/data-action/MoveMoneyAction.cs
+@@ -0,0 +1,20 @@
++namespace PKVault.Core;
++
++public class MoveMoneyAction(ItemBankService itemBankService) : DataAction<MoveMoneyActionInput>
++{
++    protected override async Task<DataActionPayload> Execute(MoveMoneyActionInput input, DataUpdateFlags flags)
++    {
++        var result = await itemBankService.MoveMoney(input);
++        flags.SaveInfos = true;
++
++        return new(
++            type: DataActionType.MOVE_ITEM,
++            parameters: [
++                "Pokédollars",
++                result.Direction == "deposit" ? result.Version : null,
++                result.Direction == "withdraw" ? result.Version : null,
++                result.MovedAmount,
++            ]
++        );
++    }
++}
+diff --git a/PKVault.Core/storage/routes/StorageRoute.cs b/PKVault.Core/storage/routes/StorageRoute.cs
+index 9f519c1..0633bed 100644
+--- a/PKVault.Core/storage/routes/StorageRoute.cs
++++ b/PKVault.Core/storage/routes/StorageRoute.cs
+@@ -277,6 +277,17 @@ public class StorageController(
+         return await itemBankService.GetState();
+     }
+ 
++    [HttpPut("inventory/money")]
++    public async Task<ItemInventoryStateDTO> MoveMoney(
++        uint saveId,
++        string direction,
++        long amount
++    )
++    {
++        await actionService.MoveMoney(saveId, direction, amount);
++        return await itemBankService.GetState();
++    }
++
+     [HttpPost("inventory/page")]
+     public async Task<ItemInventoryStateDTO> CreateInventoryPage()
+     {
