@@ -2596,3 +2596,7 @@ exec((Path(__file__).with_name("patch_pkvault_v8_inventory_storage_drag.py")).re
 
 # V8 alpha29 item provenance + generation-folder persistence
 exec((Path(__file__).with_name("patch_pkvault_v8_inventory_provenance.py")).read_text(encoding="utf-8"), globals())
+
+
+# V8 alpha33 inventory page resize + same-save PC move fix
+exec((Path(__file__).with_name("patch_pkvault_v8_inventory_alpha33.py")).read_text(encoding="utf-8"), globals())
