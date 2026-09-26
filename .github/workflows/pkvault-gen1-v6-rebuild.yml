@@ -1576,7 +1576,7 @@ jobs:
 
       - name: Verify canonical Pokédex and Emerald TMT labelling
         run: |
-          set -euo pipefail
+          set -euxo pipefail
 
           ! grep -q "Too Many Types v1.6" pkvault-src/frontend/src/pokedex/list/hooks/use-pokedex-items.ts
           ! grep -q "dexProfile" pkvault-src/frontend/src/routes/pokedex.tsx
