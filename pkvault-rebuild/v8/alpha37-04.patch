@@ -1,0 +1,201 @@
+diff --git a/frontend/src/inventory/inventory-money-bank.tsx b/frontend/src/inventory/inventory-money-bank.tsx
+new file mode 100644
+index 0000000..d1b64be
+--- /dev/null
++++ b/frontend/src/inventory/inventory-money-bank.tsx
+@@ -0,0 +1,195 @@
++import { Button, Card, Group, NumberInput, Stack, Text } from '@mantine/core';
++import { LandmarkIcon } from 'lucide-react';
++import React from 'react';
++import { useStaticData } from '../hooks/use-static-data';
++import { getSaveDisplayName } from '../romhacks/get-save-display-name';
++import type { MoneyBank } from './types';
++
++type Props = {
++    bank: MoneyBank;
++    onTransfer: (
++        saveId: number,
++        direction: 'deposit' | 'withdraw',
++        amount: number,
++    ) => Promise<void>;
++    onError: (message: string) => void;
++};
++
++const formatMoney = (value: string | number): string => {
++    try {
++        return BigInt(String(value)).toLocaleString('en-US');
++    } catch {
++        return String(value);
++    }
++};
++
++export const InventoryMoneyBank: React.FC<Props> = ({
++    bank,
++    onTransfer,
++    onError,
++}) => {
++    const staticData = useStaticData();
++    const [ amounts, setAmounts ] = React.useState<Record<number, number>>({});
++    const [ busySaveId, setBusySaveId ] = React.useState<number>();
++    const [ depositAllBusy, setDepositAllBusy ] = React.useState(false);
++
++    const transfer = async (
++        saveId: number,
++        direction: 'deposit' | 'withdraw',
++        amount: number,
++    ) => {
++        if (!Number.isFinite(amount) || amount <= 0)
++            return;
++
++        try {
++            setBusySaveId(saveId);
++            await onTransfer(saveId, direction, Math.trunc(amount));
++        } catch (e) {
++            onError(e instanceof Error ? e.message : String(e));
++        } finally {
++            setBusySaveId(undefined);
++        }
++    };
++
++    const depositAll = async () => {
++        try {
++            setDepositAllBusy(true);
++            for (const save of bank.saves) {
++                if (!save.supported || save.money <= 0)
++                    continue;
++                await onTransfer(save.saveId, 'deposit', save.money);
++            }
++        } catch (e) {
++            onError(e instanceof Error ? e.message : String(e));
++        } finally {
++            setDepositAllBusy(false);
++        }
++    };
++
++    return <Card withBorder mb='md'>
++        <Stack gap='sm'>
++            <Group justify='space-between' align='center'>
++                <Group gap='xs'>
++                    <LandmarkIcon size={20} />
++                    <Text fw={700}>PKVault Pokédollar Bank</Text>
++                </Group>
++
++                <Text fw={700} size='lg'>₽{formatMoney(bank.balance)}</Text>
++            </Group>
++
++            <Group justify='space-between' align='center'>
++                <Text size='sm' c='dimmed'>
++                    Stored outside game save caps. Deposit or withdraw exact amounts, empty a save, or fill it to that game's maximum.
++                </Text>
++
++                <Button
++                    size='xs'
++                    variant='light'
++                    loading={depositAllBusy}
++                    disabled={!bank.saves.some(save => save.supported && save.money > 0)}
++                    onClick={() => void depositAll()}
++                >
++                    Deposit all loaded saves
++                </Button>
++            </Group>
++
++            <Stack gap='xs'>
++                {bank.saves.map(save => {
++                    const amount = amounts[save.saveId] ?? Math.min(1000, Math.max(1, save.maxMoney));
++                    const room = Math.max(0, save.maxMoney - save.money);
++                    const label = getSaveDisplayName(
++                        staticData.versions[save.version]?.name ?? String(save.version),
++                        save.romHackProfile,
++                    );
++
++                    return <Card key={save.saveId} withBorder padding='xs'>
++                        <Group justify='space-between' align='center' wrap='wrap'>
++                            <div>
++                                <Text fw={600}>{label} · {save.trainerName}</Text>
++                                <Text size='sm' c='dimmed'>
++                                    ₽{formatMoney(save.money)} / ₽{formatMoney(save.maxMoney)}
++                                </Text>
++                            </div>
++
++                            <Group gap='xs' wrap='wrap'>
++                                <NumberInput
++                                    value={amount}
++                                    min={1}
++                                    max={Math.max(1, save.maxMoney)}
++                                    allowDecimal={false}
++                                    allowNegative={false}
++                                    thousandSeparator=','
++                                    w={150}
++                                    disabled={!save.supported}
++                                    onChange={value => {
++                                        const numeric = typeof value === 'number'
++                                            ? value
++                                            : Number(value || 0);
++                                        setAmounts(current => ({
++                                            ...current,
++                                            [save.saveId]: Number.isFinite(numeric)
++                                                ? Math.max(1, Math.trunc(numeric))
++                                                : 1,
++                                        }));
++                                    }}
++                                />
++
++                                <Button
++                                    size='xs'
++                                    variant='light'
++                                    disabled={!save.supported || save.money <= 0}
++                                    loading={busySaveId === save.saveId}
++                                    onClick={() => void transfer(
++                                        save.saveId,
++                                        'deposit',
++                                        Math.min(amount, save.money),
++                                    )}
++                                >
++                                    Deposit
++                                </Button>
++
++                                <Button
++                                    size='xs'
++                                    variant='subtle'
++                                    disabled={!save.supported || save.money <= 0}
++                                    loading={busySaveId === save.saveId}
++                                    onClick={() => void transfer(save.saveId, 'deposit', save.money)}
++                                >
++                                    Deposit all
++                                </Button>
++
++                                <Button
++                                    size='xs'
++                                    variant='light'
++                                    disabled={!save.supported || room <= 0 || bank.balance === '0'}
++                                    loading={busySaveId === save.saveId}
++                                    onClick={() => void transfer(
++                                        save.saveId,
++                                        'withdraw',
++                                        Math.min(amount, room),
++                                    )}
++                                >
++                                    Withdraw
++                                </Button>
++
++                                <Button
++                                    size='xs'
++                                    variant='subtle'
++                                    disabled={!save.supported || room <= 0 || bank.balance === '0'}
++                                    loading={busySaveId === save.saveId}
++                                    onClick={() => void transfer(save.saveId, 'withdraw', room)}
++                                >
++                                    Fill save
++                                </Button>
++                            </Group>
++                        </Group>
++
++                        {!save.supported && <Text size='xs' c='dimmed' mt={4}>
++                            This save format does not expose a writable Pokédollar field.
++                        </Text>}
++                    </Card>;
++                })}
++            </Stack>
++        </Stack>
++    </Card>;
++};
