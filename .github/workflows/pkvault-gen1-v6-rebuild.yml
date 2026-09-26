@@ -1044,6 +1044,13 @@ jobs:
           red.Money = 12000;
           red.PlayedHours = 3;
           red.PlayedMinutes = 12;
+          red.ClearBoxes();
+          red.PartyData = [];
+          for (ushort species = 1; species <= 151; species++)
+          {
+              red.SetSeen(species, false);
+              red.SetCaught(species, false);
+          }
           ushort[] redSpecies = [16, 25, 133, 144, 150]; // Pidgey, Pikachu, Eevee, Articuno, Mewtwo
           for (var i = 0; i < redSpecies.Length; i++)
           {
@@ -1073,6 +1080,13 @@ jobs:
           silver.Money = 18000;
           silver.PlayedHours = 6;
           silver.PlayedMinutes = 34;
+          silver.ClearBoxes();
+          silver.PartyData = [];
+          for (ushort species = 1; species <= 251; species++)
+          {
+              silver.SetSeen(species, false);
+              silver.SetCaught(species, false);
+          }
           ushort[] silverSpecies = [179, 197, 212, 243, 249]; // Mareep, Umbreon, Scizor, Raikou, Lugia
           for (var i = 0; i < silverSpecies.Length; i++)
           {
@@ -1099,6 +1113,8 @@ jobs:
               $"Insurgence fixture failed to parse: {insError}");
           var insurgence = new EssentialsLegacySaveFile(insData!);
           insurgence.Metadata.SetExtraInfo("Pokemon Insurgence/Game.rxdata");
+          insurgence.SeenSpecies.Clear();
+          insurgence.OwnedSpecies.Clear();
 
           ushort[] insurgenceSpecies = [25, 133, 150, 382, 384]; // Pikachu, Eevee, Mewtwo, Kyogre, Rayquaza
           for (var i = 0; i < insurgenceSpecies.Length; i++)
