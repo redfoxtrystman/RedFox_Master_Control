@@ -827,13 +827,15 @@ jobs:
               Move2 = (ushort)Move.SkyAttack,
           };
           var importedMissingNo = EssentialsInterop.ImportTo(insFacadeForImport, new ImmutablePKM(raw50));
-          Need(importedMissingNo.GetMutablePkm() is PKEssentials missingEss
+          var missingEss = importedMissingNo.GetMutablePkm() as PKEssentials;
+          Need(missingEss is not null
               && missingEss.LocalSpeciesId == 722
               && missingEss.SpeciesName == "MISSINGNO",
               "Gen1 raw-50 MISSINGNO -> Insurgence #722 mapping failed");
-          Need(insFacadeForImport.IsPkmAllowed(importedMissingNo),
-              "Insurgence facade rejected its supported MISSINGNO #722");
-          insFacadeForImport.SetBoxSlotAtIndex(missingEss, 0, 0, EntityImportSettings.None);
+          var insImportWrapper = new SaveWrapper(insFacadeForImport);
+          Need(insImportWrapper.IsPkmAllowed(importedMissingNo),
+              "Insurgence save wrapper rejected its supported MISSINGNO #722");
+          insFacadeForImport.SetBoxSlotAtIndex(missingEss!, 0, 0, EntityImportSettings.None);
           insFacadeForImport.RegisterDexSpecies(722);
           var missingWritten = insFacadeForImport.Write().ToArray();
           Need(EssentialsLegacySaveReader.TryRead(missingWritten, insurgencePath, out var missingReload, out var missingWriteError),
