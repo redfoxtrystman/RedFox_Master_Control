@@ -1031,15 +1031,19 @@ jobs:
               };
           }
 
-          // Red-compatible Generation 1 save.
-          var red = new SAV1(LanguageID.English, GameVersion.RD)
-          {
-              OT = "QRED",
-              TID16 = 40101,
-              Money = 12000,
-              PlayedHours = 3,
-              PlayedMinutes = 12,
-          };
+          // Red test save: mutate a pinned, real retail-compatible save fixture.
+          // Starting from a known-good save means the artifact is recognizable through
+          // PKHeX/PKVault's normal save detector, not just structurally 32 KiB.
+          var redBasePath = "quest-test-generator/RedBase.sav";
+          var redBaseBytes = File.ReadAllBytes(redBasePath);
+          var red = SaveUtil.GetSaveFile(redBaseBytes, redBasePath) as SAV1;
+          Need(red is not null, "Pinned real Red base save did not parse");
+          red.Version = GameVersion.RD;
+          red.OT = "QRED";
+          red.TID16 = 40101;
+          red.Money = 12000;
+          red.PlayedHours = 3;
+          red.PlayedMinutes = 12;
           ushort[] redSpecies = [16, 25, 133, 144, 150]; // Pidgey, Pikachu, Eevee, Articuno, Mewtwo
           for (var i = 0; i < redSpecies.Length; i++)
           {
@@ -1058,15 +1062,17 @@ jobs:
           Need(redReload.GetBoxSlotAtIndex(0, 3).Species == 144, "Red Articuno missing from box");
           Need(redReload.GetBoxSlotAtIndex(0, 4).Species == 150, "Red Mewtwo missing from box");
 
-          // Silver-compatible Generation 2 save.
-          var silver = new SAV2(LanguageID.English, GameVersion.SI)
-          {
-              OT = "QSILVER",
-              TID16 = 40202,
-              Money = 18000,
-              PlayedHours = 6,
-              PlayedMinutes = 34,
-          };
+          // Silver test save: mutate a pinned, real retail-compatible save fixture.
+          var silverBasePath = "quest-test-generator/SilverBase.sav";
+          var silverBaseBytes = File.ReadAllBytes(silverBasePath);
+          var silver = SaveUtil.GetSaveFile(silverBaseBytes, silverBasePath) as SAV2;
+          Need(silver is not null, "Pinned real Silver base save did not parse");
+          silver.Version = GameVersion.SI;
+          silver.OT = "QSILVER";
+          silver.TID16 = 40202;
+          silver.Money = 18000;
+          silver.PlayedHours = 6;
+          silver.PlayedMinutes = 34;
           ushort[] silverSpecies = [179, 197, 212, 243, 249]; // Mareep, Umbreon, Scizor, Raikou, Lugia
           for (var i = 0; i < silverSpecies.Length; i++)
           {
@@ -1130,7 +1136,19 @@ jobs:
           Console.WriteLine("PASS: generated Red, Silver, and Insurgence quest test saves with caught dex state");
           EOF
 
-          curl -fL --retry 3             https://raw.githubusercontent.com/ShockingZebstrika/pokemon-insurgence/master/Game.rxdata             -o quest-test-generator/InsurgenceBase.rxdata
+          # Pin real Red/Silver fixture bytes to the exact upstream commit that
+          # was inspected for this test build. These files are mutated, never shipped unchanged.
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/Praeses0/pkmn-cli/aa78daface28e34b7e1596a9b4cc84d28b4df939/tests/fixtures/real/gen1/pokemon-red-base.sav \
+            -o quest-test-generator/RedBase.sav
+
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/Praeses0/pkmn-cli/aa78daface28e34b7e1596a9b4cc84d28b4df939/tests/fixtures/real/gen2/pokemon-silver.sav \
+            -o quest-test-generator/SilverBase.sav
+
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/ShockingZebstrika/pokemon-insurgence/master/Game.rxdata \
+            -o quest-test-generator/InsurgenceBase.rxdata
 
           dotnet run --project quest-test-generator/quest-test-generator.csproj -c Release
 
