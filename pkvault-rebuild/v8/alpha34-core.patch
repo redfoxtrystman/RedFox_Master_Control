@@ -1,0 +1,390 @@
+--- a/PKVault.Core/romhacks/essentials/EssentialsLegacySaveReader.cs
++++ b/PKVault.Core/romhacks/essentials/EssentialsLegacySaveReader.cs
+@@ -10,6 +10,14 @@
+     Insurgence = 2,
+ }
+ 
++public sealed record EssentialsBagSlotData(int ItemId, int Count);
++
++public sealed record EssentialsBagPocketData(
++    int PocketIndex,
++    string Label,
++    List<EssentialsBagSlotData> Items
++);
++
+ public sealed record EssentialsLegacySaveData(
+     EssentialsGameKind Game,
+     string ProfileId,
+@@ -18,6 +26,9 @@
+     uint TrainerId,
+     IReadOnlyList<PKEssentials> Party,
+     IReadOnlyList<EssentialsBoxData> Boxes,
++    IReadOnlyList<EssentialsBagPocketData> BagPockets,
++    IReadOnlySet<int> SeenSpecies,
++    IReadOnlySet<int> OwnedSpecies,
+     IReadOnlyList<RubyMarshalDocument> Documents,
+     byte[] OriginalBytes
+ )
+@@ -53,6 +64,8 @@
+ 
+             var trainer = (RubyObject)trainerDoc.Root!;
+             var storage = (RubyObject)storageDoc.Root!;
++            var bagDoc = documents.FirstOrDefault(z => RubyValue.Object(z.Root, "PokemonBag") != null);
++            var bag = bagDoc?.Root as RubyObject;
+ 
+             var trainerName = RubyValue.Text(Get(trainer, "@name"), "TRAINER");
+             var trainerId = unchecked((uint)RubyValue.Int(Get(trainer, "@id"), 0));
+@@ -111,6 +124,10 @@
+                 }
+             }
+ 
++            var bagPockets = ReadBagPockets(bag);
++            var seenSpecies = ReadDexSet(Get(trainer, "@seen"));
++            var ownedSpecies = ReadDexSet(Get(trainer, "@owned"));
++
+             save = new(
+                 Game: game,
+                 ProfileId: profileId,
+@@ -119,6 +136,9 @@
+                 TrainerId: trainerId,
+                 Party: party,
+                 Boxes: boxes,
++                BagPockets: bagPockets,
++                SeenSpecies: seenSpecies,
++                OwnedSpecies: ownedSpecies,
+                 Documents: documents,
+                 OriginalBytes: bytes
+             );
+@@ -188,6 +208,79 @@
+             .ToList();
+     }
+ 
++    private static List<EssentialsBagPocketData> ReadBagPockets(RubyObject? bag)
++    {
++        var result = new List<EssentialsBagPocketData>();
++        var rawPockets = bag == null ? null : RubyValue.Array(Get(bag, "@pockets"));
++        if (rawPockets == null)
++            return result;
++
++        for (var pocketIndex = 1; pocketIndex < rawPockets.Items.Count; pocketIndex++)
++        {
++            var rawPocket = RubyValue.Array(rawPockets.Items[pocketIndex]);
++            if (rawPocket == null)
++                continue;
++
++            var items = new List<EssentialsBagSlotData>();
++            foreach (var rawSlotValue in rawPocket.Items)
++            {
++                var rawSlot = RubyValue.Array(rawSlotValue);
++                if (rawSlot == null || rawSlot.Items.Count < 2)
++                    continue;
++
++                var itemId = checked((int)RubyValue.Int(rawSlot.Items[0], 0));
++                var count = checked((int)RubyValue.Int(rawSlot.Items[1], 0));
++                if (itemId > 0 && count > 0)
++                    items.Add(new(itemId, count));
++            }
++
++            result.Add(new(
++                PocketIndex: pocketIndex,
++                Label: GetLegacyPocketLabel(pocketIndex),
++                Items: items
++            ));
++        }
++
++        return result;
++    }
++
++    private static HashSet<int> ReadDexSet(object? value)
++    {
++        var result = new HashSet<int>();
++        var values = RubyValue.Array(value);
++        if (values == null)
++            return result;
++
++        for (var species = 1; species < values.Items.Count; species++)
++        {
++            var entry = values.Items[species];
++            var enabled = entry switch
++            {
++                bool b => b,
++                int i => i != 0,
++                long l => l != 0,
++                _ => entry != null,
++            };
++            if (enabled)
++                result.Add(species);
++        }
++
++        return result;
++    }
++
++    private static string GetLegacyPocketLabel(int pocket) => pocket switch
++    {
++        1 => "Items",
++        2 => "Medicine",
++        3 => "Poké Balls",
++        4 => "TMs / HMs",
++        5 => "Berries",
++        6 => "Mail",
++        7 => "Battle Items",
++        8 => "Key Items",
++        _ => $"Pocket {pocket}",
++    };
++
+     private static EssentialsGameKind DetectGame(
+         string path,
+         byte[] bytes,
+--- a/PKVault.Core/romhacks/essentials/EssentialsLegacySaveFile.cs
++++ b/PKVault.Core/romhacks/essentials/EssentialsLegacySaveFile.cs
+@@ -18,6 +18,10 @@
+     private readonly int BoxSlots;
+     private bool Dirty;
+ 
++    public List<EssentialsBagPocketData> InventoryPockets { get; }
++    public HashSet<int> SeenSpecies { get; }
++    public HashSet<int> OwnedSpecies { get; }
++
+     private sealed record BuildResult(
+         byte[] Buffer,
+         List<PKEssentials> Registry,
+@@ -39,6 +43,15 @@
+         BoxNames = built.BoxNames;
+         BoxSlots = built.BoxSlotCount;
+         LocalMaxSpecies = built.MaxSpecies;
++        InventoryPockets = source.BagPockets
++            .Select(p => new EssentialsBagPocketData(
++                p.PocketIndex,
++                p.Label,
++                [.. p.Items]
++            ))
++            .ToList();
++        SeenSpecies = [.. source.SeenSpecies];
++        OwnedSpecies = [.. source.OwnedSpecies];
+ 
+         Party = 0;
+         Box = source.Boxes.Count > 0 ? 0 : int.MinValue;
+@@ -182,6 +195,31 @@
+ 
+         Registry.Add((PKEssentials)essentials.Clone());
+         BinaryPrimitives.WriteInt32LittleEndian(data[..SlotBytes], Registry.Count);
++        RegisterDexSpecies(essentials.LocalSpeciesId);
++        Dirty = true;
++    }
++
++    public EssentialsBagPocketData GetInventoryPocket(string? pouchName)
++    {
++        if (string.IsNullOrWhiteSpace(pouchName)
++            || !pouchName.StartsWith("essentials:", StringComparison.OrdinalIgnoreCase)
++            || !int.TryParse(pouchName["essentials:".Length..], out var pocketIndex))
++        {
++            throw new ArgumentException($"Invalid Essentials inventory pocket: {pouchName}");
++        }
++
++        return InventoryPockets.FirstOrDefault(p => p.PocketIndex == pocketIndex)
++            ?? throw new InvalidOperationException($"Essentials save does not contain pocket {pocketIndex}.");
++    }
++
++    public void MarkInventoryDirty() => Dirty = true;
++
++    public void RegisterDexSpecies(int localSpeciesId)
++    {
++        if (localSpeciesId <= 0)
++            return;
++        SeenSpecies.Add(localSpeciesId);
++        OwnedSpecies.Add(localSpeciesId);
+         Dirty = true;
+     }
+ 
+@@ -195,6 +233,16 @@
+         clone.Registry.AddRange(Registry.Select(z => (PKEssentials)z.Clone()));
+         clone.PartyCount = PartyCount;
+         clone.CurrentBox = CurrentBox;
++        clone.InventoryPockets.Clear();
++        clone.InventoryPockets.AddRange(InventoryPockets.Select(p => new EssentialsBagPocketData(
++            p.PocketIndex,
++            p.Label,
++            [.. p.Items]
++        )));
++        clone.SeenSpecies.Clear();
++        clone.SeenSpecies.UnionWith(SeenSpecies);
++        clone.OwnedSpecies.Clear();
++        clone.OwnedSpecies.UnionWith(OwnedSpecies);
+         clone.Dirty = Dirty;
+         return clone;
+     }
+@@ -223,7 +271,14 @@
+             boxes.Add(new EssentialsBoxData(GetBoxName(box), slots));
+         }
+ 
+-        var bytes = EssentialsLegacySaveWriter.Write(Source, party, boxes);
++        var bytes = EssentialsLegacySaveWriter.Write(
++            Source,
++            party,
++            boxes,
++            InventoryPockets,
++            SeenSpecies,
++            OwnedSpecies
++        );
+         var validationPath = Game == EssentialsGameKind.Uranium
+             ? "Pokemon Uranium/Uranium.rxdata"
+             : "Pokemon Insurgence/Game.rxdata";
+@@ -231,7 +286,10 @@
+             || validation == null
+             || validation.Game != Game
+             || validation.Party.Count != party.Count
+-            || validation.Boxes.Count != boxes.Count)
++            || validation.Boxes.Count != boxes.Count
++            || validation.BagPockets.Sum(p => p.Items.Count) != InventoryPockets.Sum(p => p.Items.Count)
++            || !SeenSpecies.IsSubsetOf(validation.SeenSpecies)
++            || !OwnedSpecies.IsSubsetOf(validation.OwnedSpecies))
+         {
+             throw new InvalidDataException($"Essentials write validation failed: {error ?? "round-trip structure mismatch"}");
+         }
+--- a/PKVault.Core/romhacks/essentials/EssentialsLegacySaveWriter.cs
++++ b/PKVault.Core/romhacks/essentials/EssentialsLegacySaveWriter.cs
+@@ -13,7 +13,10 @@
+     public static byte[] Write(
+         EssentialsLegacySaveData source,
+         IReadOnlyList<PKEssentials> party,
+-        IReadOnlyList<EssentialsBoxData> boxes)
++        IReadOnlyList<EssentialsBoxData> boxes,
++        IReadOnlyList<EssentialsBagPocketData> bagPockets,
++        IReadOnlySet<int> seenSpecies,
++        IReadOnlySet<int> ownedSpecies)
+     {
+         ValidateProfiles(source.ProfileId, party, boxes);
+ 
+@@ -21,9 +24,16 @@
+             ?? throw new InvalidDataException("PokeBattle_Trainer stream not found.");
+         var storageDoc = source.Documents.FirstOrDefault(z => RubyValue.Object(z.Root, "PokemonStorage") != null)
+             ?? throw new InvalidDataException("PokemonStorage stream not found.");
++        var bagDoc = source.Documents.FirstOrDefault(z => RubyValue.Object(z.Root, "PokemonBag") != null);
+ 
+         var trainer = CloneObject((RubyObject)trainerDoc.Root!, "PokeBattle_Trainer");
+         var storage = CloneObject((RubyObject)storageDoc.Root!, "PokemonStorage");
++        var bag = bagDoc == null ? null : CloneObject((RubyObject)bagDoc.Root!, "PokemonBag");
++
++        PatchDexArray(trainer, "@seen", seenSpecies);
++        PatchDexArray(trainer, "@owned", ownedSpecies);
++        if (bag != null)
++            PatchBag(bag, bagPockets);
+ 
+         var rawParty = RubyValue.Array(Get(trainer, "@party"))
+             ?? throw new InvalidDataException("Trainer @party array not found.");
+@@ -52,6 +62,7 @@
+ 
+         var trainerBytes = RubyMarshal48Writer.WriteDocument(trainer);
+         var storageBytes = RubyMarshal48Writer.WriteDocument(storage);
++        var bagBytes = bag == null ? null : RubyMarshal48Writer.WriteDocument(bag);
+ 
+         using var output = new MemoryStream(source.OriginalBytes.Length + 4096);
+         var cursor = 0;
+@@ -67,6 +78,8 @@
+                 output.Write(trainerBytes);
+             else if (doc.Offset == storageDoc.Offset)
+                 output.Write(storageBytes);
++            else if (bagDoc != null && doc.Offset == bagDoc.Offset && bagBytes != null)
++                output.Write(bagBytes);
+             else
+                 output.Write(source.OriginalBytes, doc.Offset, doc.Length);
+ 
+@@ -79,6 +92,53 @@
+         return output.ToArray();
+     }
+ 
++    private static void PatchDexArray(
++        RubyObject trainer,
++        string key,
++        IReadOnlySet<int> enabledSpecies)
++    {
++        var values = RubyValue.Array(Get(trainer, key));
++        if (values == null)
++            return;
++
++        var max = enabledSpecies.Count == 0 ? 0 : enabledSpecies.Max();
++        while (values.Items.Count <= max)
++            values.Items.Add(false);
++
++        foreach (var species in enabledSpecies.Where(x => x > 0))
++            values.Items[species] = true;
++    }
++
++    private static void PatchBag(
++        RubyObject bag,
++        IReadOnlyList<EssentialsBagPocketData> pockets)
++    {
++        var values = RubyValue.Array(Get(bag, "@pockets"))
++            ?? throw new InvalidDataException("PokemonBag @pockets array not found.");
++
++        foreach (var pocket in pockets)
++        {
++            while (values.Items.Count <= pocket.PocketIndex)
++                values.Items.Add(new RubyArray());
++
++            var rawPocket = RubyValue.Array(values.Items[pocket.PocketIndex]);
++            if (rawPocket == null)
++            {
++                rawPocket = new RubyArray();
++                values.Items[pocket.PocketIndex] = rawPocket;
++            }
++
++            rawPocket.Items.Clear();
++            foreach (var item in pocket.Items.Where(x => x.ItemId > 0 && x.Count > 0))
++            {
++                var pair = new RubyArray();
++                pair.Items.Add((long)item.ItemId);
++                pair.Items.Add((long)item.Count);
++                rawPocket.Items.Add(pair);
++            }
++        }
++    }
++
+     private static RubyObject BuildPokemon(PKEssentials pkm, string profileId)
+     {
+         if (!string.Equals(pkm.ProfileId, profileId, StringComparison.Ordinal))
+--- a/PKVault.Core/storage/routes/StorageRoute.cs
++++ b/PKVault.Core/storage/routes/StorageRoute.cs
+@@ -2,15 +2,41 @@
+ 
+ namespace PKVault.Core.storage.routes;
+ 
++public record UraniumDexStateDTO(List<int> Seen, List<int> Caught);
++
+ [Route("api/[controller]")]
+ public class StorageController(
+     DataService dataService,
+     StorageQueryService storageQueryService,
+     ActionService actionService,
+     ISessionService sessionService,
+-    ItemBankService itemBankService
++    ItemBankService itemBankService,
++    ISavesLoadersService savesLoadersService
+ )
+ {
++    [HttpGet("romhack/uranium/dex")]
++    public UraniumDexStateDTO GetUraniumDexState()
++    {
++        var seen = new HashSet<int>();
++        var caught = new HashSet<int>();
++
++        foreach (var loaders in savesLoadersService.GetAllLoaders())
++        {
++            if (loaders.Save.GetSave() is not EssentialsLegacySaveFile essentials
++                || !string.Equals(essentials.ProfileId, "pokemon-uranium", StringComparison.Ordinal))
++                continue;
++
++            seen.UnionWith(essentials.SeenSpecies);
++            caught.UnionWith(essentials.OwnedSpecies);
++        }
++
++        seen.UnionWith(caught);
++        return new(
++            Seen: [.. seen.OrderBy(x => x)],
++            Caught: [.. caught.OrderBy(x => x)]
++        );
++    }
++
+     [HttpGet("main/bank")]
+     public async Task<List<BankDTO>> GetMainBanks()
+     {
