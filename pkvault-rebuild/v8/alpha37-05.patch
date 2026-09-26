@@ -1,0 +1,183 @@
+diff --git a/frontend/src/inventory/inventory-page.tsx b/frontend/src/inventory/inventory-page.tsx
+index 3815f5d..3ed8ef6 100644
+--- a/frontend/src/inventory/inventory-page.tsx
++++ b/frontend/src/inventory/inventory-page.tsx
+@@ -5,9 +5,10 @@ import React from 'react';
+ import { withErrorCatcher } from '../error/with-error-catcher';
+ import { UIStorageContent } from '../ui/storage/storage-content/ui-storage-content';
+ import { UIStorageContentMiddle } from '../ui/storage/storage-content/middle/ui-storage-content-middle';
+-import { createInventoryPage, loadInventory, moveInventory, resizeInventoryPage } from './inventory-api';
++import { createInventoryPage, loadInventory, moveInventory, moveMoney, resizeInventoryPage } from './inventory-api';
+ import { InventoryPanel } from './inventory-panel';
+ import { InventoryMoveProvider } from './inventory-move-provider';
++import { InventoryMoneyBank } from './inventory-money-bank';
+ import type { InventoryLocation, InventoryState } from './types';
+ 
+ export const InventoryPage: React.FC = withErrorCatcher('default', () => {
+@@ -71,6 +72,23 @@ export const InventoryPage: React.FC = withErrorCatcher('default', () => {
+         }
+     }, [ queryClient ]);
+ 
++    const onMoneyTransfer = React.useCallback(async (
++        saveId: number,
++        direction: 'deposit' | 'withdraw',
++        amount: number,
++    ) => {
++        try {
++            const next = await moveMoney(saveId, direction, amount);
++            setState(next);
++            setError(undefined);
++            await queryClient.invalidateQueries();
++        } catch (e) {
++            const message = e instanceof Error ? e.message : String(e);
++            setError(message);
++            throw e;
++        }
++    }, [ queryClient ]);
++
+     if (!state)
+         return error ? <Alert color='red'>{error}</Alert> : <>Loading inventory…</>;
+ 
+@@ -93,6 +111,12 @@ export const InventoryPage: React.FC = withErrorCatcher('default', () => {
+             {error}
+         </Alert>}
+ 
++        <InventoryMoneyBank
++            bank={state.moneyBank}
++            onTransfer={onMoneyTransfer}
++            onError={setError}
++        />
++
+         <InventoryMoveProvider
+             state={state}
+             onMove={onMove}
+diff --git a/frontend/src/inventory/types.ts b/frontend/src/inventory/types.ts
+index 99549a6..0e04a2e 100644
+--- a/frontend/src/inventory/types.ts
++++ b/frontend/src/inventory/types.ts
+@@ -44,9 +44,25 @@ export type SaveInventory = {
+     pockets: SaveInventoryPocket[];
+ };
+ 
++export type MoneySave = {
++    saveId: number;
++    version: GameVersion;
++    trainerName: string;
++    romHackProfile?: string | null;
++    money: number;
++    maxMoney: number;
++    supported: boolean;
++};
++
++export type MoneyBank = {
++    balance: string;
++    saves: MoneySave[];
++};
++
+ export type InventoryState = {
+     bankPages: InventoryBankPage[];
+     saves: SaveInventory[];
++    moneyBank: MoneyBank;
+ };
+ 
+ export type InventoryLocation = {
+diff --git a/frontend/src/pokedex/filters/components/filter-generation.tsx b/frontend/src/pokedex/filters/components/filter-generation.tsx
+index 7bf3d8c..7d3b779 100644
+--- a/frontend/src/pokedex/filters/components/filter-generation.tsx
++++ b/frontend/src/pokedex/filters/components/filter-generation.tsx
+@@ -3,6 +3,7 @@ import { useStaticData } from '../../../hooks/use-static-data';
+ import { Route } from "../../../routes/pokedex";
+ import { useTranslate } from '../../../translate/i18n';
+ import { UIMultiSelect } from '../../../ui/form/select/ui-multi-select';
++import { URANIUM_GENERATION_FILTER_ID } from '../../../romhacks/uranium-profile';
+ 
+ export const FilterGeneration: React.FC = () => {
+   const { t } = useTranslate();
+@@ -15,10 +16,22 @@ export const FilterGeneration: React.FC = () => {
+ 
+   const allGenerations = Object.values(staticData.generations).map(g => g.id);
+ 
+-  const options = allGenerations.map((generation) => ({
+-    value: generation.toString(),
+-    label: t('dex.filters.generations.option', { generation, regions: staticData.generations[ generation ]?.regions.join(', ') }),
+-  }));
++  const options = allGenerations.flatMap((generation) => {
++    const base = {
++      value: generation.toString(),
++      label: t('dex.filters.generations.option', { generation, regions: staticData.generations[ generation ]?.regions.join(', ') }),
++    };
++
++    return generation === 6
++      ? [
++          base,
++          {
++            value: URANIUM_GENERATION_FILTER_ID.toString(),
++            label: 'Generation 6 (Pokémon Uranium / Tandor)',
++          },
++        ]
++      : [ base ];
++  });
+ 
+   return <UIMultiSelect
+     name='filter-generation'
+@@ -32,7 +45,7 @@ export const FilterGeneration: React.FC = () => {
+       },
+     }))}
+     pillsNoWrap
+-    renderPill={({ value = '' }) => <span>G{value}</span>}
++    renderPill={({ value = '' }) => <span>{Number(value) === URANIUM_GENERATION_FILTER_ID ? 'G6 Uranium' : `G${value}`}</span>}
+   // size='xs'
+   // w={140}
+   />;
+diff --git a/frontend/src/romhacks/insurgence-pokedex.tsx b/frontend/src/romhacks/insurgence-pokedex.tsx
+index 950bc70..6a8db2b 100644
+--- a/frontend/src/romhacks/insurgence-pokedex.tsx
++++ b/frontend/src/romhacks/insurgence-pokedex.tsx
+@@ -118,7 +118,7 @@ export const InsurgencePokedexSection: React.FC = () => {
+     <Card.Section inheritPadding withBorder>
+       <UIPokedexMainSection
+         isFirstSection={false}
+-        minSpecies={INSURGENCE_DEX_OFFSET + 727}
++        minSpecies={INSURGENCE_DEX_OFFSET + 722}
+         maxSpecies={INSURGENCE_DEX_OFFSET + 925}
+       >
+         {INSURGENCE_DEX_SPECIES_LIST.map(entry => {
+@@ -221,7 +221,11 @@ export const InsurgencePokedexDetails: React.FC = () => {
+       />
+     </UIPokedexDetailsMain>}
+     items={<Text size='sm' c='dimmed'>
+-      {entry.kind === 'delta' ? 'Pokémon Insurgence Delta variant.' : 'Pokémon Insurgence original fakemon.'}
++      {entry.id === 722
++        ? 'Pokédex: A glitch Pokémon once used to duplicate items; over time, it lost that ability.'
++        : entry.kind === 'delta'
++          ? 'Pokémon Insurgence Delta variant.'
++          : 'Pokémon Insurgence original fakemon.'}
+     </Text>}
+     content={<UIDetailsContent content={[{
+       name: 'stats',
+diff --git a/frontend/src/romhacks/insurgence-profile.ts b/frontend/src/romhacks/insurgence-profile.ts
+index 133c8cf..5a656ba 100644
+--- a/frontend/src/romhacks/insurgence-profile.ts
++++ b/frontend/src/romhacks/insurgence-profile.ts
+@@ -1,6 +1,6 @@
+ // Generated from InsurgenceProfile.Generated.cs.
+-// Dex overlay intentionally includes Delta species #727-924 plus UFI #925.
+-// Canon Pokémon and MISSINGNO are excluded.
++// Dex overlay includes Insurgence's MISSINGNO #722, Delta species #727-924, and UFI #925.
++// Ordinary canon Pokémon are excluded.
+ export const INSURGENCE_PROFILE_ID = 'pokemon-insurgence';
+ export const INSURGENCE_GENERATION = 6;
+ export const INSURGENCE_DEX_OFFSET = 20_000;
+@@ -11,10 +11,11 @@ export type InsurgenceDexSpeciesEntry = {
+   types: string[];
+   // Essentials/Insurgence order: HP, Atk, Def, Speed, SpAtk, SpDef.
+   baseStats: number[];
+-  kind: 'delta' | 'fakemon';
++  kind: 'delta' | 'fakemon' | 'glitch';
+ };
+ 
+ export const INSURGENCE_DEX_SPECIES: Record<number, InsurgenceDexSpeciesEntry> = {
++  722: { id: 722, name: "MISSINGNO", types: ["Flying", "Normal"], baseStats: [33, 136, 0, 29, 6, 6], kind: "glitch" },
+   727: { id: 727, name: "Delta Bulbasaur", types: ["Fairy", "Psychic"], baseStats: [45, 49, 49, 45, 65, 65], kind: "delta" },
+   728: { id: 728, name: "Delta Ivysaur", types: ["Fairy", "Psychic"], baseStats: [60, 62, 63, 60, 80, 80], kind: "delta" },
+   729: { id: 729, name: "Delta Venusaur", types: ["Fairy", "Psychic"], baseStats: [80, 82, 83, 80, 100, 100], kind: "delta" },
