@@ -449,10 +449,6 @@ export const InventoryPageEdit: React.FC<InventoryPageEditProps> = ({
     const popover = usePopover();
     const [ value, setValue ] = React.useState(slotCount);
 
-    React.useEffect(() => {
-        setValue(slotCount);
-    }, [ slotCount ]);
-
     const valid = Number.isFinite(value)
         && value >= minSlotCount
         && value <= 300;
