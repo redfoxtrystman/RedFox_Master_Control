@@ -864,3 +864,284 @@
 +        if (saveFile is EssentialsLegacySaveFile essentials)
 +            return ApplyEssentialsTarget(input, source, requested, save, loaders, essentials, others);
 +
+         var bag = saveFile.Inventory;
+         var pouch = GetPouch(bag, input.TargetPouch);
+ 
+--- a/frontend/src/inventory/inventory-panel.tsx	2026-09-26 01:50:51.000000000 +0000
++++ b/frontend/src/inventory/inventory-panel.tsx	2026-09-26 02:40:34.536378559 +0000
+@@ -4,6 +4,7 @@
+ import { BoxType } from '../data/sdk/model';
+ import { getGameInfos } from '../pokedex/details/util/get-game-infos';
+ import { useStaticData } from '../hooks/use-static-data';
++import { getSaveDisplayName } from '../romhacks/get-save-display-name';
+ import { UIBoxExpanded } from '../ui/storage/storage-panel/box-list/ui-box-expanded';
+ import {
+     UIStoragePanelBoxList,
+@@ -72,8 +73,11 @@
+         },
+         ...state.saves.map(save => ({
+             id: String(save.saveId),
+-            imgSrc: getGameInfos(save.version).img,
+-            label: staticData.versions[save.version]?.name ?? String(save.version),
++            imgSrc: save.romHackProfile ? '/logo.svg' : getGameInfos(save.version).img,
++            label: getSaveDisplayName(
++                staticData.versions[save.version]?.name ?? String(save.version),
++                save.romHackProfile,
++            ),
+             disabled: !save.supported,
+         })),
+     ];
+--- a/frontend/src/inventory/types.ts	2026-09-26 01:50:51.000000000 +0000
++++ b/frontend/src/inventory/types.ts	2026-09-26 02:40:34.536064947 +0000
+@@ -39,6 +39,7 @@
+     saveId: number;
+     version: GameVersion;
+     trainerName: string;
++    romHackProfile?: string | null;
+     supported: boolean;
+     pockets: SaveInventoryPocket[];
+ };
+--- a/frontend/src/pokedex/filters/components/filter-generation.tsx	2026-09-26 01:50:44.000000000 +0000
++++ b/frontend/src/pokedex/filters/components/filter-generation.tsx	2026-09-26 02:40:34.537695898 +0000
+@@ -3,6 +3,7 @@
+ import { Route } from "../../../routes/pokedex";
+ import { useTranslate } from '../../../translate/i18n';
+ import { UIMultiSelect } from '../../../ui/form/select/ui-multi-select';
++import { URANIUM_GENERATION_FILTER_ID } from '../../../romhacks/uranium-profile';
+ 
+ export const FilterGeneration: React.FC = () => {
+   const { t } = useTranslate();
+@@ -15,10 +16,16 @@
+ 
+   const allGenerations = Object.values(staticData.generations).map(g => g.id);
+ 
+-  const options = allGenerations.map((generation) => ({
+-    value: generation.toString(),
+-    label: t('dex.filters.generations.option', { generation, regions: staticData.generations[ generation ]?.regions.join(', ') }),
+-  }));
++  const options = [
++    ...allGenerations.map((generation) => ({
++      value: generation.toString(),
++      label: t('dex.filters.generations.option', { generation, regions: staticData.generations[ generation ]?.regions.join(', ') }),
++    })),
++    {
++      value: URANIUM_GENERATION_FILTER_ID.toString(),
++      label: 'Pokémon Uranium (Tandor)',
++    },
++  ];
+ 
+   return <UIMultiSelect
+     name='filter-generation'
+@@ -32,7 +39,9 @@
+       },
+     }))}
+     pillsNoWrap
+-    renderPill={({ value = '' }) => <span>G{value}</span>}
++    renderPill={({ value = '' }) => <span>
++      {Number(value) === URANIUM_GENERATION_FILTER_ID ? 'Uranium' : `G${value}`}
++    </span>}
+   // size='xs'
+   // w={140}
+   />;
+--- a/frontend/src/romhacks/uranium-pokedex.tsx	2026-09-26 01:50:51.000000000 +0000
++++ b/frontend/src/romhacks/uranium-pokedex.tsx	2026-09-26 02:40:34.537186578 +0000
+@@ -1,7 +1,8 @@
+ import { Card, Group, Space, Text } from '@mantine/core';
+-import { useQueries } from '@tanstack/react-query';
++import { useQueries, useQuery } from '@tanstack/react-query';
+ import React from 'react';
+ import { getPkmSaveIndexOptions } from '../data/hooks/use-pkm-save-index';
++import { customInstance } from '../data/mutator/custom-instance';
+ import { useSaveInfosGetAll } from '../data/sdk/save-infos/save-infos.gen';
+ import { EntityContext, Gender } from '../data/sdk/model';
+ import { SpeciesImg } from '../img/species-img';
+@@ -19,12 +20,23 @@
+ import { usePokedexSelectExpanded } from '../pokedex/details/hooks/use-pokedex-select-expanded';
+ import { TmtTypeItem } from './tmt-type-item';
+ import {
+-  URANIUM_ADDED_SPECIES,
+   URANIUM_DEX_OFFSET,
++  URANIUM_DEX_SPECIES,
++  URANIUM_GENERATION_FILTER_ID,
+   URANIUM_PROFILE_ID,
+   URANIUM_SPECIES,
+ } from './uranium-profile';
+ 
++type UraniumDexStatus = {
++  seen: number[];
++  caught: number[];
++};
++
++const loadUraniumDexStatus = async () =>
++  (await customInstance<{ data: UraniumDexStatus; status: number; headers: Headers }>(
++    '/api/storage/romhack/uranium/dex'
++  )).data;
++
+ const useUraniumDexState = () => {
+   const savesQuery = useSaveInfosGetAll();
+   const saveIds = React.useMemo(() =>
+@@ -39,23 +51,33 @@
+     queries: saveIds.map(saveId => getPkmSaveIndexOptions(saveId)),
+   });
+ 
++  const dexQuery = useQuery({
++    queryKey: ['uranium-dex-state', ...saveIds],
++    queryFn: loadUraniumDexStatus,
++    enabled: saveIds.length > 0,
++  });
++
+   const owned = React.useMemo(() => {
+     const values = new Set<number>();
+     for (const query of pkmQueries) {
+       for (const pkm of Object.values(query.data?.data.byId ?? {})) {
+         if (pkm.romHackProfile !== URANIUM_PROFILE_ID || !pkm.romHackLocalSpeciesId)
+           continue;
+-        const entry = URANIUM_SPECIES[pkm.romHackLocalSpeciesId];
+-        if (entry?.officialNationalDexId === null)
++        if (URANIUM_SPECIES[pkm.romHackLocalSpeciesId])
+           values.add(pkm.romHackLocalSpeciesId);
+       }
+     }
+     return values;
+   }, [pkmQueries]);
+ 
++  const seen = React.useMemo(() => new Set(dexQuery.data?.seen ?? []), [dexQuery.data]);
++  const caught = React.useMemo(() => new Set(dexQuery.data?.caught ?? []), [dexQuery.data]);
++
+   return {
+     enabled: saveIds.length > 0,
+-    isPending: savesQuery.isPending || pkmQueries.some(q => q.isPending),
++    isPending: savesQuery.isPending || dexQuery.isPending || pkmQueries.some(q => q.isPending),
++    seen,
++    caught,
+     owned,
+   };
+ };
+@@ -63,22 +85,25 @@
+ export const UraniumPokedexSection: React.FC = () => {
+   const navigate = Route.useNavigate();
+   const selected = Route.useSearch({ select: search => search.selected });
+-  const { enabled, owned } = useUraniumDexState();
++  const filterGenerations = Route.useSearch({ select: search => search.filterGenerations }) ?? [];
++  const { enabled, seen, caught, owned } = useUraniumDexState();
+ 
+   if (!enabled)
+     return null;
++  if (filterGenerations.length > 0 && !filterGenerations.includes(URANIUM_GENERATION_FILTER_ID))
++    return null;
+ 
+   return <>
+     <Card.Section inheritPadding withBorder>
+       <UIPokedexMainSectionHeader
+         generation='Pokémon Uranium'
+         regions={['Tandor']}
+-        games={<Text size='sm'>Added Pokémon only</Text>}
+-        seenCount={owned.size}
+-        caughtCount={owned.size}
++        games={<Text size='sm'>Tandor Pokédex · 200 species</Text>}
++        seenCount={seen.size}
++        caughtCount={caught.size}
+         ownedCount={owned.size}
+         shinyCount={0}
+-        totalCount={URANIUM_ADDED_SPECIES.length}
++        totalCount={URANIUM_DEX_SPECIES.length}
+       />
+     </Card.Section>
+ 
+@@ -88,8 +113,10 @@
+         minSpecies={URANIUM_DEX_OFFSET + 1}
+         maxSpecies={URANIUM_DEX_OFFSET + 200}
+       >
+-        {URANIUM_ADDED_SPECIES.map(entry => {
++        {URANIUM_DEX_SPECIES.map(entry => {
+           const syntheticId = URANIUM_DEX_OFFSET + entry.id;
++          const isSeen = seen.has(entry.id) || caught.has(entry.id) || owned.has(entry.id);
++          const isCaught = caught.has(entry.id) || owned.has(entry.id);
+           const isOwned = owned.has(entry.id);
+           const isSelected = selected === syntheticId;
+ 
+@@ -105,8 +132,8 @@
+           >
+             <UIPokedexFormItem
+               genders={[Gender.Genderless]}
+-              isSeen={isOwned}
+-              isCaught={isOwned}
++              isSeen={isSeen}
++              isCaught={isCaught}
+               isOwned={isOwned}
+               isOwnedShiny={false}
+               isMega={false}
+@@ -132,16 +159,18 @@
+   const navigate = Route.useNavigate();
+   const selected = Route.useSearch({ select: search => search.selected });
+   const { expanded, toggleExpanded } = usePokedexSelectExpanded();
+-  const { owned } = useUraniumDexState();
++  const { seen, caught, owned } = useUraniumDexState();
+ 
+   if (selected === undefined || selected < URANIUM_DEX_OFFSET)
+     return null;
+ 
+   const localId = selected - URANIUM_DEX_OFFSET;
+   const entry = URANIUM_SPECIES[localId];
+-  if (!entry || entry.officialNationalDexId !== null)
++  if (!entry)
+     return null;
+ 
++  const isSeen = seen.has(localId) || caught.has(localId) || owned.has(localId);
++  const isCaught = caught.has(localId) || owned.has(localId);
+   const isOwned = owned.has(localId);
+   const statValues = [
+     entry.baseStats[0] ?? 1,
+@@ -160,7 +189,7 @@
+     onClose={() => navigate({ search: { selected: undefined } })}
+     header={closeBtn => <Group px='md' py='xs' wrap='nowrap'>
+       <Text fw={700}>Pokémon Uranium</Text>
+-      <Text c='dimmed' size='sm'>Uranium-added species</Text>
++      <Text c='dimmed' size='sm'>Tandor Pokédex #{localId}</Text>
+       <Space ml='auto' />
+       {closeBtn}
+     </Group>}
+@@ -168,8 +197,8 @@
+       species={entry.id}
+       speciesName={entry.name}
+       gender={Gender.Genderless}
+-      isSeen={isOwned}
+-      isCaught={isOwned}
++      isSeen={isSeen}
++      isCaught={isCaught}
+       isOwned={isOwned}
+       types={entry.types.map(type => <TmtTypeItem key={type} type={type} />)}
+     >
+@@ -183,7 +212,11 @@
+         romHackSpeciesName={entry.name}
+       />
+     </UIPokedexDetailsMain>}
+-    items={<Text size='sm' c='dimmed'>Only Pokémon added by Uranium appear in this dex.</Text>}
++    items={<Text size='sm' c='dimmed'>
++      {entry.officialNationalDexId === null
++        ? 'Pokémon Uranium original species.'
++        : 'Also appears in the National Pokédex as #' + entry.officialNationalDexId + '.'}
++    </Text>}
+     content={<UIDetailsContent content={[{
+       name: 'stats',
+       label: 'Stats',
+--- a/frontend/src/romhacks/uranium-profile.ts	2026-09-26 01:50:51.000000000 +0000
++++ b/frontend/src/romhacks/uranium-profile.ts	2026-09-26 02:40:34.537109565 +0000
+@@ -4,6 +4,7 @@
+ // Quickshoters/PokemonGodot commit c2b4308c214f164487ec9de8c1645fd978b2943e.
+ export const URANIUM_PROFILE_ID = 'pokemon-uranium';
+ export const URANIUM_SPECIES_COUNT = 200;
++export const URANIUM_GENERATION_FILTER_ID = 100;
+ export const URANIUM_DEX_OFFSET = 10_000;
+ 
+ export type UraniumSpeciesEntry = {
+@@ -221,6 +222,9 @@
+ export const URANIUM_ADDED_SPECIES = Object.values(URANIUM_SPECIES)
+   .filter(entry => entry.officialNationalDexId === null);
+ 
++export const URANIUM_DEX_SPECIES = Object.values(URANIUM_SPECIES)
++  .sort((a, b) => a.id - b.id);
++
+ export const isUraniumSpeciesId = (id: number): boolean =>
+   Number.isInteger(id) && id >= 1 && id <= URANIUM_SPECIES_COUNT;
+ 
