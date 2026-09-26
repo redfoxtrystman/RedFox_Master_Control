@@ -1714,12 +1714,13 @@ jobs:
           grep -q 'QUEST_PKM_FINGERPRINTS' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           grep -q 'QUEST_DAILY_STATE' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           grep -q 'SettingsService.DefaultSavePath' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'GetSaveBaselineMarker' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'daily-catch-3' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'daily-new-species-1' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'mantine-color-green-6' pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q 'InsurgenceCustomItemNameStart = 526' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q '"Blastoisinite"' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
-          grep -q '<Collapse in={expanded}>' pkvault-src/frontend/src/inventory/money-bank-panel.tsx
+          grep -q '<Collapse expanded={expanded}>' pkvault-src/frontend/src/inventory/money-bank-panel.tsx
           grep -q 'Minimize Pokédollar bank' pkvault-src/frontend/src/inventory/money-bank-panel.tsx
           grep -q "style={{ flexShrink: 0, overflow: 'visible' }}" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
           grep -q "cols={{ base: 1, sm: 2, lg: 4 }}" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
