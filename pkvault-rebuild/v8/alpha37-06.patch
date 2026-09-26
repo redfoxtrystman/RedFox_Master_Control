@@ -1,0 +1,35 @@
+diff --git a/frontend/src/romhacks/uranium-pokedex.tsx b/frontend/src/romhacks/uranium-pokedex.tsx
+index 82b8f28..d2f68cd 100644
+--- a/frontend/src/romhacks/uranium-pokedex.tsx
++++ b/frontend/src/romhacks/uranium-pokedex.tsx
+@@ -23,6 +23,7 @@ import {
+   URANIUM_DEX_OFFSET,
+   URANIUM_DEX_SPECIES,
+   URANIUM_GENERATION,
++  URANIUM_GENERATION_FILTER_ID,
+   URANIUM_PROFILE_ID,
+   URANIUM_SPECIES,
+ } from './uranium-profile';
+@@ -98,7 +99,9 @@ export const UraniumPokedexSection: React.FC = () => {
+ 
+   if (!enabled)
+     return null;
+-  if (filterGenerations.length > 0 && !filterGenerations.includes(URANIUM_GENERATION))
++  if (filterGenerations.length > 0
++      && !filterGenerations.includes(URANIUM_GENERATION)
++      && !filterGenerations.includes(URANIUM_GENERATION_FILTER_ID))
+     return null;
+ 
+   return <>
+diff --git a/frontend/src/romhacks/uranium-profile.ts b/frontend/src/romhacks/uranium-profile.ts
+index 09f0317..8728e34 100644
+--- a/frontend/src/romhacks/uranium-profile.ts
++++ b/frontend/src/romhacks/uranium-profile.ts
+@@ -5,6 +5,7 @@
+ export const URANIUM_PROFILE_ID = 'pokemon-uranium';
+ export const URANIUM_SPECIES_COUNT = 200;
+ export const URANIUM_GENERATION = 6;
++export const URANIUM_GENERATION_FILTER_ID = 106;
+ export const URANIUM_DEX_OFFSET = 10_000;
+ 
+ export type UraniumSpeciesEntry = {
