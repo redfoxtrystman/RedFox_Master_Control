@@ -6,6 +6,18 @@ Purpose
 This file records planned PKVault features that are intentionally NOT implemented yet.
 It is the design source of truth for the future Shop, Daily Quest, Quest, and Achievement systems.
 
+CURRENT IMPLEMENTATION STATUS - ALPHA41
+---------------------------------------
+- Legendary first-catch achievements: live prototype implemented.
+- Completed Daily Quest / Quest / Achievement cards turn green.
+- Permanent caught-species history persists even after the originating save is removed.
+- Generated PKVault sample save is excluded from all quest, achievement, and daily progress.
+- Saved Pokémon fingerprint baselines are implemented for live daily catch detection.
+- Initial Daily Quests: Catch 1 Pokémon, Catch 3 Pokémon, and catch 1 species new to PKVault history.
+- Initial permanent catch milestones: 10 / 25 / 50 / 100 unique species and 3 unique Legendaries.
+- One-time completion/reward ledgers remain authoritative so deleting/re-adding a save cannot farm rewards.
+- More planned categories remain: playtime, evolution, shiny, game-specific, cross-game, richer daily pools, rerolls, and balance passes.
+
 Core design rule:
 PKVault should add a cross-game progression layer without turning supported Pokémon games
 into ROM hacks and without making their economies trivial.
