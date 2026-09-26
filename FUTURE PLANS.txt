@@ -6,7 +6,7 @@ Purpose
 This file records planned PKVault features that are intentionally NOT implemented yet.
 It is the design source of truth for the future Shop, Daily Quest, Quest, and Achievement systems.
 
-CURRENT IMPLEMENTATION STATUS - ALPHA42
+CURRENT IMPLEMENTATION STATUS - ALPHA43
 ---------------------------------------
 - Legendary first-catch achievements are live and permanently claimed across PKVault.
 - Completed Daily Quest / Quest / Achievement cards turn green.
@@ -20,7 +20,8 @@ CURRENT IMPLEMENTATION STATUS - ALPHA42
 - Game-aware Pokédex quests are live at 25 / 50 / 100 caught, 75% completion, and full applicable Pokédex completion.
 - Full-Dex target reward is live: 1 Master Ball + 15 Ultra Balls + 10 Potions.
 - Existing permanent catch milestones and Legendary achievements remain one-time and cannot be farmed by removing/re-adding saves.
-- More planned categories remain: evolution, shiny, richer game-specific/cross-game objectives, conditional activities where verifiable, and further balance passes.
+- Alpha43 adds Mythical first-catch rewards, rebalanced Legendary rewards, Shiny counts/species counts, evolution tracking, training dailies, longer playtime ladders, regional-origin Pokédex collections, starter sets, Eeveelutions, and Legendary-group collections.
+- Remaining expansion areas include richer game-specific/cross-game objectives, type/species hunts, conditional activities where verifiable, voucher quests tied to the future Shop, and further balance passes.
 
 Core design rule:
 PKVault should add a cross-game progression layer without turning supported Pokémon games
@@ -330,7 +331,13 @@ Permanent quest rewards:
 Major achievements:
 - Unique/premium rewards can be appropriate.
 - Master Balls should remain special.
-- Full-Dex completion and unique Legendary accomplishments justify stronger rewards.
+- Mythical first-catch achievements award Master Balls.
+- Most individual Legendary first-catch rewards should instead be 1-3 Nuggets or
+  roughly 25-50 Ultra Balls depending on the Legendary's tier.
+- Full-Dex / full-region completion can still justify Master Balls because those are
+  major collection achievements.
+- Aggregate Legendary milestones must scale above ordinary catch milestones; catching
+  3 unique Legendaries should never reward less than an easier 50-species milestone.
 
 Core rule:
 PKVault should reward playing Pokémon, not remove the need to play Pokémon.
@@ -412,6 +419,53 @@ Reward: ₽10,000
 - Reward delivery should normally go to the PKVault item/money banks, allowing the user
   to decide which compatible save receives the reward.
 - Shared shop prices must stay canonical across games.
+
+
+Quest vouchers / contracts
+---------------------------
+The future PKVault Shop should sell optional extremely difficult quest vouchers. Buying
+a voucher adds a hard, persistent contract to the Quest page; it is not a normal daily
+and should not expire at the next reset.
+
+Core rules:
+- The voucher itself costs Pokédollars from the shared PKVault Pokédollar Bank.
+- No free rerolls. Once purchased, the objective is fixed until completed or explicitly
+  abandoned.
+- Abandoning a voucher does NOT refund the purchase price.
+- Voucher quests must use the same anti-farming history/identity rules as normal quests.
+- Never generate a voucher objective PKVault cannot reliably verify.
+- Voucher rewards should be materially better than normal quest rewards because the
+  player paid for access and the objective is intentionally difficult.
+- Voucher rewards may be randomized from a tier-specific reward pool, but the UI must
+  show the exact reward bundle before the player purchases the voucher.
+- Avoid infinite-profit loops where a trivially repeatable voucher can be bought and
+  completed for more liquid value than its cost with no meaningful gameplay.
+
+Example starter voucher bundle:
+- 10 Potions.
+- 20 Poké Balls.
+- 10 Great Balls.
+- 5 Ultra Balls.
+- Additional random high-value items can be added by harder tiers.
+
+Suggested tiers:
+- Bronze Contract: difficult single-game objective, moderate mixed item bundle.
+- Silver Contract: longer or multi-condition objective, stronger Balls/healing/Rare Candy.
+- Gold Contract: very difficult collection/training objective, premium bundle with
+  Nuggets, Ultra Balls, Rare Candies, Full Restores, etc.
+- Mythic Contract: exceptional late-game objective; Master Balls may appear here, but
+  should remain rare and the objective must justify them.
+
+Possible voucher objectives:
+- Catch/register a large number of new species after purchase.
+- Catch several different types or species from a generated eligible pool.
+- Gain a large number of total levels across tracked Pokémon.
+- Evolve multiple tracked Pokémon.
+- Complete a major percentage of a game-specific Pokédex after purchase.
+- Register multiple new Legendary species.
+- Register multiple new Shiny Pokémon.
+- Complete several different supported objectives in one contract.
+- Cross-game contracts only when every required game is actually loaded and verifiable.
 - Preserve save-specific money/item capacity limits when withdrawing rewards.
 - Keep the economy intentionally conservative.
 - Never generate Old Save Day or Game Hopper daily objectives.
