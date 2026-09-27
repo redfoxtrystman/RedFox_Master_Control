@@ -79,6 +79,11 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51i.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51j.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51k.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51l.py pkvault-src
+          grep -q "visibleCatalogRows = Math.max(6, Math.round(12 / shopScale))" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "catalogViewportRef" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "rowHeight={catalogRowHeight}" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "\[ 50, 75, 100, 125, 150, 175, 200 \]" pkvault-src/frontend/src/ui/layout/header/sub-header/ui-sprite-sizing-button.tsx
           grep -q "\-\-mantine-scale': shopScale" pkvault-src/frontend/src/shop/shop-page.tsx
           ! grep -q "automaticDisplayScale" pkvault-src/frontend/src/shop/shop-page.tsx
           ! grep -q "useViewportSize" pkvault-src/frontend/src/shop/shop-page.tsx
