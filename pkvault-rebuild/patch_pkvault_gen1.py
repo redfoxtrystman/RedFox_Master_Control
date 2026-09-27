@@ -358,14 +358,16 @@ loader.write_text(text, encoding='utf-8')
 print(f'patched {loader}')
 
 convert = PKVAULT / 'PKVault.Core/storage/services/PkmConvertService/PkmConvertService.cs'
-replace_once(convert,
-'''    public ImmutablePKM ConvertTo(ImmutablePKM sourcePkm, Type targetPkmType, PKMRndValues? rndValues, SaveFile? targetSave = null)
+convert_text = convert.read_text(encoding='utf-8')
+old_convert_sig = '''    public ImmutablePKM ConvertTo(ImmutablePKM sourcePkm, Type targetPkmType, PKMRndValues? rndValues, SaveFile? targetSave = null)
     {
         Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
-''',
-'''    public ImmutablePKM ConvertTo(ImmutablePKM sourcePkm, Type targetPkmType, PKMRndValues? rndValues, SaveFile? targetSave = null)
+'''
+new_convert_sig = '''    public ImmutablePKM ConvertTo(ImmutablePKM sourcePkm, Type targetPkmType, ConvertContext? ctx)
     {
-        // Supported Gen-1 glitches are intentionally Gen-1-only. Do not run
+        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+'''
+guard_body = '''        // Supported Gen-1 glitches are intentionally Gen-1-only. Do not run
         // 'M (00) or MissingNo (50) through legality healing or conversion.
         if (sourcePkm.IsGen1Glitch)
         {
@@ -374,17 +376,38 @@ replace_once(convert,
             return new(sourcePkm.GetMutablePkm().Clone());
         }
 
-        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
-''')
+'''
+if new_convert_sig in convert_text:
+    convert_text = convert_text.replace(
+        new_convert_sig,
+        new_convert_sig.replace(
+            '        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");\n',
+            guard_body + '        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");\n'
+        ),
+        1,
+    )
+elif old_convert_sig in convert_text:
+    convert_text = convert_text.replace(
+        old_convert_sig,
+        old_convert_sig.replace(
+            '        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");\n',
+            guard_body + '        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");\n'
+        ),
+        1,
+    )
+else:
+    raise RuntimeError(f'{convert}: unsupported ConvertTo signature for Gen-1 glitch guard')
+convert.write_text(convert_text, encoding='utf-8')
+print(f'patched {convert}')
 
 wrapper = PKVAULT / 'PKVault.Core/storage/wrapper/SaveWrapper.cs'
-replace_once(wrapper,
-'''    public bool IsSpeciesAllowed(ushort species)
+wrapper_text = wrapper.read_text(encoding='utf-8')
+old_species_allowed = '''    public bool IsSpeciesAllowed(ushort species)
     {
         return species <= Save.MaxSpeciesID && Save.Personal.IsSpeciesInGame(species);
     }
-''',
-'''    public bool IsSpeciesAllowed(ushort species)
+'''
+glitch_species_allowed = '''    public bool IsSpeciesAllowed(ushort species)
     {
         // Species 0 is never a normal Pokemon, but an enabled raw-00 PK1
         // glitch is allowed to move between Gen-1 save slots.
@@ -392,7 +415,21 @@ replace_once(wrapper,
             return true;
         return species <= Save.MaxSpeciesID && Save.Personal.IsSpeciesInGame(species);
     }
-''')
+'''
+if old_species_allowed in wrapper_text:
+    wrapper_text = wrapper_text.replace(old_species_allowed, glitch_species_allowed, 1)
+elif 'public bool IsSpeciesAllowed(ushort species)' not in wrapper_text:
+    # PKVault 2.3.3 moved its own callers to GameVersionUtil and removed this
+    # wrapper helper. Keep the helper as RedFox compatibility API because our
+    # Gen-1 glitch and ROM-hack layers still intentionally call it.
+    marker = '    // public ImmutableSave Update(Action<SaveFile> mutator)\n'
+    if marker not in wrapper_text:
+        raise RuntimeError(f'{wrapper}: cannot find insertion point for IsSpeciesAllowed')
+    wrapper_text = wrapper_text.replace(marker, glitch_species_allowed + '\n' + marker, 1)
+else:
+    raise RuntimeError(f'{wrapper}: unsupported existing IsSpeciesAllowed implementation')
+wrapper.write_text(wrapper_text, encoding='utf-8')
+print(f'patched {wrapper}')
 
 pfl = PKVAULT / 'PKVault.Core/db/loader/PkmFileLoader.cs'
 replace_once(pfl,

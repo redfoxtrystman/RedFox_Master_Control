@@ -6,7 +6,7 @@ Purpose
 This file records planned PKVault features that are intentionally NOT implemented yet.
 It is the design source of truth for the future Shop, Daily Quest, Quest, and Achievement systems.
 
-CURRENT IMPLEMENTATION STATUS - ALPHA44
+CURRENT IMPLEMENTATION STATUS - ALPHA45
 ---------------------------------------
 - Legendary first-catch achievements are live and permanently claimed across PKVault.
 - Completed Daily Quest / Quest / Achievement cards turn green.
@@ -16,9 +16,9 @@ CURRENT IMPLEMENTATION STATUS - ALPHA44
 - Daily quest pool now includes catch-count, different-species, new-Dex-entry, and short-playtime objectives.
 - Daily rerolls are live: 1 FREE reroll each local day, then paid rerolls from the PKVault Pokédollar Bank.
 - Paid rerolls use the implemented escalating curve: ₽2,500, ₽5,000, ₽7,500, ... increasing by ₽2,500 and capped at ₽50,000 per reroll until the next daily reset.
-- Playtime quest ladder is live per real loaded game/save profile: 15 minutes -> ₽2,000; 2 hours -> ₽10,000; 10 hours -> ₽25,000.
-- Game-aware Pokédex quests are live at 25 / 50 / 100 caught, 75% completion, and full applicable Pokédex completion.
-- Full-Dex target reward is live: 1 Master Ball + 15 Ultra Balls + 10 Potions.
+- Playtime quest ladder is live per real loaded game/save profile with conservative cash rewards: 15 minutes -> ₽500; 2 hours -> ₽2,500; 10 hours -> ₽7,500, with longer milestones rising gradually.
+- Game-aware Pokédex progression is live at 10%-90% completion in 10% steps plus useful caught-count milestones; 100% completion is an Achievement.
+- Full-game Pokédex completion is a major Achievement with a premium mixed reward rather than an ordinary quest payout.
 - Existing permanent catch milestones and Legendary achievements remain one-time and cannot be farmed by removing/re-adding saves.
 - Alpha43 adds Mythical first-catch rewards, rebalanced Legendary rewards, Shiny counts/species counts, evolution tracking, training dailies, longer playtime ladders, regional-origin Pokédex collections, starter sets, Eeveelutions, and Legendary-group collections.
 - Alpha44 adds quest text/category/status filtering and rebalances ordinary Quest/Daily rewards away from repetitive Ultra Ball/Rare Candy/Nugget payouts.
@@ -26,6 +26,14 @@ CURRENT IMPLEMENTATION STATUS - ALPHA44
 - Each loaded game's applicable Pokédex now has 10%-90% progression Quests in 10% steps; 100% full-game completion is an Achievement.
 - Regional-origin Pokédex progress follows the same 10%-90% Quest / 100% Achievement split. Multi-region full-completion milestones are Achievements.
 - Legendary/Mythical milestone chains and Legendary collection sets are Achievements rather than normal Quests.
+- Alpha45 rebases the full RedFox feature stack onto official PKVault 2.3.3 (fabd843590e2a0ea1646cc4d1d6bff9933679ff3).
+- Alpha45 adds permanent collection Achievements for all 28 Unown forms and all eight Eeveelutions.
+- Shiny milestones and other difficult permanent accomplishments now scale to substantially stronger mixed rewards based on effort instead of repeating generic Ultra Ball/Rare Candy/Nugget payouts.
+- Quest/Achievement filters now render the active list in normal page flow so filtered Quests and Achievements do not collapse into a thin hidden-panel line.
+- Uranium/Insurgence Pokédex targets are profile-defined and cannot shrink when Pokémon are moved out of a save.
+- Current Essentials Pokémon seed permanent seen/caught history before moves, so moving a Delta/custom Pokémon into PKVault cannot erase its discovery.
+- Uranium/Insurgence custom Dex Owned indicators now also recognize matching Pokémon held in central PKVault storage.
+- Alpha45 repairs Alpha44-era false full-Dex completion flags when the corrected fangame Dex is not actually complete; reward provenance remains idempotent so prior accidental payouts are never duplicated.
 - Remaining expansion areas include richer game-specific/cross-game objectives, type/species hunts, conditional activities where verifiable, voucher quests tied to the future Shop, and further balance passes.
 
 Core design rule:
@@ -162,14 +170,15 @@ but the base quest system must work from normal save files.
 
 Use each game's stored playtime and compare it against PKVault's previous snapshot.
 
-Current intended early balance:
+Current intended balance:
 
-Pokémon Red example progression:
-- Play 15 minutes -> ₽2,000.
-- Play 2 hours -> ₽10,000.
-- Play 10 hours -> ₽25,000.
+Example progression:
+- Play 15 minutes -> ₽500.
+- Play 2 hours -> ₽2,500.
+- Play 10 hours -> ₽7,500.
+- Longer milestones rise gradually rather than becoming an idle-money exploit.
 
-Later playtime rewards should rise slowly and must not trivialize the games.
+Playtime rewards must rise slowly and must not trivialize the games.
 
 General balance rule:
 Do NOT hand out huge cash rewards simply for leaving a save running.

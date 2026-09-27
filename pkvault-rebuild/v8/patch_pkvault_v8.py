@@ -284,28 +284,38 @@ replace_once(trading,
 ''')
 
 convert = PKVAULT / "PKVault.Core/storage/services/PkmConvertService/PkmConvertService.cs"
-replace_once(convert,
-'''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+convert_text = convert.read_text(encoding="utf-8")
+legacy_tmt_anchor = '''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
 
         var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
-''',
-'''        if (targetPkmType == typeof(PK3) && targetSave is SAV3 targetGen3)
+'''
+modern_tmt_anchor = '''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+
+        ctx ??= new(null, null);
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+'''
+if modern_tmt_anchor in convert_text:
+    modern_tmt_replacement = '''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+
+        ctx ??= new(null, null);
+
+        if (targetPkmType == typeof(PK3) && ctx.TargetSave?.GetSave() is SAV3 targetGen3)
         {
             if (targetGen3.DirectSpeciesIDs)
-                return ConvertToTooManyTypes(sourcePkm, rndValues);
+                return ConvertToTooManyTypes(sourcePkm, ctx);
 
             if (sourcePkm.GetMutablePkm() is PK3 { DirectSpeciesIDs: true } direct)
-                return ConvertFromTooManyTypes(direct, targetGen3, rndValues);
+                return ConvertFromTooManyTypes(direct, targetGen3, ctx);
         }
 
-        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
-
         var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
-''')
-replace_once(convert,
-'''    private PKM ConvertRecursive(PKM current, Type targetType, LanguageID fallbackLang, PKMRndValues? rndValues)
-''',
-'''    private ImmutablePKM ConvertToTooManyTypes(ImmutablePKM sourcePkm, PKMRndValues? rndValues)
+'''
+    convert_text = convert_text.replace(modern_tmt_anchor, modern_tmt_replacement, 1)
+
+    modern_recursive = '''    private PKM ConvertRecursive(PKM current, Type targetType, LanguageID fallbackLang, ConvertContext ctx)
+'''
+    modern_helpers = '''    private ImmutablePKM ConvertToTooManyTypes(ImmutablePKM sourcePkm, ConvertContext ctx)
     {
         TooManyTypesCompat.RequireSupported(sourcePkm.Species, sourcePkm.Form);
 
@@ -318,6 +328,69 @@ replace_once(convert,
         // PKHeX's normal backward converters reject post-Gen3 species before
         // reaching PK3. Convert a structurally equivalent Gen3-compatible
         // proxy, then restore the real TMT species/form and canonical moves.
+        if (proxy.Species > 386 || proxy.Form != 0)
+        {
+            proxy.Species = (ushort)Species.Pikachu;
+            proxy.Form = 0;
+        }
+
+        var converted = ConvertRecursive(proxy, typeof(PK3), fallbackLang, ctx);
+        if (converted is not PK3 p3)
+            throw new InvalidOperationException("Failed to produce a PK3 for Too Many Types.");
+
+        TooManyTypesCompat.ApplyTmtIdentity(p3, sourcePkm);
+        p3.ResetPartyStats();
+        p3.RefreshChecksum();
+        return new(p3);
+    }
+
+    private ImmutablePKM ConvertFromTooManyTypes(PK3 source, SAV3 targetSave, ConvertContext ctx)
+    {
+        var p3 = TooManyTypesCompat.ConvertDirectToVanilla(source, targetSave);
+
+        // Re-enter the normal legality fixer only after the raw direct species
+        // id has been remapped to vanilla Gen3's internal species table.
+        pkmConverterUtils.FixCommonLegalityIssues(p3, ctx);
+        p3.Heal();
+        p3.ResetPartyStats();
+        p3.RefreshChecksum();
+        if (p3.Species == 0)
+            throw new InvalidOperationException("Too Many Types -> vanilla Gen3 conversion produced species 0.");
+        return new(p3);
+    }
+
+    private PKM ConvertRecursive(PKM current, Type targetType, LanguageID fallbackLang, ConvertContext ctx)
+'''
+    if modern_recursive not in convert_text:
+        raise RuntimeError(f"{convert}: cannot find modern ConvertRecursive signature")
+    convert_text = convert_text.replace(modern_recursive, modern_helpers, 1)
+elif legacy_tmt_anchor in convert_text:
+    legacy_tmt_replacement = '''        if (targetPkmType == typeof(PK3) && targetSave is SAV3 targetGen3)
+        {
+            if (targetGen3.DirectSpeciesIDs)
+                return ConvertToTooManyTypes(sourcePkm, rndValues);
+
+            if (sourcePkm.GetMutablePkm() is PK3 { DirectSpeciesIDs: true } direct)
+                return ConvertFromTooManyTypes(direct, targetGen3, rndValues);
+        }
+
+        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+'''
+    convert_text = convert_text.replace(legacy_tmt_anchor, legacy_tmt_replacement, 1)
+    legacy_recursive = '''    private PKM ConvertRecursive(PKM current, Type targetType, LanguageID fallbackLang, PKMRndValues? rndValues)
+'''
+    legacy_helpers = '''    private ImmutablePKM ConvertToTooManyTypes(ImmutablePKM sourcePkm, PKMRndValues? rndValues)
+    {
+        TooManyTypesCompat.RequireSupported(sourcePkm.Species, sourcePkm.Form);
+
+        if (sourcePkm.GetMutablePkm() is PK3 { DirectSpeciesIDs: true } alreadyTmt)
+            return new(alreadyTmt.Clone());
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+        var proxy = sourcePkm.GetMutablePkm().Clone();
+
         if (proxy.Species > 386 || proxy.Form != 0)
         {
             proxy.Species = (ushort)Species.Pikachu;
@@ -337,9 +410,6 @@ replace_once(convert,
     private ImmutablePKM ConvertFromTooManyTypes(PK3 source, SAV3 targetSave, PKMRndValues? rndValues)
     {
         var p3 = TooManyTypesCompat.ConvertDirectToVanilla(source, targetSave);
-
-        // Re-enter the normal legality fixer only after the raw direct species
-        // id has been remapped to vanilla Gen3's internal species table.
         pkmConverterUtils.FixCommonLegalityIssues(p3, new(targetSave), rndValues);
         p3.Heal();
         p3.ResetPartyStats();
@@ -350,7 +420,14 @@ replace_once(convert,
     }
 
     private PKM ConvertRecursive(PKM current, Type targetType, LanguageID fallbackLang, PKMRndValues? rndValues)
-''')
+'''
+    if legacy_recursive not in convert_text:
+        raise RuntimeError(f"{convert}: cannot find legacy ConvertRecursive signature")
+    convert_text = convert_text.replace(legacy_recursive, legacy_helpers, 1)
+else:
+    raise RuntimeError(f"{convert}: unsupported converter layout for TMT integration")
+convert.write_text(convert_text, encoding="utf-8")
+print(f"patched {convert}")
 
 
 # ---------------------------------------------------------------------------
@@ -1032,23 +1109,74 @@ replace_once(legality,
 ''')
 
 variant_dto = PKVAULT / "PKVault.Core/storage/dto/PkmVariantDTO.cs"
-replace_once(variant_dto,
-'''    public IReadOnlyList<GameVersion> CompatibleWithVersions => VersionChecker.GetCompatibleVersionsForSpecies(Pkm.Species);
+variant_text = variant_dto.read_text(encoding="utf-8")
+legacy_compat = '''    public IReadOnlyList<GameVersion> CompatibleWithVersions => VersionChecker.GetCompatibleVersionsForSpecies(Pkm.Species);
+'''
+modern_compat = '''    public IReadOnlyList<GameVersion> CompatibleWithVersions => VersionChecker.GetCompatibleVersionsForPKM(Pkm.Species, Pkm.Form);
+'''
+if modern_compat in variant_text:
+    variant_text = variant_text.replace(
+        modern_compat,
+        '''    public IReadOnlyList<GameVersion> CompatibleWithVersions => Pkm.GetMutablePkm() is PKEssentials
+        ? []
+        : VersionChecker.GetCompatibleVersionsForPKM(Pkm.Species, Pkm.Form);
 ''',
-'''    public IReadOnlyList<GameVersion> CompatibleWithVersions => Pkm.GetMutablePkm() is PKEssentials
+        1,
+    )
+elif legacy_compat in variant_text:
+    variant_text = variant_text.replace(
+        legacy_compat,
+        '''    public IReadOnlyList<GameVersion> CompatibleWithVersions => Pkm.GetMutablePkm() is PKEssentials
         ? []
         : VersionChecker.GetCompatibleVersionsForSpecies(Pkm.Species);
-''')
+''',
+        1,
+    )
+else:
+    raise RuntimeError(f"{variant_dto}: unsupported CompatibleWithVersions implementation")
+variant_dto.write_text(variant_text, encoding="utf-8")
+print(f"patched {variant_dto}")
 
 
 # Alpha9: preserve profile-local Essentials identity through PKVault move paths.
 pkm_convert = PKVAULT / "PKVault.Core/storage/services/PkmConvertService/PkmConvertService.cs"
-replace_once(pkm_convert,
-'''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+pkm_convert_text = pkm_convert.read_text(encoding="utf-8")
+modern_ess_anchor = '''            if (sourcePkm.GetMutablePkm() is PK3 { DirectSpeciesIDs: true } direct)
+                return ConvertFromTooManyTypes(direct, targetGen3, ctx);
+        }
 
         var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
-''',
-'''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+'''
+legacy_ess_anchor = '''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+'''
+if modern_ess_anchor in pkm_convert_text:
+    modern_ess_replacement = '''            if (sourcePkm.GetMutablePkm() is PK3 { DirectSpeciesIDs: true } direct)
+                return ConvertFromTooManyTypes(direct, targetGen3, ctx);
+        }
+
+        if (sourcePkm.GetMutablePkm() is PKEssentials essentialsSource)
+        {
+            if (targetPkmType != typeof(PKEssentials))
+                throw new InvalidOperationException("Essentials Pokémon cannot be converted to an official PKM format without an explicit profile mapping.");
+            if (ctx.TargetSave?.GetSave() is not EssentialsLegacySaveFile essentialsTarget)
+                throw new InvalidOperationException("Essentials Pokémon can only be written to an Essentials save.");
+            if (!string.Equals(essentialsSource.ProfileId, essentialsTarget.ProfileId, StringComparison.Ordinal))
+                throw new InvalidOperationException($"Cross-profile Essentials conversion blocked: {essentialsSource.ProfileId} -> {essentialsTarget.ProfileId}.");
+            if (essentialsSource.ReadOnlySource || essentialsSource.SourceRubyMarshal.Length == 0)
+                throw new InvalidOperationException("Essentials Pokémon lacks a writable Ruby source template.");
+            return new((PKEssentials)essentialsSource.Clone());
+        }
+
+        if (targetPkmType == typeof(PKEssentials))
+            throw new InvalidOperationException("Official Pokémon cannot be converted into a profile-local Essentials Pokémon without an explicit mapping.");
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+'''
+    pkm_convert_text = pkm_convert_text.replace(modern_ess_anchor, modern_ess_replacement, 1)
+elif legacy_ess_anchor in pkm_convert_text:
+    legacy_ess_replacement = '''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
 
         if (sourcePkm.GetMutablePkm() is PKEssentials essentialsSource)
         {
@@ -1067,7 +1195,12 @@ replace_once(pkm_convert,
             throw new InvalidOperationException("Official Pokémon cannot be converted into a profile-local Essentials Pokémon without an explicit mapping.");
 
         var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
-''')
+'''
+    pkm_convert_text = pkm_convert_text.replace(legacy_ess_anchor, legacy_ess_replacement, 1)
+else:
+    raise RuntimeError(f"{pkm_convert}: unsupported converter layout for Essentials integration")
+pkm_convert.write_text(pkm_convert_text, encoding="utf-8")
+print(f"patched {pkm_convert}")
 
 pkm_save_dto = PKVAULT / "PKVault.Core/storage/dto/PkmSaveDTO.cs"
 replace_once(pkm_save_dto,
@@ -1079,28 +1212,54 @@ replace_once(pkm_save_dto,
 ''')
 
 move_action = PKVAULT / "PKVault.Core/storage/data-action/MovePkmAction.cs"
-replace_once(move_action,
-'''        if (!targetSaveLoaders.Save.IsSpeciesAllowed(sourcePkmDto.Species))
+move_text = move_action.read_text(encoding="utf-8")
+
+legacy_save_to_save = '''        if (!targetSaveLoaders.Save.IsSpeciesAllowed(sourcePkmDto.Species))
         {
             throw new ArgumentException($"Save Pkm Species not compatible with save for id={sourcePkmDto.Id}, species={sourcePkmDto.Species}, save.maxSpecies={targetSaveLoaders.Save.MaxSpeciesID}");
         }
-''',
-'''        if (!targetSaveLoaders.Save.IsPkmAllowed(sourcePkmDto.Pkm))
+'''
+modern_save_to_save = '''        if (!targetSaveLoaders.Save.Personal.IsPresentInGame(sourcePkmDto.Species, sourcePkmDto.Form))
+        {
+            throw new ArgumentException($"Save Pkm Species not compatible with save for id={sourcePkmDto.Id}, species={sourcePkmDto.Species}, save.maxSpecies={targetSaveLoaders.Save.MaxSpeciesID}");
+        }
+'''
+profile_save_to_save = '''        if (!targetSaveLoaders.Save.IsPkmAllowed(sourcePkmDto.Pkm))
         {
             throw new ArgumentException($"Save Pkm profile/species not compatible with target save for id={sourcePkmDto.Id}.");
         }
-''')
-replace_once(move_action,
-'''        if (!saveLoaders.Save.IsSpeciesAllowed(pkm.Species))
+'''
+if modern_save_to_save in move_text:
+    move_text = move_text.replace(modern_save_to_save, profile_save_to_save, 1)
+elif legacy_save_to_save in move_text:
+    move_text = move_text.replace(legacy_save_to_save, profile_save_to_save, 1)
+else:
+    raise RuntimeError(f"{move_action}: cannot find SaveToSave compatibility guard")
+
+legacy_main_to_save = '''        if (!saveLoaders.Save.IsSpeciesAllowed(pkm.Species))
         {
             throw new ArgumentException($"PkmVariantEntity Species not compatible with save for id={pkmVariant.Id}, species={pkm.Species}, save.maxSpecies={saveLoaders.Save.MaxSpeciesID}");
         }
-''',
-'''        if (!saveLoaders.Save.IsPkmAllowed(pkm))
+'''
+modern_main_to_save = '''        if (!saveLoaders.Save.Personal.IsPresentInGame(pkm.Species, pkm.Form))
+        {
+            throw new ArgumentException($"PkmVariantEntity Species not compatible with save for id={pkmVariant.Id}, species={pkm.Species}, save.maxSpecies={saveLoaders.Save.MaxSpeciesID}");
+        }
+'''
+profile_main_to_save = '''        if (!saveLoaders.Save.IsPkmAllowed(pkm))
         {
             throw new ArgumentException($"PkmVariantEntity profile/species not compatible with target save for id={pkmVariant.Id}.");
         }
-''')
+'''
+if modern_main_to_save in move_text:
+    move_text = move_text.replace(modern_main_to_save, profile_main_to_save, 1)
+elif legacy_main_to_save in move_text:
+    move_text = move_text.replace(legacy_main_to_save, profile_main_to_save, 1)
+else:
+    raise RuntimeError(f"{move_action}: cannot find MainToSave compatibility guard")
+
+move_action.write_text(move_text, encoding="utf-8")
+print(f"patched {move_action}")
 replace_once(move_action,
 '''        await new DexMainService(sp).EnablePKM(savePkm.Pkm, savePkm.Save);
 ''',
@@ -1661,17 +1820,41 @@ replace_once(pkm_save_dto,
         && (Party == -1 || Pkm.GetMutablePkm() is PKEssentials);
 ''')
 
-replace_once(move_action,
-'''        var saveLoaders = savesLoadersService.GetLoaders(sourceSaveId);
+move_text = move_action.read_text(encoding="utf-8")
+legacy_party_anchor = '''        var saveLoaders = savesLoadersService.GetLoaders(sourceSaveId);
 
         if (savePkm.Pkm.GetMutablePkm() is IShadowCapture savePkmShadow && savePkmShadow.IsShadow)
-''',
-'''        var saveLoaders = savesLoadersService.GetLoaders(sourceSaveId);
+'''
+modern_party_anchor = '''        var saveLoaders = savesLoadersService.GetLoadersRequired(sourceSaveId);
+
+        if (savePkm.Pkm.GetMutablePkm() is IShadowCapture savePkmShadow && savePkmShadow.IsShadow)
+'''
+if modern_party_anchor in move_text:
+    move_text = move_text.replace(
+        modern_party_anchor,
+        '''        var saveLoaders = savesLoadersService.GetLoadersRequired(sourceSaveId);
         var keepEssentialsParty = savePkm.Pkm.GetMutablePkm() is PKEssentials && savePkm.Party >= 0;
         var attachToSource = input.attached || keepEssentialsParty;
 
         if (savePkm.Pkm.GetMutablePkm() is IShadowCapture savePkmShadow && savePkmShadow.IsShadow)
-''')
+''',
+        1,
+    )
+elif legacy_party_anchor in move_text:
+    move_text = move_text.replace(
+        legacy_party_anchor,
+        '''        var saveLoaders = savesLoadersService.GetLoaders(sourceSaveId);
+        var keepEssentialsParty = savePkm.Pkm.GetMutablePkm() is PKEssentials && savePkm.Party >= 0;
+        var attachToSource = input.attached || keepEssentialsParty;
+
+        if (savePkm.Pkm.GetMutablePkm() is IShadowCapture savePkmShadow && savePkmShadow.IsShadow)
+''',
+        1,
+    )
+else:
+    raise RuntimeError(f"{move_action}: cannot find SaveToMain loader anchor")
+move_action.write_text(move_text, encoding="utf-8")
+print(f"patched {move_action}")
 replace_once(move_action,
 '''            AttachedSaveId: input.attached ? sourceSaveId : null,
             AttachedSavePkmIdBase: input.attached ? savePkm.IdBase : null,
@@ -1805,18 +1988,43 @@ replace_once(move_action_v15,
 
         // if pkmVariant for context doesn't exist
 ''')
-replace_once(move_action_v15,
-'''        if (pkmVariantForContext == default)
+move_v15_text = move_action_v15.read_text(encoding="utf-8")
+legacy_missing_variant = '''        if (pkmVariantForContext == default)
         {
             var mainVariant = pkmVariants.Find(variant => variant.IsMain);
+'''
+modern_missing_variant = '''        if (pkmVariantForContext == default)
+        {
+            var mainVariant = pkmVariants.First(variant => variant.IsMain);
+'''
+if modern_missing_variant in move_v15_text:
+    move_v15_text = move_v15_text.replace(
+        modern_missing_variant,
+        '''        if (pkmVariantForContext == default)
+        {
+            if (essentialsTarget != null)
+                throw new ArgumentException("No source Pokémon variant exists for Essentials import.");
+
+            var mainVariant = pkmVariants.First(variant => variant.IsMain);
 ''',
-'''        if (pkmVariantForContext == default)
+        1,
+    )
+elif legacy_missing_variant in move_v15_text:
+    move_v15_text = move_v15_text.replace(
+        legacy_missing_variant,
+        '''        if (pkmVariantForContext == default)
         {
             if (essentialsTarget != null)
                 throw new ArgumentException("No source Pokémon variant exists for Essentials import.");
 
             var mainVariant = pkmVariants.Find(variant => variant.IsMain);
-''')
+''',
+        1,
+    )
+else:
+    raise RuntimeError(f"{move_action_v15}: cannot find missing-context variant block")
+move_action_v15.write_text(move_v15_text, encoding="utf-8")
+print(f"patched {move_action_v15}")
 replace_once(move_action_v15,
 '''        if (pkmVariant.Context != saveLoaders.Save.Context)
         {
@@ -2389,8 +2597,8 @@ print("PKVault V8 alpha21 ROM-hack drag validation now uses profile identity ins
 # when there is no analysis. All conversion/property copy work still runs.
 # ---------------------------------------------------------------------------
 share_props_v22 = PKVAULT / "PKVault.Core/storage/services/PkmConvertService/PkmSharePropertiesService.cs"
-replace_once(share_props_v22,
-'''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
+share_props_text = share_props_v22.read_text(encoding="utf-8")
+legacy_legality_ribbons = '''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
         var args = new RibbonVerifierArguments(
             legality.la.Info.Entity,
             legality.la.EncounterMatch,
@@ -2399,8 +2607,18 @@ replace_once(share_props_v22,
         RibbonApplicator.FixInvalidRibbons(args);
 
         targetPkm.Heal();
-''',
-'''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
+'''
+modern_legality_ribbons = '''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
+        var args = new RibbonVerifierArguments(
+            legality.la!.Info.Entity,
+            legality.la.EncounterMatch,
+            legality.la.Info.EvoChainsAllGens
+        );
+        RibbonApplicator.FixInvalidRibbons(args);
+
+        targetPkm.Heal();
+'''
+guarded_legality_ribbons = '''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
         if (legality.la is not null)
         {
             var args = new RibbonVerifierArguments(
@@ -2412,7 +2630,15 @@ replace_once(share_props_v22,
         }
 
         targetPkm.Heal();
-''')
+'''
+if modern_legality_ribbons in share_props_text:
+    share_props_text = share_props_text.replace(modern_legality_ribbons, guarded_legality_ribbons, 1)
+elif legacy_legality_ribbons in share_props_text:
+    share_props_text = share_props_text.replace(legacy_legality_ribbons, guarded_legality_ribbons, 1)
+else:
+    raise RuntimeError(f"{share_props_v22}: unsupported legality ribbon cleanup block")
+share_props_v22.write_text(share_props_text, encoding="utf-8")
+print(f"patched {share_props_v22}")
 
 # Regression coverage for the exact null-analysis contract used by
 # SKIP_LEGALITY_CHECKS. This does not need a special Caterpie fixture: the bug
