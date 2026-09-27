@@ -75,6 +75,10 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51e.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51f.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51g.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51h.py pkvault-src
+          grep -q "MAX" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "sellRemaining" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "basketCount={basket\[item.key\] ?? 0}" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "<Group wrap='nowrap' gap='sm' pt={4}>" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "defaultValue: 'game'" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "label: 'In-game'" pkvault-src/frontend/src/shop/shop-page.tsx
