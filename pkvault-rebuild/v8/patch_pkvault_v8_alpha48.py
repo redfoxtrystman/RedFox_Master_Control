@@ -111,7 +111,7 @@ replace_once(
             : ParseMeta(entity.Value);
 
         static string Fingerprint(Dictionary<string, BankStack> bank)
-            => string.Join('\n', bank.Values
+            => string.Join("\\n", bank.Values
                 .Where(x => x.Count > 0)
                 .OrderBy(x => x.Page)
                 .ThenBy(x => x.Slot)
