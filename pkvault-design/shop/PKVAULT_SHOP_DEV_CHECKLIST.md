@@ -127,3 +127,16 @@
 - [x] Keep BUY / SELL mode styling aligned with the locked visual.
 - [x] Frontend typecheck and full alpha51e CI build completed successfully.
 - [ ] Hands-on compare alpha51e against the locked BUY/SELL screenshots.
+
+
+## Alpha51f category rail and in-game sort
+- [x] Add dedicated In-game sort mode and make it the default Shop sort.
+- [x] Preserve canonical catalog order from the backend instead of forcing alphabetical order.
+- [x] Poké Ball leads Poké Balls; Potion leads Medicine; X Attack leads Battle; Oran Berry leads Berries; Fire Stone leads Evolution Items.
+- [x] Restore a fixed 3-column category row: icon / left-aligned label / right-aligned count.
+- [x] Add visible row separators between category buttons.
+- [x] Keep all approved category buttons visible, including Stones, TMs, Key Items, and Evolution Items even when the current catalog count is zero.
+- [x] Use explicit category icons: Poké Ball, Potion, Full Heal, X Attack, Oran Berry, Hard Stone, TM01, Escape Rope, Coin Case, Fire Stone.
+- [x] Replace the extra Owned sort with In-game / A-Z / Price low-high / Price high-low.
+- [x] Full alpha51f CI build passed after retrying an unrelated transient Uranium sprite download reset.
+- [ ] Hands-on verify category alignment/count spacing and In-game sort in Windows build.
