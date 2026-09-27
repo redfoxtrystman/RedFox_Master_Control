@@ -90,6 +90,15 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52h1.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52h2.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52h3.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52i.py pkvault-src
+          test -f pkvault-src/PKVault.Core/progression/ProgressionFileStore.cs
+          grep -q "services.AddSingleton<ProgressionFileStore>();" pkvault-src/PKVault.Core/Program.cs
+          grep -q "pkvault-progression.dat" pkvault-src/PKVault.Core/progression/ProgressionFileStore.cs
+          grep -q "LoadMetaValue(MetaKey.QUEST_DAILY_STATE)" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "LoadMetaValue(MetaKey.CONTRACT_STATE)" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "pkvault-quest-toast-seen-v1" pkvault-src/frontend/src/quests/quest-toast.tsx
+          grep -q "pkvault:reload-start" pkvault-src/frontend/src/header/header.tsx
+          grep -q "enabled: !reloadPaused" pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q "PROGRESSION_CLOCK_STATE" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           grep -q "PersistMetaToMainDb" pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q "PersistMetaToMainDb" pkvault-src/PKVault.Core/contract/ContractService.cs
