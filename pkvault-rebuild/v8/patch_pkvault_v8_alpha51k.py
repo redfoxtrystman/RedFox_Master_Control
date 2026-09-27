@@ -95,10 +95,10 @@ replace_once(
                 columnGap: 10,
 """,
     """                gridTemplateColumns: mode === 'sell'
-                    ? '48px minmax(96px, 1fr) minmax(72px, 0.55fr) 170px 64px'
-                    : '48px minmax(96px, 1fr) minmax(72px, 0.55fr) 116px 64px',
+                    ? 'calc(48px * var(--mantine-scale, 1)) minmax(96px, 1fr) minmax(72px, 0.55fr) calc(170px * var(--mantine-scale, 1)) calc(64px * var(--mantine-scale, 1))'
+                    : 'calc(48px * var(--mantine-scale, 1)) minmax(96px, 1fr) minmax(72px, 0.55fr) calc(116px * var(--mantine-scale, 1)) calc(64px * var(--mantine-scale, 1))',
                 alignItems: 'center',
-                columnGap: 8,
+                columnGap: 'calc(8px * var(--mantine-scale, 1))',
 """,
     "CatalogRow columns fit controls",
 )
@@ -131,6 +131,36 @@ replace_once(
 """,
     "reserve item scrollbar edge",
 )
+
+
+# Scale the few custom pixel-based Shop layout values that Mantine does not
+# automatically convert through --mantine-scale.
+text = text.replace(
+    "style={{ flex: `0 0 ${size}px` }}",
+    "style={{ flex: `0 0 calc(${size}px * var(--mantine-scale, 1))` }}",
+    1,
+)
+text = text.replace(
+    "minHeight: 38,",
+    "minHeight: 'calc(38px * var(--mantine-scale, 1))',",
+    2,
+)
+text = text.replace(
+    "gridTemplateColumns: '30px minmax(0, 1fr) 42px',",
+    "gridTemplateColumns: 'calc(30px * var(--mantine-scale, 1)) minmax(0, 1fr) calc(42px * var(--mantine-scale, 1))',",
+    1,
+)
+text = text.replace(
+    "columnGap: 8,",
+    "columnGap: 'calc(8px * var(--mantine-scale, 1))',",
+    1,
+)
+text = text.replace(
+    "gridTemplateColumns: '46px minmax(92px, 1fr) 116px 76px 30px',",
+    "gridTemplateColumns: 'calc(46px * var(--mantine-scale, 1)) minmax(92px, 1fr) calc(116px * var(--mantine-scale, 1)) calc(76px * var(--mantine-scale, 1)) calc(30px * var(--mantine-scale, 1))',",
+    1,
+)
+print("PKVault V8 alpha51k scale custom raw-pixel Shop layout applied")
 
 path.write_text(text, encoding="utf-8")
 print("PKVault V8 alpha51k reverted monitor auto-zoom and fixed row clipping")
