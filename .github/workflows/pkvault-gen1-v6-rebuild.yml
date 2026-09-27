@@ -73,6 +73,12 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51b.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51e.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51f.py pkvault-src
+          grep -q "defaultValue: 'game'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "label: 'In-game'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "'TMs': 'tm01'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "'Evolution Items': 'fire-stone'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "SortOrder: sortOrder" pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q "const SHOP_GREEN = '#2eaf3c'" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "const QuantityControl" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "Grid2X2Icon" pkvault-src/frontend/src/shop/shop-page.tsx
@@ -448,7 +454,7 @@ jobs:
               Items: [
                   new ShopItemDTO(
                       "poke-ball", "Poké Ball", "Poké Balls",
-                      200, 100, true, true, 75, 75,
+                      200, 100, true, true, 75, 75, 0,
                       [3], ["pokeball", "poke ball"]
                   )
               ]
