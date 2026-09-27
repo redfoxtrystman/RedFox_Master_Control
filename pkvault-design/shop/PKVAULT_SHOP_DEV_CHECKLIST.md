@@ -97,3 +97,10 @@
 - [x] Package verification: 30 item stacks are present in Item Bank / Storage Box 1, slots 0–29.
 - [x] All 30 seeded item records identify Box 1.
 - [ ] Launch the Windows executable and perform hands-on BUY/SELL transaction testing.
+
+
+## Alpha51c route fix
+- [x] Register ShopController in CoreRouter's static controller registry.
+- [x] CI asserts CoreRouter contains typeof(ShopController).
+- [x] Successful alpha51c CI rebuild after route registration fix.
+- [ ] Hands-on verify GET /api/shop and BUY/SELL requests in the Windows test build.
