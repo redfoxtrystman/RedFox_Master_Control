@@ -1109,23 +1109,74 @@ replace_once(legality,
 ''')
 
 variant_dto = PKVAULT / "PKVault.Core/storage/dto/PkmVariantDTO.cs"
-replace_once(variant_dto,
-'''    public IReadOnlyList<GameVersion> CompatibleWithVersions => VersionChecker.GetCompatibleVersionsForSpecies(Pkm.Species);
+variant_text = variant_dto.read_text(encoding="utf-8")
+legacy_compat = '''    public IReadOnlyList<GameVersion> CompatibleWithVersions => VersionChecker.GetCompatibleVersionsForSpecies(Pkm.Species);
+'''
+modern_compat = '''    public IReadOnlyList<GameVersion> CompatibleWithVersions => VersionChecker.GetCompatibleVersionsForPKM(Pkm.Species, Pkm.Form);
+'''
+if modern_compat in variant_text:
+    variant_text = variant_text.replace(
+        modern_compat,
+        '''    public IReadOnlyList<GameVersion> CompatibleWithVersions => Pkm.GetMutablePkm() is PKEssentials
+        ? []
+        : VersionChecker.GetCompatibleVersionsForPKM(Pkm.Species, Pkm.Form);
 ''',
-'''    public IReadOnlyList<GameVersion> CompatibleWithVersions => Pkm.GetMutablePkm() is PKEssentials
+        1,
+    )
+elif legacy_compat in variant_text:
+    variant_text = variant_text.replace(
+        legacy_compat,
+        '''    public IReadOnlyList<GameVersion> CompatibleWithVersions => Pkm.GetMutablePkm() is PKEssentials
         ? []
         : VersionChecker.GetCompatibleVersionsForSpecies(Pkm.Species);
-''')
+''',
+        1,
+    )
+else:
+    raise RuntimeError(f"{variant_dto}: unsupported CompatibleWithVersions implementation")
+variant_dto.write_text(variant_text, encoding="utf-8")
+print(f"patched {variant_dto}")
 
 
 # Alpha9: preserve profile-local Essentials identity through PKVault move paths.
 pkm_convert = PKVAULT / "PKVault.Core/storage/services/PkmConvertService/PkmConvertService.cs"
-replace_once(pkm_convert,
-'''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+pkm_convert_text = pkm_convert.read_text(encoding="utf-8")
+modern_ess_anchor = '''            if (sourcePkm.GetMutablePkm() is PK3 { DirectSpeciesIDs: true } direct)
+                return ConvertFromTooManyTypes(direct, targetGen3, ctx);
+        }
 
         var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
-''',
-'''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+'''
+legacy_ess_anchor = '''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+'''
+if modern_ess_anchor in pkm_convert_text:
+    modern_ess_replacement = '''            if (sourcePkm.GetMutablePkm() is PK3 { DirectSpeciesIDs: true } direct)
+                return ConvertFromTooManyTypes(direct, targetGen3, ctx);
+        }
+
+        if (sourcePkm.GetMutablePkm() is PKEssentials essentialsSource)
+        {
+            if (targetPkmType != typeof(PKEssentials))
+                throw new InvalidOperationException("Essentials Pokémon cannot be converted to an official PKM format without an explicit profile mapping.");
+            if (ctx.TargetSave?.GetSave() is not EssentialsLegacySaveFile essentialsTarget)
+                throw new InvalidOperationException("Essentials Pokémon can only be written to an Essentials save.");
+            if (!string.Equals(essentialsSource.ProfileId, essentialsTarget.ProfileId, StringComparison.Ordinal))
+                throw new InvalidOperationException($"Cross-profile Essentials conversion blocked: {essentialsSource.ProfileId} -> {essentialsTarget.ProfileId}.");
+            if (essentialsSource.ReadOnlySource || essentialsSource.SourceRubyMarshal.Length == 0)
+                throw new InvalidOperationException("Essentials Pokémon lacks a writable Ruby source template.");
+            return new((PKEssentials)essentialsSource.Clone());
+        }
+
+        if (targetPkmType == typeof(PKEssentials))
+            throw new InvalidOperationException("Official Pokémon cannot be converted into a profile-local Essentials Pokémon without an explicit mapping.");
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+'''
+    pkm_convert_text = pkm_convert_text.replace(modern_ess_anchor, modern_ess_replacement, 1)
+elif legacy_ess_anchor in pkm_convert_text:
+    legacy_ess_replacement = '''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
 
         if (sourcePkm.GetMutablePkm() is PKEssentials essentialsSource)
         {
@@ -1144,7 +1195,12 @@ replace_once(pkm_convert,
             throw new InvalidOperationException("Official Pokémon cannot be converted into a profile-local Essentials Pokémon without an explicit mapping.");
 
         var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
-''')
+'''
+    pkm_convert_text = pkm_convert_text.replace(legacy_ess_anchor, legacy_ess_replacement, 1)
+else:
+    raise RuntimeError(f"{pkm_convert}: unsupported converter layout for Essentials integration")
+pkm_convert.write_text(pkm_convert_text, encoding="utf-8")
+print(f"patched {pkm_convert}")
 
 pkm_save_dto = PKVAULT / "PKVault.Core/storage/dto/PkmSaveDTO.cs"
 replace_once(pkm_save_dto,
