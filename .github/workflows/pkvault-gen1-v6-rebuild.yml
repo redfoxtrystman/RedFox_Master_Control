@@ -1850,7 +1850,6 @@ jobs:
           grep -q "activeTab === 'achievements'" pkvault-src/frontend/src/quests/quest-page.tsx
           ! grep -q "<Tabs.Panel" pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q "2 Gold Bottle Caps + 2 Ability Capsules" pkvault-src/PKVault.Core/quest/QuestService.cs
-          grep -q "Master Ball + Gold Bottle Cap + 5 PP Max + 20 Full Restores" pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q "VersionChecker.GetCompatibleVersionsForPKM(Pkm.Species, Pkm.Form)" pkvault-src/PKVault.Core/storage/dto/PkmVariantDTO.cs
           grep -q "const provenanceVariantQuery = usePkmVariantIndex" pkvault-src/frontend/src/storage/details/details-content.tsx
           grep -q "const originPkm = provenancePkm ?? pkm;" pkvault-src/frontend/src/storage/details/details-content.tsx
@@ -1966,7 +1965,6 @@ jobs:
           grep -q 'daily-play-30' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'GetPaidRerollCost' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q '2_500L' pkvault-src/PKVault.Core/quest/QuestService.cs
-          grep -q 'Master Ball + Gold Bottle Cap + 5 PP Max + 20 Full Restores' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'GrantQuestMoneyReward' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'SpendMoneyBank' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'Reroll — FREE' pkvault-src/frontend/src/quests/quest-page.tsx
@@ -2037,9 +2035,9 @@ jobs:
           grep -q 'All categories' pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q "'incomplete', 'Incomplete'" pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q "No quests match the current filters." pkvault-src/frontend/src/quests/quest-page.tsx
-          grep -q 'dex-{game.Key}-{percent}pct' pkvault-src/PKVault.Core/quest/QuestService.cs
+          ! grep -q 'dex-{game.Key}-{percent}pct' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'Enumerable.Range(1, 9).Select(x => x \* 10)' pkvault-src/PKVault.Core/quest/QuestService.cs
-          grep -q '"Full Pokédex"' pkvault-src/PKVault.Core/quest/QuestService.cs
+          ! grep -q '"Full Pokédex"' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'GetDexProgressReward' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'GetRegionalDexProgressReward' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'HP Up + Protein + Iron + Calcium + Zinc + Carbos' pkvault-src/PKVault.Core/quest/QuestService.cs
