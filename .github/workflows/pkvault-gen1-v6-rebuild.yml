@@ -87,6 +87,16 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52e.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52f.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52g.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52h1.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52h2.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52h3.py pkvault-src
+          grep -q "PROGRESSION_CLOCK_STATE" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q "PersistMetaToMainDb" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "PersistMetaToMainDb" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "sessionStartedLocal" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "timeZoneId" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "ApplyProgressionMoneyDelta" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "ApplyProgressionMoneyDelta(-cost)" pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q "vaultCaughtSpecies" pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q "currentCaught.Concat(vaultCaughtSpecies)" pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q "return dto.IdBase;" pkvault-src/PKVault.Core/quest/QuestService.cs
