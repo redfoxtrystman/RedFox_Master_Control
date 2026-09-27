@@ -1582,7 +1582,7 @@ jobs:
 
       - name: Verify canonical Pokédex and Emerald TMT labelling
         run: |
-          set -euxo pipefail
+          set -euo pipefail
 
           ! grep -q "Too Many Types v1.6" pkvault-src/frontend/src/pokedex/list/hooks/use-pokedex-items.ts
           ! grep -q "dexProfile" pkvault-src/frontend/src/routes/pokedex.tsx
@@ -1628,7 +1628,7 @@ jobs:
           grep -q "romHackSpeciesName" pkvault-src/frontend/src/storage/move/validation/rules/validate-root.ts
           grep -q "sourceName = sourcePkm?.romHackSpeciesName" pkvault-src/frontend/src/storage/move/validation/utils/get-help-text.ts
           grep -q "Pkm.GetMutablePkm() is PKEssentials" pkvault-src/PKVault.Core/storage/dto/PkmVariantDTO.cs
-          grep -q "VersionChecker.GetCompatibleVersionsForSpecies" pkvault-src/PKVault.Core/storage/dto/PkmVariantDTO.cs
+          grep -q "VersionChecker.GetCompatibleVersionsForPKM(Pkm.Species, Pkm.Form)" pkvault-src/PKVault.Core/storage/dto/PkmVariantDTO.cs
           grep -q "const provenanceVariantQuery = usePkmVariantIndex" pkvault-src/frontend/src/storage/details/details-content.tsx
           grep -q "const originPkm = provenancePkm ?? pkm;" pkvault-src/frontend/src/storage/details/details-content.tsx
           grep -q "version={originPkm.version}" pkvault-src/frontend/src/storage/details/details-content.tsx
