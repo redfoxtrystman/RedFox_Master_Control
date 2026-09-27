@@ -85,6 +85,15 @@
 - [x] Seed PKVault Pokédollar Bank to approximately ₽50,000 (exactly ₽50,000 in test seed).
 - [x] Fill Storage / Item Bank Box 1 with 30 varied random-ish official item stacks.
 - [x] Keep CLEAN artifact completely unseeded.
-- [ ] CI compile/frontend checks pass.
-- [ ] Download and smoke-test generated alpha51 SHOP-TEST artifact.
+- [x] CI compile/frontend checks pass.
+- [x] Download and package-smoke-test generated alpha51 SHOP-TEST artifact (seed files and executable present).
 - [ ] Verify BUY, SELL, scrolling, remembered baskets, aliases, and persistence in the packaged Windows build.
+
+
+## Alpha51 package verification
+- [x] Successful GitHub Actions build completed for the alpha51 Shop line.
+- [x] SHOP-TEST artifact contains the Windows executable.
+- [x] Package verification: ₽50,000 seed file is present and exact.
+- [x] Package verification: 30 item stacks are present in Item Bank / Storage Box 1, slots 0–29.
+- [x] All 30 seeded item records identify Box 1.
+- [ ] Launch the Windows executable and perform hands-on BUY/SELL transaction testing.
