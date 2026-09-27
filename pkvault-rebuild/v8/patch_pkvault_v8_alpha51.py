@@ -11,3 +11,17 @@ if actual != expected:
 
 subprocess.run(["git", "-C", str(root), "apply", "--whitespace=nowarn", "-"], input=patch, check=True)
 print("PKVault V8 alpha51 Shop prototype applied")
+
+
+# Alpha51c: CoreRouter does not discover controllers from DI registration alone.
+# ShopController must be present in the static ControllersTypes list or every
+# /api/shop route returns 404 even though ShopController is registered in Program.cs.
+router_path = root / "PKVault.Core/router/CoreRouter.cs"
+router_text = router_path.read_text(encoding="utf-8")
+if "typeof(ShopController)," not in router_text:
+    anchor = "        typeof(QuestController),\n    ];"
+    replacement = "        typeof(QuestController),\n        typeof(ShopController),\n    ];"
+    if anchor not in router_text:
+        raise RuntimeError("alpha51c Shop router anchor not found")
+    router_path.write_text(router_text.replace(anchor, replacement, 1), encoding="utf-8")
+print("PKVault V8 alpha51c Shop routes registered in CoreRouter")
