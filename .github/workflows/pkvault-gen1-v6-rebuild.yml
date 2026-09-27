@@ -92,6 +92,16 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52h3.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52i.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52j.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52k1.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52k2.py pkvault-src
+          grep -q "bool Claimable" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "QuestClaimRequest" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'HttpPost("claim")' pkvault-src/PKVault.Core/quest/routes/QuestRoute.cs
+          grep -q "JsonSerializable(typeof(QuestClaimRequest))" pkvault-src/PKVault.Core/router/RouteJsonContext.cs
+          grep -q "READY TO CLAIM" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "/api/quest/claim" pkvault-src/frontend/src/quests/quest-api.ts
+          ! grep -q 'dex-{game.Key}-25' pkvault-src/PKVault.Core/quest/QuestService.cs
+          ! grep -q 'dex-{game.Key}-complete' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q "Pooling=False" pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q "Pooling=False" pkvault-src/PKVault.Core/contract/ContractService.cs
           grep -q "Mode=ReadOnly;Pooling=False" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
