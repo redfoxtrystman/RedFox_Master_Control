@@ -56,7 +56,7 @@ page = replace_once(
         <Stack h='100%' gap='xs' style={{ minHeight: 0 }}>
 """,
     """    const shopScale = Math.max(1, shopScaleRaw);
-    const inverseScalePercent = \`\${100 / shopScale}%\`;
+    const inverseScalePercent = `${100 / shopScale}%`;
 
     return <Box h='100%' style={{ minHeight: 0, overflow: 'hidden' }}>
         <Box
