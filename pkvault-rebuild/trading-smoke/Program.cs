@@ -470,12 +470,11 @@ static async Task Trade(IServiceProvider sp, bool host)
     await trading.SetReadyAsync(true);
     await WaitCompleted(trading, "ROUND1");
 
-    // The coordinator can observe its own Completed state and immediately start
-    // the next offer after receiving the participant's confirmation. Give the
-    // participant's polling loop a short acknowledgement window so round 2 does
-    // not replace its transient Completed state before the smoke harness sees it.
-    if (host)
-        await Task.Delay(500);
+    // Either peer can observe Completed first and immediately start round 2,
+    // which changes the other peer back to Connected before its polling loop
+    // samples the transient Completed state. Give both sides a short barrier
+    // window after observing completion.
+    await Task.Delay(750);
 
     // Receiving through trade must permanently register the species in PKVault's
     // central Pokedex immediately after the committed trade.
