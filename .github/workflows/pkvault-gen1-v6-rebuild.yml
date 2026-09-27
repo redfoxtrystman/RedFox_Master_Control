@@ -76,6 +76,11 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51f.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51g.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51h.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51i.py pkvault-src
+          grep -q "useSpriteSizeLocalStorage('storage-sprite-size')" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "zoom: shopScale" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "'shop': () => <Group" pkvault-src/frontend/src/header/header.tsx
+          grep -q "localStorageKey='storage-sprite-size'" pkvault-src/frontend/src/header/header.tsx
           grep -q "MAX" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "sellRemaining" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "basketCount={basket\[item.key\] ?? 0}" pkvault-src/frontend/src/shop/shop-page.tsx
