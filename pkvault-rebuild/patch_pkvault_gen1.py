@@ -358,14 +358,16 @@ loader.write_text(text, encoding='utf-8')
 print(f'patched {loader}')
 
 convert = PKVAULT / 'PKVault.Core/storage/services/PkmConvertService/PkmConvertService.cs'
-replace_once(convert,
-'''    public ImmutablePKM ConvertTo(ImmutablePKM sourcePkm, Type targetPkmType, PKMRndValues? rndValues, SaveFile? targetSave = null)
+convert_text = convert.read_text(encoding='utf-8')
+old_convert_sig = '''    public ImmutablePKM ConvertTo(ImmutablePKM sourcePkm, Type targetPkmType, PKMRndValues? rndValues, SaveFile? targetSave = null)
     {
         Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
-''',
-'''    public ImmutablePKM ConvertTo(ImmutablePKM sourcePkm, Type targetPkmType, PKMRndValues? rndValues, SaveFile? targetSave = null)
+'''
+new_convert_sig = '''    public ImmutablePKM ConvertTo(ImmutablePKM sourcePkm, Type targetPkmType, ConvertContext? ctx)
     {
-        // Supported Gen-1 glitches are intentionally Gen-1-only. Do not run
+        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+'''
+guard_body = '''        // Supported Gen-1 glitches are intentionally Gen-1-only. Do not run
         // 'M (00) or MissingNo (50) through legality healing or conversion.
         if (sourcePkm.IsGen1Glitch)
         {
@@ -374,8 +376,29 @@ replace_once(convert,
             return new(sourcePkm.GetMutablePkm().Clone());
         }
 
-        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
-''')
+'''
+if new_convert_sig in convert_text:
+    convert_text = convert_text.replace(
+        new_convert_sig,
+        new_convert_sig.replace(
+            '        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");\n',
+            guard_body + '        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");\n'
+        ),
+        1,
+    )
+elif old_convert_sig in convert_text:
+    convert_text = convert_text.replace(
+        old_convert_sig,
+        old_convert_sig.replace(
+            '        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");\n',
+            guard_body + '        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");\n'
+        ),
+        1,
+    )
+else:
+    raise RuntimeError(f'{convert}: unsupported ConvertTo signature for Gen-1 glitch guard')
+convert.write_text(convert_text, encoding='utf-8')
+print(f'patched {convert}')
 
 wrapper = PKVAULT / 'PKVault.Core/storage/wrapper/SaveWrapper.cs'
 replace_once(wrapper,
