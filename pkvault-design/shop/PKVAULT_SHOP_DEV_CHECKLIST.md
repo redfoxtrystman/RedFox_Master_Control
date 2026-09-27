@@ -140,3 +140,11 @@
 - [x] Replace the extra Owned sort with In-game / A-Z / Price low-high / Price high-low.
 - [x] Full alpha51f CI build passed after retrying an unrelated transient Uranium sprite download reset.
 - [ ] Hands-on verify category alignment/count spacing and In-game sort in Windows build.
+
+
+## Alpha51h SELL MAX
+- [x] Add a MAX button to every individual item row in SELL mode.
+- [x] MAX selects the remaining sellable amount after subtracting any quantity already in the Sale Basket.
+- [x] Clamp catalog additions so a stack cannot be queued above the amount actually held in PKVault.
+- [x] BUY mode remains unchanged.
+- [x] Full alpha51h CI build completed successfully.
