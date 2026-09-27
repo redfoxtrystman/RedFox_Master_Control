@@ -113,3 +113,17 @@
 - [x] Add a CI runtime smoke test that serializes ShopStateDTO and deserializes a Shop transaction payload through RouteJsonContext.
 - [x] Alpha51d CI completed successfully with the Shop JSON bridge smoke test passing.
 - [ ] Hands-on verify the corrected Windows Shop page loads without the red query error.
+
+
+## Alpha51e visual parity pass
+- [x] Give item icons fixed columns so names/prices cannot overlap sprites.
+- [x] Give Cart / Sale Basket icons their own fixed columns.
+- [x] Replace spinner-only quantity fields with minus / typed number / plus controls.
+- [x] Restore rust-red Add / Sell action buttons.
+- [x] Force green Purchase / Sell Items confirmation button styling.
+- [x] Restore filled rust-red Clear Cart / Clear Sale styling.
+- [x] Restore category icons and stronger selected-category highlighting.
+- [x] Restore visible Category: and Sort by: labels from the locked mockup.
+- [x] Keep BUY / SELL mode styling aligned with the locked visual.
+- [x] Frontend typecheck and full alpha51e CI build completed successfully.
+- [ ] Hands-on compare alpha51e against the locked BUY/SELL screenshots.
