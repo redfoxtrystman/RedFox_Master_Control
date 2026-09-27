@@ -104,3 +104,12 @@
 - [x] CI asserts CoreRouter contains typeof(ShopController).
 - [x] Successful alpha51c CI rebuild after route registration fix.
 - [ ] Hands-on verify GET /api/shop and BUY/SELL requests in the Windows test build.
+
+
+## Alpha51d desktop JSON bridge fix
+- [x] Diagnose GET /api/shop reaching CoreRouter successfully but failing in HybridWebView response serialization.
+- [x] Register ShopStateDTO / ShopItemDTO in RouteJsonContext for desktop response serialization.
+- [x] Register ShopTransactionRequestDTO / ShopTransactionLineDTO for BUY/SELL body binding.
+- [x] Add a CI runtime smoke test that serializes ShopStateDTO and deserializes a Shop transaction payload through RouteJsonContext.
+- [x] Alpha51d CI completed successfully with the Shop JSON bridge smoke test passing.
+- [ ] Hands-on verify the corrected Windows Shop page loads without the red query error.
