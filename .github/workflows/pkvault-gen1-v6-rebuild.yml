@@ -1779,7 +1779,7 @@ jobs:
           grep -q 'daily-play-30' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'GetPaidRerollCost' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q '2_500L' pkvault-src/PKVault.Core/quest/QuestService.cs
-          grep -q 'Master Ball + 10 Full Restores + 10 Max Repels' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'Master Ball + Gold Bottle Cap + 5 PP Max + 20 Full Restores' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'GrantQuestMoneyReward' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'SpendMoneyBank' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'Reroll — FREE' pkvault-src/frontend/src/quests/quest-page.tsx
@@ -1800,8 +1800,8 @@ jobs:
           grep -q 'Mythicals award Master Balls' pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q 'Filter quests' pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q "placeholder='Title, description, category, reward...'" pkvault-src/frontend/src/quests/quest-page.tsx
-          grep -q "label='Category'" pkvault-src/frontend/src/quests/quest-page.tsx
-          grep -q "label='Status'" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q 'All categories' pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "'incomplete', 'Incomplete'" pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q "No quests match the current filters." pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q 'dex-{game.Key}-{percent}pct' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'Enumerable.Range(1, 9).Select(x => x \* 10)' pkvault-src/PKVault.Core/quest/QuestService.cs
@@ -1809,8 +1809,8 @@ jobs:
           grep -q 'GetDexProgressReward' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'GetRegionalDexProgressReward' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'HP Up + Protein + Iron + Calcium + Zinc + Carbos' pkvault-src/PKVault.Core/quest/QuestService.cs
-          grep -q '5 Hyper Potions + 5 Max Repels' pkvault-src/PKVault.Core/quest/QuestService.cs
-          grep -q 'MoneyReward(3_500)' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q '8 Hyper Potions + 5 Max Repels' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'MoneyReward(4_000)' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'MoneyReward(35_000)' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q "style={{ flexShrink: 0, overflow: 'visible' }}" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
           grep -q "cols={{ base: 1, sm: 2, lg: 4 }}" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
