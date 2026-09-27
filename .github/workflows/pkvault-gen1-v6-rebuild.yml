@@ -5,6 +5,7 @@ on:
     branches:
       - pkvault-v8-romhack-tmt
       - pkvault-v8-uranium-insurgence
+      - pkvault-v233-redfox-port
     paths:
       - 'pkvault-rebuild/**'
       - '.github/workflows/pkvault-gen1-v6-rebuild.yml'
@@ -22,11 +23,11 @@ jobs:
       - name: Checkout build recipe
         uses: actions/checkout@v4
 
-      - name: Checkout exact PKVault baseline
+      - name: Checkout exact PKVault 2.3.3 baseline
         run: |
           git clone https://github.com/Chnapy/PKVault.git pkvault-src
           cd pkvault-src
-          git checkout 88993b8702a3ec7fc54b67ea1e2dbb1827822cec
+          git checkout fabd843590e2a0ea1646cc4d1d6bff9933679ff3
 
       - name: Checkout exact PKHeX 26.08.26
         run: |
