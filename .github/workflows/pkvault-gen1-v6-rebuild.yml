@@ -80,6 +80,7 @@ jobs:
           grep -q "useSpriteSizeLocalStorage('storage-sprite-size')" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "zoom: shopScale" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "inverseScalePercent" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "shopScale = Math.max(1, shopScaleRaw)" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "'shop': () => <Group" pkvault-src/frontend/src/header/header.tsx
           grep -q "localStorageKey='storage-sprite-size'" pkvault-src/frontend/src/header/header.tsx
           grep -q "MAX" pkvault-src/frontend/src/shop/shop-page.tsx
