@@ -79,6 +79,7 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51i.py pkvault-src
           grep -q "useSpriteSizeLocalStorage('storage-sprite-size')" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "zoom: shopScale" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "inverseScalePercent" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "'shop': () => <Group" pkvault-src/frontend/src/header/header.tsx
           grep -q "localStorageKey='storage-sprite-size'" pkvault-src/frontend/src/header/header.tsx
           grep -q "MAX" pkvault-src/frontend/src/shop/shop-page.tsx
