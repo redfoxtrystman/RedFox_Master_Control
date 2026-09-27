@@ -77,6 +77,11 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51g.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51h.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51i.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51j.py pkvault-src
+          grep -q "useViewportSize" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "automaticDisplayScale" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "scrollbarSize={8}" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "minmax(158px, 176px)" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "useSpriteSizeLocalStorage('storage-sprite-size')" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "zoom: shopScale" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "inverseScalePercent" pkvault-src/frontend/src/shop/shop-page.tsx
