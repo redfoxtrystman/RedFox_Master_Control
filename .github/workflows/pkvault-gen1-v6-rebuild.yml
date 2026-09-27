@@ -741,14 +741,18 @@ jobs:
           // Exercise the same DTO layer the Storage/Saves UI consumes.
           var earlyImmutable = earlyWrapper.GetPartyData().Single();
           var earlyDto = new PkmSaveDTO(
-              SettingsLanguage: "en",
-              Pkm: earlyImmutable,
+              Id: "essentials-smoke-party-0",
+              Generation: earlyWrapper.Generation,
               BoxId: (int)BoxType.Party,
               BoxSlot: 0,
-              IsDuplicate: false,
-              Save: earlyWrapper,
-              Evolves: new Dictionary<ushort, StaticEvolve>()
-          );
+              IsDuplicate: false
+          )
+          {
+              SettingsLanguage = "en",
+              Pkm = earlyImmutable,
+              Save = earlyWrapper,
+              Evolves = new Dictionary<ushort, StaticEvolve>(),
+          };
           Need(earlyDto.Generation == 3, $"Essentials PKM must report generation 3, got {earlyDto.Generation}");
           Need(earlyDto.Version == GameVersion.E, $"Essentials PKM version must be Emerald-compatible, got {earlyDto.Version}");
           Need(earlyDto.Context == EntityContext.Gen3, $"Essentials context must be Gen3, got {earlyDto.Context}");
