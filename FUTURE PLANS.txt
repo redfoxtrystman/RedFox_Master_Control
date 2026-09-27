@@ -6,7 +6,7 @@ Purpose
 This file records planned PKVault features that are intentionally NOT implemented yet.
 It is the design source of truth for the future Shop, Daily Quest, Quest, and Achievement systems.
 
-CURRENT IMPLEMENTATION STATUS - ALPHA46
+CURRENT IMPLEMENTATION STATUS - ALPHA47
 ---------------------------------------
 - Legendary first-catch achievements are live and permanently claimed across PKVault.
 - Completed Daily Quest / Quest / Achievement cards turn green.
@@ -37,6 +37,9 @@ CURRENT IMPLEMENTATION STATUS - ALPHA46
 - Alpha46 fixes Gen-2 abbreviated Apricorn sprites (WHT/BLU/GRN/PNK/YLW/BLK) by resolving them to the canonical colour artwork while preserving the Gen-2 item identity/name.
 - Alpha46 treats abbreviated Gen-2 Apricorn keys and modern full-colour Apricorn keys as equivalent for PKVault inventory stacking, quest rewards, and compatible-save transfers.
 - Alpha46 adds seven permanent Poké Ball workshop Quests: own 50 Level/Moon/Lure/Friend/Love/Fast/Heavy Balls and receive 50 matching Red/Yellow/Blue/Green/Pink/White/Black Apricorns.
+- Alpha47 adds Original Color Magearna as a one-time Pokémon reward for the All-Regions Archivist Achievement, deposited directly into central PKVault storage from PKHeX's official Pokémon HOME gift template.
+- Existing users who completed All-Regions Archivist before Alpha47 receive the Magearna exactly once without reissuing the older item/money reward.
+- Alpha47 removes the filter bar from Daily Quests and places full-size filter controls directly inside the Quests and Achievements tab bodies, fixing the collapsed one-line filter UI.
 - Workshop progress totals the matching Ball across central PKVault inventory and supported save inventories; completion remains one-time.
 - Remaining expansion areas include richer game-specific/cross-game objectives, type/species hunts, conditional activities where verifiable, voucher quests tied to the future Shop, and further balance passes.
 
