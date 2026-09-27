@@ -63,7 +63,7 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha42b.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha42c.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha43.py pkvault-src
-          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha45.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha44.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha45.py pkvault-src
           test -f pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs
           test "$(grep -c '] = new(' pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs)" -ge 500
