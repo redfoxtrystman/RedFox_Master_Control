@@ -6,7 +6,7 @@ Purpose
 This file records planned PKVault features that are intentionally NOT implemented yet.
 It is the design source of truth for the future Shop, Daily Quest, Quest, and Achievement systems.
 
-CURRENT IMPLEMENTATION STATUS - ALPHA49
+CURRENT IMPLEMENTATION STATUS - ALPHA50
 ---------------------------------------
 - Legendary first-catch achievements are live and permanently claimed across PKVault.
 - Completed Daily Quest / Quest / Achievement cards turn green.
@@ -40,6 +40,9 @@ CURRENT IMPLEMENTATION STATUS - ALPHA49
 - Alpha47 adds Original Color Magearna as a one-time Pokémon reward for the All-Regions Archivist Achievement, deposited directly into central PKVault storage from PKHeX's official Pokémon HOME gift template.
 - Existing users who completed All-Regions Archivist before Alpha47 receive the Magearna exactly once without reissuing the older item/money reward.
 - Alpha47 removes the filter bar from Daily Quests and places full-size filter controls directly inside the Quests and Achievements tab bodies, fixing the collapsed one-line filter UI.
+- Alpha50 separates manual inventory edits from automatic reward commits: Trash/Move actions remain pending until Save, while quest item rewards are immediately committed to the persisted item-bank mirror.
+- Canceling/removing a pending Trash action now rebuilds from the committed mirror and restores the stack; Inventory refreshes immediately after action-history resets.
+- Quest item rewards are persisted as reward-only deltas, so Reload all data & saves or a session rebuild cannot erase them and unrelated pending inventory edits are not accidentally committed.
 - Alpha49 fixes the Alpha48 startup deadlock caused by running .item reconciliation before SessionService enabled its context-recursion bypass.
 - Item-bank reconciliation now runs inside the already-bypassed session scope and clears the bypass in a finally block, preserving phantom-item cleanup without allowing StartNewSession to await itself.
 - Alpha48 reconciles the central item-bank metadata against the persisted .item mirror whenever Reload all data & saves starts a fresh session, so externally deleted .item files no longer leave dead phantom inventory cards.
