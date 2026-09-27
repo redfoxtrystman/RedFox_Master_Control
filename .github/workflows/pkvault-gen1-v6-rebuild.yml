@@ -71,6 +71,13 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha49.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha50.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51e.py pkvault-src
+          grep -q "const SHOP_GREEN = '#2eaf3c'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "const QuantityControl" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "Grid2X2Icon" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "Category:</Text>" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "actionButtonStyle(SHOP_RED" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "actionButtonStyle(SHOP_GREEN" pkvault-src/frontend/src/shop/shop-page.tsx
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51b.py pkvault-src
           test -f pkvault-src/PKVault.Core/shop/ShopService.cs
           test -f pkvault-src/PKVault.Core/shop/ShopController.cs
