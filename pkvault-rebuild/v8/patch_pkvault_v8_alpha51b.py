@@ -18,4 +18,10 @@ if old not in text:
     raise RuntimeError("alpha51b expected async SQLite transaction marker was not found")
 bank.write_text(text.replace(old, new, 1), encoding="utf-8")
 
+shop_page = root / "frontend" / "src" / "shop" / "shop-page.tsx"
+text = shop_page.read_text(encoding="utf-8")
+lint_guard = "/* eslint-disable react-refresh/only-export-components */"
+if lint_guard not in text:
+    shop_page.write_text(lint_guard + "\n" + text, encoding="utf-8")
+
 print("PKVault V8 alpha51b Shop compile fixes applied")
