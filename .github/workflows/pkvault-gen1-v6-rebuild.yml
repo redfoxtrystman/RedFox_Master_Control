@@ -95,7 +95,7 @@ jobs:
           grep -q "calc(116px \* var(--mantine-scale, 1))" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "scrollbarSize={8}" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "useSpriteSizeLocalStorage('storage-sprite-size')" pkvault-src/frontend/src/shop/shop-page.tsx
-          grep -q "shopScale = Math.max(1, shopScaleRaw)" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "shopScale = Math.max(0.5, shopScaleRaw)" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "'shop': () => <Group" pkvault-src/frontend/src/header/header.tsx
           grep -q "localStorageKey='storage-sprite-size'" pkvault-src/frontend/src/header/header.tsx
           grep -q "MAX" pkvault-src/frontend/src/shop/shop-page.tsx
