@@ -80,17 +80,6 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51j.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51k.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51l.py pkvault-src
-          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52_contracts.py pkvault-src
-          test -f pkvault-src/PKVault.Core/shop/ContractService.cs
-          grep -q "Contract Board · 4 Slots" pkvault-src/frontend/src/shop/shop-page.tsx
-          grep -q "2 daily slots and 2 weekly slots" pkvault-src/frontend/src/shop/shop-page.tsx
-          grep -q "[(\"Easy\", 30), (\"Normal\", 45), (\"Hard\", 25)]" pkvault-src/PKVault.Core/shop/ContractService.cs
-          grep -q "[(\"Normal\", 25), (\"Hard\", 35), (\"Legendary\", 25), (\"Mythical\", 15)]" pkvault-src/PKVault.Core/shop/ContractService.cs
-          grep -q "mythical-mewtwo" pkvault-src/PKVault.Core/shop/ContractService.cs
-          grep -q "master-ball" pkvault-src/PKVault.Core/shop/ContractService.cs
-          grep -q "contracts/purchase" pkvault-src/PKVault.Core/shop/ShopController.cs
-          grep -q "contracts/abandon" pkvault-src/PKVault.Core/shop/ShopController.cs
-          grep -q "CONTRACT_STATE" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52b.py pkvault-src
           test -f pkvault-src/PKVault.Core/contract/ContractService.cs
