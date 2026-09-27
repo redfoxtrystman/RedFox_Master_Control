@@ -2597,8 +2597,8 @@ print("PKVault V8 alpha21 ROM-hack drag validation now uses profile identity ins
 # when there is no analysis. All conversion/property copy work still runs.
 # ---------------------------------------------------------------------------
 share_props_v22 = PKVAULT / "PKVault.Core/storage/services/PkmConvertService/PkmSharePropertiesService.cs"
-replace_once(share_props_v22,
-'''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
+share_props_text = share_props_v22.read_text(encoding="utf-8")
+legacy_legality_ribbons = '''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
         var args = new RibbonVerifierArguments(
             legality.la.Info.Entity,
             legality.la.EncounterMatch,
@@ -2607,8 +2607,18 @@ replace_once(share_props_v22,
         RibbonApplicator.FixInvalidRibbons(args);
 
         targetPkm.Heal();
-''',
-'''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
+'''
+modern_legality_ribbons = '''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
+        var args = new RibbonVerifierArguments(
+            legality.la!.Info.Entity,
+            legality.la.EncounterMatch,
+            legality.la.Info.EvoChainsAllGens
+        );
+        RibbonApplicator.FixInvalidRibbons(args);
+
+        targetPkm.Heal();
+'''
+guarded_legality_ribbons = '''        var legality = legalityAnalysisService.GetLegalitySafe(new(targetPkm));
         if (legality.la is not null)
         {
             var args = new RibbonVerifierArguments(
@@ -2620,7 +2630,15 @@ replace_once(share_props_v22,
         }
 
         targetPkm.Heal();
-''')
+'''
+if modern_legality_ribbons in share_props_text:
+    share_props_text = share_props_text.replace(modern_legality_ribbons, guarded_legality_ribbons, 1)
+elif legacy_legality_ribbons in share_props_text:
+    share_props_text = share_props_text.replace(legacy_legality_ribbons, guarded_legality_ribbons, 1)
+else:
+    raise RuntimeError(f"{share_props_v22}: unsupported legality ribbon cleanup block")
+share_props_v22.write_text(share_props_text, encoding="utf-8")
+print(f"patched {share_props_v22}")
 
 # Regression coverage for the exact null-analysis contract used by
 # SKIP_LEGALITY_CHECKS. This does not need a special Caterpie fixture: the bug
