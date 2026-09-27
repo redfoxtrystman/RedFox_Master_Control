@@ -85,6 +85,12 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52c.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52d.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52e.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52f.py pkvault-src
+          grep -q "IPkmVariantLoader pkmVariantLoader" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "RememberVaultPokemon" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "GetPkmIdentity(PkmBaseDTO dto)" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "GetPkmIdentity(PkmBaseDTO dto)" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "Treat Pokémon already stored in local PKVault as previously owned" pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q "height: rowHeight" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "const innerHeight" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "boxSizing: 'border-box'" pkvault-src/frontend/src/shop/shop-page.tsx
