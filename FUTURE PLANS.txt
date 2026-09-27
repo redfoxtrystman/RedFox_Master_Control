@@ -6,7 +6,7 @@ Purpose
 This file records planned PKVault features that are intentionally NOT implemented yet.
 It is the design source of truth for the future Shop, Daily Quest, Quest, and Achievement systems.
 
-CURRENT IMPLEMENTATION STATUS - ALPHA45
+CURRENT IMPLEMENTATION STATUS - ALPHA46
 ---------------------------------------
 - Legendary first-catch achievements are live and permanently claimed across PKVault.
 - Completed Daily Quest / Quest / Achievement cards turn green.
@@ -34,6 +34,10 @@ CURRENT IMPLEMENTATION STATUS - ALPHA45
 - Current Essentials Pokémon seed permanent seen/caught history before moves, so moving a Delta/custom Pokémon into PKVault cannot erase its discovery.
 - Uranium/Insurgence custom Dex Owned indicators now also recognize matching Pokémon held in central PKVault storage.
 - Alpha45 repairs Alpha44-era false full-Dex completion flags when the corrected fangame Dex is not actually complete; reward provenance remains idempotent so prior accidental payouts are never duplicated.
+- Alpha46 fixes Gen-2 abbreviated Apricorn sprites (WHT/BLU/GRN/PNK/YLW/BLK) by resolving them to the canonical colour artwork while preserving the Gen-2 item identity/name.
+- Alpha46 treats abbreviated Gen-2 Apricorn keys and modern full-colour Apricorn keys as equivalent for PKVault inventory stacking, quest rewards, and compatible-save transfers.
+- Alpha46 adds seven permanent Poké Ball workshop Quests: own 50 Level/Moon/Lure/Friend/Love/Fast/Heavy Balls and receive 50 matching Red/Yellow/Blue/Green/Pink/White/Black Apricorns.
+- Workshop progress totals the matching Ball across central PKVault inventory and supported save inventories; completion remains one-time.
 - Remaining expansion areas include richer game-specific/cross-game objectives, type/species hunts, conditional activities where verifiable, voucher quests tied to the future Shop, and further balance passes.
 
 Core design rule:
@@ -120,6 +124,7 @@ Candidate categories:
 - Collection.
 - Game-Specific.
 - Cross-Game / PKVault.
+- Poké Balls / Apricorn crafting.
 
 Achievements
 ------------
