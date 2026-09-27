@@ -525,6 +525,32 @@ replace_once(
 )
 
 replace_once(
+    "PKVault.Core/swagger.json",
+    """          "MOVE_ITEM",
+          "CREATE_ITEM_PAGE"
+        ],
+""",
+    """          "MOVE_ITEM",
+          "CREATE_ITEM_PAGE",
+          "TRASH_ITEM"
+        ],
+""",
+)
+
+replace_once(
+    "PKVault.Core/swagger.json",
+    """          20,
+          21
+        ]
+""",
+    """          20,
+          21,
+          22
+        ]
+""",
+)
+
+replace_once(
     "frontend/src/storage/actions/hooks/use-action-description.ts",
     """            [ DataActionType.CREATE_ITEM_PAGE ]: () =>
                 'Create PKVault item box ' + parameters[ 0 ],
