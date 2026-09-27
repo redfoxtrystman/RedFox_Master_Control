@@ -84,6 +84,10 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52b.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52c.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52d.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52e.py pkvault-src
+          grep -q "height: rowHeight" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "const innerHeight" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "boxSizing: 'border-box'" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "Thirty Species Hunt" pkvault-src/PKVault.Core/contract/ContractService.cs
           grep -q 'R("rare-candy", 5), R("ultra-ball", 20), R("full-restore", 5), R("pp-up", 2)' pkvault-src/PKVault.Core/contract/ContractService.cs
           ! grep -q 'hard-species-30.*R("rare-candy", 20)' pkvault-src/PKVault.Core/contract/ContractService.cs
