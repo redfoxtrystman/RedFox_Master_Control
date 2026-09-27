@@ -1820,17 +1820,41 @@ replace_once(pkm_save_dto,
         && (Party == -1 || Pkm.GetMutablePkm() is PKEssentials);
 ''')
 
-replace_once(move_action,
-'''        var saveLoaders = savesLoadersService.GetLoaders(sourceSaveId);
+move_text = move_action.read_text(encoding="utf-8")
+legacy_party_anchor = '''        var saveLoaders = savesLoadersService.GetLoaders(sourceSaveId);
 
         if (savePkm.Pkm.GetMutablePkm() is IShadowCapture savePkmShadow && savePkmShadow.IsShadow)
-''',
-'''        var saveLoaders = savesLoadersService.GetLoaders(sourceSaveId);
+'''
+modern_party_anchor = '''        var saveLoaders = savesLoadersService.GetLoadersRequired(sourceSaveId);
+
+        if (savePkm.Pkm.GetMutablePkm() is IShadowCapture savePkmShadow && savePkmShadow.IsShadow)
+'''
+if modern_party_anchor in move_text:
+    move_text = move_text.replace(
+        modern_party_anchor,
+        '''        var saveLoaders = savesLoadersService.GetLoadersRequired(sourceSaveId);
         var keepEssentialsParty = savePkm.Pkm.GetMutablePkm() is PKEssentials && savePkm.Party >= 0;
         var attachToSource = input.attached || keepEssentialsParty;
 
         if (savePkm.Pkm.GetMutablePkm() is IShadowCapture savePkmShadow && savePkmShadow.IsShadow)
-''')
+''',
+        1,
+    )
+elif legacy_party_anchor in move_text:
+    move_text = move_text.replace(
+        legacy_party_anchor,
+        '''        var saveLoaders = savesLoadersService.GetLoaders(sourceSaveId);
+        var keepEssentialsParty = savePkm.Pkm.GetMutablePkm() is PKEssentials && savePkm.Party >= 0;
+        var attachToSource = input.attached || keepEssentialsParty;
+
+        if (savePkm.Pkm.GetMutablePkm() is IShadowCapture savePkmShadow && savePkmShadow.IsShadow)
+''',
+        1,
+    )
+else:
+    raise RuntimeError(f"{move_action}: cannot find SaveToMain loader anchor")
+move_action.write_text(move_text, encoding="utf-8")
+print(f"patched {move_action}")
 replace_once(move_action,
 '''            AttachedSaveId: input.attached ? sourceSaveId : null,
             AttachedSavePkmIdBase: input.attached ? savePkm.IdBase : null,
