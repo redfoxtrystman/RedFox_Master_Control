@@ -267,7 +267,7 @@ new_save = """    private async Task<string?> LoadMetaValue(MetaKey key)
         }
         catch (IOException ex)
         {
-            Log.Logger.Warning(ex, "Session DB was reloading; quest progression is safe in pkvault-progression.dat");
+            Serilog.Log.Logger.Warning(ex, "Session DB was reloading; quest progression is safe in pkvault-progression.dat");
         }
     }
 """
@@ -388,7 +388,7 @@ new_contract_save = """    private async Task<string?> LoadMetaValue(MetaKey key
         }
         catch (IOException ex)
         {
-            Log.Logger.Warning(ex, "Session DB was reloading; contract progression is safe in pkvault-progression.dat");
+            Serilog.Log.Logger.Warning(ex, "Session DB was reloading; contract progression is safe in pkvault-progression.dat");
         }
     }
 """
