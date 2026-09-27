@@ -284,28 +284,38 @@ replace_once(trading,
 ''')
 
 convert = PKVAULT / "PKVault.Core/storage/services/PkmConvertService/PkmConvertService.cs"
-replace_once(convert,
-'''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+convert_text = convert.read_text(encoding="utf-8")
+legacy_tmt_anchor = '''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
 
         var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
-''',
-'''        if (targetPkmType == typeof(PK3) && targetSave is SAV3 targetGen3)
+'''
+modern_tmt_anchor = '''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+
+        ctx ??= new(null, null);
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+'''
+if modern_tmt_anchor in convert_text:
+    modern_tmt_replacement = '''        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+
+        ctx ??= new(null, null);
+
+        if (targetPkmType == typeof(PK3) && ctx.TargetSave?.GetSave() is SAV3 targetGen3)
         {
             if (targetGen3.DirectSpeciesIDs)
-                return ConvertToTooManyTypes(sourcePkm, rndValues);
+                return ConvertToTooManyTypes(sourcePkm, ctx);
 
             if (sourcePkm.GetMutablePkm() is PK3 { DirectSpeciesIDs: true } direct)
-                return ConvertFromTooManyTypes(direct, targetGen3, rndValues);
+                return ConvertFromTooManyTypes(direct, targetGen3, ctx);
         }
 
-        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
-
         var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
-''')
-replace_once(convert,
-'''    private PKM ConvertRecursive(PKM current, Type targetType, LanguageID fallbackLang, PKMRndValues? rndValues)
-''',
-'''    private ImmutablePKM ConvertToTooManyTypes(ImmutablePKM sourcePkm, PKMRndValues? rndValues)
+'''
+    convert_text = convert_text.replace(modern_tmt_anchor, modern_tmt_replacement, 1)
+
+    modern_recursive = '''    private PKM ConvertRecursive(PKM current, Type targetType, LanguageID fallbackLang, ConvertContext ctx)
+'''
+    modern_helpers = '''    private ImmutablePKM ConvertToTooManyTypes(ImmutablePKM sourcePkm, ConvertContext ctx)
     {
         TooManyTypesCompat.RequireSupported(sourcePkm.Species, sourcePkm.Form);
 
@@ -318,6 +328,69 @@ replace_once(convert,
         // PKHeX's normal backward converters reject post-Gen3 species before
         // reaching PK3. Convert a structurally equivalent Gen3-compatible
         // proxy, then restore the real TMT species/form and canonical moves.
+        if (proxy.Species > 386 || proxy.Form != 0)
+        {
+            proxy.Species = (ushort)Species.Pikachu;
+            proxy.Form = 0;
+        }
+
+        var converted = ConvertRecursive(proxy, typeof(PK3), fallbackLang, ctx);
+        if (converted is not PK3 p3)
+            throw new InvalidOperationException("Failed to produce a PK3 for Too Many Types.");
+
+        TooManyTypesCompat.ApplyTmtIdentity(p3, sourcePkm);
+        p3.ResetPartyStats();
+        p3.RefreshChecksum();
+        return new(p3);
+    }
+
+    private ImmutablePKM ConvertFromTooManyTypes(PK3 source, SAV3 targetSave, ConvertContext ctx)
+    {
+        var p3 = TooManyTypesCompat.ConvertDirectToVanilla(source, targetSave);
+
+        // Re-enter the normal legality fixer only after the raw direct species
+        // id has been remapped to vanilla Gen3's internal species table.
+        pkmConverterUtils.FixCommonLegalityIssues(p3, ctx);
+        p3.Heal();
+        p3.ResetPartyStats();
+        p3.RefreshChecksum();
+        if (p3.Species == 0)
+            throw new InvalidOperationException("Too Many Types -> vanilla Gen3 conversion produced species 0.");
+        return new(p3);
+    }
+
+    private PKM ConvertRecursive(PKM current, Type targetType, LanguageID fallbackLang, ConvertContext ctx)
+'''
+    if modern_recursive not in convert_text:
+        raise RuntimeError(f"{convert}: cannot find modern ConvertRecursive signature")
+    convert_text = convert_text.replace(modern_recursive, modern_helpers, 1)
+elif legacy_tmt_anchor in convert_text:
+    legacy_tmt_replacement = '''        if (targetPkmType == typeof(PK3) && targetSave is SAV3 targetGen3)
+        {
+            if (targetGen3.DirectSpeciesIDs)
+                return ConvertToTooManyTypes(sourcePkm, rndValues);
+
+            if (sourcePkm.GetMutablePkm() is PK3 { DirectSpeciesIDs: true } direct)
+                return ConvertFromTooManyTypes(direct, targetGen3, rndValues);
+        }
+
+        Log.Debug($"Convert {sourcePkm.GetMutablePkm().GetType().Name} -> {targetPkmType.Name}");
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+'''
+    convert_text = convert_text.replace(legacy_tmt_anchor, legacy_tmt_replacement, 1)
+    legacy_recursive = '''    private PKM ConvertRecursive(PKM current, Type targetType, LanguageID fallbackLang, PKMRndValues? rndValues)
+'''
+    legacy_helpers = '''    private ImmutablePKM ConvertToTooManyTypes(ImmutablePKM sourcePkm, PKMRndValues? rndValues)
+    {
+        TooManyTypesCompat.RequireSupported(sourcePkm.Species, sourcePkm.Form);
+
+        if (sourcePkm.GetMutablePkm() is PK3 { DirectSpeciesIDs: true } alreadyTmt)
+            return new(alreadyTmt.Clone());
+
+        var fallbackLang = settingsService.GetSettings().GetSafeLanguageID();
+        var proxy = sourcePkm.GetMutablePkm().Clone();
+
         if (proxy.Species > 386 || proxy.Form != 0)
         {
             proxy.Species = (ushort)Species.Pikachu;
@@ -337,9 +410,6 @@ replace_once(convert,
     private ImmutablePKM ConvertFromTooManyTypes(PK3 source, SAV3 targetSave, PKMRndValues? rndValues)
     {
         var p3 = TooManyTypesCompat.ConvertDirectToVanilla(source, targetSave);
-
-        // Re-enter the normal legality fixer only after the raw direct species
-        // id has been remapped to vanilla Gen3's internal species table.
         pkmConverterUtils.FixCommonLegalityIssues(p3, new(targetSave), rndValues);
         p3.Heal();
         p3.ResetPartyStats();
@@ -350,7 +420,14 @@ replace_once(convert,
     }
 
     private PKM ConvertRecursive(PKM current, Type targetType, LanguageID fallbackLang, PKMRndValues? rndValues)
-''')
+'''
+    if legacy_recursive not in convert_text:
+        raise RuntimeError(f"{convert}: cannot find legacy ConvertRecursive signature")
+    convert_text = convert_text.replace(legacy_recursive, legacy_helpers, 1)
+else:
+    raise RuntimeError(f"{convert}: unsupported converter layout for TMT integration")
+convert.write_text(convert_text, encoding="utf-8")
+print(f"patched {convert}")
 
 
 # ---------------------------------------------------------------------------
