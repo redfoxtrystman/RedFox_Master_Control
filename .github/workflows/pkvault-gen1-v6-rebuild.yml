@@ -82,6 +82,8 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha51l.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52b.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52c.py pkvault-src
+          grep -q "services.AddScoped<ContractController>();" pkvault-src/PKVault.Core/Program.cs
           test -f pkvault-src/PKVault.Core/contract/ContractService.cs
           test -f pkvault-src/PKVault.Core/contract/ContractController.cs
           test -f pkvault-src/frontend/src/contracts/contract-api.ts
