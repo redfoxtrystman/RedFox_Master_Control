@@ -79,6 +79,8 @@ jobs:
           grep -q "PKVault Shop purchase" pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q "pkvault-shop-buy-basket" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "typeof(ShopController)" pkvault-src/PKVault.Core/router/CoreRouter.cs
+          grep -q "JsonSerializable(typeof(ShopStateDTO))" pkvault-src/PKVault.Core/router/RouteJsonContext.cs
+          grep -q "JsonSerializable(typeof(ShopTransactionRequestDTO))" pkvault-src/PKVault.Core/router/RouteJsonContext.cs
           grep -q "type='always'" pkvault-src/frontend/src/shop/shop-page.tsx
           test -f pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs
           test "$(grep -c '] = new(' pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs)" -ge 500
@@ -400,6 +402,65 @@ jobs:
       - name: Build PKVault Core with patched library
         run: |
           dotnet build pkvault-src/PKVault.Core/PKVault.Core.csproj -c Release --nologo
+
+      - name: Shop JSON bridge smoke test
+        run: |
+          set -euo pipefail
+          mkdir -p shop-json-smoke
+          cat > shop-json-smoke/shop-json-smoke.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+            </PropertyGroup>
+            <ItemGroup>
+              <Reference Include="PKVault.Core">
+                <HintPath>../pkvault-src/PKVault.Core/bin/Release/net10.0/PKVault.Core.dll</HintPath>
+              </Reference>
+            </ItemGroup>
+          </Project>
+          EOF
+          cat > shop-json-smoke/Program.cs <<'EOF'
+          using System.Text.Json;
+          using PKVault.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          var stateInfo = RouteJsonContext.DefaultWithOptions.GetTypeInfo(typeof(ShopStateDTO));
+          Need(stateInfo is not null, "ShopStateDTO missing from RouteJsonContext");
+
+          var requestInfo = RouteJsonContext.DefaultWithOptions.GetTypeInfo(typeof(ShopTransactionRequestDTO));
+          Need(requestInfo is not null, "ShopTransactionRequestDTO missing from RouteJsonContext");
+
+          var sample = new ShopStateDTO(
+              MoneyBank: 50000,
+              MoneyBankMax: 999999,
+              LoadedVersions: [3],
+              Items: [
+                  new ShopItemDTO(
+                      "poke-ball", "Poké Ball", "Poké Balls",
+                      200, 100, true, true, 75, 75,
+                      [3], ["pokeball", "poke ball"]
+                  )
+              ]
+          );
+
+          var json = JsonSerializer.Serialize(sample, stateInfo);
+          Need(json.Contains("\"moneyBank\":50000"), "ShopStateDTO did not serialize with camelCase fields");
+          Need(json.Contains("\"poke-ball\""), "ShopStateDTO item payload missing");
+
+          const string requestJson = "{\"lines\":[{\"itemKey\":\"poke-ball\",\"count\":5}]}";
+          var parsed = (ShopTransactionRequestDTO?)JsonSerializer.Deserialize(requestJson, requestInfo);
+          Need(parsed is not null && parsed.Lines.Count == 1 && parsed.Lines[0].Count == 5,
+              "ShopTransactionRequestDTO did not deserialize");
+
+          Console.WriteLine("PASS: Shop desktop JSON bridge state + transaction DTOs");
+          EOF
+          dotnet run --project shop-json-smoke/shop-json-smoke.csproj -c Release
 
       - name: Alpha45 Gen1 inventory mapping regression test
         run: |
