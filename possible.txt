@@ -1,0 +1,383 @@
+PKVAULT - POSSIBLE FUTURE IDEAS
+================================
+
+STATUS
+------
+This file is for ideas that are deliberately NOT part of the current implementation priority.
+Do not implement these unless the project explicitly returns to them.
+
+CURRENT PRIORITY
+----------------
+THE PKVAULT SHOP.
+
+The Shop should be completed before work begins on any Expedition / idle-RPG system.
+
+================================================================
+POSSIBLE FUTURE SYSTEM: PKVAULT EXPEDITIONS / IDLE RPG COMPANION
+================================================================
+
+Core idea
+---------
+A separate companion application linked to PKVault rather than a large feature embedded directly into PKVault.
+
+PKVault remains the authoritative owner of:
+- Pokemon
+- Pokemon identity / UUID
+- inventory
+- money
+- quests
+- achievements
+- contracts
+- permanent collection state
+
+The companion app would handle:
+- expedition boards
+- expedition timers
+- expedition health
+- fainting
+- healing / Pokemon Center
+- expedition danger
+- expedition-specific status
+- expedition results presentation
+
+The companion app should never directly edit PKVault's SQLite database, .item files, Pokemon files, or game saves behind PKVault's back.
+
+Pokemon checkout / locking
+--------------------------
+When a Pokemon is sent on an expedition:
+- It must be physically stored in PKVault first.
+- PKVault marks that Pokemon as Away / On Expedition.
+- The Pokemon cannot simultaneously be moved to a game, traded, deleted, or sent on another expedition.
+- The companion app receives the Pokemon's relevant snapshot/data through a dedicated PKVault companion API.
+- When the expedition ends, the companion app returns the result through PKVault.
+- PKVault then applies approved EXP / level progression, loot, and unlocks the Pokemon.
+
+PKVault may show a small status badge such as:
+  Away - Deep Trench Expedition - 2h 17m remaining
+
+But the actual game UI belongs in the companion app.
+
+Expedition environments
+-----------------------
+Potential expedition/environment types include:
+- Land
+- Air
+- Sea
+- Underwater
+- Forest
+- Cave
+- Mountain
+- Volcanic
+- Frozen
+- Ruins
+- Desert
+- Swamp
+- Special / Mythic locations such as Distortion-themed ruins, Ultra-Space-like zones, ancient temples, deep trenches, etc.
+
+Different Pokemon should perform better in environments that fit their:
+- type
+- level
+- ability
+- stats
+- moves
+- team composition
+
+Environment matches should improve expedition performance rather than always being absolute requirements.
+
+Example:
+A high-level Tyranitar may still brute-force a moderate Forest expedition even if it is not the ideal type.
+
+Expedition rating
+-----------------
+Possible calculation:
+Pokemon level
++ environment affinity
++ team synergy
++ ability bonuses
++ special bonuses
+= Expedition Power
+
+Example expedition:
+Deep Sea Salvage
+Duration: 4 hours
+Recommended level: 45+
+Team size: 3
+Favored: Water / Ice
+Expedition Power: 184 / 150
+Result estimate: Excellent
+
+Potential result tiers:
+- Barely Successful
+- Successful
+- Great
+- Excellent
+- Perfect
+
+Higher ratings can increase:
+- loot rolls
+- rare-loot chance
+- EXP
+- survival / health outcomes
+
+Daily expedition board
+----------------------
+The companion app could generate multiple expeditions each day with different:
+- environments
+- durations
+- difficulty levels
+- recommended levels
+- party-size requirements
+- favored types / abilities
+- loot pools
+
+Example daily board:
+- Forest Foraging - 30m - Easy
+- Coastal Search - 1h - Easy
+- Underground Survey - 2h - Medium
+- Mountain Air Patrol - 2h - Medium
+- Volcanic Excavation - 4h - Hard
+- Deep Trench Recovery - 6h - Hard
+- Ancient Ruins - 8h - Elite
+- Mysterious Distortion - 12h - Mythic
+
+Potential duration bands:
+- Quick: 15-30 minutes
+- Standard: 1-2 hours
+- Long: 4-6 hours
+- Overnight: 8-12 hours
+- Epic / Mythic: 12-24 hours
+
+Expedition parties
+------------------
+Potentially limit simultaneous parties.
+
+Example progression:
+- Start with 1 active expedition party.
+- Unlock additional party slots later through achievements, progression, or Shop upgrades.
+- A later maximum could be 2-3 concurrent parties.
+
+Health system
+-------------
+If Expeditions is ever built, persistent expedition health should be part of it.
+
+Pokemon can return at different HP percentages based on:
+- expedition danger
+- team strength
+- environment match
+- encounters / events
+- success rating
+
+Example return:
+- Gyarados - 64% HP
+- Lapras - 31% HP
+- Vaporeon - 78% HP
+
+Important:
+Pokemon should NEVER permanently die.
+
+At 0 HP:
+- Pokemon is fainted.
+- It returns from the expedition.
+- It cannot be redeployed until revived / healed.
+
+The expedition can potentially end early if the team becomes unable to continue.
+
+Example:
+Emergency Retreat
+Team HP became too low.
+Expedition ended early.
+Partial rewards recovered.
+
+Pokemon Center
+--------------
+The companion app could include a Pokemon Center.
+
+Potential rule:
+- Pokemon Center healing is free.
+- Healing may take some real time as part of the idle-game loop.
+
+PKVault healing items could optionally be consumed to heal instantly.
+
+Potential item behavior:
+- Potion: +20 expedition HP
+- Super Potion: +60
+- Hyper Potion: +120
+- Max Potion: full heal
+- Revive: revive a fainted Pokemon to 50%
+- Max Revive: fully revive
+
+If items are consumed, the companion app must request the transaction through PKVault's API so PKVault remains authoritative.
+
+Keep RPG stats small
+--------------------
+Do not turn this into an excessive spreadsheet RPG.
+
+Initial expedition-specific state should probably be limited to:
+- HP
+- Level / EXP
+- Fainted state
+
+Potential later addition:
+- Fatigue
+
+Avoid unnecessary systems unless proven useful:
+- hunger
+- morale
+- injury tables
+- equipment durability
+- many extra meters
+
+The Pokemon's existing canonical data already supplies most of the RPG depth:
+- species
+- form
+- level
+- stats
+- typing
+- ability
+- moves
+- nature
+- held item
+
+EXP and leveling
+----------------
+Expeditions should award real experience rather than simply applying "+2 levels."
+
+Lower-level Pokemon should gain levels more quickly.
+High-level Pokemon should require substantially more expedition EXP.
+
+Pokemon should not automatically evolve while away.
+
+If a Pokemon reaches an evolution requirement:
+- it returns with the new level / EXP
+- normal evolution decisions remain outside the expedition system
+
+Level-up move handling must be designed deliberately.
+The companion app should not blindly overwrite a player's moveset.
+
+Abilities / Pokemon traits
+--------------------------
+Pokemon properties could influence expedition performance.
+
+Examples:
+- Flying types: Air bonus
+- Water types: Sea / Underwater bonus
+- Pickup: extra item roll
+- Illuminate: Cave / Underwater exploration bonus
+- Flame Body: Frozen-area bonus
+- Levitate: Air / Ruins bonus
+- Sturdy / Rock Head: Mountain / Volcanic bonus
+
+Do not attempt hundreds of special interactions in the first version.
+
+Loot
+----
+Expedition loot can include:
+- Poke Balls
+- Great Balls
+- Ultra Balls
+- specialty Balls
+- Potions
+- Super Potions
+- Hyper Potions
+- Full Restores
+- Revives
+- berries
+- Apricorns
+- evolution stones
+- held items
+- fossils
+- Pearls / Big Pearls
+- Nuggets
+- Rare Candies
+- Bottle Caps
+- other rare rewards appropriate to the expedition
+
+Higher expedition ratings can provide more loot rolls.
+
+Example:
+Barely Successful: 2 rolls
+Successful: 3 rolls
+Great: 4 rolls
+Excellent: 5 rolls
+Perfect: 6 rolls + rare-roll bonus
+
+Example result:
+EXPEDITION COMPLETE
+
+Lapras gained 8,421 EXP
+Gyarados gained 7,885 EXP
+Vaporeon gained 9,103 EXP
+
+Lapras returned at 71% HP
+Gyarados returned at 43% HP
+Vaporeon returned at 88% HP
+
+Recovered:
+- Dive Ball x9
+- Hyper Potion x3
+- Big Pearl x2
+- Water Stone x1
+- Bottle Cap x1
+
+Rare Discovery!
+
+Contracts integration
+---------------------
+Future PKVault Contracts could use Expedition objectives.
+
+Examples:
+Master Explorer - Gold Contract
+Complete 5 Hard expeditions with an Excellent rating or better.
+
+Into the Abyss - Mythic Contract
+Complete a Mythic Underwater expedition using three level 80+ Water Pokemon.
+
+This would allow Contracts to cover more than catches or Dex work.
+
+Persistence rules
+-----------------
+Automatic expedition rewards must follow the same principle as automatic quest rewards:
+- result is validated
+- reward is committed immediately
+- loot is persisted immediately
+- legitimate EXP changes are persisted immediately
+- Pokemon lock is released only after successful result application
+
+Manual PKVault edits remain separate and should not accidentally be committed by an expedition reward.
+
+Companion API concept
+---------------------
+PKVault should expose a controlled API rather than sharing databases.
+
+Possible operations:
+- Get available Pokemon
+- Check out / lock Pokemon for expedition
+- Read allowed Pokemon snapshot
+- Consume PKVault item
+- Grant expedition loot
+- Apply validated EXP / level changes
+- Return Pokemon
+- Release expedition lock
+- Query active expedition locks
+
+The API should be generic enough that other PKVault companion applications could theoretically use it later.
+
+Why separate app
+----------------
+Once persistent health, fainting, Pokemon Center healing, timers, expedition danger, events, team building, loot, and progression are involved, Expeditions becomes a game rather than merely a PKVault storage feature.
+
+Keeping it separate:
+- keeps PKVault focused
+- reduces risk to storage/save functionality
+- makes Expeditions optional
+- lets the idle-RPG grow without bloating PKVault
+- keeps Pokemon/inventory authority in one place
+
+FINAL STATUS
+------------
+IDEA SAVED ONLY.
+
+Do not implement PKVault Expeditions right now.
+
+CURRENT DEVELOPMENT PRIORITY:
+PKVault SHOP.
