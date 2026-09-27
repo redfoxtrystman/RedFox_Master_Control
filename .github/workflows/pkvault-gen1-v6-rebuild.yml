@@ -69,6 +69,7 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha47.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha48.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha49.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha50.py pkvault-src
           test -f pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs
           test "$(grep -c '] = new(' pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs)" -ge 500
           git -C pkvault-src diff --check
@@ -1012,7 +1013,7 @@ jobs:
           test -s uranium-random-test/Uranium.rxdata
           test "$(wc -l < uranium-random-test/RANDOM_URANIUM_POKEMON.txt)" -eq 60
 
-      - name: Generate Alpha49 quest achievement test saves
+      - name: Generate Alpha50 quest achievement test saves
         run: |
           set -euo pipefail
           rm -rf quest-test-generator quest-test-saves
@@ -1210,7 +1211,7 @@ jobs:
           dotnet run --project quest-test-generator/quest-test-generator.csproj -c Release
 
           cat > quest-test-saves/README.txt <<'EOF'
-          PKVault V8 alpha49 - QUEST / ACHIEVEMENT LIVE TEST SAVES
+          PKVault V8 alpha50 - QUEST / ACHIEVEMENT LIVE TEST SAVES
           ========================================================
 
           These are disposable TEST SAVES. Keep them separate from your real game saves.
@@ -1252,10 +1253,10 @@ jobs:
           test -s "quest-test-saves/Pokemon Silver/Pokemon Silver - PKVault Quest Test.sav"
           test -s "quest-test-saves/Pokemon Insurgence/Game.rxdata"
 
-      - name: Upload Alpha49 quest achievement test saves
+      - name: Upload Alpha50 quest achievement test saves
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha49-QUEST-TEST-SAVES
+          name: PKVault-v8.0.0-alpha50-QUEST-TEST-SAVES
           path: quest-test-saves
           if-no-files-found: error
           retention-days: 30
@@ -1808,6 +1809,12 @@ jobs:
           test -f pkvault-src/PKVault.Core/storage/data-action/TrashInventoryItemAction.cs
           grep -q 'ReconcilePersistedBankFiles' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'PKVault item bank reconciled from persisted .item files' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          grep -q 'PersistQuestRewardToFiles' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'PersistedBankFileGate' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'Data Source={sessionService.MainDbPath};Mode=ReadOnly' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'including action undo/cancel rebuilds' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          grep -q "pkvault:inventory-refresh" pkvault-src/frontend/src/storage/actions/actions-panel.tsx
+          grep -q "pkvault:inventory-refresh" pkvault-src/frontend/src/inventory/inventory-page.tsx
           # alpha49 deadlock guard: the session-context bypass must be active before
           # ReconcilePersistedBankFiles can touch MetaLoader/EnsureSessionCreated.
           python3 - <<'PY'
@@ -1926,10 +1933,10 @@ jobs:
           cd pkvault-src
           docker build . --target frontend-check -t pkvault-v8-alpha8-frontend-check
 
-      - name: Package complete v8.0.0-alpha49-Uranium-Overlay-Dex source snapshot
+      - name: Package complete v8.0.0-alpha50-Uranium-Overlay-Dex source snapshot
         run: |
           set -euo pipefail
-          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-FULL-SOURCE"
+          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-FULL-SOURCE"
           rm -rf "$SOURCE_ROOT"
           mkdir -p "$SOURCE_ROOT"
 
@@ -1946,18 +1953,18 @@ jobs:
           rm -rf "$SOURCE_ROOT/PKVault/.git" "$SOURCE_ROOT/PKHeX/.git"
 
           cat > "$SOURCE_ROOT/SOURCE_README.txt" <<'EOF'
-          PKVault v8.0.0-alpha49-Uranium-Overlay-Dex FULL SOURCE
+          PKVault v8.0.0-alpha50-Uranium-Overlay-Dex FULL SOURCE
           ==========================
-          Release line: V8 alpha49 Essentials guarded read/write + desktop rxdata import (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
+          Release line: V8 alpha50 Essentials guarded read/write + desktop rxdata import (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
           PKVault upstream baseline: Chnapy/PKVault v2.3.3 fabd843590e2a0ea1646cc4d1d6bff9933679ff3
           PKHeX upstream baseline: kwsch/PKHeX 74b88906e935e4a52d6d9243b8e373056409c738
           RedFox build branch: pkvault-v8-uranium-insurgence
 
           Contents:
-          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha49-Uranium-Overlay-Dex.
+          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha50-Uranium-Overlay-Dex.
           - PKHeX/          Exact patched PKHeX source tree used to build PKHeX.Core.
           - RedFox-Rebuild/ Reconstruction patcher, trading sources, and trading smoke harness.
-          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha49-Uranium-Overlay-Dex.
+          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha50-Uranium-Overlay-Dex.
           - FUTURE PLANS.txt Planned Shop, Daily Quest, Quest, Achievement, tracking, and balance design.
 
           Reproduction:
@@ -1971,46 +1978,52 @@ jobs:
 
           (
             cd "$GITHUB_WORKSPACE/dist"
-            zip -9 -r PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-FULL-SOURCE.zip PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-FULL-SOURCE
+            zip -9 -r PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-FULL-SOURCE.zip PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-FULL-SOURCE
           )
 
-      - name: Upload PKVault v8.0.0-alpha49-Uranium-Overlay-Dex full source
+      - name: Upload PKVault v8.0.0-alpha50-Uranium-Overlay-Dex full source
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-FULL-SOURCE
+          name: PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-FULL-SOURCE
           path: |
-            dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-FULL-SOURCE.zip
+            dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-FULL-SOURCE.zip
           if-no-files-found: error
           retention-days: 90
 
       - name: Build Windows x64 PKVault executable
         run: |
           cd pkvault-src
-          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha49-Uranium-Overlay-Dex -t pkvault-v752-description-patch
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha50-Uranium-Overlay-Dex -t pkvault-v752-description-patch
           docker create --name pkvault-v752-description-patch-out pkvault-v752-description-patch
           mkdir -p ../dist
-          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
+          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
           docker rm pkvault-v752-description-patch-out
 
-      - name: Package V8 alpha49 truly clean Windows profile
+      - name: Package V8 alpha50 truly clean Windows profile
         run: |
           set -euo pipefail
           ROOT="$GITHUB_WORKSPACE"
-          OUT="$ROOT/dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-CLEAN"
-          EXE="$ROOT/dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-CLEAN"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
           rm -rf "$OUT"
           mkdir -p "$OUT"
 
-          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex.exe"
+          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex.exe"
 
           cat > "$OUT/README.txt" <<'EOF'
-          PKVault V8.0.0 alpha49 - CLEAN PROFILE
+          PKVault V8.0.0 alpha50 - CLEAN PROFILE
           ======================================
           This package contains NO seeded PKVault database, NO TMT compatibility
           Pokemon, and NO preloaded storage records.
 
           Use this executable for your real Pokémon Uranium / Insurgence / normal
           PKVault testing.
+
+          Alpha50:
+          - Trash remains a pending session action until Save. Removing/canceling the Trash action rebuilds inventory from the committed .item mirror and visibly restores the stack.
+          - Quest item rewards are now committed immediately to the persisted .item mirror as reward-only deltas, so Reload all data & saves cannot erase newly awarded items.
+          - Immediate quest persistence never writes unrelated pending inventory edits; it rebuilds from the committed mirror (or the last saved main DB when no mirror exists).
+          - Inventory listens for action-history resets so undoing/canceling a Trash action refreshes the visible stack immediately.
 
           Alpha49:
           - Fixes an Alpha48 startup deadlock where item-bank reconciliation called MetaLoader before SessionService activated its recursion/deadlock bypass.
@@ -2090,26 +2103,26 @@ jobs:
 
           (
             cd "$ROOT/dist"
-            zip -9 -r PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-CLEAN-win-x64.zip PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-CLEAN
-            ! unzip -l PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'compat-tmt-'
-            ! unzip -l PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'TMT-Type-Test'
+            zip -9 -r PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-CLEAN-win-x64.zip PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-CLEAN
+            ! unzip -l PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'compat-tmt-'
+            ! unzip -l PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'TMT-Type-Test'
           )
 
-      - name: Upload V8 alpha49 truly clean Windows profile
+      - name: Upload V8 alpha50 truly clean Windows profile
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-CLEAN-win-x64
+          name: PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-CLEAN-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-CLEAN-win-x64.zip
+            dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-CLEAN-win-x64.zip
           if-no-files-found: error
           retention-days: 30
 
-      - name: Package V8 alpha49 isolated compatibility test profiles
+      - name: Package V8 alpha50 isolated compatibility test profiles
         run: |
           set -euo pipefail
           ROOT="$GITHUB_WORKSPACE"
-          OUT="$ROOT/dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES"
-          EXE="$ROOT/dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
           rm -rf "$OUT"
           mkdir -p "$OUT/TMT-Type-Test" "$OUT/Uranium-Random-Test"
 
@@ -2120,7 +2133,7 @@ jobs:
           cp -a "$ROOT/uranium-random-test/." "$OUT/Uranium-Random-Test/"
 
           cat > "$OUT/README.txt" <<'EOF'
-          PKVault V8.0.0 alpha49 - ISOLATED COMPATIBILITY TEST PROFILES
+          PKVault V8.0.0 alpha50 - ISOLATED COMPATIBILITY TEST PROFILES
           ============================================================
           These folders are intentionally PRE-SEEDED and are NOT the clean build.
 
@@ -2149,34 +2162,34 @@ jobs:
 
           (
             cd "$ROOT/dist"
-            zip -9 -r PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES
+            zip -9 -r PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES
           )
 
-      - name: Upload V8 alpha49 isolated compatibility test profiles
+      - name: Upload V8 alpha50 isolated compatibility test profiles
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64
+          name: PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip
+            dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip
           if-no-files-found: error
           retention-days: 30
 
       - name: Package two isolated Windows trading profiles
         run: |
           set -euo pipefail
-          mkdir -p dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A
-          mkdir -p dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B
+          mkdir -p dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A
+          mkdir -p dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B
 
-          cp dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
-          cp dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
-            dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
+          cp dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
 
-          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/
-          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/
+          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/
 
-          cat > dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
-          PKVault v8.0.0-alpha49-Uranium-Overlay-Dex Online/VPN Trading + Permanent Dex Registration test
+          cat > dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
+          PKVault v8.0.0-alpha50-Uranium-Overlay-Dex Online/VPN Trading + Permanent Dex Registration test
           ===================================
           Trader A starts with:
             Abra, Growlithe, Machop, Gastly, Dratini, Scyther
@@ -2221,19 +2234,19 @@ jobs:
           - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
           EOF
 
-          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test/
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test/
 
-          (cd dist && zip -9 -r PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test)
+          (cd dist && zip -9 -r PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test)
           ls -lah dist
-          find dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
+          find dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
 
-      - name: Upload PKVault v8.0.0-alpha49-Uranium-Overlay-Dex online trading dex test
+      - name: Upload PKVault v8.0.0-alpha50-Uranium-Overlay-Dex online trading dex test
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64
+          name: PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64
           path: |
-            dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip
-            dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
-            dist/PKVault-v8.0.0-alpha49-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt
+            dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip
+            dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
+            dist/PKVault-v8.0.0-alpha50-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt
           if-no-files-found: error
           retention-days: 30
