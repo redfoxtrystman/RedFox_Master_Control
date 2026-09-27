@@ -1,13 +1,587 @@
 from pathlib import Path
-import base64, hashlib, subprocess, sys, zlib
+import sys
 
 root = Path(sys.argv[1]).resolve()
-payload = "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"
-patch = zlib.decompress(base64.b64decode(payload))
-expected = "4978d9e9b607220b59a426fbe7c44f29f600b4c86f663c145961ccfb6ab855f4"
-actual = hashlib.sha256(patch).hexdigest()
-if actual != expected:
-    raise RuntimeError(f"alpha48 patch checksum mismatch: {actual} != {expected}")
 
-subprocess.run(["git", "-C", str(root), "apply", "--whitespace=nowarn", "-"], input=patch, check=True)
+def replace_once(rel, old, new):
+    path = root / rel
+    text = path.read_text(encoding="utf-8")
+    if old not in text:
+        raise RuntimeError(f"{path}: alpha48 anchor missing")
+    path.write_text(text.replace(old, new, 1), encoding="utf-8")
+    print(f"patched {path}")
+
+replace_once(
+    "PKVault.Core/storage/services/ItemBankService.cs",
+    """public record MoveInventoryItemActionInput(
+    string SourceKind,
+    string SourceId,
+    string? SourcePouch,
+    int SourceSlot,
+    string TargetKind,
+    string TargetId,
+    string? TargetPouch,
+    int TargetSlot,
+    int Count
+);
+""",
+    """public record MoveInventoryItemActionInput(
+    string SourceKind,
+    string SourceId,
+    string? SourcePouch,
+    int SourceSlot,
+    string TargetKind,
+    string TargetId,
+    string? TargetPouch,
+    int TargetSlot,
+    int Count
+);
+
+public record TrashInventoryItemActionInput(
+    string SourceKind,
+    string SourceId,
+    int SourceSlot
+);
+""",
+)
+
+replace_once(
+    "PKVault.Core/storage/services/ItemBankService.cs",
+    """    public async Task GrantQuestReward(string questId, string itemKey, long count)
+""",
+    """    public async Task<ItemBankMoveResult> Trash(TrashInventoryItemActionInput input)
+    {
+        if (!IsBank(input.SourceKind))
+        {
+            throw new InvalidOperationException(
+                "Only PKVault Item Bank stacks can be trashed. Move the item into PKVault first."
+            );
+        }
+
+        var page = ParseBankPage(input.SourceId);
+        ValidateBankSlot(input.SourceSlot);
+
+        var bank = await LoadBankState();
+        var key = BankKey(page, input.SourceSlot);
+        var stack = bank.GetValueOrDefault(key)
+            ?? throw new InvalidOperationException(
+                "The PKVault inventory stack no longer exists. Reloading inventory will remove the phantom slot."
+            );
+
+        var others = await staticDataService.GetStaticOthers();
+        bank.Remove(key);
+        await SaveBankState(bank);
+
+        return new(
+            ItemName: GetItemName(others, stack.ItemKey),
+            MovedCount: checked((int)Math.Min(stack.Count, int.MaxValue)),
+            SourceVersion: null,
+            TargetVersion: null
+        );
+    }
+
+    public async Task GrantQuestReward(string questId, string itemKey, long count)
+""",
+)
+
+replace_once(
+    "PKVault.Core/storage/services/ItemBankService.cs",
+    """    private async Task<Dictionary<string, BankStack>> LoadBankState()
+""",
+    """    public async Task<bool> ReconcilePersistedBankFiles()
+    {
+        // The .item files are the human-editable persisted mirror of the item bank.
+        // During a normal live session the DB remains authoritative so unsaved
+        // drag/drop actions are not reverted. A fresh session/reload calls this
+        // method once, allowing intentional external file deletion to remove stale
+        // metadata instead of leaving an unmovable phantom inventory card.
+        if (!Directory.Exists(InventoryRoot))
+            return false;
+
+        var hasPersistedMirror = Directory.EnumerateDirectories(InventoryRoot).Any()
+            || Directory.EnumerateFiles(InventoryRoot, "*.item", SearchOption.AllDirectories).Any();
+
+        if (!hasPersistedMirror)
+            return false;
+
+        var fromFiles = ReadBankFiles();
+        var entity = await metaLoader.GetEntity(MetaKey.ITEM_BANK);
+        var current = entity is null
+            ? new Dictionary<string, BankStack>(StringComparer.Ordinal)
+            : ParseMeta(entity.Value);
+
+        static string Fingerprint(Dictionary<string, BankStack> bank)
+            => string.Join('\n', bank.Values
+                .Where(x => x.Count > 0)
+                .OrderBy(x => x.Page)
+                .ThenBy(x => x.Slot)
+                .Select(x => $"{x.Page}\t{x.Slot}\t{x.Id}\t{x.ItemKey}\t{x.Count}"));
+
+        if (string.Equals(Fingerprint(current), Fingerprint(fromFiles), StringComparison.Ordinal))
+            return false;
+
+        await SaveBankState(fromFiles);
+        return true;
+    }
+
+    private async Task<Dictionary<string, BankStack>> LoadBankState()
+""",
+)
+
+replace_once(
+    "PKVault.Core/db/services/SessionService.cs",
+    """            await Task.WhenAll(
+                ResetDbSession(flags),
+                savesLoadersService.Setup(flags)
+            );
+
+            if (checkInitialActions)
+""",
+    """            await Task.WhenAll(
+                ResetDbSession(flags),
+                savesLoadersService.Setup(flags)
+            );
+
+            // Reconcile the persisted .item mirror only at fresh-session/reload
+            // boundaries. Normal inventory reads keep the session DB authoritative
+            // so undoable drag/drop changes are not reverted.
+            using (var inventoryScope = sp.CreateScope())
+            {
+                var itemBankService = inventoryScope.ServiceProvider.GetRequiredService<ItemBankService>();
+                if (await itemBankService.ReconcilePersistedBankFiles())
+                    Log.Logger.Information("PKVault item bank reconciled from persisted .item files");
+            }
+
+            if (checkInitialActions)
+""",
+)
+
+(root / "PKVault.Core/storage/data-action/TrashInventoryItemAction.cs").write_text(
+"""namespace PKVault.Core;
+
+public class TrashInventoryItemAction(ItemBankService itemBankService) : DataAction<TrashInventoryItemActionInput>
+{
+    protected override async Task<DataActionPayload> Execute(TrashInventoryItemActionInput input, DataUpdateFlags flags)
+    {
+        var result = await itemBankService.Trash(input);
+        flags.SaveInfos = true;
+
+        return new(
+            type: DataActionType.TRASH_ITEM,
+            parameters: [
+                result.ItemName,
+                result.MovedCount,
+            ]
+        );
+    }
+}
+""",
+    encoding="utf-8",
+)
+
+replace_once(
+    "PKVault.Core/storage/data-action/DataAction.cs",
+    """    MOVE_ITEM,
+    CREATE_ITEM_PAGE,
+""",
+    """    MOVE_ITEM,
+    CREATE_ITEM_PAGE,
+    TRASH_ITEM,
+""",
+)
+
+replace_once(
+    "PKVault.Core/Program.cs",
+    """        services.AddScoped<MoveInventoryItemAction>();
+        services.AddScoped<MoveMoneyAction>();
+""",
+    """        services.AddScoped<MoveInventoryItemAction>();
+        services.AddScoped<TrashInventoryItemAction>();
+        services.AddScoped<MoveMoneyAction>();
+""",
+)
+
+replace_once(
+    "PKVault.Core/storage/services/ActionService.cs",
+    """    public async Task<DataUpdateFlags> MoveMoney(
+""",
+    """    public async Task<DataUpdateFlags> TrashInventoryItem(
+        string sourceKind, string sourceId, int sourceSlot
+    )
+    {
+        using var scope = sp.CreateScope();
+
+        return await AddAction(
+            scope,
+            (scope) => scope.ServiceProvider.GetRequiredService<TrashInventoryItemAction>(),
+            new(sourceKind, sourceId, sourceSlot)
+        );
+    }
+
+    public async Task<DataUpdateFlags> MoveMoney(
+""",
+)
+
+replace_once(
+    "PKVault.Core/storage/routes/StorageRoute.cs",
+    """    [HttpPut("inventory/money/move")]
+""",
+    """    [HttpDelete("inventory/item")]
+    public async Task<ItemInventoryStateDTO> TrashInventoryItem(
+        string sourceKind,
+        string sourceId,
+        int sourceSlot
+    )
+    {
+        await actionService.TrashInventoryItem(sourceKind, sourceId, sourceSlot);
+        return await itemBankService.GetState();
+    }
+
+    [HttpPut("inventory/money/move")]
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-api.ts",
+    """export const moveMoney = async (
+""",
+    """export const trashInventory = async (source: InventoryLocation) => {
+    if (source.kind !== 'bank')
+        throw new Error('Only PKVault Item Bank stacks can be trashed.');
+
+    const p = new URLSearchParams({
+        sourceKind: source.kind,
+        sourceId: source.id,
+        sourceSlot: String(source.slot),
+    });
+
+    return (await customInstance<{ data: InventoryState; status: number; headers: Headers }>(
+        '/api/storage/inventory/item?' + p.toString(),
+        { method: 'DELETE' }
+    )).data;
+};
+
+export const moveMoney = async (
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-page.tsx",
+    """import { createInventoryPage, loadInventory, moveInventory, moveMoney, resizeInventoryPage } from './inventory-api';
+""",
+    """import { createInventoryPage, loadInventory, moveInventory, moveMoney, resizeInventoryPage, trashInventory } from './inventory-api';
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-page.tsx",
+    """    React.useEffect(() => {
+        void reload();
+    }, [ reload ]);
+
+    const onMove = React.useCallback(async (
+""",
+    """    React.useEffect(() => {
+        void reload();
+    }, [ reload ]);
+
+    React.useEffect(() => {
+        const onReloadAll = () => void reload();
+        window.addEventListener('pkvault:reload-all', onReloadAll);
+        return () => window.removeEventListener('pkvault:reload-all', onReloadAll);
+    }, [ reload ]);
+
+    const onMove = React.useCallback(async (
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-page.tsx",
+    """    const onMoveMoney = React.useCallback(async (
+""",
+    """    const onTrash = React.useCallback(async (source: InventoryLocation) => {
+        try {
+            setState(await trashInventory(source));
+            setError(undefined);
+            await queryClient.invalidateQueries();
+        } catch (e) {
+            const message = e instanceof Error ? e.message : String(e);
+            setError(message);
+            throw e;
+        }
+    }, [ queryClient ]);
+
+    const onMoveMoney = React.useCallback(async (
+""",
+)
+
+page_path = root / "frontend/src/inventory/inventory-page.tsx"
+page_text = page_path.read_text(encoding="utf-8")
+needle = """                onSplit={onMove}
+                onCreatePage={onCreatePage}
+"""
+if page_text.count(needle) != 2:
+    raise RuntimeError(f"{page_path}: expected two inventory-panel anchors")
+page_path.write_text(
+    page_text.replace(
+        needle,
+        """                onSplit={onMove}
+                onTrash={onTrash}
+                onCreatePage={onCreatePage}
+""",
+    ),
+    encoding="utf-8",
+)
+print(f"patched {page_path}")
+
+replace_once(
+    "frontend/src/inventory/inventory-panel.tsx",
+    """    onSplit: (source: InventoryLocation, target: InventoryLocation, count: number) => Promise<void>;
+    onCreatePage: () => Promise<number>;
+""",
+    """    onSplit: (source: InventoryLocation, target: InventoryLocation, count: number) => Promise<void>;
+    onTrash: (source: InventoryLocation) => Promise<void>;
+    onCreatePage: () => Promise<number>;
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-panel.tsx",
+    """    state, initial, onSplit, onCreatePage, onResizePage, onError
+""",
+    """    state, initial, onSplit, onTrash, onCreatePage, onResizePage, onError
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-panel.tsx",
+    """                    onSplit={onSplit}
+                    onError={onError}
+""",
+    """                    onSplit={onSplit}
+                    onTrash={onTrash}
+                    onError={onError}
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-item.tsx",
+    """import { LockIcon, SplitIcon } from 'lucide-react';
+""",
+    """import { LockIcon, SplitIcon, Trash2Icon } from 'lucide-react';
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-item.tsx",
+    """    onSplit: (
+        source: InventoryLocation,
+        target: InventoryLocation,
+        count: number,
+    ) => Promise<void>;
+    onError: (message: string) => void;
+""",
+    """    onSplit: (
+        source: InventoryLocation,
+        target: InventoryLocation,
+        count: number,
+    ) => Promise<void>;
+    onTrash: (source: InventoryLocation) => Promise<void>;
+    onError: (message: string) => void;
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-item.tsx",
+    """    onSplit,
+    onError,
+}) => {
+""",
+    """    onSplit,
+    onTrash,
+    onError,
+}) => {
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-item.tsx",
+    """    const [ splitAmount, setSplitAmount ] = React.useState(1);
+    const [ tab, setTab ] = React.useState<string | null>('stack');
+""",
+    """    const [ splitAmount, setSplitAmount ] = React.useState(1);
+    const [ confirmTrash, setConfirmTrash ] = React.useState(false);
+    const [ trashing, setTrashing ] = React.useState(false);
+    const [ tab, setTab ] = React.useState<string | null>('stack');
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-item.tsx",
+    """    const itemButton = <WithControlsIcons
+""",
+    """    const trash = async () => {
+        if (!isBank)
+            return;
+
+        try {
+            setTrashing(true);
+            await onTrash(location);
+            setOpened(false);
+            setConfirmTrash(false);
+        } catch (error) {
+            onError(error instanceof Error ? error.message : String(error));
+        } finally {
+            setTrashing(false);
+        }
+    };
+
+    const itemButton = <WithControlsIcons
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-item.tsx",
+    """        <Popover
+            opened={opened}
+            onChange={setOpened}
+""",
+    """        <Popover
+            opened={opened}
+            onChange={value => {
+                setOpened(value);
+                if (!value)
+                    setConfirmTrash(false);
+            }}
+""",
+)
+
+replace_once(
+    "frontend/src/inventory/inventory-item.tsx",
+    """                                    <Button
+                                        leftSection={
+                                            <SplitIcon size={14} />
+                                        }
+                                        disabled={
+                                            nearestEmptySlot === undefined
+                                            || slot.count <= 1
+                                            || splitAmount <= 0
+                                            || splitAmount >= slot.count
+                                        }
+                                        onClick={() => void split()}
+                                    >
+                                        Split
+                                    </Button>
+                                </>
+""",
+    """                                    <Button
+                                        leftSection={
+                                            <SplitIcon size={14} />
+                                        }
+                                        disabled={
+                                            nearestEmptySlot === undefined
+                                            || slot.count <= 1
+                                            || splitAmount <= 0
+                                            || splitAmount >= slot.count
+                                        }
+                                        onClick={() => void split()}
+                                    >
+                                        Split
+                                    </Button>
+
+                                    <Button
+                                        color='red'
+                                        variant={confirmTrash ? 'filled' : 'light'}
+                                        leftSection={<Trash2Icon size={14} />}
+                                        loading={trashing}
+                                        onClick={() => {
+                                            if (confirmTrash)
+                                                void trash();
+                                            else
+                                                setConfirmTrash(true);
+                                        }}
+                                    >
+                                        {confirmTrash
+                                            ? 'Confirm trash ×' + slot.count
+                                            : 'Trash stack'}
+                                    </Button>
+
+                                    {confirmTrash && <Text size='xs' c='red'>
+                                        Removes the whole stack from PKVault. You can still undo this action before saving.
+                                    </Text>}
+                                </>
+""",
+)
+
+replace_once(
+    "frontend/src/header/header.tsx",
+    """                    onClick={() => savesScanMutation.mutateAsync()}
+""",
+    """                    onClick={async () => {
+                        await savesScanMutation.mutateAsync();
+                        window.dispatchEvent(new Event('pkvault:reload-all'));
+                    }}
+""",
+)
+
+replace_once(
+    "frontend/src/storage/actions/hooks/use-action-description.ts",
+    """            [ DataActionType.CREATE_ITEM_PAGE ]: () =>
+                'Create PKVault item box ' + parameters[ 0 ],
+""",
+    """            [ DataActionType.CREATE_ITEM_PAGE ]: () =>
+                'Create PKVault item box ' + parameters[ 0 ],
+            [ DataActionType.TRASH_ITEM ]: () =>
+                'Trash ×' + parameters[ 1 ] + ' ' + parameters[ 0 ] + ' from PKVault Item Bank',
+""",
+)
+
+replace_once(
+    "frontend/src/storage/actions/action-label.tsx",
+    """    CreateItemPage: () => {
+        return <>
+            <PackageOpenIcon />
+            <ThemeIcon variant='transparent' color='gray' size='xs' fz='sm'>
+                <PlusCircleIcon />
+            </ThemeIcon>
+        </>;
+    },
+""",
+    """    CreateItemPage: () => {
+        return <>
+            <PackageOpenIcon />
+            <ThemeIcon variant='transparent' color='gray' size='xs' fz='sm'>
+                <PlusCircleIcon />
+            </ThemeIcon>
+        </>;
+    },
+    TrashItem: () => {
+        return <>
+            <PackageOpenIcon />
+            <ThemeIcon variant='transparent' color='red' size='xs' fz='sm'>
+                <TrashIcon />
+            </ThemeIcon>
+        </>;
+    },
+""",
+)
+
+replace_once(
+    "frontend/src/storage/actions/action-label.tsx",
+    """        [ DataActionType.CREATE_ITEM_PAGE ]: ActionLabelMap.CreateItemPage,
+""",
+    """        [ DataActionType.CREATE_ITEM_PAGE ]: ActionLabelMap.CreateItemPage,
+        [ DataActionType.TRASH_ITEM ]: ActionLabelMap.TrashItem,
+""",
+)
+
+replace_once(
+    "frontend/src/ui/actions-panel/utils/get-action-color.ts",
+    """        case DataActionType.MAIN_DELETE_BANK:
+""",
+    """        case DataActionType.TRASH_ITEM:
+        case DataActionType.MAIN_DELETE_BANK:
+""",
+)
+
 print("PKVault V8 alpha48 inventory trash and phantom-item reconciliation applied")
