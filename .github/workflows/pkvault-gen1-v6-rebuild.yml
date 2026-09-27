@@ -94,6 +94,15 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52j.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52k1.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52k2.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52l.py pkvault-src
+          grep -q "QuestClaimAllRequest" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'HttpPost("claim-all")' pkvault-src/PKVault.Core/quest/routes/QuestRoute.cs
+          grep -q "JsonSerializable(typeof(QuestClaimAllRequest))" pkvault-src/PKVault.Core/router/RouteJsonContext.cs
+          grep -q "/api/quest/claim-all" pkvault-src/frontend/src/quests/quest-api.ts
+          grep -q "Claim All (" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "dailyClaimableIds" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "questClaimableIds" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "achievementClaimableIds" pkvault-src/frontend/src/quests/quest-page.tsx
           grep -q "bool Claimable" pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q "QuestClaimRequest" pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'HttpPost("claim")' pkvault-src/PKVault.Core/quest/routes/QuestRoute.cs
