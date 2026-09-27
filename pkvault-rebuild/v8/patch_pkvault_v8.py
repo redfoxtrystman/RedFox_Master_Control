@@ -1212,28 +1212,54 @@ replace_once(pkm_save_dto,
 ''')
 
 move_action = PKVAULT / "PKVault.Core/storage/data-action/MovePkmAction.cs"
-replace_once(move_action,
-'''        if (!targetSaveLoaders.Save.IsSpeciesAllowed(sourcePkmDto.Species))
+move_text = move_action.read_text(encoding="utf-8")
+
+legacy_save_to_save = '''        if (!targetSaveLoaders.Save.IsSpeciesAllowed(sourcePkmDto.Species))
         {
             throw new ArgumentException($"Save Pkm Species not compatible with save for id={sourcePkmDto.Id}, species={sourcePkmDto.Species}, save.maxSpecies={targetSaveLoaders.Save.MaxSpeciesID}");
         }
-''',
-'''        if (!targetSaveLoaders.Save.IsPkmAllowed(sourcePkmDto.Pkm))
+'''
+modern_save_to_save = '''        if (!targetSaveLoaders.Save.Personal.IsPresentInGame(sourcePkmDto.Species, sourcePkmDto.Form))
+        {
+            throw new ArgumentException($"Save Pkm Species not compatible with save for id={sourcePkmDto.Id}, species={sourcePkmDto.Species}, save.maxSpecies={targetSaveLoaders.Save.MaxSpeciesID}");
+        }
+'''
+profile_save_to_save = '''        if (!targetSaveLoaders.Save.IsPkmAllowed(sourcePkmDto.Pkm))
         {
             throw new ArgumentException($"Save Pkm profile/species not compatible with target save for id={sourcePkmDto.Id}.");
         }
-''')
-replace_once(move_action,
-'''        if (!saveLoaders.Save.IsSpeciesAllowed(pkm.Species))
+'''
+if modern_save_to_save in move_text:
+    move_text = move_text.replace(modern_save_to_save, profile_save_to_save, 1)
+elif legacy_save_to_save in move_text:
+    move_text = move_text.replace(legacy_save_to_save, profile_save_to_save, 1)
+else:
+    raise RuntimeError(f"{move_action}: cannot find SaveToSave compatibility guard")
+
+legacy_main_to_save = '''        if (!saveLoaders.Save.IsSpeciesAllowed(pkm.Species))
         {
             throw new ArgumentException($"PkmVariantEntity Species not compatible with save for id={pkmVariant.Id}, species={pkm.Species}, save.maxSpecies={saveLoaders.Save.MaxSpeciesID}");
         }
-''',
-'''        if (!saveLoaders.Save.IsPkmAllowed(pkm))
+'''
+modern_main_to_save = '''        if (!saveLoaders.Save.Personal.IsPresentInGame(pkm.Species, pkm.Form))
+        {
+            throw new ArgumentException($"PkmVariantEntity Species not compatible with save for id={pkmVariant.Id}, species={pkm.Species}, save.maxSpecies={saveLoaders.Save.MaxSpeciesID}");
+        }
+'''
+profile_main_to_save = '''        if (!saveLoaders.Save.IsPkmAllowed(pkm))
         {
             throw new ArgumentException($"PkmVariantEntity profile/species not compatible with target save for id={pkmVariant.Id}.");
         }
-''')
+'''
+if modern_main_to_save in move_text:
+    move_text = move_text.replace(modern_main_to_save, profile_main_to_save, 1)
+elif legacy_main_to_save in move_text:
+    move_text = move_text.replace(legacy_main_to_save, profile_main_to_save, 1)
+else:
+    raise RuntimeError(f"{move_action}: cannot find MainToSave compatibility guard")
+
+move_action.write_text(move_text, encoding="utf-8")
+print(f"patched {move_action}")
 replace_once(move_action,
 '''        await new DexMainService(sp).EnablePKM(savePkm.Pkm, savePkm.Save);
 ''',
