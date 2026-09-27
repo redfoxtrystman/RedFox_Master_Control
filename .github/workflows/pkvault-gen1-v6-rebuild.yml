@@ -91,6 +91,14 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52h2.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52h3.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52i.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52j.py pkvault-src
+          grep -q "Pooling=False" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "Pooling=False" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "Mode=ReadOnly;Pooling=False" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "SqliteConnection.ClearAllPools();" pkvault-src/PKVault.Core/backup/services/BackupService.cs
+          grep -q 'new("nugget", "Valuables", 0, 5000, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new("big-nugget", "Valuables", 0, 20000, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q "'Valuables': 'nugget'" pkvault-src/frontend/src/shop/shop-page.tsx
           test -f pkvault-src/PKVault.Core/progression/ProgressionFileStore.cs
           grep -q "services.AddSingleton<ProgressionFileStore>();" pkvault-src/PKVault.Core/Program.cs
           grep -q "pkvault-progression.dat" pkvault-src/PKVault.Core/progression/ProgressionFileStore.cs
