@@ -6,7 +6,7 @@ Purpose
 This file records planned PKVault features that are intentionally NOT implemented yet.
 It is the design source of truth for the future Shop, Daily Quest, Quest, and Achievement systems.
 
-CURRENT IMPLEMENTATION STATUS - ALPHA48
+CURRENT IMPLEMENTATION STATUS - ALPHA49
 ---------------------------------------
 - Legendary first-catch achievements are live and permanently claimed across PKVault.
 - Completed Daily Quest / Quest / Achievement cards turn green.
@@ -40,6 +40,8 @@ CURRENT IMPLEMENTATION STATUS - ALPHA48
 - Alpha47 adds Original Color Magearna as a one-time Pokémon reward for the All-Regions Archivist Achievement, deposited directly into central PKVault storage from PKHeX's official Pokémon HOME gift template.
 - Existing users who completed All-Regions Archivist before Alpha47 receive the Magearna exactly once without reissuing the older item/money reward.
 - Alpha47 removes the filter bar from Daily Quests and places full-size filter controls directly inside the Quests and Achievements tab bodies, fixing the collapsed one-line filter UI.
+- Alpha49 fixes the Alpha48 startup deadlock caused by running .item reconciliation before SessionService enabled its context-recursion bypass.
+- Item-bank reconciliation now runs inside the already-bypassed session scope and clears the bypass in a finally block, preserving phantom-item cleanup without allowing StartNewSession to await itself.
 - Alpha48 reconciles the central item-bank metadata against the persisted .item mirror whenever Reload all data & saves starts a fresh session, so externally deleted .item files no longer leave dead phantom inventory cards.
 - Alpha48 adds a bank-only two-step Trash stack action. Trashing is a normal pending PKVault action, can be undone before Save, and is only finalized to the .item mirror when changes are saved.
 - Inventory now refreshes its local UI immediately after the global Reload all data & saves command completes.
