@@ -25,3 +25,22 @@ if "typeof(ShopController)," not in router_text:
         raise RuntimeError("alpha51c Shop router anchor not found")
     router_path.write_text(router_text.replace(anchor, replacement, 1), encoding="utf-8")
 print("PKVault V8 alpha51c Shop routes registered in CoreRouter")
+
+
+# Alpha51d: DesktopInvoker serializes CoreJSONResponse through the source-generated
+# RouteJsonContext. Without Shop DTO registration, GET /api/shop reaches the
+# controller successfully but HybridWebView fails while serializing the 200 response.
+# Register both response and request DTOs so GET and BUY/SELL body binding work.
+json_context_path = root / "PKVault.Core/router/RouteJsonContext.cs"
+json_context_text = json_context_path.read_text(encoding="utf-8")
+if "[JsonSerializable(typeof(ShopStateDTO))]" not in json_context_text:
+    anchor = "[JsonSerializable(typeof(QuestRerollRequest))]\n"
+    replacement = anchor + """[JsonSerializable(typeof(ShopStateDTO))]
+[JsonSerializable(typeof(ShopItemDTO))]
+[JsonSerializable(typeof(ShopTransactionRequestDTO))]
+[JsonSerializable(typeof(ShopTransactionLineDTO))]
+"""
+    if anchor not in json_context_text:
+        raise RuntimeError("alpha51d Shop JSON context anchor not found")
+    json_context_path.write_text(json_context_text.replace(anchor, replacement, 1), encoding="utf-8")
+print("PKVault V8 alpha51d Shop DTOs registered in RouteJsonContext")
