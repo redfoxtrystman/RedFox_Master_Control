@@ -53,3 +53,15 @@ if save_anchor not in text:
 text = text.replace(save_anchor, save_replacement, 1)
 quest_service.write_text(text, encoding="utf-8")
 print("PKVault V8 alpha45 false Essentials full-Dex completion repair applied")
+
+
+# Alpha45 TS6 status-filter tuple compatibility.
+quest_page = root / "frontend/src/quests/quest-page.tsx"
+text = quest_page.read_text(encoding="utf-8")
+status_anchor = "              onClick={() => setStatus(value)}\n"
+status_replacement = "              onClick={() => setStatus(value ?? 'all')}\n"
+if status_anchor not in text:
+    raise RuntimeError(f"{quest_page}: Alpha45 status-filter click anchor missing")
+text = text.replace(status_anchor, status_replacement, 1)
+quest_page.write_text(text, encoding="utf-8")
+print("PKVault V8 Alpha45 TS6 status-filter tuple compatibility applied")
