@@ -1988,18 +1988,43 @@ replace_once(move_action_v15,
 
         // if pkmVariant for context doesn't exist
 ''')
-replace_once(move_action_v15,
-'''        if (pkmVariantForContext == default)
+move_v15_text = move_action_v15.read_text(encoding="utf-8")
+legacy_missing_variant = '''        if (pkmVariantForContext == default)
         {
             var mainVariant = pkmVariants.Find(variant => variant.IsMain);
+'''
+modern_missing_variant = '''        if (pkmVariantForContext == default)
+        {
+            var mainVariant = pkmVariants.First(variant => variant.IsMain);
+'''
+if modern_missing_variant in move_v15_text:
+    move_v15_text = move_v15_text.replace(
+        modern_missing_variant,
+        '''        if (pkmVariantForContext == default)
+        {
+            if (essentialsTarget != null)
+                throw new ArgumentException("No source Pokémon variant exists for Essentials import.");
+
+            var mainVariant = pkmVariants.First(variant => variant.IsMain);
 ''',
-'''        if (pkmVariantForContext == default)
+        1,
+    )
+elif legacy_missing_variant in move_v15_text:
+    move_v15_text = move_v15_text.replace(
+        legacy_missing_variant,
+        '''        if (pkmVariantForContext == default)
         {
             if (essentialsTarget != null)
                 throw new ArgumentException("No source Pokémon variant exists for Essentials import.");
 
             var mainVariant = pkmVariants.Find(variant => variant.IsMain);
-''')
+''',
+        1,
+    )
+else:
+    raise RuntimeError(f"{move_action_v15}: cannot find missing-context variant block")
+move_action_v15.write_text(move_v15_text, encoding="utf-8")
+print(f"patched {move_action_v15}")
 replace_once(move_action_v15,
 '''        if (pkmVariant.Context != saveLoaders.Save.Context)
         {
