@@ -32,7 +32,7 @@ public static class Gen1GlitchYellow
     private static readonly IReadOnlyDictionary<byte, (string Name, ushort Dex)> Named =
         new Dictionary<byte, (string, ushort)>
         {
-            [0x00] = ("3TrainerPoké $",176), [0xBF] = ("4 4",250), [0xC0] = ("4 4 Hy",80),
+            [0x00] = ("3TrainerPoké $",176), [0xBF] = ("4 4",250), [0xC0] = ("4 4Hy",80),
             [0xC1] = ("♀ .",205), [0xC2] = ("PkMnp' '",230), [0xC3] = ("ゥ ( Z4",15),
             [0xC4] = ("X ゥ- xゥ,",203), [0xC5] = ("4. .",55), [0xC6] = ("ァ7g",79),
             [0xC7] = ("u",6), [0xC8] = ("g g",0), [0xC9] = ("ァ / g J 1",33),
@@ -49,7 +49,7 @@ public static class Gen1GlitchYellow
             [0xE8] = ("4(h4hi?$",119), [0xE9] = ("4HI?",33), [0xEA] = ("'r ゥ",143),
             [0xEB] = ("$ Pゥ. 4(",195), [0xEC] = ("?/",17), [0xED] = ("4(h4?",159),
             [0xEE] = ("ゥ► ゥ▼ ゥ",195), [0xEF] = ("h 4Pゥ ゥ...",40), [0xF0] = (". ゥ ( .I' .",6),
-            [0xF1] = ("' B' ゥ",33), [0xF2] = ("ゥ ゥぇ ゥ ▷",127), [0xF3] = ("ゥ $ A (F3)",195),
+            [0xF1] = ("' B' ゥ",33), [0xF2] = ("ゥ ゥェ ゥ ▷",127), [0xF3] = ("ゥ $ A (F3)",195),
             [0xF4] = ("♂ p ゥ",17), [0xF5] = ("▼ pゥ",143), [0xF6] = ("ゥ $ A (F6)",195),
             [0xF7] = ("PkMn (F7)",1), [0xF8] = ("ゥ 4- 4",144), [0xF9] = ("$",0),
             [0xFA] = ("ゥ▾ ゥ♂",126), [0xFB] = ("F q ,",18), [0xFC] = ("ゥ$ 4MN ゥ",43),
