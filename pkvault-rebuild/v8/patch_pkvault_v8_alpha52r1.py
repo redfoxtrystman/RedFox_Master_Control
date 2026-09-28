@@ -2,6 +2,7 @@ from pathlib import Path
 import sys
 
 root = Path(sys.argv[1]).resolve()
+pkhex_root = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else root / "PKHeX"
 
 def rep(text: str, old: str, new: str, label: str) -> str:
     if old not in text:
@@ -12,7 +13,7 @@ def rep(text: str, old: str, new: str, label: str) -> str:
 # PKHeX-side occupancy: all 105 R/B glitch index values map to national species
 # 0. Keep raw 00's body check so a genuinely blank slot is still empty.
 # ---------------------------------------------------------------------------
-p = root / "PKHeX/PKHeX.Core/PKM/Shared/PokeList1.cs"
+p = pkhex_root / "PKHeX.Core/PKM/Shared/PokeList1.cs"
 text = p.read_text(encoding="utf-8")
 text = rep(
     text,
