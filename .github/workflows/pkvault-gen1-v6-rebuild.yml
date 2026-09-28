@@ -104,6 +104,2572 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52r1.py pkvault-src pkhex-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52r2.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52s.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52t.py pkvault-src
+          grep -q 'new("berry", "Berries", 200, 100)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new("persim-berry", "Berries", 200, 100)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          test "$(grep -c '"Berries", 200, 100' pkvault-src/PKVault.Core/shop/ShopService.cs)" -eq 18
+          test -f pkvault-src/PKVault.Core/storage/glitch/Gen1GlitchYellow.cs
+          grep -q '3TrainerPoké \          grep -q 'new("x-special", "Battle", 350, 175)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new("red-apricorn", "Apricorns", 1000, 100, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'ApricornRainbowAchievementId' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'Apricorn Shop Unlock' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "'Apricorns': 'red-apricorn'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "'Vitamins': 'protein'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "SpeciesConverter.GetNational1(pk.SpeciesInternal) == 0" pkhex-src/PKHeX.Core/PKM/Shared/PokeList1.cs
+          test -f pkvault-src/PKVault.Core/storage/glitch/Gen1GlitchDex.cs
+          grep -q "Gen1GlitchIndex" pkvault-src/PKVault.Core/storage/dto/PkmBaseDTO.cs
+          grep -q "G1GLITCH_" pkvault-src/PKVault.Core/storage/wrapper/ImmutablePKM.cs
+          grep -q "gen1GlitchIndex" pkvault-src/frontend/src/img/species-img.tsx
+          grep -q "Exact Red/Blue glitch-name tiles" pkvault-src/frontend/src/ui/storage/storage-details/ui-details-main.tsx
+          grep -q "suppressTitle?: boolean" pkvault-src/frontend/src/img/species-img.tsx
+          grep -q "suppressTitle={!isSeen}" pkvault-src/frontend/src/romhacks/uranium-pokedex.tsx
+          grep -q "suppressTitle={!isSeen}" pkvault-src/frontend/src/romhacks/insurgence-pokedex.tsx
+          grep -q "POKE_DOLLAR_BANK = 6" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q "ITEM_SAVE_PROVENANCE = 5" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q "ITEM_BANK_PAGE_NAMES = 24" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q "TryLoadShiftedMoneyBank" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "TryLoadShiftedPageNames" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "AcceptedItemKeys" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "acceptedItemKeys: pocket.acceptedItemKeys" pkvault-src/frontend/src/inventory/inventory-move-provider.tsx
+          grep -q "is not compatible with this game/pocket" pkvault-src/frontend/src/inventory/inventory-move-provider.tsx
+          grep -q "ShopCompatibilityDTO" pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q "CompatibleGames: compatibleGames" pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q "getSaveDisplayName" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "moneyBankPendingSave" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "unsaved changes (live" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'MasterBallUnlockProgressionKey = "shop.master-ball.unlocked"' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new("master-ball", "Poké Balls", 3_500_000, 0, true, false)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q "Compatible with " pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "const modeItems = state.items" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "<CategoryList items={modeItems}" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q 'TmUnlockProgressionKey = "shop.tm.unlocks"' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'GetMinimumGeneration' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new(tm, "TMs", 3000, 1500' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'IsMovableItem(pouch.Type, itemKey)' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'InventoryType.TMHMs && IsHmKey' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          ! grep -q "'Stones': 'hard-stone'" pkvault-src/frontend/src/shop/shop-page.tsx
+          ! grep -q "'Key Items': 'coin-case'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q 'ITEM_BANK_PAGE_NAMES' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'string Name,' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'HttpPut("inventory/page")' pkvault-src/PKVault.Core/storage/routes/StorageRoute.cs
+          grep -q "label='Box name'" pkvault-src/frontend/src/inventory/inventory-page-edit.tsx
+          grep -q 'label: p.name' pkvault-src/frontend/src/inventory/inventory-panel.tsx
+          grep -q "QuestClaimAllRequest" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'HttpPost("claim-all")' pkvault-src/PKVault.Core/quest/routes/QuestRoute.cs
+          grep -q "JsonSerializable(typeof(QuestClaimAllRequest))" pkvault-src/PKVault.Core/router/RouteJsonContext.cs
+          grep -q "/api/quest/claim-all" pkvault-src/frontend/src/quests/quest-api.ts
+          grep -q "Claim All (" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "dailyClaimableIds" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "questClaimableIds" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "achievementClaimableIds" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "bool Claimable" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "QuestClaimRequest" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'HttpPost("claim")' pkvault-src/PKVault.Core/quest/routes/QuestRoute.cs
+          grep -q "JsonSerializable(typeof(QuestClaimRequest))" pkvault-src/PKVault.Core/router/RouteJsonContext.cs
+          grep -q "READY TO CLAIM" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "/api/quest/claim" pkvault-src/frontend/src/quests/quest-api.ts
+          ! grep -q 'dex-{game.Key}-25' pkvault-src/PKVault.Core/quest/QuestService.cs
+          ! grep -q 'dex-{game.Key}-complete' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "Pooling=False" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "Pooling=False" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "Mode=ReadOnly;Pooling=False" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "SqliteConnection.ClearAllPools();" pkvault-src/PKVault.Core/backup/services/BackupService.cs
+          grep -q 'new("nugget", "Valuables", 0, 5000, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new("big-nugget", "Valuables", 0, 20000, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q "'Valuables': 'nugget'" pkvault-src/frontend/src/shop/shop-page.tsx
+          test -f pkvault-src/PKVault.Core/progression/ProgressionFileStore.cs
+          grep -q "services.AddSingleton<ProgressionFileStore>();" pkvault-src/PKVault.Core/Program.cs
+          grep -q "pkvault-progression.dat" pkvault-src/PKVault.Core/progression/ProgressionFileStore.cs
+          grep -q "LoadMetaValue(MetaKey.QUEST_DAILY_STATE)" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "LoadMetaValue(MetaKey.CONTRACT_STATE)" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "pkvault-quest-toast-seen-v1" pkvault-src/frontend/src/quests/quest-toast.tsx
+          grep -q "pkvault:reload-start" pkvault-src/frontend/src/header/header.tsx
+          grep -q "enabled: !reloadPaused" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "PROGRESSION_CLOCK_STATE" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q "PersistMetaToMainDb" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "PersistMetaToMainDb" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "sessionStartedLocal" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "timeZoneId" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "ApplyProgressionMoneyDelta" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "ApplyProgressionMoneyDelta(-cost)" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "vaultCaughtSpecies" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "currentCaught.Concat(vaultCaughtSpecies)" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "return dto.IdBase;" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "return dto.IdBase;" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "IPkmVariantLoader pkmVariantLoader" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "RememberVaultPokemon" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "GetPkmIdentity(PkmBaseDTO dto)" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "GetPkmIdentity(PkmBaseDTO dto)" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "Treat Pokémon already stored in local PKVault as previously owned" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "height: rowHeight" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "const innerHeight" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "boxSizing: 'border-box'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "Thirty Species Hunt" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'R("rare-candy", 5), R("ultra-ball", 20), R("full-restore", 5), R("pp-up", 2)' pkvault-src/PKVault.Core/contract/ContractService.cs
+          ! grep -q 'hard-species-30.*R("rare-candy", 20)' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'R("fire-stone", 1)' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'R("pp-up", 10)' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "services.AddScoped<ContractController>();" pkvault-src/PKVault.Core/Program.cs
+          test -f pkvault-src/PKVault.Core/contract/ContractService.cs
+          test -f pkvault-src/PKVault.Core/contract/ContractController.cs
+          test -f pkvault-src/frontend/src/contracts/contract-api.ts
+          grep -q "typeof(ContractController)" pkvault-src/PKVault.Core/router/CoreRouter.cs
+          grep -q "CONTRACT_STATE" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q "JsonSerializable(typeof(ContractStateDTO))" pkvault-src/PKVault.Core/router/RouteJsonContext.cs
+          grep -q "Contract Board" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "value='contracts'" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "roll < 85" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "mythical-mewtwo" pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q "visibleCatalogRows = Math.max(6, Math.round(12 / shopScale))" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "catalogViewportRef" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "rowHeight={catalogRowHeight}" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "\[ 50, 75, 100, 125, 150, 175, 200 \]" pkvault-src/frontend/src/ui/layout/header/sub-header/ui-sprite-sizing-button.tsx
+          grep -q "\-\-mantine-scale': shopScale" pkvault-src/frontend/src/shop/shop-page.tsx
+          ! grep -q "automaticDisplayScale" pkvault-src/frontend/src/shop/shop-page.tsx
+          ! grep -q "useViewportSize" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "fullWidth" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "calc(170px \* var(--mantine-scale, 1))" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "calc(64px \* var(--mantine-scale, 1))" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "scrollbarSize={8}" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "calc(38px \* var(--mantine-scale, 1))" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "calc(116px \* var(--mantine-scale, 1))" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "scrollbarSize={8}" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "useSpriteSizeLocalStorage('storage-sprite-size')" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "shopScale = Math.max(0.5, shopScaleRaw)" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "'shop': () => <Group" pkvault-src/frontend/src/header/header.tsx
+          grep -q "localStorageKey='storage-sprite-size'" pkvault-src/frontend/src/header/header.tsx
+          grep -q "MAX" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "sellRemaining" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "basketCount={basket\[item.key\] ?? 0}" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "<Group wrap='nowrap' gap='sm' pt={4}>" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "defaultValue: 'game'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "label: 'In-game'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "'TMs': 'tm01'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "'Evolution Items': 'fire-stone'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "SortOrder: sortOrder" pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q "const SHOP_GREEN = '#2eaf3c'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "const QuantityControl" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "Grid2X2Icon" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "Category:</Text>" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "actionButtonStyle(SHOP_RED" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "actionButtonStyle(SHOP_GREEN" pkvault-src/frontend/src/shop/shop-page.tsx
+          test -f pkvault-src/PKVault.Core/shop/ShopService.cs
+          test -f pkvault-src/PKVault.Core/shop/ShopController.cs
+          test -f pkvault-src/frontend/src/shop/shop-page.tsx
+          test -f pkvault-src/frontend/src/shop/shop-api.ts
+          grep -q "PKVault Shop purchase" pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q "pkvault-shop-buy-basket" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "typeof(ShopController)" pkvault-src/PKVault.Core/router/CoreRouter.cs
+          grep -q "JsonSerializable(typeof(ShopStateDTO))" pkvault-src/PKVault.Core/router/RouteJsonContext.cs
+          grep -q "JsonSerializable(typeof(ShopTransactionRequestDTO))" pkvault-src/PKVault.Core/router/RouteJsonContext.cs
+          grep -q "type='always'" pkvault-src/frontend/src/shop/shop-page.tsx
+          test -f pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs
+          test "$(grep -c '] = new(' pkvault-src/PKVault.Core/romhacks/essentials/EssentialsItemProfile.Generated.cs)" -ge 500
+          git -C pkvault-src diff --check
+          git -C pkhex-src diff --check
+
+      - name: Package pinned Pokémon Uranium PC icons
+        run: |
+          set -euo pipefail
+          mkdir -p pkvault-src/frontend/public/romhacks/uranium/icons
+          curl -fL --retry 3 https://github.com/infinitel8p/PokeDexSprites/archive/ea3cd293eff3ae5dc9af3a97d1c212204f011204.tar.gz -o /tmp/uranium-sprites.tar.gz
+          rm -rf /tmp/uranium-sprites
+          mkdir -p /tmp/uranium-sprites
+          tar -xzf /tmp/uranium-sprites.tar.gz -C /tmp/uranium-sprites --strip-components=1
+          cp /tmp/uranium-sprites/Uranium/Sprites/Icon*.gif pkvault-src/frontend/public/romhacks/uranium/icons/
+          icon_count="$(find pkvault-src/frontend/public/romhacks/uranium/icons -maxdepth 1 -name 'Icon*.gif' | wc -l)"
+          test "$icon_count" -eq 200
+          test -f pkvault-src/frontend/public/romhacks/uranium/icons/Icon003.gif
+          cat > pkvault-src/frontend/public/romhacks/uranium/ASSET_SOURCE.txt <<'EOF'
+          Pokémon Uranium PC/party icons
+          Source: infinitel8p/PokeDexSprites
+          Commit: ea3cd293eff3ae5dc9af3a97d1c212204f011204
+          Paths: Uranium/Sprites/Icon001.gif .. Icon200.gif
+          EOF
+          echo "PASS: packaged 200 Uranium PC/party icons"
+
+      - name: Package static Pokémon Uranium battle-front sprites
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pillow
+          mkdir -p pkvault-src/frontend/public/romhacks/uranium/front
+          python3 <<'PY'
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from io import BytesIO
+          from pathlib import Path
+          from urllib.error import HTTPError
+          from urllib.request import Request, urlopen
+          from PIL import Image
+
+          commit = "c2b4308c214f164487ec9de8c1645fd978b2943e"
+          base = f"https://raw.githubusercontent.com/Quickshoters/PokemonGodot/{commit}/Graphics/Battlers"
+          out = Path("pkvault-src/frontend/public/romhacks/uranium/front")
+          out.mkdir(parents=True, exist_ok=True)
+
+          def download(species_id: int):
+              stem = f"{species_id:03d}"
+              candidates = [
+                  f"{stem}.png",
+                  f"{stem}.PNG",
+                  f"{stem}_1.png",
+                  f"{stem}_1.PNG",
+              ]
+              data = None
+              source = None
+              for name in candidates:
+                  try:
+                      req = Request(f"{base}/{name}", headers={"User-Agent": "PKVault-RedFox-build"})
+                      with urlopen(req, timeout=30) as response:
+                          data = response.read()
+                      source = name
+                      break
+                  except HTTPError as ex:
+                      if ex.code != 404:
+                          raise
+              if data is None:
+                  raise RuntimeError(f"No front battler found for {stem}")
+
+              image = Image.open(BytesIO(data)).convert("RGBA")
+              # Uranium uses horizontal animation sheets for some battlers.
+              # PKVault intentionally uses only the first 80x80 front frame.
+              canvas = Image.new("RGBA", (80, 80), (0, 0, 0, 0))
+              crop = image.crop((0, 0, min(80, image.width), min(80, image.height)))
+              canvas.paste(crop, (0, 0), crop)
+              canvas.save(out / f"{stem}.png", format="PNG", optimize=True)
+              return species_id, source, image.size
+
+          with ThreadPoolExecutor(max_workers=16) as pool:
+              futures = [pool.submit(download, i) for i in range(1, 201)]
+              for future in as_completed(futures):
+                  species_id, source, size = future.result()
+                  print(f"{species_id:03d}: {source} {size[0]}x{size[1]} -> 80x80 static")
+
+          files = list(out.glob("*.png"))
+          if len(files) != 200:
+              raise SystemExit(f"Expected 200 static Uranium front sprites, got {len(files)}")
+          PY
+
+          python3 pkvault-rebuild/v8/fix_uranium_blank_fronts.py
+          test -f pkvault-src/frontend/public/romhacks/uranium/front/003.png
+          test -f pkvault-src/frontend/public/romhacks/uranium/front/136.png
+          test -f pkvault-src/frontend/public/romhacks/uranium/front/194.png
+          test "$(find pkvault-src/frontend/public/romhacks/uranium/front -maxdepth 1 -name '*.png' | wc -l)" -eq 200
+          python3 <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          for species in (198, 199):
+              path = Path(f"pkvault-src/frontend/public/romhacks/uranium/front/{species:03d}.png")
+              image = Image.open(path).convert("RGBA")
+              if image.getchannel("A").getbbox() is None:
+                  raise SystemExit(f"Uranium front sprite {species} is still fully transparent")
+          print("PASS: Aotius and Mutios front sprites are visible")
+          PY
+          echo "PASS: packaged 200 nonanimated 80x80 Uranium front battle sprites"
+
+      - name: Package Pokémon Insurgence Delta and fakemon sprites
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pillow
+          mkdir -p pkvault-src/frontend/public/romhacks/insurgence/front
+          python3 <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageDraw
+
+          source = Path("/tmp/uranium-sprites/Insurgence/Pokemon")
+          out = Path("pkvault-src/frontend/public/romhacks/insurgence/front")
+          out.mkdir(parents=True, exist_ok=True)
+
+          # Delta species are #727-924 in Insurgence's local dex.
+          for species_id in range(727, 925):
+              src = source / f"{species_id}.png"
+              if not src.exists():
+                  raise SystemExit(f"Missing pinned Insurgence sprite {src}")
+
+              image = Image.open(src).convert("RGBA")
+              bbox = image.getchannel("A").getbbox()
+              if bbox:
+                  image = image.crop(bbox)
+              image.thumbnail((72, 72), Image.Resampling.NEAREST)
+
+              canvas = Image.new("RGBA", (80, 80), (0, 0, 0, 0))
+              canvas.alpha_composite(
+                  image,
+                  ((80 - image.width) // 2, (80 - image.height) // 2),
+              )
+              canvas.save(out / f"{species_id:03d}.png", format="PNG", optimize=True)
+
+          # MISSINGNO (#722) deliberately has no generated ROM-hack sprite file.
+          # Alpha40 renders it with PKVault's existing Gen-1 MISSINGNO image so
+          # Insurgence #722 is visually identical to the supported Gen-1 glitch.
+
+          # The pinned public sprite pack ends at #924. UFI (#925) is still
+          # part of the dex, so keep it visible with a deterministic placeholder
+          # rather than a broken/transparent image.
+          canvas = Image.new("RGBA", (80, 80), (0, 0, 0, 0))
+          draw = ImageDraw.Draw(canvas)
+          draw.rounded_rectangle((8, 8, 72, 72), radius=10, fill=(55, 55, 65, 255))
+          draw.text((40, 40), "UFI", anchor="mm", fill=(255, 255, 255, 255))
+          canvas.save(out / "925.png", format="PNG", optimize=True)
+
+          files = list(out.glob("*.png"))
+          if len(files) != 199:
+              raise SystemExit(f"Expected 199 Insurgence Delta/fakemon sprite files (#727-925), got {len(files)}")
+          print("PASS: packaged Insurgence #727-925 sprites; #722 reuses PKVault Gen-1 MISSINGNO art")
+          PY
+
+          test ! -f pkvault-src/frontend/public/romhacks/insurgence/front/722.png
+          test -f pkvault-src/frontend/public/romhacks/insurgence/front/727.png
+          test -f pkvault-src/frontend/public/romhacks/insurgence/front/924.png
+          test -f pkvault-src/frontend/public/romhacks/insurgence/front/925.png
+
+      - name: Install .NET 10 SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build patched PKHeX.Core
+        run: |
+          dotnet build pkhex-src/PKHeX.Core/PKHeX.Core.csproj -c Release --nologo
+          cp pkhex-src/PKHeX.Core/bin/Release/net10.0/PKHeX.Core.dll pkvault-src/PKVault.Core/PKHeX.Core.dll
+
+      - name: Generate complete Gen1 glitch test saves
+        run: |
+          set -euo pipefail
+          rm -rf gen1-glitch-test-saves
+          dotnet run --project pkvault-rebuild/v8/gen1-glitch-save-generator/Gen1GlitchSaveGenerator.csproj -c Release -- gen1-glitch-test-saves
+          test -f gen1-glitch-test-saves/PKVault-Gen1-Glitches-RedBlue.sav
+          test -f gen1-glitch-test-saves/PKVault-Gen1-Glitches-Yellow.sav
+          test "$(tr -d '\r\n' < gen1-glitch-test-saves/GLITCH_COUNT.txt)" = "105"
+
+      - name: Upload alpha52t Gen1 glitch save pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-alpha52t-Gen1-Glitch-Test-Saves
+          path: gen1-glitch-test-saves/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Gen1 serializer smoke test
+        run: |
+          mkdir -p smoke
+          cat > smoke/smoke.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+              <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+            </PropertyGroup>
+            <ItemGroup>
+              <Reference Include="PKHeX.Core">
+                <HintPath>../pkvault-src/PKVault.Core/PKHeX.Core.dll</HintPath>
+              </Reference>
+            </ItemGroup>
+          </Project>
+          EOF
+          cat > smoke/Program.cs <<'EOF'
+          using PKHeX.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          var normal = new PK1();
+          normal.Species = 25;
+          normal.Stat_Level = 42;
+          normal.EXP = 80000;
+
+          var glitch = new PK1();
+          glitch.SpeciesInternal = 0;
+          glitch.CatchRate = 45;
+          glitch.EXP = 12345;
+          glitch.Stat_Level = 20;
+
+          var missingno50 = new PK1();
+          missingno50.SpeciesInternal = 0x50;
+          missingno50.CatchRate = 45;
+          missingno50.EXP = 54321;
+          missingno50.Stat_LevelBox = 92;
+
+          var blank = new PK1();
+
+          var normalSingle = PokeList1.WrapSingle(normal);
+          var glitchSingle = PokeList1.WrapSingle(glitch);
+          var blankSingle = PokeList1.WrapSingle(blank);
+
+          Need(normalSingle[0] == 1 && normalSingle[1] != 0 && normalSingle[1] != 0xFF,
+              "normal Pokemon did not serialize as occupied");
+          Need(glitchSingle[0] == 1 && glitchSingle[1] == 0,
+              "raw-00 glitch was not preserved as occupied");
+          Need(blankSingle[0] == 0 && blankSingle[1] == 0xFF,
+              "blank PK1 became occupied");
+          var missingno50Single = PokeList1.WrapSingle(missingno50);
+          Need(PokeList1.IsKnownGen1Glitch(missingno50),
+              "raw-50 MissingNo was not recognized as a supported Gen1 glitch");
+          Need(missingno50Single[0] == 1 && missingno50Single[1] == 0x50,
+              "raw-50 MissingNo was not serialized as occupied");
+
+          var one = normalSingle.Length;
+          var singles = new byte[one * 3];
+          normalSingle.CopyTo(singles, 0);
+          glitchSingle.CopyTo(singles, one);
+          blankSingle.CopyTo(singles, one * 2);
+
+          var stringLength = normal.OriginalTrainerTrash.Length;
+          var box = new byte[PokeList1.GetListLength(3, false, false)];
+          Need(PokeList1.MergeSingles(singles, box, stringLength, 3, false), "box merge failed");
+          Need(box[0] == 2, "box count should contain normal + raw00 glitch");
+          Need(box[1] == normal.SpeciesInternal, "normal Pokemon header corrupted");
+          Need(box[2] == 0, "raw00 header corrupted");
+          Need(box[3] == 0xFF && box[4] == 0xFF, "box empty/terminator markers invalid");
+
+          var normalFromBox = PokeList1.ReadFromList(box, stringLength, 3, false, 0);
+          var glitchFromBox = PokeList1.ReadFromList(box, stringLength, 3, false, 1);
+          Need(normalFromBox.Species == 25, "Party->Box normal Pokemon became '?'");
+          Need(glitchFromBox.SpeciesInternal == 0, "raw00 glitch did not round-trip");
+
+          var party = new byte[PokeList1.GetListLength(3, false, true)];
+          Need(PokeList1.MergeSingles(singles, party, stringLength, 3, true), "party merge failed");
+          Need(party[0] == 2 && party[2] == 0, "party occupancy/raw00 preservation failed");
+
+          Console.WriteLine("PASS: normal, blank, raw00, party and box Gen1 serialization");
+
+          // Regression: a normal Pokemon placed in a Red box and then removed
+          // before save must not resurrect as a raw-00 glitch after save/reload.
+          var red = new SAV1(LanguageID.English, GameVersion.RB);
+          red.SetBoxSlotAtIndex(normal.Clone(), 0, 0, EntityImportSettings.None);
+          var blankForClear = red.BlankPKM;
+          red.SetBoxSlotAtIndex(blankForClear, 0, 0, EntityImportSettings.None);
+          var removedBytes = red.Write().ToArray();
+          var redReload = new SAV1(removedBytes, LanguageID.English, GameVersion.RB);
+          var resurrected = redReload.GetBoxData(0)
+              .OfType<PK1>()
+              .Count(PokeList1.IsOccupied);
+          Need(resurrected == 0, $"vacated box slot resurrected as {resurrected} occupied Pokemon");
+
+          // A genuine raw-00 glitch must still survive the same save/reload path.
+          var glitchSave = new SAV1(LanguageID.English, GameVersion.RB);
+          glitchSave.SetBoxSlotAtIndex(glitch.Clone(), 0, 0, EntityImportSettings.None);
+          var glitchBytes = glitchSave.Write().ToArray();
+          var glitchReload = new SAV1(glitchBytes, LanguageID.English, GameVersion.RB);
+          var glitchRoundTrip = (PK1)glitchReload.GetBoxSlotAtIndex(0, 0);
+          Need(PokeList1.IsRawZeroGlitch(glitchRoundTrip), "real raw-00 glitch was lost after SAV1 save/reload");
+
+          // Raw-50 MissingNo must also survive box + party save paths.
+          var missingSave = new SAV1(LanguageID.English, GameVersion.RB);
+          missingSave.SetBoxSlotAtIndex(missingno50.Clone(), 0, 0, EntityImportSettings.None);
+          var missingBytes = missingSave.Write().ToArray();
+          var missingReload = new SAV1(missingBytes, LanguageID.English, GameVersion.RB);
+          var missingRoundTrip = (PK1)missingReload.GetBoxSlotAtIndex(0, 0);
+          Need(missingRoundTrip.SpeciesInternal == 0x50, "raw-50 MissingNo was lost after SAV1 box save/reload");
+
+          var missingParty = new SAV1(LanguageID.English, GameVersion.RB);
+          missingParty.PartyData = [missingno50.Clone()];
+          Need(missingParty.PartyCount == 1, "raw-50 MissingNo was not counted as a party Pokemon");
+          Need(((PK1)missingParty.PartyData[0]).SpeciesInternal == 0x50, "raw-50 MissingNo party marker was corrupted");
+
+          // Gen1 inventory regression: SAV1 bag and PC item quantities must
+          // survive save/reload, including quantities above the normal 99 cap.
+          var itemSave = new SAV1(LanguageID.English, GameVersion.RB);
+          var itemBag = itemSave.Inventory;
+          var bagPouch = itemBag.GetPouch(InventoryType.Items);
+          var pcPouch = itemBag.GetPouch(InventoryType.PCItems);
+
+          bagPouch.Items[0].Index = 1; // Master Ball
+          bagPouch.Items[0].Count = 123;
+          pcPouch.Items[0].Index = 1;
+          pcPouch.Items[0].Count = 77;
+          itemBag.CopyTo(itemSave);
+
+          var itemBytes = itemSave.Write().ToArray();
+          var itemReload = new SAV1(itemBytes, LanguageID.English, GameVersion.RB);
+          var itemReloadBag = itemReload.Inventory;
+          var bagReload = itemReloadBag.GetPouch(InventoryType.Items);
+          var pcReload = itemReloadBag.GetPouch(InventoryType.PCItems);
+
+          Need(bagReload.Items[0].Index == 1 && bagReload.Items[0].Count == 123,
+              $"Gen1 bag Master Ball stack lost: id={bagReload.Items[0].Index} count={bagReload.Items[0].Count}");
+          Need(pcReload.Items[0].Index == 1 && pcReload.Items[0].Count == 77,
+              $"Gen1 PC Master Ball stack lost: id={pcReload.Items[0].Index} count={pcReload.Items[0].Count}");
+
+          Console.WriteLine("PASS: SAV1 vacated-slot, raw00/raw50 and Gen1 inventory regressions");
+          EOF
+          dotnet run --project smoke/smoke.csproj -c Release
+
+      - name: Build PKVault Core with patched library
+        run: |
+          dotnet build pkvault-src/PKVault.Core/PKVault.Core.csproj -c Release --nologo
+
+      - name: Shop JSON bridge smoke test
+        run: |
+          set -euo pipefail
+          mkdir -p shop-json-smoke
+          cat > shop-json-smoke/shop-json-smoke.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+            </PropertyGroup>
+            <ItemGroup>
+              <ProjectReference Include="../pkvault-src/PKVault.Core/PKVault.Core.csproj" />
+            </ItemGroup>
+          </Project>
+          EOF
+          cat > shop-json-smoke/Program.cs <<'EOF'
+          using System.Text.Json;
+          using PKVault.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          var stateInfo = RouteJsonContext.DefaultWithOptions.GetTypeInfo(typeof(ShopStateDTO));
+          Need(stateInfo is not null, "ShopStateDTO missing from RouteJsonContext");
+
+          var requestInfo = RouteJsonContext.DefaultWithOptions.GetTypeInfo(typeof(ShopTransactionRequestDTO));
+          Need(requestInfo is not null, "ShopTransactionRequestDTO missing from RouteJsonContext");
+
+          var sample = new ShopStateDTO(
+              MoneyBank: 50000,
+              MoneyBankMax: 999999,
+              MoneyBankPendingSave: false,
+              LoadedVersions: [3],
+              Items: [
+                  new ShopItemDTO(
+                      "poke-ball", "Poké Ball", "Poké Balls",
+                      200, 100, true, true, 75, 75, 0,
+                      [3], [new ShopCompatibilityDTO(3, null)],
+                      ["pokeball", "poke ball"]
+                  )
+              ]
+          );
+
+          var json = JsonSerializer.Serialize(sample, stateInfo);
+          Need(json.Contains("\"moneyBank\":50000"), "ShopStateDTO did not serialize with camelCase fields");
+          Need(json.Contains("\"poke-ball\""), "ShopStateDTO item payload missing");
+
+          const string requestJson = "{\"lines\":[{\"itemKey\":\"poke-ball\",\"count\":5}]}";
+          var parsed = (ShopTransactionRequestDTO?)JsonSerializer.Deserialize(requestJson, requestInfo);
+          Need(parsed is not null && parsed.Lines.Count == 1 && parsed.Lines[0].Count == 5,
+              "ShopTransactionRequestDTO did not deserialize");
+
+          Console.WriteLine("PASS: Shop desktop JSON bridge state + transaction DTOs");
+          EOF
+          dotnet run --project shop-json-smoke/shop-json-smoke.csproj -c Release
+
+      - name: Alpha45 Gen1 inventory mapping regression test
+        run: |
+          set -euo pipefail
+          mkdir -p gen1-inventory-map-smoke
+          cat > gen1-inventory-map-smoke/gen1-inventory-map-smoke.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+            </PropertyGroup>
+            <ItemGroup>
+              <ProjectReference Include="../pkvault-src/PKVault.Core/PKVault.Core.csproj" />
+              <Reference Include="PKHeX.Core">
+                <HintPath>../pkvault-src/PKVault.Core/PKHeX.Core.dll</HintPath>
+              </Reference>
+            </ItemGroup>
+          </Project>
+          EOF
+          cat > gen1-inventory-map-smoke/Program.cs <<'EOF'
+          using System.Reflection;
+          using PKHeX.Core;
+          using PKVault.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          var red = new SAV1(LanguageID.English, GameVersion.RB);
+
+          var method = typeof(ItemBankService).GetMethod(
+              "GetGenerationOneItemMap",
+              BindingFlags.NonPublic | BindingFlags.Static
+          );
+          Need(method is not null, "Gen1 inventory map helper not found");
+
+          var map = (Dictionary<int, string>)method!.Invoke(null, [red])!;
+
+          Need(map.TryGetValue(1, out var master) && master == "master-ball",
+              $"Gen1 item 1 did not map to master-ball: {master ?? "<missing>"}");
+          Need(map.TryGetValue(11, out var antidote) && antidote == "antidote",
+              $"Gen1 item 11 did not map to antidote: {antidote ?? "<missing>"}");
+          Need(map.TryGetValue(40, out var rareCandy) && rareCandy == "rare-candy",
+              $"Gen1 item 40 did not map to rare-candy: {rareCandy ?? "<missing>"}");
+
+          var bag = red.Inventory;
+          var items = bag.GetPouch(InventoryType.Items);
+          var pcItems = bag.GetPouch(InventoryType.PCItems);
+
+          items.Items[0].Index = 11;
+          items.Items[0].Count = 5;
+          items.Items[1].Index = 1;
+          items.Items[1].Count = 175;
+          items.Items[2].Index = 42;
+          items.Items[2].Count = 124;
+
+          pcItems.Items[0].Index = 234;
+          pcItems.Items[0].Count = 1;
+          pcItems.Items[1].Index = 3;
+          pcItems.Items[1].Count = 13;
+
+          bag.CopyTo(red);
+
+          var bytes = red.Write().ToArray();
+          var reload = new SAV1(bytes, LanguageID.English, GameVersion.RB);
+          var reloadBag = reload.Inventory;
+          var reloadItems = reloadBag.GetPouch(InventoryType.Items);
+          var reloadPc = reloadBag.GetPouch(InventoryType.PCItems);
+
+          Need(reloadItems.Items[0].Index == 11 && reloadItems.Items[0].Count == 5,
+              "Uploaded-save style first Red bag slot did not survive");
+          Need(reloadItems.Items[1].Index == 1 && reloadItems.Items[1].Count == 175,
+              "Uploaded-save style Master Ball x175 did not survive");
+          Need(reloadItems.Items[2].Index == 42 && reloadItems.Items[2].Count == 124,
+              "Uploaded-save style Helix Fossil x124 did not survive");
+          Need(reloadPc.Items[0].Index == 234 && reloadPc.Items[0].Count == 1,
+              "Uploaded-save style Red PC item did not survive");
+          Need(reloadPc.Items[1].Index == 3 && reloadPc.Items[1].Count == 13,
+              "Uploaded-save style Red PC stack did not survive");
+
+          Console.WriteLine("PASS: Gen1 SAV1 item map + uploaded-save style bag/PC quantities");
+
+          // alpha40 regression: same-save Red PC -> PC must use the atomic
+          // same-pouch helper so the target cannot be erased by a stale write.
+          var samePouchMove = typeof(ItemBankService).GetMethod(
+              "MoveWithinSamePouch",
+              BindingFlags.NonPublic | BindingFlags.Static
+          );
+          Need(samePouchMove is not null, "alpha40 same-pouch move helper not found");
+
+          var pcMoveSave = new SAV1(LanguageID.English, GameVersion.RB);
+          var pcMoveBag = pcMoveSave.Inventory;
+          var pcMovePouch = pcMoveBag.GetPouch(InventoryType.PCItems);
+          pcMovePouch.Items[0].Index = 1;
+          pcMovePouch.Items[0].Count = 77;
+
+          var moved = (int)samePouchMove!.Invoke(
+              null,
+              [pcMoveBag, pcMovePouch, 0, 1, 77]
+          )!;
+          Need(moved == 77, $"alpha40 Red PC move moved {moved}, expected 77");
+
+          pcMoveBag.CopyTo(pcMoveSave);
+          var pcMoveReload = new SAV1(
+              pcMoveSave.Write().ToArray(),
+              LanguageID.English,
+              GameVersion.RB
+          );
+          var pcMoveReloadPouch = pcMoveReload.Inventory.GetPouch(InventoryType.PCItems);
+          Need(
+              pcMoveReloadPouch.Items.Any(x => x.Index == 1 && x.Count == 77),
+              "alpha40 Red PC -> PC move deleted the item after save/reload"
+          );
+
+          Console.WriteLine("PASS: alpha40 atomic Red PC -> PC item move");
+          EOF
+          dotnet run --project gen1-inventory-map-smoke/gen1-inventory-map-smoke.csproj -c Release
+
+      - name: Alpha40 / upstream 2.3.4 legality synchronization regression test
+        run: |
+          set -euo pipefail
+          if grep -Fq 'GetLegalitySafeRaw(new(targetPkm))' pkvault-src/PKVault.Core/storage/services/PkmConvertService/PkmSharePropertiesService.cs; then
+            echo "PASS: PKVault 2.3.4 upstream raw-legality fix is present"
+          else
+            grep -F 'if (legality.la is not null)' pkvault-src/PKVault.Core/storage/services/PkmConvertService/PkmSharePropertiesService.cs
+            grep -F 'SharePropertiesTo_SkipLegalityChecks_DoesNotDereferenceMissingAnalysis' pkvault-src/PKVault.Core.Tests/storage/services/PkmConvertService/PkmSharePropertiesServiceTests.cs
+          fi
+          dotnet test pkvault-src/PKVault.Core.Tests/PKVault.Core.Tests.csproj -c Release --nologo --no-restore --filter "FullyQualifiedName~PkmSharePropertiesServiceTests"
+
+      - name: V8 Essentials native desktop rxdata location smoke test
+        run: |
+          set -euo pipefail
+          grep -F 'var canUploadSaves = !isDesktop;' pkvault-src/PKVault.Core/settings/services/SettingsService.cs
+          ! grep -F 'var canUploadSaves = true;' pkvault-src/PKVault.Core/settings/services/SettingsService.cs
+          grep -F 'body = body.TrimEnd' pkvault-src/PKVault.Core/db/loader/save/SavesLoadersService.cs
+          grep -F '"/**/*"' pkvault-src/PKVault.Core/db/loader/save/SavesLoadersService.cs
+          grep -F 'Path.GetExtension(path).Equals(".rxdata", StringComparison.OrdinalIgnoreCase)' pkvault-src/PKVault.Core/db/loader/save/SavesLoadersService.cs
+          grep -F 'onAddCommitted={commitAddedSaveLocations}' pkvault-src/frontend/src/settings/main/settings-main-right.tsx
+          grep -F 'await onAddCommitted?.(nextValue);' pkvault-src/frontend/src/settings/globs-input/globs-input-list.tsx
+          grep -F 'romHackLocalSpeciesId={romHackLocalSpeciesId}' pkvault-src/frontend/src/storage/item/save/storage-save-item.tsx
+          test "$(find pkvault-src/frontend/public/romhacks/uranium/icons -maxdepth 1 -name 'Icon*.gif' | wc -l)" -eq 200
+          test -f pkvault-src/frontend/public/romhacks/uranium/icons/Icon003.gif
+          grep -F 'party={!romHackProfile && savePkm.party >= 0 ? savePkm.party : undefined}' pkvault-src/frontend/src/storage/item/save/storage-save-item.tsx
+          grep -F 'getUraniumFrontSpritePath(localSpeciesId)' pkvault-src/frontend/src/img/species-img.tsx
+          grep -F '<UraniumPokedexSection />' pkvault-src/frontend/src/pokedex/list/pokedex-list.tsx
+          grep -F 'UraniumPokedexDetails' pkvault-src/frontend/src/pokedex/details/pokedex-main-wrapper-details.tsx
+          grep -F 'EssentialsLegacySaveFile essentials => new DexEssentialsService(essentials)' pkvault-src/PKVault.Core/dex/services/DexService.cs
+          test "$(find pkvault-src/frontend/public/romhacks/uranium/front -maxdepth 1 -name '*.png' | wc -l)" -eq 200
+          echo "PASS: Windows keeps native Add saves location UI, rxdata directories expand to files, and newly added save locations auto-apply"
+
+      - name: V8 Essentials Uranium and Insurgence parser smoke test
+        run: |
+          set -euo pipefail
+          mkdir -p "essentials-smoke/fixtures/Pokemon Uranium" "essentials-smoke/fixtures/Pokemon Insurgence"
+
+          cat > essentials-smoke/essentials-smoke.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+            </PropertyGroup>
+            <ItemGroup>
+              <ProjectReference Include="../pkvault-src/PKVault.Core/PKVault.Core.csproj" />
+              <Reference Include="PKHeX.Core">
+                <HintPath>../pkvault-src/PKVault.Core/PKHeX.Core.dll</HintPath>
+              </Reference>
+            </ItemGroup>
+          </Project>
+          EOF
+
+          cat > essentials-smoke/Program.cs <<'EOF'
+          using System.Text.Json;
+          using PKHeX.Core;
+          using PKVault.Core;
+
+          AppContext.SetSwitch("System.Text.Json.JsonSerializer.IsReflectionEnabledByDefault", false);
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          static EssentialsLegacySaveData Load(string path)
+          {
+              var bytes = File.ReadAllBytes(path);
+              Need(EssentialsLegacySaveReader.TryRead(bytes, path, out var save, out var error),
+                  $"Failed to parse {path}: {error}");
+              return save!;
+          }
+
+          static byte[] Slice(byte[] bytes, RubyMarshalDocument doc) =>
+              bytes.AsSpan(doc.Offset, doc.Length).ToArray();
+
+          static void NeedUntouchedStreams(byte[] beforeBytes, EssentialsLegacySaveData before, byte[] afterBytes, EssentialsLegacySaveData after)
+          {
+              Need(before.Documents.Count == after.Documents.Count, "Marshal stream count changed");
+              for (var i = 0; i < before.Documents.Count; i++)
+              {
+                  var root = before.Documents[i].Root as RubyObject;
+                  if (root?.ClassName is "PokeBattle_Trainer" or "PokemonStorage" or "PokemonBag")
+                      continue;
+                  Need(Slice(beforeBytes, before.Documents[i]).SequenceEqual(Slice(afterBytes, after.Documents[i])),
+                      $"Unrelated Marshal stream {i} changed");
+              }
+          }
+
+          var uraniumPath = "essentials-smoke/fixtures/Pokemon Uranium/Uranium.rxdata";
+          var uraniumBytes = File.ReadAllBytes(uraniumPath);
+          var uranium = Load(uraniumPath);
+          Need(uranium.Game == EssentialsGameKind.Uranium, "Uranium profile detection failed");
+          Need(uranium.Documents.Count == 15, $"Expected 15 Uranium Marshal streams, got {uranium.Documents.Count}");
+          Need(uranium.Party.Count == 6, $"Expected 6 Uranium party Pokemon, got {uranium.Party.Count}");
+          Need(uranium.PokemonCount == 215, $"Expected 215 Uranium Pokemon, got {uranium.PokemonCount}");
+          Need(uranium.Party[0].ProfileId == "pokemon-uranium", "Uranium PKM profile ID missing");
+          Need(uranium.Party[0].LocalSpeciesId == 170, $"Unexpected Uranium first party species {uranium.Party[0].LocalSpeciesId}");
+          Need(uranium.Party[0].SourceRubyMarshal.Length > 0 && !uranium.Party[0].ReadOnlySource,
+              "Uranium writable source template missing");
+
+          Need(uranium.BagPockets.Count > 0, "Uranium PokemonBag pockets were not parsed");
+          Need(uranium.SeenSpecies.Count > 0, "Uranium seen Pokédex state was not parsed");
+          Need(uranium.OwnedSpecies.Count > 0, "Uranium owned Pokédex state was not parsed");
+
+          var uraniumFacade = new EssentialsLegacySaveFile(uranium);
+          uraniumFacade.Metadata.SetExtraInfo(uraniumPath);
+          Need(uraniumFacade.ApplicableDexSpeciesCount == 200,
+              $"Uranium applicable dex target must remain 200, got {uraniumFacade.ApplicableDexSpeciesCount}");
+          Need(uraniumFacade.MaxSpeciesID == 200,
+              $"Uranium MaxSpeciesID must describe the profile, got {uraniumFacade.MaxSpeciesID}");
+          var uraniumWrapper = new SaveWrapper(uraniumFacade);
+          Need(uraniumWrapper.GetPartyData().Count == 6, "Uranium SaveWrapper lost party data");
+          Need(uraniumWrapper.GetBoxNames().Count == 35, "Uranium SaveWrapper lost box names");
+          Need(uraniumWrapper.GetAllPKM().Count == 215, "Uranium SaveWrapper lost Pokemon");
+          var uraniumInfo = SaveInfosDTO.FromSave(uraniumWrapper, null, File.GetLastWriteTime(uraniumPath), []);
+          Need(uraniumInfo.RomHackProfile == "pokemon-uranium", "Uranium SaveInfos profile missing");
+          Need(uraniumInfo.TrainerName == uranium.TrainerName, "Uranium SaveInfos trainer mismatch");
+          Need(uraniumFacade.PartyCount == 6, "Uranium facade lost party count");
+          Need(uraniumFacade.BoxCount == 35, $"Expected 35 Uranium boxes, got {uraniumFacade.BoxCount}");
+          Need(!uraniumFacade.GetBoxSlotFlags(0).HasFlag(StorageSlotSource.Locked), "Uranium box slot stayed write-locked");
+          Need(!uraniumFacade.GetBoxSlotFlags(-uraniumFacade.BoxSlotCount).HasFlag(StorageSlotSource.Locked), "Uranium party slot stayed write-locked");
+          Need(((PKEssentials)uraniumFacade.PartyData[0]).ProfileId == "pokemon-uranium", "Uranium facade lost profile-local PKM identity");
+          Need(uraniumFacade.Write().ToArray().SequenceEqual(uranium.OriginalBytes), "Clean Uranium facade changed bytes before a write");
+
+          Need(!JsonSerializer.IsReflectionEnabledByDefault,
+              "Essentials smoke test must run with reflection JSON disabled");
+          var reflectionFreeClone = (PKEssentials)uranium.Party[0].Clone();
+          Need(reflectionFreeClone.ProfileId == "pokemon-uranium"
+              && reflectionFreeClone.LocalSpeciesId == uranium.Party[0].LocalSpeciesId,
+              "PKEssentials reflection-disabled JSON clone failed");
+
+          var uraniumRoundTrip = PKEssentials.Deserialize(PKEssentials.Serialize(uranium.Party[0]));
+          Need(uraniumRoundTrip.ProfileId == uranium.Party[0].ProfileId, "Uranium PKM profile lost on serialize");
+          Need(uraniumRoundTrip.LocalSpeciesId == uranium.Party[0].LocalSpeciesId, "Uranium local species lost on serialize");
+          Need(uraniumRoundTrip.PID == uranium.Party[0].PID, "Uranium PID lost on serialize");
+          Need(uraniumRoundTrip.SourceRubyMarshal.SequenceEqual(uranium.Party[0].SourceRubyMarshal), "Uranium Ruby template lost on serialize");
+
+          var uraniumBagPocket = uraniumFacade.InventoryPockets.First(p => p.PocketIndex == 2 || p.Items.Count > 0);
+          var uraniumBagOriginal = uraniumBagPocket.Items.FirstOrDefault();
+          if (uraniumBagOriginal is null)
+              uraniumBagPocket.Items.Add(new EssentialsBagSlotData(217, 2));
+          else
+              uraniumBagPocket.Items[0] = uraniumBagOriginal with { Count = uraniumBagOriginal.Count == 99 ? 98 : uraniumBagOriginal.Count + 1 };
+          uraniumFacade.MarkInventoryDirty();
+          uraniumFacade.RegisterDexSpecies(200);
+          Need(uraniumFacade.MaxMoney == 999_999, $"Uranium money cap mismatch: {uraniumFacade.MaxMoney}");
+          var uraniumMoneyTest = uraniumFacade.Money >= 999_999 ? 998_765u : uraniumFacade.Money + 123u;
+          uraniumFacade.Money = uraniumMoneyTest;
+
+          var uraniumParty0 = (PKEssentials)uraniumFacade.GetPartySlotAtIndex(0);
+          uraniumFacade.SetBoxSlotAtIndex(uraniumParty0, 0, 0, EntityImportSettings.None);
+          var uraniumWritten = uraniumFacade.Write().ToArray();
+          Need(!uraniumWritten.SequenceEqual(uraniumBytes), "Uranium write produced no change");
+          Need(EssentialsLegacySaveReader.TryRead(uraniumWritten, uraniumPath, out var uraniumReload, out var uraniumWriteError),
+              $"Uranium write did not reparse: {uraniumWriteError}");
+          Need(uraniumReload!.Boxes[0].Pokemon[0]?.PID == uraniumParty0.PID, "Uranium box write did not persist");
+          Need(uraniumReload.BagPockets.Sum(p => p.Items.Count) == uraniumFacade.InventoryPockets.Sum(p => p.Items.Count),
+              "Uranium Bag item structure did not survive save/reload");
+          Need(uraniumReload.SeenSpecies.Contains(200) && uraniumReload.OwnedSpecies.Contains(200),
+              "Uranium Pokédex seen/owned write did not persist");
+          Need(uraniumReload.Money == uraniumMoneyTest,
+              $"Uranium Pokédollar write did not persist: {uraniumReload.Money} != {uraniumMoneyTest}");
+          NeedUntouchedStreams(uraniumBytes, uranium, uraniumWritten, uraniumReload);
+
+          var insurgencePath = "essentials-smoke/fixtures/Pokemon Insurgence/Game.rxdata";
+          var insurgenceBytes = File.ReadAllBytes(insurgencePath);
+          var insurgence = Load(insurgencePath);
+          Need(insurgence.Game == EssentialsGameKind.Insurgence, "Insurgence profile detection failed");
+          Need(insurgence.Documents.Count == 15, $"Expected 15 Insurgence Marshal streams, got {insurgence.Documents.Count}");
+          Need(insurgence.Party.Count == 4, $"Expected 4 Insurgence party Pokemon, got {insurgence.Party.Count}");
+          Need(insurgence.PokemonCount == 4, $"Expected 4 Insurgence Pokemon, got {insurgence.PokemonCount}");
+          Need(insurgence.Party[0].ProfileId == "pokemon-insurgence", "Insurgence PKM profile ID missing");
+          Need(insurgence.Party[0].LocalSpeciesId == 731, $"Unexpected Insurgence first party species {insurgence.Party[0].LocalSpeciesId}");
+          Need(insurgence.Party[0].SourceRubyMarshal.Length > 0 && !insurgence.Party[0].ReadOnlySource,
+              "Insurgence writable source template missing");
+
+          Need(insurgence.BagPockets.Count > 0, "Insurgence PokemonBag pockets were not parsed");
+
+          var insurgenceFacade = new EssentialsLegacySaveFile(insurgence);
+          insurgenceFacade.Metadata.SetExtraInfo(insurgencePath);
+          var expectedInsurgenceDexTarget = InsurgenceProfileGenerated.OfficialMaxSpecies + InsurgenceProfileGenerated.CustomEntries.Count;
+          Need(insurgenceFacade.ApplicableDexSpeciesCount == expectedInsurgenceDexTarget,
+              $"Insurgence applicable dex target must remain {expectedInsurgenceDexTarget}, got {insurgenceFacade.ApplicableDexSpeciesCount}");
+          Need(insurgenceFacade.MaxSpeciesID == InsurgenceProfileGenerated.CustomMaxSpecies,
+              $"Insurgence MaxSpeciesID must remain profile max {InsurgenceProfileGenerated.CustomMaxSpecies}, got {insurgenceFacade.MaxSpeciesID}");
+          Need(insurgenceFacade.OwnedSpecies.Contains(731) && insurgenceFacade.SeenSpecies.Contains(731),
+              "Physically owned Delta Charmeleon #731 was not seeded into persistent dex history");
+
+          // Regression for moving a custom Delta out of the fangame save: clearing
+          // the proving slot must never erase its caught/seen history.
+          var deltaHistoryFacade = new EssentialsLegacySaveFile(insurgence);
+          deltaHistoryFacade.Metadata.SetExtraInfo(insurgencePath);
+          deltaHistoryFacade.SetPartySlotAtIndex(deltaHistoryFacade.BlankPKM, 0, EntityImportSettings.None);
+          var deltaHistoryBytes = deltaHistoryFacade.Write().ToArray();
+          Need(EssentialsLegacySaveReader.TryRead(deltaHistoryBytes, insurgencePath, out var deltaHistoryReload, out var deltaHistoryError),
+              $"Insurgence Delta history regression did not reparse: {deltaHistoryError}");
+          Need(deltaHistoryReload!.SeenSpecies.Contains(731) && deltaHistoryReload.OwnedSpecies.Contains(731),
+              "Delta Charmeleon #731 dex history disappeared after moving it out of the Insurgence save");
+          var insurgenceWrapper = new SaveWrapper(insurgenceFacade);
+          Need(insurgenceWrapper.GetPartyData().Count == 4, "Insurgence SaveWrapper lost party data");
+          Need(insurgenceWrapper.GetBoxNames().Count == 24, "Insurgence SaveWrapper lost box names");
+          Need(insurgenceWrapper.GetAllPKM().Count == 4, "Insurgence SaveWrapper lost Pokemon");
+          var insurgenceInfo = SaveInfosDTO.FromSave(insurgenceWrapper, null, File.GetLastWriteTime(insurgencePath), []);
+          Need(insurgenceInfo.RomHackProfile == "pokemon-insurgence", "Insurgence SaveInfos profile missing");
+          Need(insurgenceFacade.PartyCount == 4, "Insurgence facade lost party count");
+          Need(insurgenceFacade.BoxCount == 24, $"Expected 24 Insurgence boxes, got {insurgenceFacade.BoxCount}");
+          Need(!insurgenceFacade.GetBoxSlotFlags(0).HasFlag(StorageSlotSource.Locked), "Insurgence box slot stayed write-locked");
+          Need(insurgenceFacade.Write().ToArray().SequenceEqual(insurgence.OriginalBytes), "Clean Insurgence facade changed bytes before a write");
+
+          var insurgenceBagPocket = insurgenceFacade.InventoryPockets.First(p => p.PocketIndex == 2 || p.Items.Count > 0);
+          var insurgenceBagOriginal = insurgenceBagPocket.Items.FirstOrDefault();
+          if (insurgenceBagOriginal is null)
+              insurgenceBagPocket.Items.Add(new EssentialsBagSlotData(217, 2));
+          else
+              insurgenceBagPocket.Items[0] = insurgenceBagOriginal with { Count = insurgenceBagOriginal.Count == 99 ? 98 : insurgenceBagOriginal.Count + 1 };
+          insurgenceFacade.MarkInventoryDirty();
+          insurgenceFacade.RegisterDexSpecies(925);
+          Need(insurgenceFacade.MaxMoney == 999_999, $"Insurgence money cap mismatch: {insurgenceFacade.MaxMoney}");
+          var insurgenceMoneyTest = insurgenceFacade.Money >= 999_999 ? 998_654u : insurgenceFacade.Money + 234u;
+          insurgenceFacade.Money = insurgenceMoneyTest;
+
+          var insurgenceParty0 = (PKEssentials)insurgenceFacade.GetPartySlotAtIndex(0);
+          insurgenceFacade.SetBoxSlotAtIndex(insurgenceParty0, 0, 0, EntityImportSettings.None);
+          var insurgenceWritten = insurgenceFacade.Write().ToArray();
+          Need(EssentialsLegacySaveReader.TryRead(insurgenceWritten, insurgencePath, out var insurgenceReload, out var insurgenceWriteError),
+              $"Insurgence write did not reparse: {insurgenceWriteError}");
+          Need(insurgenceReload!.Boxes[0].Pokemon[0]?.PID == insurgenceParty0.PID, "Insurgence box write did not persist");
+          Need(insurgenceReload.BagPockets.Sum(p => p.Items.Count) == insurgenceFacade.InventoryPockets.Sum(p => p.Items.Count),
+              "Insurgence Bag item structure did not survive save/reload");
+          Need(insurgenceReload.SeenSpecies.Contains(925) && insurgenceReload.OwnedSpecies.Contains(925),
+              "Insurgence UFI Pokédex seen/owned write did not persist");
+          Need(insurgenceReload.Money == insurgenceMoneyTest,
+              $"Insurgence Pokédollar write did not persist: {insurgenceReload.Money} != {insurgenceMoneyTest}");
+          NeedUntouchedStreams(insurgenceBytes, insurgence, insurgenceWritten, insurgenceReload);
+
+          // Regression modeled after a very early Uranium save: one Raptorch
+          // in party, empty boxes, while retaining all 35 PC boxes.
+          var earlyFacade = new EssentialsLegacySaveFile(uranium);
+          var earlyMon = (PKEssentials)earlyFacade.GetPartySlotAtIndex(0);
+          earlyMon.LocalSpeciesId = 3;
+          earlyMon.Species = 3;
+          earlyMon.SpeciesName = "Raptorch";
+          for (var i = 0; i < 6; i++)
+              earlyFacade.SetPartySlotAtIndex(i == 0 ? earlyMon : earlyFacade.BlankPKM, i, EntityImportSettings.None);
+          for (var box = 0; box < earlyFacade.BoxCount; box++)
+              for (var slot = 0; slot < earlyFacade.BoxSlotCount; slot++)
+                  earlyFacade.SetBoxSlotAtIndex(earlyFacade.BlankPKM, box, slot, EntityImportSettings.None);
+          var earlyBytes = earlyFacade.Write().ToArray();
+          Need(EssentialsLegacySaveReader.TryRead(earlyBytes, "Pokemon Uranium/Uranium.rxdata", out var earlyReload, out var earlyError),
+              $"Early Uranium regression did not reparse: {earlyError}");
+          Need(earlyReload!.Party.Count == 1, $"Early Uranium expected 1 party Pokemon, got {earlyReload.Party.Count}");
+          Need(earlyReload.Party[0].LocalSpeciesId == 3, "Early Uranium Raptorch local species was not preserved");
+          Need(earlyReload.Boxes.Count == 35, "Early Uranium box structure was lost");
+          var earlySave = new EssentialsLegacySaveFile(earlyReload);
+          earlySave.Metadata.SetExtraInfo("Pokemon Uranium/Uranium.rxdata");
+          var earlyWrapper = new SaveWrapper(earlySave);
+          var earlyInfo = SaveInfosDTO.FromSave(earlyWrapper, null, DateTime.UtcNow, []);
+          Need(earlyInfo.PartyCount == 1 && earlyInfo.BoxCount == 35, "Early Uranium SaveInfos failed");
+
+          // Exercise the same DTO layer the Storage/Saves UI consumes.
+          var earlyImmutable = earlyWrapper.GetPartyData().Single();
+          var earlyDto = new PkmSaveDTO(
+              Id: "essentials-smoke-party-0",
+              Generation: earlyWrapper.Generation,
+              BoxId: (int)BoxType.Party,
+              BoxSlot: 0,
+              IsDuplicate: false
+          )
+          {
+              SettingsLanguage = "en",
+              Pkm = earlyImmutable,
+              Save = earlyWrapper,
+              Evolves = new Dictionary<ushort, StaticEvolve>(),
+          };
+          Need(earlyDto.Generation == 3, $"Essentials PKM must report generation 3, got {earlyDto.Generation}");
+          Need(earlyDto.Version == GameVersion.E, $"Essentials PKM version must be Emerald-compatible, got {earlyDto.Version}");
+          Need(earlyDto.Context == EntityContext.Gen3, $"Essentials context must be Gen3, got {earlyDto.Context}");
+          Need(earlyDto.RomHackProfile == "pokemon-uranium", "Early Uranium storage DTO lost profile");
+          Need(earlyDto.RomHackSpeciesName == "Raptorch", $"Early Uranium storage DTO lost species name: {earlyDto.RomHackSpeciesName}");
+          Need(earlyDto.CanMoveToSave, "Writable early Uranium PKM was incorrectly disabled");
+          Need(earlyDto.CanMoveToMain, "Early Uranium party Pokemon must be draggable to the central vault");
+          Need(UraniumProfileGenerated.All.Count == 200, $"Uranium registry must contain 200 species, got {UraniumProfileGenerated.All.Count}");
+          Need(UraniumProfileGenerated.OfficialSpeciesCount == 34, "Uranium official reuse count changed");
+          Need(UraniumProfileGenerated.AddedSpeciesCount == 166, "Uranium-added species count changed");
+          Need(UraniumProfileGenerated.TryGetOfficialNationalDexId(136, 0, out var glaceonDex) && glaceonDex == 471,
+              "Uranium Glaceon must collapse to National Dex #471");
+          Need(!UraniumProfileGenerated.TryGetOfficialNationalDexId(194, 0, out _),
+              "Krakanao must remain Uranium-local");
+          var uraniumGlaceon = new PKEssentials(earlyReload.Party[0].ToPayload() with {
+              SpeciesName = "Glaceon",
+              TypeNames = ["Ice"],
+              LocalSpeciesId = 136,
+              LocalFormId = 0,
+              OfficialNationalDexId = 471,
+              Nickname = "Glaceon",
+          });
+          Need(uraniumGlaceon.Species == 471 && uraniumGlaceon.LocalSpeciesId == 136,
+              "Uranium Glaceon presentation/local IDs are not separated");
+          Need(UraniumProfileGenerated.TryGet(3, out var raptorchEntry) && raptorchEntry.Name == "Raptorch",
+              "Uranium registry lost Raptorch #3");
+          Need(raptorchEntry.Types.SequenceEqual(["Fire", "Ground"]), "Raptorch Uranium types mismatch");
+          Need(UraniumProfileGenerated.TryGet(200, out var zephyEntry) && zephyEntry.Name == "Zephy",
+              "Uranium registry lost species #200");
+
+
+          // Insurgence official/custom support regression.
+          Need(InsurgenceProfileGenerated.IsOfficialSpecies(1)
+              && InsurgenceProfileGenerated.IsOfficialSpecies(721)
+              && !InsurgenceProfileGenerated.IsOfficialSpecies(722),
+              "Insurgence official species range must be 1..721");
+          Need(InsurgenceProfileGenerated.TryGetCustom(722, out var insMissingNo)
+              && insMissingNo.Name == "MISSINGNO",
+              "Insurgence MISSINGNO #722 missing");
+          Need(!InsurgenceProfileGenerated.IsSupportedLocalSpecies(723)
+              && !InsurgenceProfileGenerated.IsSupportedLocalSpecies(726),
+              "Insurgence reserved gap 723..726 must stay unsupported");
+          Need(InsurgenceProfileGenerated.TryGetCustom(731, out var deltaCharmeleon)
+              && deltaCharmeleon.Name == "Delta Charmeleon",
+              "Insurgence Delta Charmeleon #731 mapping missing");
+          Need(InsurgenceProfileGenerated.TryGetCustom(925, out var ufi) && ufi.Name == "UFI",
+              "Insurgence UFI #925 mapping missing");
+
+          var insFacadeForImport = new EssentialsLegacySaveFile(insurgence);
+          insFacadeForImport.Metadata.SetExtraInfo(insurgencePath);
+          var officialPikachu = new PK6
+          {
+              Species = 25,
+              Nickname = "PIKACHU",
+              Stat_Level = 25,
+              EXP = 15625,
+              TID16 = 1234,
+              SID16 = 5678,
+              PID = 0x12345678,
+              Move1 = (ushort)Move.ThunderShock,
+              Move2 = (ushort)Move.QuickAttack,
+              Ball = (byte)Ball.Poke,
+          };
+          var importedPikachu = EssentialsInterop.ImportTo(insFacadeForImport, new ImmutablePKM(officialPikachu));
+          Need(importedPikachu.GetMutablePkm() is PKEssentials importedEss
+              && importedEss.ProfileId == "pokemon-insurgence"
+              && importedEss.LocalSpeciesId == 25
+              && importedEss.SpeciesName == "Pikachu",
+              "Insurgence official import support regression");
+
+          var raw50 = new PK1
+          {
+              SpeciesInternal = 0x50,
+              Stat_Level = 20,
+              EXP = 8000,
+              CatchRate = 35,
+              Move1 = (ushort)Move.WaterGun,
+              Move2 = (ushort)Move.SkyAttack,
+          };
+          var importedMissingNo = EssentialsInterop.ImportTo(insFacadeForImport, new ImmutablePKM(raw50));
+          var missingEss = importedMissingNo.GetMutablePkm() as PKEssentials;
+          Need(missingEss is not null
+              && missingEss.LocalSpeciesId == 722
+              && missingEss.SpeciesName == "MISSINGNO",
+              "Gen1 raw-50 MISSINGNO -> Insurgence #722 mapping failed");
+          var insImportWrapper = new SaveWrapper(insFacadeForImport);
+          Need(insImportWrapper.IsPkmAllowed(importedMissingNo),
+              "Insurgence save wrapper rejected its supported MISSINGNO #722");
+          insFacadeForImport.SetBoxSlotAtIndex(missingEss!, 0, 0, EntityImportSettings.None);
+          insFacadeForImport.RegisterDexSpecies(722);
+          var missingWritten = insFacadeForImport.Write().ToArray();
+          Need(EssentialsLegacySaveReader.TryRead(missingWritten, insurgencePath, out var missingReload, out var missingWriteError),
+              $"Insurgence MISSINGNO write did not reparse: {missingWriteError}");
+          Need(missingReload!.Boxes[0].Pokemon[0]?.LocalSpeciesId == 722,
+              "Insurgence MISSINGNO #722 box write did not persist");
+          Need(missingReload.SeenSpecies.Contains(722) && missingReload.OwnedSpecies.Contains(722),
+              "Insurgence MISSINGNO #722 Pokédex registration did not persist");
+
+          // Alpha40: official Pokémon caught/seen in fan-game saves must
+          // contribute to PKVault's normal National Dex even after the actual
+          // Pokémon is no longer present in party/boxes.
+          var staticSpeciesForFanDex = await StaticSpeciesLoader.LoadData("en");
+
+          var uraniumHistoryFacade = new EssentialsLegacySaveFile(uranium);
+          uraniumHistoryFacade.SeenSpecies.Add(57);   // Uranium local Mareep
+          uraniumHistoryFacade.OwnedSpecies.Add(57);
+          var uraniumCanonicalDex = new Dictionary<ushort, Dictionary<uint, DexItemDTO>>();
+          await new DexEssentialsService(uraniumHistoryFacade).UpdateDexWithSave(
+              uraniumCanonicalDex,
+              staticSpeciesForFanDex,
+              new HashSet<ushort> { 179 }
+          );
+          Need(uraniumCanonicalDex.TryGetValue(179, out var mareepDex)
+              && mareepDex.Values.SelectMany(item => item.Forms).Any(form => form.IsCaught),
+              "Uranium owned Mareep history did not mark National Dex #179 caught");
+
+          var insurgenceHistoryFacade = new EssentialsLegacySaveFile(insurgence);
+          insurgenceHistoryFacade.SeenSpecies.Add(151);   // Mew
+          insurgenceHistoryFacade.OwnedSpecies.Add(151);
+          var insurgenceCanonicalDex = new Dictionary<ushort, Dictionary<uint, DexItemDTO>>();
+          await new DexEssentialsService(insurgenceHistoryFacade).UpdateDexWithSave(
+              insurgenceCanonicalDex,
+              staticSpeciesForFanDex,
+              new HashSet<ushort> { 151 }
+          );
+          Need(insurgenceCanonicalDex.TryGetValue(151, out var mewDex)
+              && mewDex.Values.SelectMany(item => item.Forms).Any(form => form.IsCaught),
+              "Insurgence owned Mew history did not mark National Dex #151 caught");
+
+          var modernUnsupported = new PK9 { Species = 906 };
+          var unsupportedBlocked = false;
+          try { _ = EssentialsInterop.ImportTo(insFacadeForImport, new ImmutablePKM(modernUnsupported)); }
+          catch (InvalidOperationException) { unsupportedBlocked = true; }
+          Need(unsupportedBlocked, "Gen7+ species not present in Insurgence must be blocked");
+
+          // Deterministic random Uranium stress save: one party Raptorch plus
+          // sixty unique Uranium species across the first two PC boxes.
+          var randomUranium = new EssentialsLegacySaveFile(earlyReload);
+          randomUranium.Metadata.SetExtraInfo("Uranium-Random-Test/Uranium.rxdata");
+          var templateMon = earlyReload.Party[0];
+          var random = new Random(0x55414E);
+          var ids = Enumerable.Range(1, UraniumProfileGenerated.SpeciesCount)
+              .OrderBy(_ => random.Next())
+              .Take(Math.Min(60, randomUranium.BoxSlotCount * 2))
+              .ToArray();
+          var randomList = new List<string>();
+          for (var i = 0; i < ids.Length; i++)
+          {
+              var id = ids[i];
+              Need(UraniumProfileGenerated.TryGet(id, out var entry), $"Missing Uranium random entry {id}");
+              var payload = templateMon.ToPayload() with
+              {
+                  SpeciesName = entry.Name,
+                  TypeNames = entry.Types,
+                  LocalSpeciesId = id,
+                  LocalFormId = 0,
+                  OfficialNationalDexId = entry.OfficialNationalDexId,
+                  Nickname = entry.Name,
+                  BaseStats = entry.Stats,
+                  Level = (byte)random.Next(5, 81),
+                  SourceContainer = "random-test",
+                  SourceSlot = i,
+                  SourceFingerprint = $"random-test-{i}-{id}",
+                  ReadOnlySource = false,
+              };
+              var mon = new PKEssentials(payload);
+              var box = i / randomUranium.BoxSlotCount;
+              var slot = i % randomUranium.BoxSlotCount;
+              randomUranium.SetBoxSlotAtIndex(mon, box, slot, EntityImportSettings.None);
+              randomList.Add($"{box + 1}:{slot + 1}  #{id:000} {entry.Name}");
+          }
+          var randomBytes = randomUranium.Write().ToArray();
+          Directory.CreateDirectory("uranium-random-test");
+          File.WriteAllBytes("uranium-random-test/Uranium.rxdata", randomBytes);
+          File.WriteAllLines("uranium-random-test/RANDOM_URANIUM_POKEMON.txt", randomList);
+          Need(EssentialsLegacySaveReader.TryRead(randomBytes, "Uranium-Random-Test/Uranium.rxdata", out var randomReload, out var randomError),
+              $"Random Uranium test save failed to reparse: {randomError}");
+          Need(randomReload!.Boxes.Take(2).Sum(b => b.Pokemon.Count(p => p != null)) == ids.Length,
+              "Random Uranium stress save lost seeded Pokémon");
+          _ = earlyDto.Ball;
+          _ = earlyDto.Types;
+          _ = earlyDto.Level;
+          _ = earlyDto.ExpToLevelUp;
+          _ = earlyDto.LevelUpPercent;
+          _ = earlyDto.IVs;
+          _ = earlyDto.EVs;
+          _ = earlyDto.Stats;
+          _ = earlyDto.BaseStats;
+          _ = earlyDto.Moves;
+          _ = earlyDto.OriginMetLocation;
+          _ = earlyDto.Ribbons;
+
+          var crossProfileBlocked = false;
+          try
+          {
+              uraniumFacade.SetBoxSlotAtIndex(insurgenceParty0, 0, 1, EntityImportSettings.None);
+          }
+          catch (InvalidOperationException)
+          {
+              crossProfileBlocked = true;
+          }
+          Need(crossProfileBlocked, "Cross-profile Insurgence -> Uranium write was not blocked");
+
+          // Most important collision regression: Essentials-local species 1 is
+          // allowed to remain profile-local rather than being treated as Bulbasaur.
+          var orchynx = new PKEssentials(new EssentialsPkmPayload {
+              ProfileId = "pokemon-uranium",
+              SpeciesName = "Orchynx",
+              LocalSpeciesId = 1,
+              LocalFormId = 0,
+              Level = 5,
+              TypeNames = ["Grass", "Steel"],
+              BaseStats = [50,55,55,50,70,70],
+          });
+          Need(orchynx.Species == 1 && orchynx.LocalSpeciesId == 1 && orchynx.SpeciesName == "Orchynx",
+              "Profile-local Uranium species 1 was aliased incorrectly");
+
+          Console.WriteLine("PASS: Uranium + Insurgence Ruby Marshal read/write, untouched-stream preservation, and profile isolation");
+          EOF
+
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/AlphaKyogre/pokemon-uranium/master/Uranium.rxdata \
+            -o "essentials-smoke/fixtures/Pokemon Uranium/Uranium.rxdata"
+
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/ShockingZebstrika/pokemon-insurgence/master/Game.rxdata \
+            -o "essentials-smoke/fixtures/Pokemon Insurgence/Game.rxdata"
+
+          dotnet run --project essentials-smoke/essentials-smoke.csproj -c Release
+          test -s uranium-random-test/Uranium.rxdata
+          test "$(wc -l < uranium-random-test/RANDOM_URANIUM_POKEMON.txt)" -eq 60
+
+      - name: Generate Alpha51 quest achievement test saves
+        run: |
+          set -euo pipefail
+          rm -rf quest-test-generator quest-test-saves
+          mkdir -p quest-test-generator "quest-test-saves/Pokemon Red" "quest-test-saves/Pokemon Silver" "quest-test-saves/Pokemon Insurgence"
+
+          cat > quest-test-generator/quest-test-generator.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+            </PropertyGroup>
+            <ItemGroup>
+              <ProjectReference Include="../pkvault-src/PKVault.Core/PKVault.Core.csproj" />
+              <Reference Include="PKHeX.Core">
+                <HintPath>../pkvault-src/PKVault.Core/PKHeX.Core.dll</HintPath>
+              </Reference>
+            </ItemGroup>
+          </Project>
+          EOF
+
+          cat > quest-test-generator/Program.cs <<'EOF'
+          using PKHeX.Core;
+          using PKVault.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          static PK1 MakeGen1(ushort species, byte level, ushort tid, ushort dvs)
+          {
+              return new PK1
+              {
+                  Species = species,
+                  Stat_Level = level,
+                  EXP = (uint)(level * level * level),
+                  TID16 = tid,
+                  DV16 = dvs,
+                  Move1 = (ushort)Move.Tackle,
+                  Move2 = (ushort)Move.Growl,
+              };
+          }
+
+          static PK2 MakeGen2(ushort species, byte level, ushort tid, ushort dvs)
+          {
+              return new PK2
+              {
+                  Species = species,
+                  Stat_Level = level,
+                  EXP = (uint)(level * level * level),
+                  TID16 = tid,
+                  DV16 = dvs,
+                  Move1 = (ushort)Move.Tackle,
+                  Move2 = (ushort)Move.Growl,
+                  CurrentFriendship = 100,
+              };
+          }
+
+          // Red test save: mutate a pinned, real retail-compatible save fixture.
+          // Starting from a known-good save means the artifact is recognizable through
+          // PKHeX/PKVault's normal save detector, not just structurally 32 KiB.
+          var redBasePath = "quest-test-generator/RedBase.sav";
+          var redBaseBytes = File.ReadAllBytes(redBasePath);
+          var red = SaveUtil.GetSaveFile(redBaseBytes, redBasePath) as SAV1;
+          Need(red is not null, "Pinned real Red base save did not parse");
+          red.Version = GameVersion.RD;
+          red.OT = "QRED";
+          red.TID16 = 40101;
+          red.Money = 12000;
+          red.PlayedHours = 3;
+          red.PlayedMinutes = 12;
+          red.ClearBoxes();
+          red.PartyData = [];
+          for (ushort species = 1; species <= 151; species++)
+          {
+              red.SetSeen(species, false);
+              red.SetCaught(species, false);
+          }
+          ushort[] redSpecies = [16, 25, 133, 144, 150]; // Pidgey, Pikachu, Eevee, Articuno, Mewtwo
+          for (var i = 0; i < redSpecies.Length; i++)
+          {
+              var species = redSpecies[i];
+              red.SetBoxSlotAtIndex(MakeGen1(species, (byte)(20 + i * 8), red.TID16, (ushort)(0x1234 + i * 0x1111)), 0, i, EntityImportSettings.None);
+              red.SetSeen(species, true);
+              red.SetCaught(species, true);
+          }
+          var redBytes = red.Write().ToArray();
+          var redPath = "quest-test-saves/Pokemon Red/Pokemon Red - PKVault Quest Test.sav";
+          File.WriteAllBytes(redPath, redBytes);
+          var redReload = SaveUtil.GetSaveFile(redBytes, redPath) as SAV1;
+          Need(redReload is not null, "Generated Red save did not parse");
+          foreach (var species in redSpecies)
+              Need(redReload.GetSeen(species) && redReload.GetCaught(species), $"Red dex lost species {species}");
+          Need(redReload.GetBoxSlotAtIndex(0, 3).Species == 144, "Red Articuno missing from box");
+          Need(redReload.GetBoxSlotAtIndex(0, 4).Species == 150, "Red Mewtwo missing from box");
+
+          // Silver test save: mutate a pinned, real retail-compatible save fixture.
+          var silverBasePath = "quest-test-generator/SilverBase.sav";
+          var silverBaseBytes = File.ReadAllBytes(silverBasePath);
+          var silver = SaveUtil.GetSaveFile(silverBaseBytes, silverBasePath) as SAV2;
+          Need(silver is not null, "Pinned real Silver base save did not parse");
+          silver.Version = GameVersion.SI;
+          silver.OT = "QSILVER";
+          silver.TID16 = 40202;
+          silver.Money = 18000;
+          silver.PlayedHours = 6;
+          silver.PlayedMinutes = 34;
+          silver.ClearBoxes();
+          silver.PartyData = [];
+          for (ushort species = 1; species <= 251; species++)
+          {
+              silver.SetSeen(species, false);
+              silver.SetCaught(species, false);
+          }
+          ushort[] silverSpecies = [179, 197, 212, 243, 249]; // Mareep, Umbreon, Scizor, Raikou, Lugia
+          for (var i = 0; i < silverSpecies.Length; i++)
+          {
+              var species = silverSpecies[i];
+              silver.SetBoxSlotAtIndex(MakeGen2(species, (byte)(22 + i * 9), silver.TID16, (ushort)(0x2345 + i * 0x1111)), 0, i, EntityImportSettings.None);
+              silver.SetSeen(species, true);
+              silver.SetCaught(species, true);
+          }
+          var silverBytes = silver.Write().ToArray();
+          var silverPath = "quest-test-saves/Pokemon Silver/Pokemon Silver - PKVault Quest Test.sav";
+          File.WriteAllBytes(silverPath, silverBytes);
+          var silverReload = SaveUtil.GetSaveFile(silverBytes, silverPath) as SAV2;
+          Need(silverReload is not null, "Generated Silver save did not parse");
+          foreach (var species in silverSpecies)
+              Need(silverReload.GetSeen(species) && silverReload.GetCaught(species), $"Silver dex lost species {species}");
+          Need(silverReload.GetBoxSlotAtIndex(0, 3).Species == 243, "Silver Raikou missing from box");
+          Need(silverReload.GetBoxSlotAtIndex(0, 4).Species == 249, "Silver Lugia missing from box");
+
+          // Insurgence save: start from a real public Insurgence Marshal fixture,
+          // then add official species and register all of them as caught.
+          var insPath = "quest-test-generator/InsurgenceBase.rxdata";
+          var insBytes = File.ReadAllBytes(insPath);
+          Need(EssentialsLegacySaveReader.TryRead(insBytes, insPath, out var insData, out var insError),
+              $"Insurgence fixture failed to parse: {insError}");
+          var insurgence = new EssentialsLegacySaveFile(insData!);
+          insurgence.Metadata.SetExtraInfo("Pokemon Insurgence/Game.rxdata");
+          insurgence.SeenSpecies.Clear();
+          insurgence.OwnedSpecies.Clear();
+
+          ushort[] insurgenceSpecies = [25, 133, 150, 382, 384]; // Pikachu, Eevee, Mewtwo, Kyogre, Rayquaza
+          for (var i = 0; i < insurgenceSpecies.Length; i++)
+          {
+              var species = insurgenceSpecies[i];
+              var pk6 = new PK6
+              {
+                  Species = species,
+                  Nickname = $"TEST{species}",
+                  Stat_Level = (byte)(30 + i * 10),
+                  EXP = (uint)((30 + i * 10) * (30 + i * 10) * (30 + i * 10)),
+                  TID16 = 40303,
+                  SID16 = 40404,
+                  PID = 0x12340000u + species,
+                  Move1 = (ushort)Move.Tackle,
+                  Ball = (byte)Ball.Poke,
+              };
+              var imported = EssentialsInterop.ImportTo(insurgence, new ImmutablePKM(pk6));
+              var ess = imported.GetMutablePkm() as PKEssentials;
+              Need(ess is not null && ess.OfficialNationalDexId == species,
+                  $"Insurgence import did not preserve official species {species}");
+              insurgence.SetBoxSlotAtIndex(ess!, 0, i, EntityImportSettings.None);
+              insurgence.RegisterDexSpecies(species);
+          }
+
+          var insOut = insurgence.Write().ToArray();
+          var insOutPath = "quest-test-saves/Pokemon Insurgence/Game.rxdata";
+          File.WriteAllBytes(insOutPath, insOut);
+          Need(EssentialsLegacySaveReader.TryRead(insOut, insOutPath, out var insReload, out var insReloadError),
+              $"Generated Insurgence save did not reparse: {insReloadError}");
+          foreach (var species in insurgenceSpecies)
+              Need(insReload!.SeenSpecies.Contains(species) && insReload.OwnedSpecies.Contains(species),
+                  $"Insurgence dex lost species {species}");
+
+          Console.WriteLine("PASS: generated Red, Silver, and Insurgence quest test saves with caught dex state");
+          EOF
+
+          # Pin real Red/Silver fixture bytes to the exact upstream commit that
+          # was inspected for this test build. These files are mutated, never shipped unchanged.
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/Praeses0/pkmn-cli/aa78daface28e34b7e1596a9b4cc84d28b4df939/tests/fixtures/real/gen1/pokemon-red-base.sav \
+            -o quest-test-generator/RedBase.sav
+
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/Praeses0/pkmn-cli/aa78daface28e34b7e1596a9b4cc84d28b4df939/tests/fixtures/real/gen2/pokemon-silver.sav \
+            -o quest-test-generator/SilverBase.sav
+
+          curl -fL --retry 3 \
+            https://raw.githubusercontent.com/ShockingZebstrika/pokemon-insurgence/master/Game.rxdata \
+            -o quest-test-generator/InsurgenceBase.rxdata
+
+          dotnet run --project quest-test-generator/quest-test-generator.csproj -c Release
+
+          cat > quest-test-saves/README.txt <<'EOF'
+          PKVault V8 alpha52 - QUEST / ACHIEVEMENT LIVE TEST SAVES
+          ========================================================
+
+          These are disposable TEST SAVES. Keep them separate from your real game saves.
+
+          Add them to PKVault ONE AT A TIME and use Reload all data & saves after each:
+          1. Pokemon Red/Pokemon Red - PKVault Quest Test.sav
+             Contains Pidgey, Pikachu, Eevee, Articuno, and Mewtwo.
+             All five are marked Seen + Caught in the save's Pokédex.
+             Articuno and Mewtwo should complete their one-time Legendary achievements.
+
+          2. Pokemon Silver/Pokemon Silver - PKVault Quest Test.sav
+             Contains Mareep, Umbreon, Scizor, Raikou, and Lugia.
+             All five are marked Seen + Caught.
+             Raikou and Lugia should complete their one-time Legendary achievements.
+
+          3. Pokemon Insurgence/Game.rxdata
+             Contains the original fixture Pokémon plus test Pikachu, Eevee, Mewtwo,
+             Kyogre, and Rayquaza. Those five are registered Seen + Caught.
+             Mewtwo should already be completed if Red was loaded first; it MUST NOT
+             reward twice. Kyogre and Rayquaza should complete once.
+
+          Expected UI behavior:
+          - Completed quest cards turn green.
+          - Top-right notification title: "Quest completed".
+          - Removing a save after it completed a permanent achievement must NOT clear that completion or award it again.
+          - PKVault's generated pokemon-emerald-sample.sav is ignored for quest/achievement/daily progress.
+          - Legendary achievement rewards vary by Legendary tier; Mythical first-catch achievements award 1 Master Ball.
+          - Each species achievement is global and one-time across every save/game.
+          - Open Quests > Achievements to see permanent completion state.
+          - Preloaded Pokémon in these files are for achievement testing only; they do not
+            count as a "caught today" daily event.
+
+          Note: Generation 1 Red/Blue saves and Generation 2 Gold/Silver saves do not encode
+          the retail cartridge color as strongly as later games. The files are deliberately
+          named and generated as Red- and Silver-targeted test saves.
+          EOF
+
+          test -s "quest-test-saves/Pokemon Red/Pokemon Red - PKVault Quest Test.sav"
+          test -s "quest-test-saves/Pokemon Silver/Pokemon Silver - PKVault Quest Test.sav"
+          test -s "quest-test-saves/Pokemon Insurgence/Game.rxdata"
+
+      - name: Upload Alpha51 quest achievement test saves
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-v8.0.0-alpha52-QUEST-TEST-SAVES
+          path: quest-test-saves
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: V8 Too Many Types compatibility smoke test
+        run: |
+          mkdir -p tmt-smoke
+          cat > tmt-smoke/tmt-smoke.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+            </PropertyGroup>
+            <ItemGroup>
+              <ProjectReference Include="../pkvault-src/PKVault.Core/PKVault.Core.csproj" />
+              <Reference Include="PKHeX.Core">
+                <HintPath>../pkvault-src/PKVault.Core/PKHeX.Core.dll</HintPath>
+              </Reference>
+            </ItemGroup>
+          </Project>
+          EOF
+          cat > tmt-smoke/Program.cs <<'EOF'
+          using PKHeX.Core;
+          using PKVault.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          var braixen = new PK3 { DirectSpeciesIDs = true };
+          braixen.SpeciesInternal = 654;
+          braixen.RefreshChecksum();
+          Need(braixen.Species == 654, "raw 654 did not resolve to Braixen");
+          Need(braixen.PersonalInfo.HP > 0, "expanded Braixen personal data fallback failed");
+          Need(braixen.Clone().DirectSpeciesIDs, "PK3 clone lost direct-species mode");
+
+          var ralts = new PK3 { DirectSpeciesIDs = true };
+          ralts.SpeciesInternal = 280;
+          Need(ralts.Species == 280, "TMT raw 280 did not resolve directly to Ralts");
+
+          Need(Gen3DirectSpecies.TryGetRaw(77, 1, out var gPonyta) && gPonyta == 975,
+              "Galarian Ponyta raw form constant mismatch");
+          Need(Gen3DirectSpecies.TryGetRaw(745, 1, out var lycanrocN) && lycanrocN == 1173,
+              "Lycanroc Midnight raw form constant mismatch");
+          Need(Gen3DirectSpecies.TryGetRaw(746, 1, out var wishiwashiSchool) && wishiwashiSchool == 1175,
+              "Wishiwashi School raw form constant mismatch");
+
+          Need(TooManyTypesProfileGenerated.Supports(654, 0), "TMT roster missing Braixen");
+          Need(TooManyTypesProfileGenerated.Supports(728, 0), "TMT roster missing Popplio");
+          Need(!TooManyTypesProfileGenerated.Supports(722, 0), "Rowlet must not be accepted by TMT v1.6 roster");
+
+          var wrappedBraixen = new ImmutablePKM(braixen);
+          Need(TooManyTypesCompat.GetStorageExtension(wrappedBraixen) == "tmt3",
+              "TMT storage extension was not preserved");
+          var types = TooManyTypesCompat.GetTypes(wrappedBraixen);
+          Need(types is ["Fire", "Magic", "Furry"], "Braixen TMT type metadata mismatch");
+
+          var rawSave = new byte[SaveUtil.SIZE_G3RAW];
+          for (var group = 0; group < 2; group++)
+          {
+              for (short sector = 0; sector < 14; sector++)
+              {
+                  var footer = ((group * 14) + sector) * 0x1000 + 0xFF4;
+                  System.Buffers.Binary.BinaryPrimitives.WriteInt16LittleEndian(rawSave.AsSpan(footer, 2), sector);
+              }
+          }
+          var tmtSave = new SAV3E(rawSave);
+          Need(TooManyTypesCompat.ConfigureSave(tmtSave, "TooManyTypes_PUBLIC_v1.6.sav"),
+              "TMT filename fingerprint did not activate profile");
+          Need(tmtSave.DirectSpeciesIDs, "TMT save did not enter direct-species mode");
+          Need(((SAV3E)tmtSave.Clone()).DirectSpeciesIDs, "SAV3E clone lost direct-species mode");
+
+          // Regression for alpha2: stock Emerald uses an internal Gen3 species
+          // order above National Dex #251. Blaziken #257 is raw 282 (Gardevoir
+          // nationally), while Chimecho #358 is raw 411. Neither may cause a
+          // stock Emerald save to be promoted into TMT direct-species mode.
+          var vanillaBlaziken = new PK3 { Species = 257, CurrentLevel = 36 };
+          Need(vanillaBlaziken.SpeciesInternal == 282,
+              $"Expected vanilla Blaziken internal species 282, got {vanillaBlaziken.SpeciesInternal}.");
+          var vanillaChimecho = new PK3 { Species = 358, CurrentLevel = 40 };
+          Need(vanillaChimecho.SpeciesInternal == 411,
+              $"Expected vanilla Chimecho internal species 411, got {vanillaChimecho.SpeciesInternal}.");
+          var vanillaEmerald = new SAV3E();
+          vanillaEmerald.PartyData = [vanillaBlaziken, vanillaChimecho];
+          Need(!TooManyTypesCompat.ConfigureSave(vanillaEmerald, "Pokemon Emerald.sav"),
+              "Stock Emerald was falsely detected as Too Many Types.");
+          Need(!vanillaEmerald.DirectSpeciesIDs,
+              "Stock Emerald entered direct-species mode.");
+          Need(((PK3)vanillaEmerald.PartyData[0]).Species == 257,
+              "Stock Emerald Blaziken was reinterpreted as another species.");
+
+          var popplio7 = new PK7 { Species = 728 };
+          var tmtPopplio = new PK3();
+          TooManyTypesCompat.ApplyTmtIdentity(tmtPopplio, new ImmutablePKM(popplio7));
+          Need(tmtPopplio.DirectSpeciesIDs && tmtPopplio.SpeciesInternal == 728 && tmtPopplio.Species == 728,
+              "later-generation Popplio identity did not map into TMT");
+
+          var directRalts = new PK3 { DirectSpeciesIDs = true };
+          directRalts.SpeciesInternal = 280;
+          directRalts.Move1 = 930;
+          directRalts.RefreshChecksum();
+          var vanilla = TooManyTypesCompat.ConvertDirectToVanilla(directRalts, new SAV3E());
+          Need(!vanilla.DirectSpeciesIDs && vanilla.Species == 280,
+              "TMT Ralts did not remap back to vanilla Gen3");
+          Need(vanilla.Move1 == 0, "TMT custom move leaked into vanilla Gen3");
+          Need(vanilla.SpeciesInternal != 280,
+              "TMT direct raw species id was not remapped to vanilla Gen3 internal numbering");
+
+          // TMT is an ownership source for the normal National Dex only.
+          // The dex adapter must never leak TMT-specific presentation/types.
+          var dexSave = new SAV3E { DirectSpeciesIDs = true, TID16 = 1234, SID16 = 5678 };
+          var tmtDex = new DexTmtService(dexSave);
+          var dex = new Dictionary<ushort, Dictionary<uint, DexItemDTO>>();
+          await tmtDex.UpdateDexWithSave(dex, new StaticSpeciesData(), null);
+          Need(dex.ContainsKey(654), "TMT ownership source did not include Braixen");
+          var braixenDex = dex[654].Values.Single();
+          Need(braixenDex.Forms.Count > 0, "TMT-owned Braixen dex entry has no forms");
+
+          var officialBraixen = EntityBlank.GetIdealBlank(654, 0);
+          officialBraixen.Species = 654;
+          officialBraixen.Form = 0;
+          var officialBraixenTypes = DexGenService.GetTypes(officialBraixen.Generation, officialBraixen.PersonalInfo);
+          Need(braixenDex.Forms.All(f => f.Types.SequenceEqual(officialBraixenTypes)),
+              "TMT-owned Braixen leaked ROM-hack typing into the National Dex");
+          Need(braixenDex.Forms.All(f => f.Context == officialBraixen.Context),
+              "TMT-owned Braixen did not use an official presentation context");
+
+          var officialRalts = EntityBlank.GetIdealBlank(280, 0);
+          officialRalts.Species = 280;
+          officialRalts.Form = 0;
+          var officialRaltsTypes = DexGenService.GetTypes(officialRalts.Generation, officialRalts.PersonalInfo);
+          var raltsDex = dex[280].Values.Single();
+          Need(raltsDex.Forms.All(f => f.Types.SequenceEqual(officialRaltsTypes)),
+              "TMT-owned Ralts leaked Space/Fairy presentation into the National Dex");
+
+          Console.WriteLine("PASS: PKVault V8 TMT direct species, forms, roster, storage types, canonical dex ownership, clone and vanilla downgrade");
+          EOF
+          dotnet run --project tmt-smoke/tmt-smoke.csproj -c Release
+
+      - name: Seed 55-Pokemon mixed-format TMT compatibility profile
+        run: |
+          set -euo pipefail
+          ROOT="$GITHUB_WORKSPACE"
+          HARNESS="$ROOT/pkvault-rebuild/trading-smoke/trading-smoke.csproj"
+          TMT_PROFILE="$ROOT/tmt-type-test-profile"
+          rm -rf "$TMT_PROFILE"
+          mkdir -p "$TMT_PROFILE"
+
+          PKVAULT_PATH="$TMT_PROFILE" PKVAULT_TRADE_PROFILE="TMT-Type-Test" \
+            dotnet run --project "$HARNESS" -c Release -- seed-tmt
+
+          test -f "$TMT_PROFILE/db/pkvault.db"
+          test -f "$TMT_PROFILE/config/pkvault.json"
+
+          TMT_COUNT=$(find "$TMT_PROFILE/storage" -type f -name '*.tmt3' | wc -l)
+          PK3_COUNT=$(find "$TMT_PROFILE/storage" -type f -name '*.pk3' | wc -l)
+          PK1_COUNT=$(find "$TMT_PROFILE/storage" -type f -name '*.pk1' | wc -l)
+          PK2_COUNT=$(find "$TMT_PROFILE/storage" -type f -name '*.pk2' | wc -l)
+          TOTAL=$((TMT_COUNT + PK3_COUNT + PK1_COUNT + PK2_COUNT))
+
+          test "$TMT_COUNT" -eq 10
+          test "$PK3_COUNT" -eq 15
+          test "$PK1_COUNT" -eq 15
+          test "$PK2_COUNT" -eq 15
+          test "$TOTAL" -eq 55
+
+          echo "PASS: seeded 55 mixed-format Pokemon: 10 TMT + 15 Emerald + 15 Gen1 + 15 Gen2"
+
+      - name: PKVault Gen1 glitch enablement smoke test
+        run: |
+          mkdir -p vault-smoke
+          cat > vault-smoke/vault-smoke.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+            </PropertyGroup>
+            <ItemGroup>
+              <ProjectReference Include="../pkvault-src/PKVault.Core/PKVault.Core.csproj" />
+              <Reference Include="PKHeX.Core">
+                <HintPath>../pkvault-src/PKVault.Core/PKHeX.Core.dll</HintPath>
+              </Reference>
+            </ItemGroup>
+          </Project>
+          EOF
+          cat > vault-smoke/Program.cs <<'EOF'
+          using PKHeX.Core;
+          using PKVault.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          var raw00 = new PK1();
+          raw00.SpeciesInternal = 0;
+          raw00.CatchRate = 45;
+          raw00.EXP = 12345;
+          raw00.Stat_LevelBox = 20;
+
+          var raw50 = new PK1();
+          raw50.SpeciesInternal = 0x50;
+          raw50.CatchRate = 45;
+          raw50.EXP = 54321;
+          raw50.Stat_LevelBox = 92;
+
+          var blank = new PK1();
+
+          Need(new ImmutablePKM(raw00).IsEnabled, "'M raw-00 should be enabled");
+          Need(new ImmutablePKM(raw50).IsEnabled, "MissingNo raw-50 should be enabled");
+          Need(!new ImmutablePKM(blank).IsEnabled, "blank PK1 must remain disabled");
+          Need(new ImmutablePKM(raw00).IsGen1Glitch, "'M raw-00 glitch identity missing");
+          Need(new ImmutablePKM(raw50).IsGen1Glitch, "MissingNo raw-50 glitch identity missing");
+
+          Console.WriteLine("PASS: PKVault enables raw00 + raw50 glitches and rejects blank PK1");
+          EOF
+          dotnet run --project vault-smoke/vault-smoke.csproj -c Release
+
+      - name: Direct trading two-profile end-to-end test
+        run: |
+          set -euo pipefail
+          ROOT="$GITHUB_WORKSPACE"
+          HARNESS="$ROOT/pkvault-rebuild/trading-smoke/trading-smoke.csproj"
+          SEED_A="$ROOT/trade-test/seed-A"
+          SEED_B="$ROOT/trade-test/seed-B"
+          RUN_A="$ROOT/trade-test/run-A"
+          RUN_B="$ROOT/trade-test/run-B"
+
+          rm -rf "$ROOT/trade-test"
+          mkdir -p "$SEED_A" "$SEED_B"
+
+          dotnet build "$HARNESS" -c Release --nologo
+
+          PKVAULT_PATH="$SEED_A" PKVAULT_TRADE_PROFILE="Trader-A" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- seed A
+          PKVAULT_PATH="$SEED_B" PKVAULT_TRADE_PROFILE="Trader-B" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- seed B
+
+          cp -a "$SEED_A" "$RUN_A"
+          cp -a "$SEED_B" "$RUN_B"
+
+          PKVAULT_PATH="$RUN_A" PKVAULT_TRADE_PROFILE="Trader-A" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- host > "$ROOT/trade-host.log" 2>&1 &
+          HOST_PID=$!
+
+          sleep 2
+
+          PKVAULT_PATH="$RUN_B" PKVAULT_TRADE_PROFILE="Trader-B" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- join > "$ROOT/trade-join.log" 2>&1 &
+          JOIN_PID=$!
+
+          set +e
+          wait "$HOST_PID"; HOST_RC=$?
+          wait "$JOIN_PID"; JOIN_RC=$?
+          set -e
+
+          echo "===== HOST LOG ====="
+          cat "$ROOT/trade-host.log"
+          echo "===== JOIN LOG ====="
+          cat "$ROOT/trade-join.log"
+
+          test "$HOST_RC" -eq 0
+          test "$JOIN_RC" -eq 0
+
+          PKVAULT_PATH="$RUN_A" PKVAULT_TRADE_PROFILE="Trader-A" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- verify "66,92,147,123"
+          PKVAULT_PATH="$RUN_B" PKVAULT_TRADE_PROFILE="Trader-B" \
+            dotnet run --no-build --project "$HARNESS" -c Release -- verify "63,60,104,116,127,124,58,27"
+
+          test ! -f "$RUN_A/pkvault-trade-pending.json"
+          test ! -f "$RUN_B/pkvault-trade-pending.json"
+          echo "PASS: uneven 2-for-1 trade + one-way gift completed over localhost:0000 and both profiles reloaded correctly"
+
+          # Direct-IP path smoke test. This uses the runner's non-loopback IPv4
+          # and the exact random port advertised by Host Direct.
+          DIRECT_A="$ROOT/trade-test/direct-A"
+          DIRECT_B="$ROOT/trade-test/direct-B"
+          DIRECT_ADDR="$ROOT/trade-test/direct-address.txt"
+          cp -a "$SEED_A" "$DIRECT_A"
+          cp -a "$SEED_B" "$DIRECT_B"
+          rm -f "$DIRECT_ADDR"
+
+          PKVAULT_PATH="$DIRECT_A"             dotnet run --no-build --project "$HARNESS" -c Release -- direct-host "$DIRECT_ADDR" > "$ROOT/trade-direct-host.log" 2>&1 &
+          DIRECT_HOST_PID=$!
+
+          sleep 2
+
+          PKVAULT_PATH="$DIRECT_B"             dotnet run --no-build --project "$HARNESS" -c Release -- direct-join "$DIRECT_ADDR" > "$ROOT/trade-direct-join.log" 2>&1 &
+          DIRECT_JOIN_PID=$!
+
+          set +e
+          wait "$DIRECT_HOST_PID"; DIRECT_HOST_RC=$?
+          wait "$DIRECT_JOIN_PID"; DIRECT_JOIN_RC=$?
+          set -e
+
+          echo "===== DIRECT HOST LOG ====="
+          cat "$ROOT/trade-direct-host.log"
+          echo "===== DIRECT JOIN LOG ====="
+          cat "$ROOT/trade-direct-join.log"
+
+          test "$DIRECT_HOST_RC" -eq 0
+          test "$DIRECT_JOIN_RC" -eq 0
+          test -s "$DIRECT_ADDR"
+          ! grep -q '^localhost:' "$DIRECT_ADDR"
+          echo "PASS: Host Direct advertised a non-loopback IP:random-port and a second PKVault connected to it"
+
+      - name: Verify exact TMT v1.6 type palette coverage
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path("pkvault-src/frontend/src/romhacks/tmt-type-item.tsx")
+          text = p.read_text(encoding="utf-8")
+
+          expected = [
+              "normal","fighting","flying","poison","ground","rock","bug","ghost","steel","mystery",
+              "fire","water","grass","electric","psychic","ice","dragon","dark","fairy",
+              "monke","angy","baby","friend","guys","liquid","vibe","song","space","fluffy","sus",
+              "furry","bad","ancient","silly","stinky","sharp","magic","gender","little","crab",
+              "dream","right","left","zoomer","gamer","dance","boring","ugly","emerald","gun",
+              "pikachu","prime","ohio","deez nuts","normal2","bean","boomer","smash","ou","ball",
+              "sans","reverse","type",
+          ]
+
+          body = text.split("TMT_TYPE_STYLES", 1)[1].split("};", 1)[0]
+          found = set(re.findall(r"^\s*(?:'([^']+)'|([a-zA-Z0-9]+)):\s*\{", body, re.M))
+          found = {a or b for a, b in found}
+
+          missing = [t for t in expected if t not in found]
+          extra = sorted(found - set(expected))
+          if missing or extra or len(found) != 63:
+              raise SystemExit(f"TMT palette coverage mismatch: missing={missing} extra={extra} count={len(found)}")
+
+          required_fragments = {
+              "Furry v1.6 blue": "furry:     { background: '#6A94F6' }",
+              "Magic v1.6 pink": "magic:     { background: '#FF5A8B' }",
+              "Gender split": "linear-gradient(90deg, #9CDEDE 0 50%, #DE83BD 50% 100%)",
+              "Smash split": "linear-gradient(90deg, #F68331 0 64%, #C53129 64% 100%)",
+              "Sans split": "linear-gradient(90deg, #000000 0 58%, #FFFFFF 58% 100%)",
+          }
+          for label, fragment in required_fragments.items():
+              if fragment not in text:
+                  raise SystemExit(f"Missing exact TMT palette check: {label}")
+
+          print("PASS: all 63 TMT v1.6 types have dedicated color styling")
+          PY
+
+      - name: Verify canonical Pokédex and Emerald TMT labelling
+        run: |
+          set -euo pipefail
+
+          ! grep -q "Too Many Types v1.6" pkvault-src/frontend/src/pokedex/list/hooks/use-pokedex-items.ts
+          ! grep -q "dexProfile" pkvault-src/frontend/src/routes/pokedex.tsx
+          ! grep -q "romHackTypes" pkvault-src/frontend/src/pokedex/list/hooks/use-pokedex-items.ts
+          ! grep -q "TmtTypeItem" pkvault-src/frontend/src/pokedex/details/pokedex-details.tsx
+          ! grep -q "RomHackTypes" pkvault-src/PKVault.Core/dex/dto/DexItemDTO.cs
+
+          grep -q "GetOfficialPresentation" pkvault-src/PKVault.Core/dex/services/gen/DexTmtService.cs
+          grep -q "TooManyTypesCompat.GetTypes(Pkm)" pkvault-src/PKVault.Core/storage/dto/PkmBaseDTO.cs
+          grep -q "PKEssentials essentials" pkvault-src/PKVault.Core/storage/dto/PkmBaseDTO.cs
+          grep -q "TmtTypeItem" pkvault-src/frontend/src/storage/details/details-main.tsx
+
+          grep -q "margin='250px'" pkvault-src/frontend/src/ui/pokedex/main/section/ui-pokedex-main-section.tsx
+          grep -q "contentVisibility: 'auto'" pkvault-src/frontend/src/ui/pokedex/main/section/ui-pokedex-main-section.tsx
+
+          grep -q "RomHackProfile" pkvault-src/PKVault.Core/save-infos/dto/SaveInfosDTO.cs
+          grep -q "getSaveDisplayName" pkvault-src/frontend/src/pages/saves.tsx
+          grep -q "getSaveDisplayName" pkvault-src/frontend/src/storage/panel/game-list/storage-panel-game-list.tsx
+
+          # Alpha40 regression guard: Uranium front battlers keep the normal
+          # 96px PKVault species slot but their artwork is normalized to 56px.
+          grep -q -- "--sprite-content-scale" pkvault-src/frontend/src/ui/sprite-img/ui-sprite-img.module.css
+          grep -q "56 / 96" pkvault-src/frontend/src/img/species-img.tsx
+
+          # Alpha40 regression guard: normal Essentials/Uranium party drags must
+          # be true moves. Only an explicitly attached operation may link back
+          # to the source save; party membership alone must never force a link.
+          grep -q "var attachToSource = input.attached;" pkvault-src/PKVault.Core/storage/data-action/MovePkmAction.cs
+          if grep -q "keepEssentialsParty" pkvault-src/PKVault.Core/storage/data-action/MovePkmAction.cs; then
+            echo "ERROR: Essentials party Pokemon are still being forced into attached/link mode"
+            exit 1
+          fi
+          grep -q "Target PKVault slot is occupied by" pkvault-src/PKVault.Core/storage/data-action/MovePkmAction.cs
+          grep -q "EssentialsInterop.CanImportTo(essentialsSource, displacedPkm)" pkvault-src/PKVault.Core/storage/data-action/MovePkmAction.cs
+          grep -q 'pkm.GetMutablePkm() is PKEssentials ? "pkessentials"' pkvault-src/PKVault.Core/db/loader/PkmFileLoader.cs
+          grep -q "PKEssentials.Deserialize(entity.Data)" pkvault-src/PKVault.Core/db/loader/PkmFileLoader.cs
+          grep -q "TryAcquireInstanceMutex" pkvault-src/PKVault.Desktop/Program.cs
+          grep -q "PKVault is already running from this folder" pkvault-src/PKVault.Desktop/Program.cs
+          grep -q "SHA256.HashData" pkvault-src/PKVault.Desktop/Program.cs
+          grep -q "ReleaseMutex" pkvault-src/PKVault.Desktop/Program.cs
+          grep -q "sourceProfile !== targetProfile" pkvault-src/frontend/src/storage/move/validation/rules/validate-main-to-save.ts
+          grep -q "romHackProfile" pkvault-src/frontend/src/storage/move/validation/rules/validate-save-to-main.ts
+          grep -q "romHackSpeciesName" pkvault-src/frontend/src/storage/move/validation/rules/validate-root.ts
+          grep -q "sourceName = sourcePkm?.romHackSpeciesName" pkvault-src/frontend/src/storage/move/validation/utils/get-help-text.ts
+          grep -q "Pkm.GetMutablePkm() is PKEssentials" pkvault-src/PKVault.Core/storage/dto/PkmVariantDTO.cs
+          grep -q "QUEST_UNOWN_FORMS" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q "collection-unown-forms" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "collection-eeveelutions" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "ApplicableDexSpeciesCount" pkvault-src/PKVault.Core/romhacks/essentials/EssentialsLegacySaveFile.cs
+          grep -q "GetDexTarget(save)" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "OwnedSpecies.Count(essentials.IsSupportedLocalSpecies)" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "mainVariantsQuery = usePkmVariantIndex" pkvault-src/frontend/src/romhacks/insurgence-pokedex.tsx
+          grep -q "mainVariantsQuery = usePkmVariantIndex" pkvault-src/frontend/src/romhacks/uranium-pokedex.tsx
+          grep -q "activeTab === 'quests'" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "activeTab === 'achievements'" pkvault-src/frontend/src/quests/quest-page.tsx
+          ! grep -q "<Tabs.Panel" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "2 Gold Bottle Caps + 2 Ability Capsules" pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "VersionChecker.GetCompatibleVersionsForPKM(Pkm.Species, Pkm.Form)" pkvault-src/PKVault.Core/storage/dto/PkmVariantDTO.cs
+          grep -q "const provenanceVariantQuery = usePkmVariantIndex" pkvault-src/frontend/src/storage/details/details-content.tsx
+          grep -q "const originPkm = provenancePkm ?? pkm;" pkvault-src/frontend/src/storage/details/details-content.tsx
+          grep -q "version={originPkm.version}" pkvault-src/frontend/src/storage/details/details-content.tsx
+          grep -q "class ItemBankService" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "MetaKey.ITEM_BANK" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "InventoryType.KeyItems => true" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "private static bool IsProtectedPouch" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "DataActionType.MOVE_ITEM" pkvault-src/PKVault.Core/storage/data-action/MoveInventoryItemAction.cs
+          grep -q "to={\"/inventory\"}" pkvault-src/frontend/src/header/header.tsx
+          test -f pkvault-src/frontend/src/pages/inventory.tsx
+          test -d pkvault-src/frontend/src/inventory
+          test -f pkvault-src/frontend/src/inventory/inventory-panel.tsx
+          test -f pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "public const int BankPageSlots = 30" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "Path.Combine(Directory.GetCurrentDirectory(), \"inventory\")" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "string sourceKind, string sourceId" pkvault-src/PKVault.Core/storage/services/ActionService.cs
+          grep -q "await itemBankService.WriteToFiles();" pkvault-src/PKVault.Core/db/services/SessionService.cs
+          grep -q "UIStoragePanelBoxList" pkvault-src/frontend/src/inventory/inventory-panel.tsx
+          grep -q "onCreatePage" pkvault-src/frontend/src/inventory/inventory-panel.tsx
+          grep -q "createInventoryPage" pkvault-src/frontend/src/inventory/inventory-api.ts
+          grep -q "MetaKey.ITEM_BANK_PAGES" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "DataActionType.CREATE_ITEM_PAGE" pkvault-src/PKVault.Core/storage/data-action/CreateInventoryPageAction.cs
+          grep -q "localStorageKey='storage-sprite-size'" pkvault-src/frontend/src/header/header.tsx
+          grep -q "string? targetPouch = null" pkvault-src/PKVault.Core/storage/routes/StorageRoute.cs
+          grep -q "sourcePouch: source.pouch ?? ''" pkvault-src/frontend/src/inventory/inventory-api.ts
+          grep -q "targetPouch: target.pouch ?? ''" pkvault-src/frontend/src/inventory/inventory-api.ts
+          grep -q "UISpeciesImgSkeleton visible={false}" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "sourceRealHeight={32}" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "2.5" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "UIStoragePanelFooter" pkvault-src/frontend/src/inventory/inventory-panel.tsx
+          grep -q "Box is empty" pkvault-src/frontend/src/inventory/inventory-panel.tsx
+          test -f pkvault-src/frontend/src/inventory/inventory-move-provider.tsx
+          grep -q "MoveProvider<InventoryMoveContainer" pkvault-src/frontend/src/inventory/inventory-move-provider.tsx
+          grep -q "useDragging(itemId, container)" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "UIStorageItemPlaceholder" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "controlIcons('open', 'drag', 'drop')" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "Amount to split into the nearest empty slot" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q ">Split<" pkvault-src/frontend/src/inventory/inventory-item.tsx || grep -q "Split" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "PokeApiFromPKHeX.GetPokeapiItemName" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "ITEM_SAVE_PROVENANCE" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q "string Id," pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "Guid.NewGuid().ToString(\"N\")\[\.\.10\]" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "GetOriginFolder" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "safeItem.*stack.Id" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "This stack contains items from multiple origins" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "Tabs.Tab value='origin'" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "Original owner" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "if (save.Generation == 1)" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "return GetGenerationOneItemMap(save);" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "MaxBankPageSlots = 300" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "MoveWithinSameSavePouch" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'HttpPut("inventory/page/size")' pkvault-src/PKVault.Core/storage/routes/StorageRoute.cs
+          grep -q "InventoryPageEdit" pkvault-src/frontend/src/inventory/inventory-panel.tsx
+          grep -q "panelOrderOffset" pkvault-src/frontend/src/inventory/inventory-panel.tsx
+          grep -q "GameVersion.RD" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "for (var itemId = 1; itemId < itemNames.Length; itemId++)" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "result\[itemId\] = key;" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          if grep -q "others.Items.Items.ContainsKey(key)" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs; then
+            echo "ERROR: Gen1 item visibility is still gated by static-data"
+            exit 1
+          fi
+          grep -q "ItemBankJsonContext : JsonSerializerContext" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "BuildEssentialsInventorySave" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "RomHackProfile: essentials.ProfileId" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "URANIUM_DEX_SPECIES" pkvault-src/frontend/src/romhacks/uranium-pokedex.tsx
+          grep -q "URANIUM_DEX_SPECIES = URANIUM_ADDED_SPECIES" pkvault-src/frontend/src/romhacks/uranium-profile.ts
+          grep -q "generation='Generation 6'" pkvault-src/frontend/src/romhacks/uranium-pokedex.tsx
+          grep -q "generation='Generation 6'" pkvault-src/frontend/src/romhacks/insurgence-pokedex.tsx
+          grep -q "activeRomHackProfiles" pkvault-src/frontend/src/pokedex/list/pokedex-list.tsx
+          grep -q "hasFanGameDex" pkvault-src/frontend/src/pokedex/list/pokedex-list.tsx
+          grep -q "fanGameInsertAfterIndex" pkvault-src/frontend/src/pokedex/list/pokedex-list.tsx
+          grep -q "group.generation <= 6" pkvault-src/frontend/src/pokedex/list/pokedex-list.tsx
+          ! grep -q "generation === 6" pkvault-src/frontend/src/pokedex/list/pokedex-list.tsx
+          grep -q "INSURGENCE_DEX_SPECIES_LIST" pkvault-src/frontend/src/romhacks/insurgence-pokedex.tsx
+          grep -q "722: { id: 722, name: \"MISSINGNO\"" pkvault-src/frontend/src/romhacks/insurgence-profile.ts
+          grep -q "727: { id: 727, name: \"Delta Bulbasaur\"" pkvault-src/frontend/src/romhacks/insurgence-profile.ts
+          grep -q "925: { id: 925, name: \"UFI\"" pkvault-src/frontend/src/romhacks/insurgence-profile.ts
+          grep -q "URANIUM_GENERATION_FILTER_ID = 106" pkvault-src/frontend/src/romhacks/uranium-profile.ts
+          grep -q "INSURGENCE_GENERATION_FILTER_ID = 206" pkvault-src/frontend/src/romhacks/insurgence-profile.ts
+          grep -q "Gen 6 (Pokémon Uranium — Tandor)" pkvault-src/frontend/src/pokedex/filters/components/filter-generation.tsx
+          grep -q "Gen 6 (Pokémon Insurgence — Torren)" pkvault-src/frontend/src/pokedex/filters/components/filter-generation.tsx
+          grep -q "generation === 6" pkvault-src/frontend/src/pokedex/filters/components/filter-generation.tsx
+          grep -q "PKVault Pokédollar Bank" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
+          grep -q "onClick={isSeen ?" pkvault-src/frontend/src/romhacks/uranium-pokedex.tsx
+          grep -q "onClick={isSeen ?" pkvault-src/frontend/src/romhacks/insurgence-pokedex.tsx
+          grep -q "Quest completed" pkvault-src/frontend/src/quests/quest-toast.tsx
+          grep -q "createFileRoute('/quests')" pkvault-src/frontend/src/routes/quests.tsx
+          grep -q "window.setTimeout" pkvault-src/frontend/src/quests/quest-toast.tsx
+          grep -q "Mythicals award Master Balls" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q 'HttpGet("state")' pkvault-src/PKVault.Core/quest/routes/QuestRoute.cs
+          grep -q 'QUEST_COMPLETED' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'GrantQuestReward' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'QUEST_CAUGHT_HISTORY' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'QUEST_PKM_FINGERPRINTS' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'QUEST_DAILY_STATE' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'JsonSerializable(typeof(QuestEntryDTO))' pkvault-src/PKVault.Core/router/RouteJsonContext.cs
+          grep -q 'SettingsService.DefaultSavePath' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'GetSaveBaselineMarker' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'daily-catch-3' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'daily-new-species-1' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'mantine-color-green-6' pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q 'InsurgenceCustomItemNameStart = 526' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q '"Blastoisinite"' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q '<Collapse expanded={expanded}>' pkvault-src/frontend/src/inventory/money-bank-panel.tsx
+          grep -q 'Minimize Pokédollar bank' pkvault-src/frontend/src/inventory/money-bank-panel.tsx
+          grep -q 'QUEST_PLAYTIME_SNAPSHOTS' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'QUEST_MONEY_REWARDS' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'HttpPost("reroll")' pkvault-src/PKVault.Core/quest/routes/QuestRoute.cs
+          grep -q 'playtime-{game.Key}-15m' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'playtime-{game.Key}-2h' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'playtime-{game.Key}-10h' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'daily-play-30' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'GetPaidRerollCost' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q '2_500L' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'GrantQuestMoneyReward' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'SpendMoneyBank' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'Reroll — FREE' pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q 'One free reroll each day' pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q 'QUEST_SHINY_IDENTITIES' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'QUEST_EVOLUTION_EVENTS' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'MythicalSpecies' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'Pecharunt' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'GetLegendaryReward' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'MajorLegendarySpecies' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'NuggetLegendarySpecies' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'quest-shiny-100' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'quest-apricorn-red' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'quest-apricorn-yellow' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'quest-apricorn-blue' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'quest-apricorn-green' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'quest-apricorn-pink' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'quest-apricorn-white' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'quest-apricorn-black' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'AllRegionsArchivistMagearnaRewardMarker' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'TRASH_ITEM' pkvault-src/PKVault.Core/storage/data-action/DataAction.cs
+          test -f pkvault-src/PKVault.Core/storage/data-action/TrashInventoryItemAction.cs
+          grep -q 'ReconcilePersistedBankFiles' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'PKVault item bank reconciled from persisted .item files' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          grep -q 'PersistQuestRewardToFiles' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'PersistedBankFileGate' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'Data Source={sessionService.MainDbPath};Mode=ReadOnly' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'including action undo/cancel rebuilds' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          grep -q "pkvault:inventory-refresh" pkvault-src/frontend/src/storage/actions/actions-panel.tsx
+          grep -q "pkvault:inventory-refresh" pkvault-src/frontend/src/inventory/inventory-page.tsx
+          # alpha49 deadlock guard: the session-context bypass must be active before
+          # ReconcilePersistedBankFiles can touch MetaLoader/EnsureSessionCreated.
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path("pkvault-src/PKVault.Core/db/services/SessionService.cs").read_text()
+          bypass = text.index("ByPassContextId = scope.ServiceProvider.GetRequiredService<SessionDbContext>()")
+          reconcile = text.index("ReconcilePersistedBankFiles()")
+          assert bypass < reconcile, "item reconciliation runs before the session deadlock bypass"
+          assert "using (var inventoryScope = sp.CreateScope())" not in text
+          assert "finally\n                {\n                    ByPassContextId = null;" in text
+          print("PASS: alpha49 item reconciliation executes under session deadlock bypass")
+          PY
+          grep -q '\[HttpDelete("inventory/item")\]' pkvault-src/PKVault.Core/storage/routes/StorageRoute.cs
+          grep -q "Trash stack" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          grep -q "pkvault:reload-all" pkvault-src/frontend/src/header/header.tsx
+          grep -q "pkvault:reload-all" pkvault-src/frontend/src/inventory/inventory-page.tsx
+          grep -q 'Original Color Magearna + 3 Master Balls' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'EncounterEvent.MGDB_G8.LastOrDefault' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'gift.Form == 1' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'GrantAllRegionsArchivistMagearna' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "activeEntries = activeTab === 'quests'" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "Filter achievements" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "Daily Quests ({dailyQuests.length})" pkvault-src/frontend/src/quests/quest-page.tsx
+          ! grep -q "No daily quests match the current filters" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q 'GetInventoryItemCount(itemInventory, "fast-ball")' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q '"50 White Apricorns"' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "'wht-apricorn': 'white-apricorn'" pkvault-src/frontend/src/hooks/use-static-data.ts
+          grep -q '"wht-apricorn" => "white-apricorn"' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'AreEquivalentItemKeys(kv.Value, source.ItemKey)' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'quest-evolution-50' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'region-complete-all' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'new("eeveelutions", "All Eeveelutions"' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'daily-evolve-1' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'daily-levels-10' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'Mythicals award Master Balls' pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q 'Filter quests' pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "placeholder='Title, description, category, reward...'" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q 'All categories' pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "'incomplete', 'Incomplete'" pkvault-src/frontend/src/quests/quest-page.tsx
+          grep -q "No quests match the current filters." pkvault-src/frontend/src/quests/quest-page.tsx
+          ! grep -q 'dex-{game.Key}-{percent}pct' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'Enumerable.Range(1, 9).Select(x => x \* 10)' pkvault-src/PKVault.Core/quest/QuestService.cs
+          ! grep -q '"Full Pokédex"' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'GetDexProgressReward' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'GetRegionalDexProgressReward' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'HP Up + Protein + Iron + Calcium + Zinc + Carbos' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q '8 Hyper Potions + 5 Max Repels' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'MoneyReward(4_000)' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'MoneyReward(35_000)' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "style={{ flexShrink: 0, overflow: 'visible' }}" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
+          grep -q "cols={{ base: 1, sm: 2, lg: 4 }}" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
+          grep -q "color='red'" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
+          grep -q "Transfer {formatMoney(transferAmount)}" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
+          grep -q "Confirm: deposit ALL loaded saves" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
+          grep -q "Quick: deposit all loaded saves" pkvault-src/frontend/src/inventory/money-bank-panel.tsx
+          grep -q "const cols = getBoxColumns(slots.length);" pkvault-src/frontend/src/inventory/inventory-panel.tsx
+          ! grep -q "getBoxColumns(slots.length) ?? 6" pkvault-src/frontend/src/inventory/inventory-panel.tsx
+          grep -q "style={cols" pkvault-src/frontend/src/inventory/inventory-panel.tsx
+          grep -q "save.SeenSpecies" pkvault-src/PKVault.Core/romhacks/essentials/DexEssentialsService.cs
+          grep -q "save.OwnedSpecies" pkvault-src/PKVault.Core/romhacks/essentials/DexEssentialsService.cs
+          grep -q "EssentialsProfileFallback.GetOfficialNationalDexId" pkvault-src/PKVault.Core/romhacks/essentials/DexEssentialsService.cs
+          grep -q "isInsurgenceMissingNo" pkvault-src/frontend/src/img/species-img.tsx
+          grep -q "Pokémon Insurgence MISSINGNO #722" pkvault-src/frontend/src/img/species-img.tsx
+          grep -q "MaxMoneyBank = 9_007_199_254_740_991L" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "targetMax = targetSave.MaxMoney" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "POKE_DOLLAR_BANK" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'HttpPut("inventory/money/move")' pkvault-src/PKVault.Core/storage/routes/StorageRoute.cs
+          grep -q 'Get(trainer, "@money")' pkvault-src/PKVault.Core/romhacks/essentials/EssentialsLegacySaveReader.cs
+          grep -q 'SetInt(trainer, "@money"' pkvault-src/PKVault.Core/romhacks/essentials/EssentialsLegacySaveWriter.cs
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          uranium = Path("pkvault-src/frontend/src/romhacks/uranium-profile.ts").read_text()
+          fake_ids = re.findall(r'officialNationalDexId: null', uranium)
+          if len(fake_ids) != 166:
+              raise SystemExit(f"Expected 166 Uranium fakemon entries, got {len(fake_ids)}")
+
+          insurgence = Path("pkvault-src/frontend/src/romhacks/insurgence-profile.ts").read_text()
+          dex_entries = re.findall(r'^  (\d+): \{ id:', insurgence, re.M)
+          if len(dex_entries) != 200:
+              raise SystemExit(f"Expected 200 Insurgence MISSINGNO/MISSINGNO/Delta/fakemon entries, got {len(dex_entries)}")
+          if "722" not in dex_entries:
+              raise SystemExit("Insurgence MISSINGNO #722 is missing from the custom dex overlay")
+
+          generation_filter = Path("pkvault-src/frontend/src/pokedex/filters/components/filter-generation.tsx").read_text()
+          gen6 = generation_filter.index("generation === 6")
+          uranium_filter = generation_filter.index("Gen 6 (Pokémon Uranium — Tandor)")
+          insurgence_filter = generation_filter.index("Gen 6 (Pokémon Insurgence — Torren)")
+          if not (gen6 < uranium_filter < insurgence_filter):
+              raise SystemExit("Fan-game generation filters are not inserted immediately after Gen 6")
+
+          pokedex = Path("pkvault-src/frontend/src/pokedex/list/pokedex-list.tsx").read_text()
+          if "activeRomHackProfiles" not in pokedex or "hasFanGameDex" not in pokedex:
+              raise SystemExit("Fan-game dex visibility is not driven by active save profiles")
+          if "fanGameInsertAfterIndex < 0" not in pokedex:
+              raise SystemExit("Fan-game dex has no no-vanilla-Gen6 fallback insertion")
+          first = pokedex.index("<UraniumPokedexSection />")
+          second = pokedex.index("<InsurgencePokedexSection />")
+          if first > second:
+              raise SystemExit("Expected Uranium before Insurgence at the Gen6 boundary")
+          print("PASS: alpha40 active-save Gen6 fan-game dex visibility guards")
+          PY
+          grep -q "TypeInfoResolver = ItemBankJsonContext.Default" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "JsonSerializable(typeof(ItemBankFileDTO))" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q ">Split<" pkvault-src/frontend/src/inventory/inventory-item.tsx || grep -q "Split" pkvault-src/frontend/src/inventory/inventory-item.tsx
+          if grep -q "return <Box h='100%'" pkvault-src/frontend/src/inventory/inventory-page.tsx; then
+            echo "ERROR: alpha40 inventory still uses the short-height wrapper"
+            exit 1
+          fi
+
+          echo "PASS: Pokédex is canonical-only; TMT typing remains in boxes; Uranium sprite scale is normalized"
+
+      - name: Frontend SDK + typecheck with ROM-hack fields
+        run: |
+          cd pkvault-src
+          docker build . --target frontend-check -t pkvault-v8-alpha8-frontend-check
+
+      - name: Package complete v8.0.0-alpha52-Uranium-Overlay-Dex source snapshot
+        run: |
+          set -euo pipefail
+          SOURCE_ROOT="$GITHUB_WORKSPACE/dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-FULL-SOURCE"
+          rm -rf "$SOURCE_ROOT"
+          mkdir -p "$SOURCE_ROOT"
+
+          # These are the exact trees used by this successful build, after the
+          # RedFox reconstruction patch has been applied.
+          cp -a pkvault-src "$SOURCE_ROOT/PKVault"
+          cp -a pkhex-src "$SOURCE_ROOT/PKHeX"
+          cp -a pkvault-rebuild "$SOURCE_ROOT/RedFox-Rebuild"
+          mkdir -p "$SOURCE_ROOT/GitHub-Workflow"
+          cp .github/workflows/pkvault-gen1-v6-rebuild.yml "$SOURCE_ROOT/GitHub-Workflow/"
+          cp "$GITHUB_WORKSPACE/FUTURE PLANS.txt" "$SOURCE_ROOT/FUTURE PLANS.txt"
+
+          # Do not ship nested Git history in the source archive.
+          rm -rf "$SOURCE_ROOT/PKVault/.git" "$SOURCE_ROOT/PKHeX/.git"
+
+          cat > "$SOURCE_ROOT/SOURCE_README.txt" <<'EOF'
+          PKVault v8.0.0-alpha52-Uranium-Overlay-Dex FULL SOURCE
+          ==========================
+          Release line: V8 alpha52 Essentials guarded read/write + desktop rxdata import (Pokémon Uranium + Insurgence) + Too Many Types v1.6 + existing Trading/MissingNo support
+          PKVault upstream baseline: Chnapy/PKVault v2.3.3 fabd843590e2a0ea1646cc4d1d6bff9933679ff3
+          PKHeX upstream baseline: kwsch/PKHeX 74b88906e935e4a52d6d9243b8e373056409c738
+          RedFox build branch: pkvault-v8-uranium-insurgence
+
+          Contents:
+          - PKVault/        Exact patched PKVault source tree compiled for v8.0.0-alpha52-Uranium-Overlay-Dex.
+          - PKHeX/          Exact patched PKHeX source tree used to build PKHeX.Core.
+          - RedFox-Rebuild/ Reconstruction patcher, trading sources, and trading smoke harness.
+          - GitHub-Workflow/Exact workflow used to reconstruct, test, package, and build v8.0.0-alpha52-Uranium-Overlay-Dex.
+          - FUTURE PLANS.txt Planned Shop, Daily Quest, Quest, Achievement, tracking, and balance design.
+
+          Reproduction:
+          1. Build PKHeX/PKHeX.Core/PKHeX.Core.csproj with .NET 10 Release.
+          2. Copy the resulting PKHeX.Core.dll to PKVault/PKVault.Core/PKHeX.Core.dll.
+          3. Build PKVault normally or use its Dockerfile desktop target for win-x64.
+
+          This archive exists specifically so future PKVault versions never depend on
+          recovering source from an EXE or from a GitHub Actions runner.
+          EOF
+
+          (
+            cd "$GITHUB_WORKSPACE/dist"
+            zip -9 -r PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-FULL-SOURCE.zip PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-FULL-SOURCE
+          )
+
+      - name: Upload PKVault v8.0.0-alpha52-Uranium-Overlay-Dex full source
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-FULL-SOURCE
+          path: |
+            dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-FULL-SOURCE.zip
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Build Windows x64 PKVault executable
+        run: |
+          cd pkvault-src
+          docker build . --target desktop --build-arg RID=win-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha52-Uranium-Overlay-Dex -t pkvault-v752-description-patch
+          docker create --name pkvault-v752-description-patch-out pkvault-v752-description-patch
+          mkdir -p ../dist
+          docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
+          docker rm pkvault-v752-description-patch-out
+
+      - name: Build Linux x64 PKVault executable
+        run: |
+          set -euo pipefail
+          cd pkvault-src
+          docker build . --target desktop-publish --build-arg RID=linux-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha52-Uranium-Overlay-Dex -t pkvault-v752-linux-x64
+          docker create --name pkvault-v752-linux-x64-out pkvault-v752-linux-x64
+          mkdir -p ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64
+          docker cp pkvault-v752-linux-x64-out:/app/publish/PKVault ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64/PKVault
+          docker rm pkvault-v752-linux-x64-out
+          chmod +x ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64/PKVault
+          file ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64/PKVault
+          test -x ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64/PKVault
+          cat > ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64/README.txt <<'EOF'
+          PKVault V8 alpha52p - Linux x64 portable build
+          =================================================
+          Native self-contained Linux x64 build of the same alpha52p code as the Windows test build.
+
+          Run:
+            chmod +x PKVault
+            ./PKVault
+
+          This package does not contain your personal PKVault database or saves.
+          Copy/migrate your existing PKVault data separately if needed.
+
+          Linux desktop libraries used by PKVault/Photino may still need to be installed
+          by your distribution (GTK/WebKit runtime libraries).
+          EOF
+          (cd ../dist && tar -czf PKVault-v8.0.0-alpha52p-LINUX-x64.tar.gz PKVault-v8.0.0-alpha52p-LINUX-x64)
+
+      - name: Upload PKVault alpha52p Linux x64
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-v8.0.0-alpha52p-LINUX-x64
+          path: dist/PKVault-v8.0.0-alpha52p-LINUX-x64.tar.gz
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Package V8 alpha52 truly clean Windows profile
+        run: |
+          set -euo pipefail
+          ROOT="$GITHUB_WORKSPACE"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-CLEAN"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
+          rm -rf "$OUT"
+          mkdir -p "$OUT"
+
+          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex.exe"
+
+          cat > "$OUT/README.txt" <<'EOF'
+          PKVault V8.0.0 alpha52 - CLEAN PROFILE
+          ======================================
+          This package contains NO seeded PKVault database, NO TMT compatibility
+          Pokemon, and NO preloaded storage records.
+
+          Use this executable for your real Pokémon Uranium / Insurgence / normal
+          PKVault testing.
+
+          Alpha51:
+          - Trash remains a pending session action until Save. Removing/canceling the Trash action rebuilds inventory from the committed .item mirror and visibly restores the stack.
+          - Quest item rewards are now committed immediately to the persisted .item mirror as reward-only deltas, so Reload all data & saves cannot erase newly awarded items.
+          - Immediate quest persistence never writes unrelated pending inventory edits; it rebuilds from the committed mirror (or the last saved main DB when no mirror exists).
+          - Inventory listens for action-history resets so undoing/canceling a Trash action refreshes the visible stack immediately.
+
+          Alpha51 Shop test line:
+          - Adds the first PKVault-native BUY / SELL Shop page using only the central PKVault Item Bank and Pokédollar Bank.
+          - BUY and SELL keep separate remembered baskets/state, alias-aware search, category/sort filters, official item icons, ownership totals, compatibility badges, and independently scrollable catalog/basket panels.
+          - Shop transactions persist only the Shop item/money delta and do not save unrelated Pokémon-game edits or unrelated pending PKVault actions.
+          - The normal CLEAN package is still unseeded. A separate SHOP-TEST artifact contains the disposable ₽50,000 + Box 1 item seed.
+
+          Alpha49:
+          - Fixes an Alpha48 startup deadlock where item-bank reconciliation called MetaLoader before SessionService activated its recursion/deadlock bypass.
+          - Reconciliation now runs inside the same scoped session context used by normalization/synchronization, and the bypass is cleared in a finally block.
+          - This specifically fixes the infinite loading screen seen immediately after Alpha48 database migration/seeding.
+
+          Alpha48:
+          - Reload all data & saves now reconciles the persisted inventory .item mirror with the item-bank metadata, removing stale/phantom cards when an external .item file was deleted.
+          - The Inventory page listens to the global reload action and refreshes its local state immediately instead of keeping a stale visual card until navigation/restart.
+          - PKVault Item Bank stacks now have a two-step Trash stack action. Trash is bank-only, participates in the normal action/undo session, and is only finalized when changes are saved.
+          - Trash actions appear as red inventory actions in the pending-action timeline and cannot accidentally delete items directly from a game save; move them into PKVault first.
+
+          Alpha47:
+          - All-Regions Archivist now grants a one-time Original Color Magearna directly into central PKVault storage in addition to its existing premium item/money reward.
+          - The Magearna is generated from PKHeX's official Pokémon HOME Gen-8 mystery-gift template (species 801, form 1) and uses a crash-safe deterministic reward ID plus a hidden one-time reward marker.
+          - Existing users who already completed All-Regions Archivist before Alpha47 receive the new Magearna exactly once without reissuing the older item/money bundle.
+          - Quest filters are removed from Daily Quests entirely and rendered directly inside the Quests and Achievements tab bodies so they cannot collapse into a one-line hidden panel.
+
+          Alpha46:
+          - Gen-2 abbreviated Apricorn item keys now borrow the canonical modern Apricorn sprites, fixing missing WHT/BLU/GRN/PNK/YLW/BLK Apricorn icons in Gold/Silver/Crystal inventory views.
+          - Legacy Gen-2 Apricorn keys and modern full-colour Apricorn keys are treated as equivalent for PKVault inventory stacking, quest rewards, and transfers back into compatible saves.
+          - Added seven permanent Poké Ball workshop quests: own 50 Level/Moon/Lure/Friend/Love/Fast/Heavy Balls and receive 50 matching Red/Yellow/Blue/Green/Pink/White/Black Apricorns.
+          - Workshop progress totals the matching Ball across PKVault inventory boxes and supported save inventories.
+
+          Alpha45:
+          - Quest UI now has text search plus category and completion-status filters across Daily Quests, Quests, and Achievements.
+          - Normal quest rewards are rebalanced away from repetitive Ultra Ball/Rare Candy/Nugget payouts.
+          - Normal rewards now rotate through Potions, Super/Hyper Potions, Full Heals, Revives, Repels, Escape Ropes, Ether, vitamins, Great/Poké Balls, and modest Pokédollar payouts.
+          - Playtime cash rewards are reduced to a more conservative progression curve.
+          - Each loaded game's applicable Pokédex now has 10%-90% progression quests in 10% steps.
+          - 100% full-game Pokédex completion moved to Achievements while preserving the existing completion ID so prior completions cannot pay twice.
+          - Regional-origin Pokédex progression now uses 10%-90% quests; 100% regional completion and multi-region completion milestones are Achievements.
+          - Legendary/Mythical milestone chains and Legendary collection sets are shown under Achievements; ordinary collection quests remain under Quests.
+          - Catching and Evolution ladders gained additional milestones with more varied, lower-power rewards.
+
+          Alpha43:
+          - Mythical first-catch achievements now award 1 Master Ball each.
+          - Legendary first-catch rewards are rebalanced to Nuggets or 25-50 Ultra Balls; prior completed rewards are never re-issued.
+          - Legendary milestone rewards are substantially stronger so 3 Legendaries is no longer worth less than ordinary catch milestones.
+          - Permanent Shiny tracking counts unique Pokémon identities and unique Shiny species, with 1/5/10/25/50/100 Shiny milestones.
+          - Evolution tracking records species changes for the same persistent Pokémon identity, with permanent and daily evolution quests.
+          - Daily training quests track total level gains and focused single-Pokémon gains without treating evolutions as new catches.
+          - Kanto through Paldea regional-origin collections have 50%, 75%, and full-completion quests plus multi-region meta rewards.
+          - Starter trios, Eeveelutions, Legendary Birds/Beasts/Titans/Lake Guardians/Swords/Tapus/Treasures/Loyal Three collection quests are live.
+          - Playtime ladders now continue through 25, 50, and 100 hours per supported real game.
+          - Bundle reward text no longer renders with the awkward leading '1×'.
+
+          Alpha42:
+          - Playtime quest ladders are live for each loaded real game/save profile: 15 minutes -> ₽2,000, 2 hours -> ₽10,000, 10 hours -> ₽25,000.
+          - Daily quests now rotate from a larger save-verifiable pool: catches, different species, new Dex entries, and short playtime.
+          - Daily rerolls: 1 FREE reroll each local day, then ₽2,500 / ₽5,000 / ₽7,500... from the shared PKVault Pokédollar Bank, capped at ₽50,000 per reroll until reset.
+          - Rerolls cannot replace a completed daily and avoid selecting an objective already satisfied by today's stored progress.
+          - Game-aware Pokédex quests now include 25 / 50 / 100 caught, 75% completion, and full applicable Dex completion.
+          - Full-Dex reward target is implemented as 1 Master Ball + 15 Ultra Balls + 10 Potions.
+          - Permanent playtime, Pokédex, Legendary, and money-reward claims remain in PKVault history even if the proving save is later removed.
+          - The generated PKVault sample save remains excluded from every quest/daily/achievement calculation.
+
+          Alpha40:
+          - First live PKVault quest/achievement prototype with a Quests tab.
+          - One-time Legendary catch achievements award 1 Master Ball each to the PKVault item bank.
+          - Top-right "Quest completed" notifications queue as achievements are detected from loaded saves.
+          - Uranium/Insurgence unseen custom Dex entries now match vanilla behavior and cannot be opened until Seen.
+          - Compact Pokédollar bank: From / Amount / To / red Transfer now stay visible in a short top bar.
+          - Deposit-all remains a secondary two-click confirmation action.
+          - Large item-bank pages (including 150 slots) wrap across available width like Pokémon storage instead of forcing 6 columns.
+          - Uranium/Insurgence seen/owned history now marks their official Pokémon in the normal National Dex (for example Mareep #179 and Mew #151).
+          - normal Uranium/Insurgence party -> PKVault drags are real moves
+          - occupied PKVault slots are preflighted before an Essentials swap
+          - an incompatible occupant is rejected before either side is changed
+          - Uranium PKEssentials records retain their profile/local-species data
+            in .pkessentials central-vault files
+          EOF
+
+          test ! -d "$OUT/TMT-Type-Test"
+          test ! -d "$OUT/Uranium-Random-Test"
+          test -z "$(find "$OUT" -type f \( -name 'compat-tmt-*' -o -name '*.tmt3' \) -print -quit)"
+
+          (
+            cd "$ROOT/dist"
+            zip -9 -r PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-CLEAN-win-x64.zip PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-CLEAN
+            ! unzip -l PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'compat-tmt-'
+            ! unzip -l PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-CLEAN-win-x64.zip | grep -q 'TMT-Type-Test'
+          )
+
+      - name: Upload V8 alpha52 truly clean Windows profile
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-CLEAN-win-x64
+          path: |
+            dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-CLEAN-win-x64.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Package V8 alpha52 Shop test profile
+        run: |
+          set -euo pipefail
+          ROOT="$GITHUB_WORKSPACE"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-SHOP-TEST"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
+          rm -rf "$OUT"
+          mkdir -p "$OUT/inventory/9"
+
+          cp "$EXE" "$OUT/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-SHOP-TEST.exe"
+          printf '50000\n' > "$OUT/SHOP_TEST_POKEDOLLARS.txt"
+
+          python3 - "$OUT" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          out = Path(sys.argv[1])
+          inv = out / "inventory" / "9"
+          inv.mkdir(parents=True, exist_ok=True)
+
+          seed = [
+              ("poke-ball", 75), ("great-ball", 48), ("ultra-ball", 32),
+              ("premier-ball", 17), ("quick-ball", 21), ("dusk-ball", 16),
+              ("potion", 64), ("super-potion", 37), ("hyper-potion", 22),
+              ("max-potion", 9), ("full-restore", 8), ("revive", 28),
+              ("max-revive", 6), ("antidote", 41), ("paralyze-heal", 24),
+              ("awakening", 19), ("full-heal", 23), ("repel", 36),
+              ("super-repel", 19), ("max-repel", 11), ("escape-rope", 15),
+              ("rare-candy", 7), ("fire-stone", 6), ("water-stone", 7),
+              ("thunder-stone", 5), ("leaf-stone", 8), ("moon-stone", 4),
+              ("x-attack", 13), ("sitrus-berry", 44), ("oran-berry", 58),
+          ]
+
+          for slot, (key, count) in enumerate(seed):
+              sid = f"shop{slot:06d}"[:10]
+              payload = {
+                  "Id": sid,
+                  "ItemKey": key,
+                  "Count": count,
+                  "Box": 1,
+                  "Slot": slot,
+                  "SpriteVersion": 50,
+                  "Origins": [{
+                      "Generation": 9,
+                      "Version": 50,
+                      "Owner": "Alpha51 Shop Test Seed",
+                      "SaveId": None,
+                      "Count": count,
+                  }],
+              }
+              (inv / f"{key}_{sid}.item").write_text(
+                  json.dumps(payload, indent=2) + "\n",
+                  encoding="utf-8",
+              )
+
+          if len(list(inv.glob("*.item"))) != 30:
+              raise SystemExit("SHOP-TEST seed must contain exactly 30 Box 1 item stacks")
+          print("PASS: seeded 30 varied Shop stacks into PKVault Item Bank Box 1")
+          PY
+
+          cat > "$OUT/TESTING.txt" <<'EOF'
+          PKVault V8.0.0 alpha52 - SHOP TEST PROFILE
+          ==========================================
+
+          DISPOSABLE TEST PROFILE — not the clean build.
+
+          Starting state:
+          - PKVault Pokédollar Bank: ₽50,000
+          - PKVault Item Bank / Storage Box 1: 30 varied official item stacks
+          - No direct buy-to-save or sell-from-save behavior; Shop is PKVault-only
+
+          Test priorities:
+          1. BUY several items, confirm basket total and remaining balance.
+          2. SELL partial and full stacks from Box 1, confirm sale totals.
+          3. Fill Cart/Sale Basket beyond visible height and verify independent scrolling.
+          4. Switch BUY <-> SELL and verify each basket is remembered separately.
+          5. Restart PKVault and verify completed Shop transactions persisted once.
+          6. Verify Shop transactions do not commit unrelated pending Pokémon/save actions.
+          7. Test alias searches (Poke Ball / Poké Ball / pokeball).
+
+          The seed uses existing official item sprites; it intentionally includes no generated item art.
+          EOF
+
+          test "$(cat "$OUT/SHOP_TEST_POKEDOLLARS.txt")" = "50000"
+          test "$(find "$OUT/inventory/9" -maxdepth 1 -name '*.item' | wc -l)" -eq 30
+
+          (
+            cd "$ROOT/dist"
+            zip -9 -r PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-SHOP-TEST-win-x64.zip PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-SHOP-TEST
+          )
+
+      - name: Upload V8 alpha52 Shop test profile
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-SHOP-TEST-win-x64
+          path: |
+            dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-SHOP-TEST-win-x64.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Package V8 alpha52 isolated compatibility test profiles
+        run: |
+          set -euo pipefail
+          ROOT="$GITHUB_WORKSPACE"
+          OUT="$ROOT/dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES"
+          EXE="$ROOT/dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe"
+          rm -rf "$OUT"
+          mkdir -p "$OUT/TMT-Type-Test" "$OUT/Uranium-Random-Test"
+
+          cp "$EXE" "$OUT/TMT-Type-Test/PKVault-TMT-Type-Test.exe"
+          cp -a "$ROOT/tmt-type-test-profile/." "$OUT/TMT-Type-Test/"
+
+          cp "$EXE" "$OUT/Uranium-Random-Test/PKVault-Uranium-Random-Test.exe"
+          cp -a "$ROOT/uranium-random-test/." "$OUT/Uranium-Random-Test/"
+
+          cat > "$OUT/README.txt" <<'EOF'
+          PKVault V8.0.0 alpha52 - ISOLATED COMPATIBILITY TEST PROFILES
+          ============================================================
+          These folders are intentionally PRE-SEEDED and are NOT the clean build.
+
+          TMT-Type-Test/
+            Contains the 55-Pokémon compatibility profile, including
+            compat-tmt-01 (the seeded Too Many Types Ralts).
+
+          Uranium-Random-Test/
+            Contains a disposable Uranium.rxdata stress-test save and its own EXE.
+
+          Keep these test folders separate from the clean alpha40 executable.
+          EOF
+
+          cat > "$OUT/TMT-Type-Test/TMT_TYPE_TESTING.txt" <<'EOF'
+          The TMT profile contains 55 seeded Pokémon spanning TMT3, PK3, PK2 and
+          PK1. compat-tmt-01 is the seeded Too Many Types Ralts. This profile is
+          for compatibility testing only and must not be mistaken for a clean
+          central PKVault.
+          EOF
+
+          cat > "$OUT/Uranium-Random-Test/URANIUM_RANDOM_TESTING.txt" <<'EOF'
+          Uranium.rxdata is a disposable stress-test save containing one party
+          Raptorch plus 60 deterministic random Uranium Pokémon in PC boxes.
+          Do not overwrite your real Pokémon Uranium save with this test copy.
+          EOF
+
+          (
+            cd "$ROOT/dist"
+            zip -9 -r PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES
+          )
+
+      - name: Upload V8 alpha52 isolated compatibility test profiles
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64
+          path: |
+            dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-COMPATIBILITY-TEST-PROFILES-win-x64.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Package two isolated Windows trading profiles
+        run: |
+          set -euo pipefail
+          mkdir -p dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A
+          mkdir -p dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B
+
+          cp dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/PKVault-Trader-A.exe
+          cp dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe \
+            dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/PKVault-Trader-B.exe
+
+          cp -a trade-test/seed-A/. dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-A/
+          cp -a trade-test/seed-B/. dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test/Trader-B/
+
+          cat > dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt <<'EOF'
+          PKVault v8.0.0-alpha52-Uranium-Overlay-Dex Online/VPN Trading + Permanent Dex Registration test
+          ===================================
+          Trader A starts with:
+            Abra, Growlithe, Machop, Gastly, Dratini, Scyther
+          Trader B starts with:
+            Sandshrew, Poliwag, Cubone, Horsea, Pinsir, Jynx
+
+          Local self-test:
+          1. Open Trader-A/PKVault-Trader-A.exe.
+          2. Open Trader-B/PKVault-Trader-B.exe.
+          3. Optional: open Settings > Trading and change Player name. Trader A/B are pre-seeded as "Trader A" and "Trader B".
+          4. Stay on Storage. In one pane choose Trading from the same source selector that contains PKVault and save files.
+          5. Leave the opposite pane on PKVault so you can browse its normal box tabs.
+          6. Trader A: in the Trading pane click Host Local.
+          7. Trader B: choose Trading in one pane, leave localhost:0000 in the address box, and click Connect.
+          8. Browse PKVault boxes in the opposite pane and drag up to six Pokemon into the six Trading offer slots.
+          9. The Pokemon are only reserved until commit; cancel/unready/disconnect does not delete or move them.
+          10. One side may offer zero Pokemon, so gifts and uneven trades are supported.
+          11. Click Ready to Trade on both copies.
+          12. When both report Trade complete, the normal Storage panes should refresh automatically without Reload all data & saves.
+          13. Open Pokedex: received Pokemon should be registered as caught. If you trade one away again, it should stay registered.
+
+          Direct LAN / Radmin / Hamachi:
+          - Host chooses Trading in one Storage pane and clicks Host Direct / VPN.
+          - PKVault picks a random real port and lists detected IPv4 connection addresses.
+          - If a 26.x.x.x address is shown, that is usually the Radmin VPN address; use its full IP:port exactly as displayed.
+          - Otherwise copy the VPN IPv4 from Radmin/Hamachi and append the random port shown by PKVault.
+          - The partner chooses Trading, pastes IP:port into Connect, and joins.
+          - If Windows Firewall asks about PKVault, allow it on the network profile used by the VPN.
+          - Builds with incompatible trading protocol versions are rejected with a clear error instead of half-connecting.
+
+          Current test-build scope:
+          - Main PKVault vault Pokemon are tradeable, up to 6 per side.
+          - Every official Pokemon received through trading is permanently registered as caught in PKVault's central Pokedex.
+          - Trading that Pokemon away later does not remove its Pokedex registration.
+          - The registration uses the received Pokemon's own context/form/gender/shiny/alpha/language metadata, covering supported games from Gen 1 through ZA.
+          - Eggs and glitch species 0 do not create official Pokedex entries.\n          - Settings > Trading > Player name controls the name peers see; it is not derived from the EXE/folder name.
+          - Uneven trades and one-way gifts are supported.
+          - Loaded-save slots are not yet offered directly.
+          - Room-code relay is not yet implemented.
+          - Raw direct-IP traffic is not encrypted by PKVault in this test build; use a trusted LAN/VPN such as Radmin/Hamachi for remote testing.
+          - Host Direct listens on all IPv4 interfaces and advertises detected non-loopback IPv4 addresses with the randomized port.
+          - Direct connection attempts time out after 15 seconds instead of hanging indefinitely.
+          EOF
+
+          cp pkvault-src/PKVAULT_GEN1_REBUILD.txt dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test/
+
+          (cd dist && zip -9 -r PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test)
+          ls -lah dist
+          find dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test -maxdepth 3 -type f -print | sort
+
+      - name: Upload PKVault v8.0.0-alpha52-Uranium-Overlay-Dex online trading dex test
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64
+          path: |
+            dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.zip
+            dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
+            dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test/TESTING.txt
+          if-no-files-found: error
+          retention-days: 30
+ pkvault-src/PKVault.Core/storage/glitch/Gen1GlitchYellow.cs
+          grep -q 'public override GameVersion ContextVersion => Save.Version' pkvault-src/PKVault.Core/storage/dto/PkmSaveDTO.cs
+          grep -q "data-glitch-species='gen1'" pkvault-src/frontend/src/img/species-img.tsx
+          grep -q 'object-fit: contain' pkvault-src/frontend/src/ui/sprite-img/species-img/ui-species-img.module.css
+          grep -q 'contextVersion={contextVersion}' pkvault-src/frontend/src/storage/item/storage-item.tsx
           grep -q '"x-defend" => "x-defense"' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'new("x-special", "Battle", 350, 175)' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'new("red-apricorn", "Apricorns", 1000, 100, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
