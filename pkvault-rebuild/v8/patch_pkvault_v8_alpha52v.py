@@ -145,6 +145,38 @@ new_block = r'''    type Gen1GlitchFront = {
         missingno?: boolean;
     };
 
+    const rbGlitchUrls: Record<number, string> = {
+        17: 'https://archives.bulbagarden.net/media/upload/f/f6/RBGlitch017.png',
+        18: 'https://archives.bulbagarden.net/media/upload/3/3c/RBGlitch018.png',
+        24: 'https://archives.bulbagarden.net/media/upload/f/f7/RBGlitch024.png',
+        26: 'https://archives.bulbagarden.net/media/upload/e/ec/RBGlitch026.png',
+        40: 'https://archives.bulbagarden.net/media/upload/2/28/RBGlitch040.png',
+        61: 'https://archives.bulbagarden.net/media/upload/0/0d/RBGlitch061.png',
+        62: 'https://archives.bulbagarden.net/media/upload/c/c9/RBGlitch062.png',
+        64: 'https://archives.bulbagarden.net/media/upload/7/79/RBGlitch064.png',
+        72: 'https://archives.bulbagarden.net/media/upload/7/71/RBGlitch072.png',
+        79: 'https://archives.bulbagarden.net/media/upload/4/4f/RBGlitch079.png',
+        85: 'https://archives.bulbagarden.net/media/upload/1/13/RBGlitch085.png',
+        94: 'https://archives.bulbagarden.net/media/upload/0/0b/RBGlitch094.png',
+        95: 'https://archives.bulbagarden.net/media/upload/a/a6/RBGlitch095.png',
+        135: 'https://archives.bulbagarden.net/media/upload/1/18/RBGlitch135.png',
+        174: 'https://archives.bulbagarden.net/media/upload/0/0b/RBGlitch174.png',
+        175: 'https://archives.bulbagarden.net/media/upload/7/75/RBGlitch175.png',
+        204: 'https://archives.bulbagarden.net/media/upload/7/7c/RBGlitch204.png',
+        205: 'https://archives.bulbagarden.net/media/upload/b/b1/RBGlitch205.png',
+        207: 'https://archives.bulbagarden.net/media/upload/8/83/RBGlitch207.png',
+        209: 'https://archives.bulbagarden.net/media/upload/5/5f/RBGlitch209.png',
+        213: 'https://archives.bulbagarden.net/media/upload/f/fe/RBGlitch213.png',
+        225: 'https://archives.bulbagarden.net/media/upload/0/05/RBGlitch225.png',
+        234: 'https://archives.bulbagarden.net/media/upload/6/6f/RBGlitch234.png',
+        236: 'https://archives.bulbagarden.net/media/upload/d/d8/RBGlitch236.png',
+        240: 'https://archives.bulbagarden.net/media/upload/c/cf/RBGlitch240.png',
+        245: 'https://archives.bulbagarden.net/media/upload/1/1f/RBGlitch245.png',
+        250: 'https://archives.bulbagarden.net/media/upload/b/b3/RBGlitch250.png',
+        254: 'https://archives.bulbagarden.net/media/upload/f/f3/RBGlitch254.png',
+        255: 'https://archives.bulbagarden.net/media/upload/5/5b/RBGlitch255.png',
+    };
+
     const getGen1GlitchFront = (): Gen1GlitchFront | null => {
         const dex = gen1GlitchDexNumber ?? 0;
         const yellow = contextVersion === GameVersion.YW;
@@ -153,11 +185,11 @@ new_block = r'''    type Gen1GlitchFront = {
         // Alpha52v vendors the Red/Blue fronts locally. Yellow remains on the
         // existing archive path until a real Yellow SRAM template is supplied.
         if (!yellow) {
-            if (gen1GlitchIndex === 0xB6) return { url: '/gen1-glitch/Spr%201b%20141%20f.png' };
-            if (gen1GlitchIndex === 0xB7) return { url: '/gen1-glitch/Spr%201b%20142%20f.png' };
-            if (gen1GlitchIndex === 0xB8) return { url: '/gen1-glitch/Ghost%20I.png' };
-            if (gen1GlitchIndex === 0xFA) return { url: '/gen1-glitch/RBGlitchFA.png' };
-            if (dex === 0) return { url: '/gen1-glitch/Missingno%20RB.png', missingno: true };
+            if (gen1GlitchIndex === 0xB6) return { url: 'https://archives.bulbagarden.net/media/upload/a/aa/Spr_1b_141_f.png' };
+            if (gen1GlitchIndex === 0xB7) return { url: 'https://archives.bulbagarden.net/media/upload/b/bb/Spr_1b_142_f.png' };
+            if (gen1GlitchIndex === 0xB8) return { url: 'https://archives.bulbagarden.net/media/upload/9/9e/Ghost_I.png' };
+            if (gen1GlitchIndex === 0xFA) return { url: 'https://archives.bulbagarden.net/media/upload/3/3b/RBGlitchFA.png' };
+            if (dex === 0) return { url: 'https://archives.bulbagarden.net/media/upload/9/98/Missingno_RB.png', missingno: true };
 
             // These two front sprites are documented to crash Red/Blue; there
             // is no stable canonical front image to show.
@@ -170,7 +202,7 @@ new_block = r'''    type Gen1GlitchFront = {
                 250, 254, 255,
             ]);
             if (archived.has(dex))
-                return { url: `/gen1-glitch/RBGlitch${pad}.png` };
+                return { url: rbGlitchUrls[dex] };
 
             // Real #001-151 families can be rendered from PKVault's normal
             // Gen-I spritesheet below. Any other unknown family is safer as a
@@ -250,25 +282,5 @@ asset_names = [
 asset_dir = root / 'frontend/public/gen1-glitch'
 asset_dir.mkdir(parents=True, exist_ok=True)
 
-if os.environ.get('PKVAULT_SKIP_GLITCH_ASSET_FETCH') != '1':
-    # MediaWiki stores uploaded files under an MD5-derived path. Fetching the
-    # direct media object avoids the Special:Redirect anti-hotlink 403 seen in CI.
-    for name in asset_names:
-        normalized = name.replace(' ', '_')
-        digest = hashlib.md5(normalized.encode('utf-8')).hexdigest()
-        quoted = urllib.parse.quote(normalized, safe='')
-        url = f'https://archives.bulbagarden.net/media/upload/{digest[0]}/{digest[:2]}/{quoted}'
-        request = urllib.request.Request(url, headers={
-            'User-Agent': 'Mozilla/5.0 PKVault-RedFox/alpha52v',
-            'Referer': 'https://archives.bulbagarden.net/',
-        })
-        try:
-            with urllib.request.urlopen(request, timeout=30) as response:
-                data = response.read()
-        except Exception as exc:
-            raise RuntimeError(f'alpha52v failed to fetch {name}: {exc}') from exc
-        if not data.startswith(b'\x89PNG\r\n\x1a\n'):
-            raise RuntimeError(f'alpha52v fetched non-PNG data for {name} ({len(data)} bytes)')
-        (asset_dir / name).write_bytes(data)
-
-print('PKVault V8 alpha52v centered/local Gen-I glitch sprite fix applied')
+# Alpha52v intentionally performs no network fetch during CI. The frontend uses\n# exact direct Archives media URLs, avoiding Special:Redirect and runner 403s.\n
+print('PKVault V8 alpha52v centered/direct-media Gen-I glitch sprite fix applied')
