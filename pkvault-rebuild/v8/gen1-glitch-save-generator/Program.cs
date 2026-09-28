@@ -42,13 +42,37 @@ static byte[] BuildSaveFromTemplate(string templatePath, GameVersion version, IR
     Need(template.Length == SaveUtil.SIZE_G1RAW,
         $"Gen-I template must be exactly {SaveUtil.SIZE_G1RAW} bytes; got {template.Length}: {templatePath}");
 
-    var sav = new SAV1(template, LanguageID.English, version);
-    Need(sav.ChecksumsValid, $"Gen-I template checksum is invalid: {templatePath}");
+    var templateProbe = new SAV1(template, LanguageID.English, version);
+    Need(templateProbe.ChecksumsValid, $"Gen-I template checksum is invalid: {templatePath}");
 
-    // A newly constructed SAV1 is mostly zero-filled SRAM. PKHeX can round-trip
-    // that structure even though a real Gen-I game/emulator can reject it.
-    // Start from a proven game-created save and replace only PC storage.
-    sav.ClearBoxes();
+    // Empty the *packed SRAM lists* before SAV1 unpacks them. Using ClearBoxes()
+    // here is unsafe for this QA build because raw species 00/FF collide with
+    // Gen-I list sentinels; a fake BlankPKM can therefore look like a glitch.
+    // The packed count/species header is authoritative to the real game.
+    var working = template.ToArray();
+    const int BoxLength = 0x462;
+    static void ClearPackedBox(byte[] data, int offset)
+    {
+        data[offset] = 0; // occupied count
+        data.AsSpan(offset + 1, 21).Fill(0xFF); // 20 species marks + terminator
+    }
+
+    for (var i = 0; i < 6; i++)
+        ClearPackedBox(working, 0x4000 + (i * BoxLength));
+    for (var i = 0; i < 6; i++)
+        ClearPackedBox(working, 0x6000 + (i * BoxLength));
+    ClearPackedBox(working, 0x30C0); // current-box mirror
+
+    // Box 1 current + initialized. Recalculate the ordinary R/B/Y main checksum
+    // because CurrentBoxIndex and the current-box mirror live in the checked area.
+    working[0x284C] = 0x80;
+    var sum = 0;
+    for (var i = 0x2598; i < 0x3523; i++)
+        sum = (sum + working[i]) & 0xFF;
+    working[0x3523] = (byte)(~sum & 0xFF);
+
+    var sav = new SAV1(working, LanguageID.English, version);
+    Need(sav.ChecksumsValid, "Cleared Gen-I working template checksum is invalid.");
     sav.CurrentBox = 0;
     sav.BoxesInitialized = true;
     sav.OT = version == GameVersion.YW ? "YGLITCH" : "RBGLITC";
