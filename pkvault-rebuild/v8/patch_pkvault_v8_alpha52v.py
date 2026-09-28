@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import sys
+import hashlib
 import urllib.parse
 import urllib.request
 
@@ -250,10 +251,17 @@ asset_dir = root / 'frontend/public/gen1-glitch'
 asset_dir.mkdir(parents=True, exist_ok=True)
 
 if os.environ.get('PKVAULT_SKIP_GLITCH_ASSET_FETCH') != '1':
-    base = 'https://archives.bulbagarden.net/wiki/Special:Redirect/file/'
+    # MediaWiki stores uploaded files under an MD5-derived path. Fetching the
+    # direct media object avoids the Special:Redirect anti-hotlink 403 seen in CI.
     for name in asset_names:
-        url = base + urllib.parse.quote(name, safe='')
-        request = urllib.request.Request(url, headers={'User-Agent': 'PKVault-RedFox-build/alpha52v'})
+        normalized = name.replace(' ', '_')
+        digest = hashlib.md5(normalized.encode('utf-8')).hexdigest()
+        quoted = urllib.parse.quote(normalized, safe='')
+        url = f'https://archives.bulbagarden.net/media/upload/{digest[0]}/{digest[:2]}/{quoted}'
+        request = urllib.request.Request(url, headers={
+            'User-Agent': 'Mozilla/5.0 PKVault-RedFox/alpha52v',
+            'Referer': 'https://archives.bulbagarden.net/',
+        })
         try:
             with urllib.request.urlopen(request, timeout=30) as response:
                 data = response.read()
