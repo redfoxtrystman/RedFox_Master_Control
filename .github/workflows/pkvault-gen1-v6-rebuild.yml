@@ -97,6 +97,12 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52l.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52m1.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52m2.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52n.py pkvault-src
+          grep -q 'MasterBallUnlockProgressionKey = "shop.master-ball.unlocked"' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new("master-ball", "Poké Balls", 3_500_000, 0, true, false)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q "Compatible with " pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "const modeItems = state.items" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "<CategoryList items={modeItems}" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q 'TmUnlockProgressionKey = "shop.tm.unlocks"' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'GetMinimumGeneration' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'new(tm, "TMs", 3000, 1500' pkvault-src/PKVault.Core/shop/ShopService.cs
