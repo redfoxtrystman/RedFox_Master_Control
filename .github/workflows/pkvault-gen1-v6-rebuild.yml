@@ -588,12 +588,14 @@ jobs:
           var sample = new ShopStateDTO(
               MoneyBank: 50000,
               MoneyBankMax: 999999,
+              MoneyBankPendingSave: false,
               LoadedVersions: [3],
               Items: [
                   new ShopItemDTO(
                       "poke-ball", "Poké Ball", "Poké Balls",
                       200, 100, true, true, 75, 75, 0,
-                      [3], ["pokeball", "poke ball"]
+                      [3], [new ShopCompatibilityDTO(3, null)],
+                      ["pokeball", "poke ball"]
                   )
               ]
           );
