@@ -98,6 +98,15 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52m1.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52m2.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52n.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52o.py pkvault-src
+          grep -q "AcceptedItemKeys" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "acceptedItemKeys: pocket.acceptedItemKeys" pkvault-src/frontend/src/inventory/inventory-move-provider.tsx
+          grep -q "is not compatible with this game/pocket" pkvault-src/frontend/src/inventory/inventory-move-provider.tsx
+          grep -q "ShopCompatibilityDTO" pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q "CompatibleGames: compatibleGames" pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q "getSaveDisplayName" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "moneyBankPendingSave" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "unsaved changes (live" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'MasterBallUnlockProgressionKey = "shop.master-ball.unlocked"' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'new("master-ball", "Poké Balls", 3_500_000, 0, true, false)' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q "Compatible with " pkvault-src/frontend/src/shop/shop-page.tsx
