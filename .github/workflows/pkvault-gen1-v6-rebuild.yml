@@ -99,6 +99,12 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52m2.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52n.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52o.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52p.py pkvault-src
+          grep -q "POKE_DOLLAR_BANK = 6" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q "ITEM_SAVE_PROVENANCE = 5" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q "ITEM_BANK_PAGE_NAMES = 24" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q "TryLoadShiftedMoneyBank" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q "TryLoadShiftedPageNames" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q "AcceptedItemKeys" pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q "acceptedItemKeys: pocket.acceptedItemKeys" pkvault-src/frontend/src/inventory/inventory-move-provider.tsx
           grep -q "is not compatible with this game/pocket" pkvault-src/frontend/src/inventory/inventory-move-provider.tsx
