@@ -199,36 +199,40 @@ p = root / "frontend/src/storage/item/storage-item.tsx"
 text = p.read_text(encoding="utf-8")
 text = rep(
     text,
-    """    romHackLocalSpeciesId?: number | null;
-    romHackSpeciesName?: string | null;
+    """  & Pick<SpeciesImgProps, 'species' | 'context' | 'form' | 'isFemale' | 'isShiny' | 'isEgg' | 'isShadow' | 'allowContextFallback' | 'profileLocalSpecies' | 'romHackProfile' | 'romHackLocalSpeciesId' | 'romHackSpeciesName'>;
 """,
-    """    romHackLocalSpeciesId?: number | null;
-    romHackSpeciesName?: string | null;
-    gen1GlitchIndex?: number | null;
-    gen1GlitchDexNumber?: number | null;
-    gen1GlitchName?: string | null;
+    """  & Pick<SpeciesImgProps, 'species' | 'context' | 'form' | 'isFemale' | 'isShiny' | 'isEgg' | 'isShadow' | 'allowContextFallback' | 'profileLocalSpecies' | 'romHackProfile' | 'romHackLocalSpeciesId' | 'romHackSpeciesName' | 'gen1GlitchIndex' | 'gen1GlitchDexNumber' | 'gen1GlitchName'>;
 """,
     "StorageItem glitch props",
 )
 text = rep(
     text,
-    """    romHackProfile, romHackLocalSpeciesId, romHackSpeciesName,
+    """  romHackProfile,
+  romHackLocalSpeciesId,
+  romHackSpeciesName,
+
+  ...rest
 """,
-    """    romHackProfile, romHackLocalSpeciesId, romHackSpeciesName,
-    gen1GlitchIndex, gen1GlitchDexNumber, gen1GlitchName,
+    """  romHackProfile,
+  romHackLocalSpeciesId,
+  romHackSpeciesName,
+  gen1GlitchIndex,
+  gen1GlitchDexNumber,
+  gen1GlitchName,
+
+  ...rest
 """,
     "StorageItem glitch destructure",
 )
 text = rep(
     text,
-    """                romHackLocalSpeciesId={romHackLocalSpeciesId}
-                romHackSpeciesName={romHackSpeciesName}
+    """        romHackProfile={romHackProfile} romHackLocalSpeciesId={romHackLocalSpeciesId}
+        romHackSpeciesName={romHackSpeciesName} />
 """,
-    """                romHackLocalSpeciesId={romHackLocalSpeciesId}
-                romHackSpeciesName={romHackSpeciesName}
-                gen1GlitchIndex={gen1GlitchIndex}
-                gen1GlitchDexNumber={gen1GlitchDexNumber}
-                gen1GlitchName={gen1GlitchName}
+    """        romHackProfile={romHackProfile} romHackLocalSpeciesId={romHackLocalSpeciesId}
+        romHackSpeciesName={romHackSpeciesName}
+        gen1GlitchIndex={gen1GlitchIndex} gen1GlitchDexNumber={gen1GlitchDexNumber}
+        gen1GlitchName={gen1GlitchName} />
 """,
     "StorageItem SpeciesImg glitch pass",
 )
