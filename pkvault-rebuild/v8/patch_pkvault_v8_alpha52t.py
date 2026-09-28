@@ -2,6 +2,7 @@ from pathlib import Path
 import sys
 
 root = Path(sys.argv[1]).resolve()
+pkhex_root = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else root.parent / 'pkhex-src'
 
 def edit(path: Path, old: str, new: str, label: str):
     text = path.read_text(encoding='utf-8')
@@ -66,6 +67,61 @@ public static class Gen1GlitchYellow
         => index == 0 ? "https://archives.bulbagarden.net/wiki/Special:Redirect/file/YGlitchName00.png" : null;
 }
 ''', encoding='utf-8')
+
+# Gen-I raw index 0xFF is a real glitch Pokemon too, but 0xFF is also the
+# list-format empty marker. Distinguish it from an empty slot by populated body
+# bytes, the same way raw 0x00 is distinguished from a blank slot.
+poke_list = pkhex_root / 'PKHeX.Core/PKM/Shared/PokeList1.cs'
+edit(poke_list,
+'''    public static bool IsSingleSlotOccupied(ReadOnlySpan<byte> single)
+    {
+        if (single.Length < 3 + PokeCrypto.SIZE_1STORED)
+            return false;
+
+        var marker = single[1];
+        if (marker == SlotEmpty)
+            return false;
+        if (marker != 0)
+            return true;
+
+        return single.Slice(3, PokeCrypto.SIZE_1STORED).ContainsAnyExcept<byte>(0);
+    }
+''',
+'''    public static bool IsSingleSlotOccupied(ReadOnlySpan<byte> single)
+    {
+        if (single.Length < 3 + PokeCrypto.SIZE_1STORED)
+            return false;
+
+        var marker = single[1];
+        if (marker is not (0 or SlotEmpty))
+            return true;
+
+        // Raw 00 and raw FF are both valid Gen-I glitch species. Their header
+        // markers collide with list sentinels, so the stored body disambiguates
+        // a real glitch Pokemon from a genuinely blank slot.
+        return single.Slice(3, PokeCrypto.SIZE_1STORED).ContainsAnyExcept<byte>(0);
+    }
+''', 'raw FF single-slot occupancy')
+edit(poke_list,
+'''            bool present = IsPresent(mark) || (mark == 0 && expectedPresent);
+''',
+'''            bool present = IsPresent(mark) || ((mark is 0 or SlotEmpty) && expectedPresent);
+''', 'raw FF list-header validation')
+edit(poke_list,
+'''            if (marker != 0)
+                continue;
+
+            var bodyOffset = start + (sizeBody * i);
+            if (output.Slice(bodyOffset, PokeCrypto.SIZE_1STORED).ContainsAnyExcept<byte>(0))
+                count++;
+''',
+'''            if (marker is not (0 or SlotEmpty))
+                continue;
+
+            var bodyOffset = start + (sizeBody * i);
+            if (output.Slice(bodyOffset, PokeCrypto.SIZE_1STORED).ContainsAnyExcept<byte>(0))
+                count++;
+''', 'raw FF list count')
 
 # ContextVersion must be the actual save version for Red/Blue vs Yellow.
 base = root / 'PKVault.Core/storage/dto/PkmBaseDTO.cs'
