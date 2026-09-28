@@ -23,11 +23,11 @@ jobs:
       - name: Checkout build recipe
         uses: actions/checkout@v4
 
-      - name: Checkout exact PKVault 2.3.3 baseline
+      - name: Checkout exact PKVault 2.3.4 baseline
         run: |
           git clone https://github.com/Chnapy/PKVault.git pkvault-src
           cd pkvault-src
-          git checkout fabd843590e2a0ea1646cc4d1d6bff9933679ff3
+          git checkout df6e4b0edfb62b5a4b4f852217a6176738fbb97b
 
       - name: Checkout exact PKHeX 26.08.26
         run: |
