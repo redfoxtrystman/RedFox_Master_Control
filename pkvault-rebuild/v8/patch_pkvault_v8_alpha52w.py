@@ -14,6 +14,17 @@ for rel, payload in FILES.items():
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(gzip.decompress(base64.b64decode(payload)))
 
+# RouteJsonContext lives in PKVault.Core while the controller DTO lives in
+# PKVault.Core.storage.routes. Import it explicitly for source generation.
+ctx_path = root / 'PKVault.Core/router/RouteJsonContext.cs'
+ctx_text = ctx_path.read_text(encoding='utf-8')
+using_line = 'using PKVault.Core.storage.routes;\n'
+if using_line not in ctx_text:
+    marker = 'using Microsoft.Extensions.Primitives;\n'
+    if marker not in ctx_text:
+        raise RuntimeError('alpha52w RouteJsonContext using anchor missing')
+    ctx_path.write_text(ctx_text.replace(marker, marker + using_line, 1), encoding='utf-8')
+
 species = (root / 'frontend/src/img/species-img.tsx').read_text(encoding='utf-8')
 route = (root / 'PKVault.Core/static-data/routes/StaticDataRoute.cs').read_text(encoding='utf-8')
 ctx = (root / 'PKVault.Core/router/RouteJsonContext.cs').read_text(encoding='utf-8')
