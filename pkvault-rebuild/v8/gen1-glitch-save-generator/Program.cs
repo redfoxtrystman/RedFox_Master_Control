@@ -36,19 +36,27 @@ static PK1 MakeGlitch(byte rawIndex, ushort trainerId)
     return pk;
 }
 
-static byte[] BuildSave(GameVersion version, IReadOnlyList<byte> indices)
+static byte[] BuildSaveFromTemplate(string templatePath, GameVersion version, IReadOnlyList<byte> indices)
 {
-    var sav = new SAV1(LanguageID.English, version)
-    {
-        OT = version == GameVersion.YW ? "YGLITCH" : "RBGLITC",
-        TID16 = version == GameVersion.YW ? (ushort)5252 : (ushort)5151,
-        Money = 999_999,
-    };
+    var template = File.ReadAllBytes(templatePath);
+    Need(template.Length == SaveUtil.SIZE_G1RAW,
+        $"Gen-I template must be exactly {SaveUtil.SIZE_G1RAW} bytes; got {template.Length}: {templatePath}");
 
-    // SAV1 detects Yellow from Pikachu's internal starter ID when re-opened.
-    sav.Starter = version == GameVersion.YW
-        ? (byte)SpeciesConverter.GetInternal1((ushort)Species.Pikachu)
-        : (byte)SpeciesConverter.GetInternal1((ushort)Species.Bulbasaur);
+    var sav = new SAV1(template, LanguageID.English, version);
+    Need(sav.ChecksumsValid, $"Gen-I template checksum is invalid: {templatePath}");
+
+    // A newly constructed SAV1 is mostly zero-filled SRAM. PKHeX can round-trip
+    // that structure even though a real Gen-I game/emulator can reject it.
+    // Start from a proven game-created save and replace only PC storage.
+    sav.ClearBoxes();
+    sav.CurrentBox = 0;
+    sav.BoxesInitialized = true;
+    sav.OT = version == GameVersion.YW ? "YGLITCH" : "RBGLITC";
+    sav.TID16 = version == GameVersion.YW ? (ushort)5252 : (ushort)5151;
+    sav.Money = 999_999;
+
+    if (version == GameVersion.YW)
+        sav.Starter = (byte)SpeciesConverter.GetInternal1((ushort)Species.Pikachu);
 
     for (var i = 0; i < indices.Count; i++)
         sav.SetBoxSlotAtIndex(MakeGlitch(indices[i], sav.TID16), i, EntityImportSettings.None);
@@ -58,9 +66,9 @@ static byte[] BuildSave(GameVersion version, IReadOnlyList<byte> indices)
 
 static void Verify(byte[] data, GameVersion expectedVersion, IReadOnlyList<byte> expected)
 {
-    var sav = new SAV1(data, LanguageID.English);
-    Need(sav.Version == expectedVersion,
-        $"Reloaded save identified as {sav.Version}, expected {expectedVersion}.");
+    Need(data.Length == SaveUtil.SIZE_G1RAW, $"Generated save is not 32 KiB: {data.Length}");
+    var sav = new SAV1(data, LanguageID.English, expectedVersion);
+    Need(sav.ChecksumsValid, $"Generated {expectedVersion} save checksum is invalid.");
 
     var found = new List<byte>();
     for (var i = 0; i < sav.BoxCount * sav.BoxSlotCount; i++)
@@ -79,6 +87,9 @@ static void Verify(byte[] data, GameVersion expectedVersion, IReadOnlyList<byte>
 }
 
 var outDir = args.Length > 0 ? Path.GetFullPath(args[0]) : Path.GetFullPath("gen1-glitch-test-saves");
+Need(args.Length >= 2, "Usage: Gen1GlitchSaveGenerator <outDir> <redBlueTemplate> [yellowTemplate]");
+var rbTemplate = Path.GetFullPath(args[1]);
+var yellowTemplate = args.Length >= 3 ? Path.GetFullPath(args[2]) : null;
 Directory.CreateDirectory(outDir);
 
 var indices = Enumerable.Range(0, 256)
@@ -90,34 +101,45 @@ Need(indices.Length == 105, $"Expected all 105 unused Gen-I raw species indices,
 Need(indices[0] == 0x00 && indices.Contains((byte)0xBF) && indices[^1] == 0xFF,
     "Gen-I glitch index catalog is incomplete.");
 
-var rb = BuildSave(GameVersion.RB, indices);
-var yellow = BuildSave(GameVersion.YW, indices);
+var rb = BuildSaveFromTemplate(rbTemplate, GameVersion.RB, indices);
 Verify(rb, GameVersion.RB, indices);
-Verify(yellow, GameVersion.YW, indices);
-
 File.WriteAllBytes(Path.Combine(outDir, "PKVault-Gen1-Glitches-RedBlue.sav"), rb);
-File.WriteAllBytes(Path.Combine(outDir, "PKVault-Gen1-Glitches-Yellow.sav"), yellow);
+
+if (yellowTemplate is not null)
+{
+    var yellow = BuildSaveFromTemplate(yellowTemplate, GameVersion.YW, indices);
+    Verify(yellow, GameVersion.YW, indices);
+    File.WriteAllBytes(Path.Combine(outDir, "PKVault-Gen1-Glitches-Yellow.sav"), yellow);
+}
+else
+{
+    File.WriteAllText(
+        Path.Combine(outDir, "YELLOW_TEMPLATE_REQUIRED.txt"),
+        "A real, game-created Pokemon Yellow save is required before generating the Yellow glitch QA save.\n" +
+        "Alpha52u intentionally refuses to manufacture Yellow from blank or Red/Blue SRAM.\n");
+}
 File.WriteAllText(Path.Combine(outDir, "GLITCH_COUNT.txt"), indices.Length + Environment.NewLine);
 File.WriteAllText(Path.Combine(outDir, "RAW_INDICES.txt"),
     string.Join(Environment.NewLine, indices.Select(x => $"0x{x:X2} ({x})")) + Environment.NewLine);
 File.WriteAllText(Path.Combine(outDir, "README.txt"), """
-PKVault alpha52t - Generation I Glitch Pokemon Test Saves
+PKVault alpha52u - Generation I Glitch Pokemon Test Saves
 ========================================================
 
 PKVault-Gen1-Glitches-RedBlue.sav
   - Red/Blue-family display data.
   - Contains every raw Gen-I species index that does not map to a normal Pokemon.
 
-PKVault-Gen1-Glitches-Yellow.sav
-  - Yellow-family display data.
-  - Contains the same complete raw-index set so PKVault can exercise Yellow names/sprites.
+The old alpha52t generator built its SRAM from a blank SAV1. That file could pass
+PKHeX round-trip checks while still being rejected by an actual Gen-I game/emulator.
+
+Alpha52u builds Red/Blue from a real game-created Gen-I save template and replaces
+only PC storage. Yellow is generated only when a real Pokemon Yellow save template
+is supplied; Red/Blue SRAM is not relabeled as Yellow.
 
 There are 105 raw glitch slots total: index 0x00, the 39 MissingNo. holes among
-0x01-0xBE, and every index 0xBF-0xFF. The two saves keep the same raw slots because
-Red/Blue and Yellow interpret many of those slots differently.
+0x01-0xBE, and every index 0xBF-0xFF.
 
-These are deliberately synthetic QA saves for PKVault. Use copies only; Generation I
-glitch Pokemon can have unsafe behavior in the original games.
+Use copies only; Generation I glitch Pokemon can have unsafe behavior in the original games.
 """);
 
-Console.WriteLine($"PASS: generated and round-tripped two Gen-I glitch saves with all {indices.Length} raw glitch indices.");
+Console.WriteLine($"PASS: generated real-template Gen-I glitch save with all {indices.Length} raw glitch indices.");
