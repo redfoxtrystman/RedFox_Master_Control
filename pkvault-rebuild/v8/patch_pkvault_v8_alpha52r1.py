@@ -196,6 +196,19 @@ text = rep(
 )
 p.write_text(text, encoding="utf-8")
 
+# The frontend SDK is generated from PKVault.Core/swagger.json rather than live
+# reflection, so keep the static schema in sync with the DTO additions above.
+import json
+swagger_path = root / "PKVault.Core/swagger.json"
+swagger = json.loads(swagger_path.read_text(encoding="utf-8"))
+pkm_schema = swagger["components"]["schemas"]["PkmBaseDTO"]
+props = pkm_schema["properties"]
+props["gen1GlitchIndex"] = {"type": "integer", "format": "byte", "nullable": True}
+props["gen1GlitchName"] = {"type": "string", "nullable": True}
+props["gen1GlitchDexNumber"] = {"type": "integer", "nullable": True}
+props["gen1GlitchNameImageUrl"] = {"type": "string", "nullable": True}
+swagger_path.write_text(json.dumps(swagger, indent=2) + "\n", encoding="utf-8")
+
 # ---------------------------------------------------------------------------
 # Stable identity: raw glitch index must not collapse to Species=0 when hashing.
 # ---------------------------------------------------------------------------
