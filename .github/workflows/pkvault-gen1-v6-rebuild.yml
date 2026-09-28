@@ -2225,6 +2225,43 @@ jobs:
           docker cp pkvault-v752-description-patch-out:/app/PKVault.exe ../dist/PKVault-v8.0.0-alpha52-Uranium-Overlay-Dex-Online-Trading-Dex-Test-win-x64.exe
           docker rm pkvault-v752-description-patch-out
 
+      - name: Build Linux x64 PKVault executable
+        run: |
+          set -euo pipefail
+          cd pkvault-src
+          docker build . --target desktop-publish --build-arg RID=linux-x64 --build-arg VERSION=0.0.0-trading-v8.0.0-alpha52-Uranium-Overlay-Dex -t pkvault-v752-linux-x64
+          docker create --name pkvault-v752-linux-x64-out pkvault-v752-linux-x64
+          mkdir -p ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64
+          docker cp pkvault-v752-linux-x64-out:/app/publish/PKVault ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64/PKVault
+          docker rm pkvault-v752-linux-x64-out
+          chmod +x ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64/PKVault
+          file ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64/PKVault
+          test -x ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64/PKVault
+          cat > ../dist/PKVault-v8.0.0-alpha52p-LINUX-x64/README.txt <<'EOF'
+          PKVault V8 alpha52p - Linux x64 portable build
+          =================================================
+          Native self-contained Linux x64 build of the same alpha52p code as the Windows test build.
+
+          Run:
+            chmod +x PKVault
+            ./PKVault
+
+          This package does not contain your personal PKVault database or saves.
+          Copy/migrate your existing PKVault data separately if needed.
+
+          Linux desktop libraries used by PKVault/Photino may still need to be installed
+          by your distribution (GTK/WebKit runtime libraries).
+          EOF
+          (cd ../dist && tar -czf PKVault-v8.0.0-alpha52p-LINUX-x64.tar.gz PKVault-v8.0.0-alpha52p-LINUX-x64)
+
+      - name: Upload PKVault alpha52p Linux x64
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKVault-v8.0.0-alpha52p-LINUX-x64
+          path: dist/PKVault-v8.0.0-alpha52p-LINUX-x64.tar.gz
+          if-no-files-found: error
+          retention-days: 90
+
       - name: Package V8 alpha52 truly clean Windows profile
         run: |
           set -euo pipefail
