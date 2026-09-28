@@ -12,7 +12,7 @@ def rep(text: str, old: str, new: str, label: str) -> str:
 # PKHeX-side occupancy: all 105 R/B glitch index values map to national species
 # 0. Keep raw 00's body check so a genuinely blank slot is still empty.
 # ---------------------------------------------------------------------------
-p = root / "PKHeX.Core/PKM/Shared/PokeList1.cs"
+p = root / "PKHeX/PKHeX.Core/PKM/Shared/PokeList1.cs"
 text = p.read_text(encoding="utf-8")
 text = rep(
     text,
