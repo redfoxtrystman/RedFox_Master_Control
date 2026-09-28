@@ -70,8 +70,10 @@ static void Verify(byte[] data, GameVersion expectedVersion, IReadOnlyList<byte>
         found.Add(pk.SpeciesInternal);
     }
 
+    var missing = expected.Where(x => !found.Contains(x)).Select(x => $"0x{x:X2}").ToArray();
+    var extra = found.Where(x => !expected.Contains(x)).Select(x => $"0x{x:X2}").ToArray();
     Need(found.Count == expected.Count,
-        $"Reloaded {expectedVersion} save contains {found.Count} glitch entries, expected {expected.Count}.");
+        $"Reloaded {expectedVersion} save contains {found.Count} glitch entries, expected {expected.Count}. Missing=[{string.Join(", ", missing)}] Extra=[{string.Join(", ", extra)}].");
     Need(found.SequenceEqual(expected),
         $"Reloaded {expectedVersion} save raw glitch index order does not match the expected catalog.");
 }
