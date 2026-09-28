@@ -115,7 +115,7 @@ page = rep(
 
 tick = chr(96)
 old_compat = (
-    "                return <Tooltip key={version} label={" + tick + "Compatible game ${version}" + tick + ">\n"
+    "                return <Tooltip key={version} label={" + tick + "Compatible game ${version}" + tick + "}>\n"
     "                    <Image src={info.img} w={16} h={16} fit='contain' />\n"
     "                </Tooltip>;\n"
     "            } catch {\n"
