@@ -101,6 +101,14 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52o.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52p.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52q.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52r1.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52r2.py pkvault-src
+          grep -q "SpeciesConverter.GetNational1(pk.SpeciesInternal) == 0" pkvault-src/PKHeX.Core/PKM/Shared/PokeList1.cs
+          test -f pkvault-src/PKVault.Core/storage/glitch/Gen1GlitchDex.cs
+          grep -q "Gen1GlitchIndex" pkvault-src/PKVault.Core/storage/dto/PkmBaseDTO.cs
+          grep -q "G1GLITCH_" pkvault-src/PKVault.Core/storage/wrapper/ImmutablePKM.cs
+          grep -q "gen1GlitchIndex" pkvault-src/frontend/src/img/species-img.tsx
+          grep -q "Exact Red/Blue glitch-name tiles" pkvault-src/frontend/src/ui/storage/storage-details/ui-details-main.tsx
           grep -q "suppressTitle?: boolean" pkvault-src/frontend/src/img/species-img.tsx
           grep -q "suppressTitle={!isSeen}" pkvault-src/frontend/src/romhacks/uranium-pokedex.tsx
           grep -q "suppressTitle={!isSeen}" pkvault-src/frontend/src/romhacks/insurgence-pokedex.tsx
