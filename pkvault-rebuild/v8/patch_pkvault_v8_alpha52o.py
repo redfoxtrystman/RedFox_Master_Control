@@ -607,9 +607,9 @@ page = rep(
 # bank differs from the saved/committed bank.
 page = rep(
     page,
-    """            {error && <Alert color='red'>{error}</Alert>}
+    """            {error && <Alert color='red' withCloseButton onClose={() => setError(undefined)}>{error}</Alert>}
 """,
-    """            {error && <Alert color='red'>{error}</Alert>}
+    """            {error && <Alert color='red' withCloseButton onClose={() => setError(undefined)}>{error}</Alert>}
             {state.moneyBankPendingSave && <Alert color='yellow'>
                 Your PKVault Pokédollar Bank has unsaved transfer changes. Save or undo those money transfers before buying or selling so the Shop cannot overwrite the newer balance.
             </Alert>}
@@ -619,8 +619,8 @@ page = rep(
 
 # Disable transaction button while the money bank has pending save changes.
 page = page.replace(
-    "disabled={basketLines.length === 0}",
-    "disabled={basketLines.length === 0 || state.moneyBankPendingSave}",
+    "disabled={basketEntries.length === 0 || (mode === 'buy' && afterBalance < 0)}",
+    "disabled={basketEntries.length === 0 || state.moneyBankPendingSave || (mode === 'buy' && afterBalance < 0)}",
 )
 
 page_path.write_text(page, encoding="utf-8")
