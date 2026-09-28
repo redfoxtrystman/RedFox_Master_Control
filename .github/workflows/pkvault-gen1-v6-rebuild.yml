@@ -1,5 +1,5 @@
 name: PKVault V8 Essentials + TMT Compatibility
-# alpha52t berry + complete Gen1 glitch verification
+# alpha52u real-SRAM glitch save generation + alpha52t berry/display fixes
 
 on:
   push:
@@ -443,15 +443,17 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf gen1-glitch-test-saves
-          dotnet run --project pkvault-rebuild/v8/gen1-glitch-save-generator/Gen1GlitchSaveGenerator.csproj -c Release -- gen1-glitch-test-saves
+          RB_TEMPLATE="pkvault-src/Scripts/generate-convert-view/saves/G1 Pokemons/G1 Pokemon Blue.dat"
+          test -f "$RB_TEMPLATE"
+          dotnet run --project pkvault-rebuild/v8/gen1-glitch-save-generator/Gen1GlitchSaveGenerator.csproj -c Release -- gen1-glitch-test-saves "$RB_TEMPLATE"
           test -f gen1-glitch-test-saves/PKVault-Gen1-Glitches-RedBlue.sav
-          test -f gen1-glitch-test-saves/PKVault-Gen1-Glitches-Yellow.sav
+          test -f gen1-glitch-test-saves/YELLOW_TEMPLATE_REQUIRED.txt
           test "$(cat gen1-glitch-test-saves/GLITCH_COUNT.txt)" = "105"
 
       - name: Upload alpha52t Gen1 glitch save pack
         uses: actions/upload-artifact@v4
         with:
-          name: PKVault-alpha52t-Gen1-Glitch-Test-Saves
+          name: PKVault-alpha52u-Gen1-Glitch-Test-Saves
           path: gen1-glitch-test-saves/
           if-no-files-found: error
           retention-days: 90
