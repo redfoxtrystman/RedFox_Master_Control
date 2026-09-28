@@ -750,11 +750,15 @@ jobs:
           EOF
           dotnet run --project gen1-inventory-map-smoke/gen1-inventory-map-smoke.csproj -c Release
 
-      - name: Alpha40 skip-legality synchronization regression test
+      - name: Alpha40 / upstream 2.3.4 legality synchronization regression test
         run: |
           set -euo pipefail
-          grep -F 'if (legality.la is not null)' pkvault-src/PKVault.Core/storage/services/PkmConvertService/PkmSharePropertiesService.cs
-          grep -F 'SharePropertiesTo_SkipLegalityChecks_DoesNotDereferenceMissingAnalysis' pkvault-src/PKVault.Core.Tests/storage/services/PkmConvertService/PkmSharePropertiesServiceTests.cs
+          if grep -Fq 'GetLegalitySafeRaw(new(targetPkm))' pkvault-src/PKVault.Core/storage/services/PkmConvertService/PkmSharePropertiesService.cs; then
+            echo "PASS: PKVault 2.3.4 upstream raw-legality fix is present"
+          else
+            grep -F 'if (legality.la is not null)' pkvault-src/PKVault.Core/storage/services/PkmConvertService/PkmSharePropertiesService.cs
+            grep -F 'SharePropertiesTo_SkipLegalityChecks_DoesNotDereferenceMissingAnalysis' pkvault-src/PKVault.Core.Tests/storage/services/PkmConvertService/PkmSharePropertiesServiceTests.cs
+          fi
           dotnet test pkvault-src/PKVault.Core.Tests/PKVault.Core.Tests.csproj -c Release --nologo --no-restore --filter "FullyQualifiedName~PkmSharePropertiesServiceTests"
 
       - name: V8 Essentials native desktop rxdata location smoke test
