@@ -1,4 +1,5 @@
 name: PKVault V8 Essentials + TMT Compatibility
+# alpha52t berry + Gen1 glitch verification
 
 on:
   push:
