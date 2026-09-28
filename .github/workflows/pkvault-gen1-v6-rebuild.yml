@@ -109,7 +109,13 @@ jobs:
           grep -q 'new("persim-berry", "Berries", 200, 100)' pkvault-src/PKVault.Core/shop/ShopService.cs
           test "$(grep -c '"Berries", 200, 100' pkvault-src/PKVault.Core/shop/ShopService.cs)" -eq 18
           test -f pkvault-src/PKVault.Core/storage/glitch/Gen1GlitchYellow.cs
-          grep -q '3TrainerPoké \          grep -q 'new("x-special", "Battle", 350, 175)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q '3TrainerPoké' pkvault-src/PKVault.Core/storage/glitch/Gen1GlitchYellow.cs
+          grep -q 'public override GameVersion ContextVersion => Save.Version' pkvault-src/PKVault.Core/storage/dto/PkmSaveDTO.cs
+          grep -q "data-glitch-species='gen1'" pkvault-src/frontend/src/img/species-img.tsx
+          grep -q 'object-fit: contain' pkvault-src/frontend/src/ui/sprite-img/species-img/ui-species-img.module.css
+          grep -q 'contextVersion={contextVersion}' pkvault-src/frontend/src/storage/item/storage-item.tsx
+          grep -q '"x-defend" => "x-defense"' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new("x-special", "Battle", 350, 175)' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'new("red-apricorn", "Apricorns", 1000, 100, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'ApricornRainbowAchievementId' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'Apricorn Shop Unlock' pkvault-src/PKVault.Core/quest/QuestService.cs
