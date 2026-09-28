@@ -95,6 +95,20 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52k1.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52k2.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52l.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52m1.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52m2.py pkvault-src
+          grep -q 'TmUnlockProgressionKey = "shop.tm.unlocks"' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'GetMinimumGeneration' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new(tm, "TMs", 3000, 1500' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'IsMovableItem(pouch.Type, itemKey)' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'InventoryType.TMHMs && IsHmKey' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          ! grep -q "'Stones': 'hard-stone'" pkvault-src/frontend/src/shop/shop-page.tsx
+          ! grep -q "'Key Items': 'coin-case'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q 'ITEM_BANK_PAGE_NAMES' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
+          grep -q 'string Name,' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'HttpPut("inventory/page")' pkvault-src/PKVault.Core/storage/routes/StorageRoute.cs
+          grep -q "label='Box name'" pkvault-src/frontend/src/inventory/inventory-page-edit.tsx
+          grep -q 'label: p.name' pkvault-src/frontend/src/inventory/inventory-panel.tsx
           grep -q "QuestClaimAllRequest" pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'HttpPost("claim-all")' pkvault-src/PKVault.Core/quest/routes/QuestRoute.cs
           grep -q "JsonSerializable(typeof(QuestClaimAllRequest))" pkvault-src/PKVault.Core/router/RouteJsonContext.cs
