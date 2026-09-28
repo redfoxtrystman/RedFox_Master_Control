@@ -70,18 +70,30 @@ static void Verify(byte[] data, GameVersion expectedVersion, IReadOnlyList<byte>
     var sav = new SAV1(data, LanguageID.English, expectedVersion);
     Need(sav.ChecksumsValid, $"Generated {expectedVersion} save checksum is invalid.");
 
-    var found = new List<byte>();
-    for (var i = 0; i < sav.BoxCount * sav.BoxSlotCount; i++)
+    // Generation-I SRAM box lists carry their own authoritative occupied count.
+    // GetBoxSlotAtIndex() still returns a blank PK1 object for an empty position;
+    // raw species 00 is also a real glitch species, so scanning all 240 PK1
+    // objects falsely counts blank positions as 'M. Validate the packed SRAM
+    // headers first, then inspect exactly the occupied catalog slots.
+    const int BoxLength = 0x462;
+    var boxOffsets = Enumerable.Range(0, 6).Select(i => 0x4000 + (i * BoxLength))
+        .Concat(Enumerable.Range(0, 6).Select(i => 0x6000 + (i * BoxLength)))
+        .ToArray();
+    var boxCounts = boxOffsets.Select(o => (int)data[o]).ToArray();
+    var expectedCounts = new[] { 20, 20, 20, 20, 20, 5, 0, 0, 0, 0, 0, 0 };
+    Need(boxCounts.SequenceEqual(expectedCounts),
+        $"Generated {expectedVersion} packed box counts are wrong: [{string.Join(", ", boxCounts)}].");
+
+    var found = new List<byte>(expected.Count);
+    for (var i = 0; i < expected.Count; i++)
     {
-        if (sav.GetBoxSlotAtIndex(i) is not PK1 pk || !PokeList1.IsKnownGen1Glitch(pk))
-            continue;
+        Need(sav.GetBoxSlotAtIndex(i) is PK1, $"Slot {i} did not reload as PK1.");
+        var pk = (PK1)sav.GetBoxSlotAtIndex(i);
+        Need(PokeList1.IsKnownGen1Glitch(pk),
+            $"Occupied QA slot {i} did not reload as a Gen-I glitch Pokemon.");
         found.Add(pk.SpeciesInternal);
     }
 
-    var missing = expected.Where(x => !found.Contains(x)).Select(x => $"0x{x:X2}").ToArray();
-    var extra = found.Where(x => !expected.Contains(x)).Select(x => $"0x{x:X2}").ToArray();
-    Need(found.Count == expected.Count,
-        $"Reloaded {expectedVersion} save contains {found.Count} glitch entries, expected {expected.Count}. Missing=[{string.Join(", ", missing)}] Extra=[{string.Join(", ", extra)}].");
     Need(found.SequenceEqual(expected),
         $"Reloaded {expectedVersion} save raw glitch index order does not match the expected catalog.");
 }
