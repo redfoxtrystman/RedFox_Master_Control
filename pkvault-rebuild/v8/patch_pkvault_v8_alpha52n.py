@@ -113,23 +113,22 @@ page = rep(
     "compatibility static data",
 )
 
-pattern = re.compile(
-    r'''                return <Tooltip key=\{version\} label=\{[^\\n]+\}>\\n'''
-    r'''                    <Image src=\{info\\.img\} w=\{16\} h=\{16\} fit='contain' />\\n'''
-    r'''                </Tooltip>;\\n'''
-    r'''            } catch \{\\n'''
-    r'''                return <Badge key=\{version\} size='xs' variant='light'>\{version\}</Badge>;'''
+tick = chr(96)
+old_compat = (
+    "                return <Tooltip key={version} label={" + tick + "Compatible game ${version}" + tick + ">\n"
+    "                    <Image src={info.img} w={16} h={16} fit='contain' />\n"
+    "                </Tooltip>;\n"
+    "            } catch {\n"
+    "                return <Badge key={version} size='xs' variant='light'>{version}</Badge>;"
 )
-replacement = """                const versionName = staticData.versions[version]?.name ?? ('Game ' + version);
+new_compat = """                const versionName = staticData.versions[version]?.name ?? ('Game ' + version);
                 return <Tooltip key={version} label={'Compatible with ' + versionName}>
                     <Image src={info.img} w={16} h={16} fit='contain' />
                 </Tooltip>;
             } catch {
                 const versionName = staticData.versions[version]?.name ?? ('Game ' + version);
                 return <Badge key={version} size='xs' variant='light'>{versionName}</Badge>;"""
-page, count = pattern.subn(replacement, page, count=1)
-if count != 1:
-    raise RuntimeError("alpha52n compatibility tooltip block not found")
+page = rep(page, old_compat, new_compat, "compatibility names")
 
 page = rep(
     page,
