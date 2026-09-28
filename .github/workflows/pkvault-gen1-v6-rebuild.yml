@@ -103,6 +103,14 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52q.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52r1.py pkvault-src pkhex-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52r2.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52s.py pkvault-src
+          grep -q '"x-defend" => "x-defense"' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new("x-special", "Battle", 350, 175)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new("red-apricorn", "Apricorns", 1000, 100, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'ApricornRainbowAchievementId' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'Apricorn Shop Unlock' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q "'Apricorns': 'red-apricorn'" pkvault-src/frontend/src/shop/shop-page.tsx
+          grep -q "'Vitamins': 'protein'" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "SpeciesConverter.GetNational1(pk.SpeciesInternal) == 0" pkhex-src/PKHeX.Core/PKM/Shared/PokeList1.cs
           test -f pkvault-src/PKVault.Core/storage/glitch/Gen1GlitchDex.cs
           grep -q "Gen1GlitchIndex" pkvault-src/PKVault.Core/storage/dto/PkmBaseDTO.cs
