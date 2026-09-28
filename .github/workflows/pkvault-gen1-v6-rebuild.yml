@@ -100,6 +100,10 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52n.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52o.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52p.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52q.py pkvault-src
+          grep -q "suppressTitle?: boolean" pkvault-src/frontend/src/img/species-img.tsx
+          grep -q "suppressTitle={!isSeen}" pkvault-src/frontend/src/romhacks/uranium-pokedex.tsx
+          grep -q "suppressTitle={!isSeen}" pkvault-src/frontend/src/romhacks/insurgence-pokedex.tsx
           grep -q "POKE_DOLLAR_BANK = 6" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           grep -q "ITEM_SAVE_PROVENANCE = 5" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           grep -q "ITEM_BANK_PAGE_NAMES = 24" pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
