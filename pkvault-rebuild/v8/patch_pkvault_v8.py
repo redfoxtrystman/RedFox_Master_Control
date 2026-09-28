@@ -2631,36 +2631,53 @@ guarded_legality_ribbons = '''        var legality = legalityAnalysisService.Get
 
         targetPkm.Heal();
 '''
+upstream_234_legality_ribbons = '''        var la = LegalityAnalysisService.GetLegalitySafeRaw(new(targetPkm));
+        var args = new RibbonVerifierArguments(
+            la.Info.Entity,
+            la.EncounterMatch,
+            la.Info.EvoChainsAllGens
+        );
+        RibbonApplicator.FixInvalidRibbons(args);
+
+        targetPkm.Heal();
+'''
+alpha22_needs_test = True
 if modern_legality_ribbons in share_props_text:
     share_props_text = share_props_text.replace(modern_legality_ribbons, guarded_legality_ribbons, 1)
 elif legacy_legality_ribbons in share_props_text:
     share_props_text = share_props_text.replace(legacy_legality_ribbons, guarded_legality_ribbons, 1)
+elif upstream_234_legality_ribbons in share_props_text:
+    # PKVault 2.3.4 fixed this upstream by bypassing the optional/skipped
+    # legality wrapper and using a guaranteed raw analysis for ribbon cleanup.
+    # Preserve upstream's implementation and don't inject the obsolete alpha22
+    # regression test that depends on the old constructor/settings path.
+    alpha22_needs_test = False
 else:
     raise RuntimeError(f"{share_props_v22}: unsupported legality ribbon cleanup block")
 share_props_v22.write_text(share_props_text, encoding="utf-8")
 print(f"patched {share_props_v22}")
 
-# Regression coverage for the exact null-analysis contract used by
-# SKIP_LEGALITY_CHECKS. This does not need a special Caterpie fixture: the bug
-# was an unconditional dereference after SharePropertiesTo's normal copy path.
-share_props_tests_v22 = PKVAULT / "PKVault.Core.Tests/storage/services/PkmConvertService/PkmSharePropertiesServiceTests.cs"
-replace_once(share_props_tests_v22,
-'''    private PkmSharePropertiesService GetService()
+if alpha22_needs_test:
+    # Regression coverage for the exact null-analysis contract used by
+    # SKIP_LEGALITY_CHECKS in PKVault <= 2.3.3.
+    share_props_tests_v22 = PKVAULT / "PKVault.Core.Tests/storage/services/PkmConvertService/PkmSharePropertiesServiceTests.cs"
+    replace_once(share_props_tests_v22,
+    '''    private PkmSharePropertiesService GetService()
     {
-''',
-'''    private PkmSharePropertiesService GetService(bool skipLegalityChecks = false)
+    ''',
+    '''    private PkmSharePropertiesService GetService(bool skipLegalityChecks = false)
     {
-''')
-replace_once(share_props_tests_v22,
-'''                LANGUAGE: "fr", HIDE_CHEATS: false, SKIP_LEGALITY_CHECKS: false
-''',
-'''                LANGUAGE: "fr", HIDE_CHEATS: false, SKIP_LEGALITY_CHECKS: skipLegalityChecks
-''')
-replace_once(share_props_tests_v22,
-'''    [Fact]
+    ''')
+    replace_once(share_props_tests_v22,
+    '''                LANGUAGE: "fr", HIDE_CHEATS: false, SKIP_LEGALITY_CHECKS: false
+    ''',
+    '''                LANGUAGE: "fr", HIDE_CHEATS: false, SKIP_LEGALITY_CHECKS: skipLegalityChecks
+    ''')
+    replace_once(share_props_tests_v22,
+    '''    [Fact]
     public void SharePropertiesTo_CopiesUnique3Ribbons()
-''',
-'''    [Fact]
+    ''',
+    '''    [Fact]
     public void SharePropertiesTo_SkipLegalityChecks_DoesNotDereferenceMissingAnalysis()
     {
         var service = GetService(skipLegalityChecks: true);
@@ -2681,7 +2698,7 @@ replace_once(share_props_tests_v22,
 
     [Fact]
     public void SharePropertiesTo_CopiesUnique3Ribbons()
-''')
+    ''')
 
 print("PKVault V8 alpha22 legality-skip synchronization null guard applied")
 
