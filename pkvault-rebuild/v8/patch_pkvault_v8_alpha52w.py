@@ -25,6 +25,23 @@ if using_line not in ctx_text:
         raise RuntimeError('alpha52w RouteJsonContext using anchor missing')
     ctx_path.write_text(ctx_text.replace(marker, marker + using_line, 1), encoding='utf-8')
 
+# The frontend uses noUncheckedIndexedAccess. These accesses are bounded by
+# canvas dimensions / queue length, so assert their definedness explicitly.
+species_path = root / 'frontend/src/img/species-img.tsx'
+species_text = species_path.read_text(encoding='utf-8')
+ts_replacements = {
+    'data[offset + 3] > 0': 'data[offset + 3]! > 0',
+    'data[offset] >= 238': 'data[offset]! >= 238',
+    'data[offset + 1] >= 238': 'data[offset + 1]! >= 238',
+    'data[offset + 2] >= 238': 'data[offset + 2]! >= 238',
+    'const index = queue[cursor];': 'const index = queue[cursor]!;',
+}
+for old, new in ts_replacements.items():
+    if old not in species_text:
+        raise RuntimeError(f'alpha52w TypeScript bound anchor missing: {old}')
+    species_text = species_text.replace(old, new, 1)
+species_path.write_text(species_text, encoding='utf-8')
+
 species = (root / 'frontend/src/img/species-img.tsx').read_text(encoding='utf-8')
 route = (root / 'PKVault.Core/static-data/routes/StaticDataRoute.cs').read_text(encoding='utf-8')
 ctx = (root / 'PKVault.Core/router/RouteJsonContext.cs').read_text(encoding='utf-8')
