@@ -55,10 +55,16 @@ cs.write_text(t,encoding='utf-8')
 
 shop=root/'frontend/src/shop/shop-page.tsx'
 s=shop.read_text(encoding='utf-8')
-old='with exact multi-Legendary requirements and a 10–15-line premium reward bundle.'
-new='with exact multi-Legendary requirements, at least 2 Master Balls, and a 10–15-line premium reward bundle.'
-if old not in s: raise RuntimeError('alpha52z apex description anchor')
-shop.write_text(s.replace(old,new,1),encoding='utf-8')
+old_weekly='Weekly rolls are independent: both slots can roll the same tier. A board can have two Mythicals, two Legendaries, neither, or lower-tier weekly contracts. Abandoning an active contract does not refund its purchase price.'
+new_weekly='Weekly rolls are independent from Normal through Mythical. Each weekly slot also has a 2% chance to become an Apex contract costing ₽1.5M–₽2.25M with exact multi-Legendary requirements, at least 2 Master Balls, and a 10–15-line premium reward bundle. Abandoning an active contract does not refund its purchase price.'
+already='Weekly rolls are independent from Normal through Mythical. Each weekly slot also has a 2% chance to become an Apex contract costing ₽1.5M–₽2.25M with exact multi-Legendary requirements and a 10–15-line premium reward bundle. Abandoning an active contract does not refund its purchase price.'
+if old_weekly in s:
+    s=s.replace(old_weekly,new_weekly,1)
+elif already in s:
+    s=s.replace(already,new_weekly,1)
+else:
+    raise RuntimeError('alpha52z Apex UI description anchor not found')
+shop.write_text(s,encoding='utf-8')
 
 # Guards
 c=cs.read_text(encoding='utf-8')
