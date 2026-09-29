@@ -1,5 +1,5 @@
 name: PKVault V8 Essentials + TMT Compatibility
-# alpha52y contract economy + Apex tier + alpha52x glitch fronts
+# alpha52z difficulty/reward rebalance + alpha52y Apex/contracts + alpha52x glitch fronts
 
 on:
   push:
@@ -110,6 +110,7 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52w.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52x.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52y.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52z.py pkvault-src
           grep -q 'return single\[0\] != 0;' pkhex-src/PKHeX.Core/PKM/Shared/PokeList1.cs
           grep -q 'capacity == 1' pkhex-src/PKHeX.Core/PKM/Shared/PokeList1.cs
           grep -q '_ => "MissingNo.",' pkvault-src/PKVault.Core/storage/glitch/Gen1GlitchDex.cs
@@ -128,6 +129,12 @@ jobs:
           grep -q 'BuildApexRewards' pkvault-src/PKVault.Core/contract/ContractService.cs
           grep -q 'normal-species-12.*10_000' pkvault-src/PKVault.Core/contract/ContractService.cs
           grep -q "'Apex'" pkvault-src/frontend/src/contracts/contract-api.ts
+          grep -q 'hard-shiny-1.*rare-candy.*, 12' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'hard-shiny-2.*gold-bottle-cap.*, 1' pkvault-src/PKVault.Core/contract/ContractService.cs
+          ! grep 'hard-shiny-[12]' pkvault-src/PKVault.Core/contract/ContractService.cs | grep -q 'master-ball'
+          grep -q 'legendary-any.*ultra-ball.*, 40' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'rewardSeed.Contains("apex-creation-crisis".*? 3 : 2' pkvault-src/PKVault.Core/contract/ContractService.cs || grep -q 'rewardSeed.Contains("apex-creation-crisis"' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'at least 2 Master Balls' pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q 'new("berry", "Berries", 200, 100)' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'new("persim-berry", "Berries", 200, 100)' pkvault-src/PKVault.Core/shop/ShopService.cs
           test "$(grep -c '"Berries", 200, 100' pkvault-src/PKVault.Core/shop/ShopService.cs)" -eq 18
