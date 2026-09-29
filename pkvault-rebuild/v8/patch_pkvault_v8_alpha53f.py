@@ -28,6 +28,21 @@ if old_shop in text:
     text = text.replace(old_shop, new_shop, 1)
 elif 'new("gold-bottle-cap", "Valuables", 0, 50000, false, true)' not in text:
     raise RuntimeError("alpha53f ShopService anchor missing")
+# Sell-only PKVault valuables are central-bank economy items. Do not hide them
+# just because the currently loaded games predate the item's introduction.
+old_catalog_filter = '''        var catalog = Prices
+            .Where(price => GetMinimumGeneration(price.Key) <= maxGeneration)
+            .ToList();
+'''
+new_catalog_filter = '''        var catalog = Prices
+            .Where(price => !price.CanBuy || GetMinimumGeneration(price.Key) <= maxGeneration)
+            .ToList();
+'''
+if old_catalog_filter in text:
+    text = text.replace(old_catalog_filter, new_catalog_filter, 1)
+elif '.Where(price => !price.CanBuy || GetMinimumGeneration(price.Key) <= maxGeneration)' not in text:
+    raise RuntimeError("alpha53f sell-only catalog visibility anchor missing")
+
 shop.write_text(text, encoding="utf-8")
 
 quest = root / "PKVault.Core/quest/QuestService.cs"
