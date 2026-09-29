@@ -235,7 +235,7 @@ jobs:
           grep -q "const innerHeight" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "boxSizing: 'border-box'" pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q "Thirty Species Hunt" pkvault-src/PKVault.Core/contract/ContractService.cs
-          grep -q 'R("rare-candy", 5), R("ultra-ball", 20), R("full-restore", 5), R("pp-up", 2)' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'R("rare-candy", 10), R("ultra-ball", 30), R("full-restore", 8), R("pp-up", 4)' pkvault-src/PKVault.Core/contract/ContractService.cs
           ! grep -q 'hard-species-30.*R("rare-candy", 20)' pkvault-src/PKVault.Core/contract/ContractService.cs
           grep -q 'R("fire-stone", 1)' pkvault-src/PKVault.Core/contract/ContractService.cs
           grep -q 'R("pp-up", 10)' pkvault-src/PKVault.Core/contract/ContractService.cs
