@@ -130,6 +130,7 @@ jobs:
           git -C pkvault-src diff --check
           grep -q 'new("bottle-cap", "Valuables", 0, 10000, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'new("gold-bottle-cap", "Valuables", 0, 50000, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q '!price.CanBuy || GetMinimumGeneration(price.Key) <= maxGeneration' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'Bottle Cap + 2 Rare Candies + 10 Ultra Balls + 5 Max Revives' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'Gold Bottle Cap + 2 PP Max + 3 Rare Candies + 20 Ultra Balls' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'SessionDbPath};Pooling=False' pkvault-src/PKVault.Core/db/SessionDbContext.cs
