@@ -1,5 +1,5 @@
 name: PKVault V8 Essentials + TMT Compatibility
-# alpha53c inventory box parity + alpha53b trainer-battle contracts + alpha53a trainer/gym progression
+# alpha53d in-app item/trade evolution + quest/contract commit support + alpha53c inventory box parity
 
 on:
   push:
@@ -116,6 +116,16 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53a3.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53b.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53c.py pkvault-src
+          python3 -c 'import sys,base64,zlib; sys.stdout.buffer.write(zlib.decompress(base64.b64decode(sys.stdin.buffer.read())))' < pkvault-rebuild/v8/alpha53d-item-evolutions.patch.zlib.b64 | git -C pkvault-src apply -
+          git -C pkvault-src diff --check
+          grep -q 'class EvolutionService' pkvault-src/PKVault.Core/storage/services/EvolutionService.cs
+          grep -q 'Trigger.UseItem' pkvault-src/PKVault.Core/storage/services/EvolutionService.cs
+          grep -q 'ConsumeBankItem' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'pkm/evolution-items' pkvault-src/PKVault.Core/storage/routes/StorageRoute.cs
+          grep -q 'RecordInAppEvolution' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'RecordInAppEvolution' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'committedEvolutionEvents' pkvault-src/PKVault.Core/storage/services/ActionService.cs
+          grep -q "name='item-evolve'" pkvault-src/frontend/src/storage/details/details-actions.tsx
           grep -q 'MovePage(int page, int targetPage)' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'DeletePage(int page)' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'MOVE_ITEM_PAGE' pkvault-src/PKVault.Core/storage/data-action/DataAction.cs
