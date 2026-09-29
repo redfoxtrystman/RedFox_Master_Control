@@ -1,5 +1,5 @@
 from pathlib import Path
-import sys
+import json, sys
 
 root = Path(sys.argv[1]).resolve()
 
@@ -482,12 +482,16 @@ if old not in t:
 p.write_text(t.replace(old, new, 1), encoding='utf-8')
 
 swagger = root / 'PKVault.Core/swagger.json'
-swagger_text = swagger.read_text(encoding='utf-8')
-old_swagger = '"x-enumNames": ["MAIN_CREATE_BANK", "MAIN_UPDATE_BANK", "MAIN_DELETE_BANK", "MAIN_CREATE_BOX", "MAIN_UPDATE_BOX", "MAIN_DELETE_BOX", "MAIN_CREATE_PKM_VERSION", "MOVE_PKM", "DETACH_PKM_SAVE", "DELETE_PKM_VERSION", "EDIT_PKM_VERSION", "EDIT_PKM_SAVE", "SAVE_DELETE_PKM", "PKM_SYNCHRONIZE", "EVOLVE_PKM", "SORT_PKM", "DEX_SYNC", "DATA_NORMALIZE", "UPDATE_EXTERNAL_PKM", "SET_PKM_VERSION_MAIN", "MOVE_ITEM", "CREATE_ITEM_PAGE", "TRASH_ITEM"],\\n        "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]'
-new_swagger = '"x-enumNames": ["MAIN_CREATE_BANK", "MAIN_UPDATE_BANK", "MAIN_DELETE_BANK", "MAIN_CREATE_BOX", "MAIN_UPDATE_BOX", "MAIN_DELETE_BOX", "MAIN_CREATE_PKM_VERSION", "MOVE_PKM", "DETACH_PKM_SAVE", "DELETE_PKM_VERSION", "EDIT_PKM_VERSION", "EDIT_PKM_SAVE", "SAVE_DELETE_PKM", "PKM_SYNCHRONIZE", "EVOLVE_PKM", "SORT_PKM", "DEX_SYNC", "DATA_NORMALIZE", "UPDATE_EXTERNAL_PKM", "SET_PKM_VERSION_MAIN", "MOVE_ITEM", "CREATE_ITEM_PAGE", "TRASH_ITEM", "MOVE_ITEM_PAGE", "DELETE_ITEM_PAGE"],\\n        "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]'
-if old_swagger not in swagger_text:
-    raise RuntimeError('alpha53c DataActionType swagger enum anchor missing')
-swagger.write_text(swagger_text.replace(old_swagger, new_swagger, 1), encoding='utf-8')
+swagger_doc = json.loads(swagger.read_text(encoding='utf-8'))
+action_schema = swagger_doc['components']['schemas']['DataActionType']
+names = action_schema['x-enumNames']
+values = action_schema['enum']
+for name, value in [('MOVE_ITEM_PAGE', 23), ('DELETE_ITEM_PAGE', 24)]:
+    if name not in names:
+        names.append(name)
+    if value not in values:
+        values.append(value)
+swagger.write_text(json.dumps(swagger_doc, indent=2) + '\n', encoding='utf-8')
 
 patch('frontend/src/storage/actions/hooks/use-action-description.ts',
 '''            [ DataActionType.TRASH_ITEM ]: () =>
