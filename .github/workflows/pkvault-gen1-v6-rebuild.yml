@@ -1,5 +1,5 @@
 name: PKVault V8 Essentials + TMT Compatibility
-# alpha53a trainer battles + gym achievements + alpha52z contract rebalance
+# alpha53b trainer-battle contracts + alpha53a trainer/gym progression + alpha52z contract rebalance
 
 on:
   push:
@@ -114,6 +114,12 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53a1.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53a2.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53a3.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53b.py pkvault-src
+          grep -q 'easy-trainer-battles-5' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'normal-trainer-battles-15' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'hard-trainer-battles-50' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'ContractMetric.TrainerBattles' pkvault-src/PKVault.Core/contract/ContractService.cs
+          grep -q 'tracker.TrainerBattleCounts.Count > 0' pkvault-src/PKVault.Core/contract/ContractService.cs
           grep -q 'quest-trainer-battles-1000' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'gen9-paldea' pkvault-src/PKVault.Core/quest/QuestService.cs
           grep -q 'QUEST_GYM_BADGE_HISTORY = 26' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
