@@ -1,5 +1,5 @@
 name: PKVault V8 Essentials + TMT Compatibility
-# alpha53b trainer-battle contracts + alpha53a trainer/gym progression + alpha52z contract rebalance
+# alpha53c inventory box parity + alpha53b trainer-battle contracts + alpha53a trainer/gym progression
 
 on:
   push:
@@ -115,6 +115,15 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53a2.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53a3.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53b.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53c.py pkvault-src
+          grep -q 'MovePage(int page, int targetPage)' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'DeletePage(int page)' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'MOVE_ITEM_PAGE' pkvault-src/PKVault.Core/storage/data-action/DataAction.cs
+          grep -q 'DELETE_ITEM_PAGE' pkvault-src/PKVault.Core/storage/data-action/DataAction.cs
+          grep -q 'moveInventoryPage' pkvault-src/frontend/src/inventory/inventory-api.ts
+          grep -q 'deleteInventoryPage' pkvault-src/frontend/src/inventory/inventory-api.ts
+          grep -q 'inventory-box-order-left' pkvault-src/frontend/src/inventory/inventory-page-edit.tsx
+          grep -q 'onDelete={state.bankPages.length > 1' pkvault-src/frontend/src/inventory/inventory-panel.tsx
           grep -q 'easy-trainer-battles-5' pkvault-src/PKVault.Core/contract/ContractService.cs
           grep -q 'normal-trainer-battles-15' pkvault-src/PKVault.Core/contract/ContractService.cs
           grep -q 'hard-trainer-battles-50' pkvault-src/PKVault.Core/contract/ContractService.cs
