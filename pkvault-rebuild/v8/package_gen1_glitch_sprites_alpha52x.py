@@ -1,6 +1,7 @@
 from pathlib import Path
 from urllib.parse import quote
 from urllib.request import Request, urlopen
+import hashlib
 from io import BytesIO
 from PIL import Image
 import sys, time
@@ -18,11 +19,18 @@ PNG_SIG = b'\x89PNG\r\n\x1a\n'
 
 def fetch(filename: str) -> bytes:
     last = None
-    encoded = quote(filename.replace(' ', '_'), safe='')
-    for base in BASES:
-        for attempt in range(4):
+    normalized = filename.replace(' ', '_')
+    encoded = quote(normalized, safe='')
+    digest = hashlib.md5(normalized.encode('utf-8')).hexdigest()
+    urls = [
+        f'https://archives.bulbagarden.net/media/upload/{digest[0]}/{digest[:2]}/{encoded}',
+        f'https://cdn.bulbagarden.net/upload/{digest[0]}/{digest[:2]}/{encoded}',
+        *(base + encoded for base in BASES),
+    ]
+    for url in urls:
+        for attempt in range(3):
             try:
-                req = Request(base + encoded, headers={'User-Agent': UA, 'Referer': 'https://archives.bulbagarden.net/'})
+                req = Request(url, headers={'User-Agent': UA, 'Referer': 'https://archives.bulbagarden.net/'})
                 with urlopen(req, timeout=30) as r:
                     data = r.read()
                 if not data.startswith(PNG_SIG):
