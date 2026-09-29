@@ -1,0 +1,24 @@
+diff --git a/PKVault.Core/quest/QuestService.cs b/PKVault.Core/quest/QuestService.cs
+--- a/PKVault.Core/quest/QuestService.cs
++++ b/PKVault.Core/quest/QuestService.cs
+@@ -586,7 +586,7 @@ public class QuestService(
+                     && vaultSpecies > 0
+                     && vaultSpecies != species)
+                 {
+-                    var transition = `${identity}|${vaultSpecies}>${species}`;
++                    var transition = $"{identity}|{vaultSpecies}>{species}";
+                     if (evolutionEvents.Add(transition))
+                     {
+                         daily.EvolutionCount++;
+diff --git a/PKVault.Core/storage/services/ItemBankService.cs b/PKVault.Core/storage/services/ItemBankService.cs
+--- a/PKVault.Core/storage/services/ItemBankService.cs
++++ b/PKVault.Core/storage/services/ItemBankService.cs
+@@ -2737,7 +2737,7 @@ ON CONFLICT(Key) DO UPDATE SET Value = excluded.Value;";
+
+         var available = candidates.Sum(key => bank[key].Count);
+         if (available < count)
+-            throw new InvalidOperationException(`PKVault Item Bank needs ${count:N0} × ${itemKey}, but only has ${available:N0}.`);
++            throw new InvalidOperationException($"PKVault Item Bank needs {count:N0} × {itemKey}, but only has {available:N0}.");
+
+         var remaining = count;
+         foreach (var key in candidates)
