@@ -35,6 +35,75 @@ session_rel = 'PKVault.Core/db/services/SessionService.cs'
 session_path = root / session_rel
 text = session_path.read_text(encoding='utf-8')
 
+old_field = '''    private Task<DataUpdateFlags>? StartTask = null;
+'''
+new_field = '''    private Task<DataUpdateFlags>? StartTask = null;
+
+    // Serializes the short windows where pkvault-session.db is deleted, copied,
+    // or moved. Normal DB work stays concurrent; only session-file transitions
+    // block new loader entry.
+    private readonly SemaphoreSlim SessionFileTransitionLock = new(1, 1);
+'''
+if old_field in text:
+    text = text.replace(old_field, new_field, 1)
+elif 'SessionFileTransitionLock' not in text:
+    raise RuntimeError('alpha53e session lock field anchor missing')
+
+old_ensure = '''    public async Task EnsureSessionCreated(Guid? byPassContextId = null)
+    {
+        if (StartTask == null)
+        {
+            Log.Logger.Information($"Session no created - Start new one");
+            await StartNewSession(checkInitialActions: true, null);
+        }
+        // bypass check
+        else if (byPassContextId != null && byPassContextId == ByPassContextId)
+        {
+            return;
+        }
+        else
+        {
+            await StartTask;
+        }
+    }
+'''
+new_ensure = '''    public async Task EnsureSessionCreated(Guid? byPassContextId = null)
+    {
+        // Startup intentionally re-enters loaders with one known context.
+        if (byPassContextId != null && byPassContextId == ByPassContextId)
+            return;
+
+        Task sessionReadyTask;
+
+        await SessionFileTransitionLock.WaitAsync();
+        try
+        {
+            if (StartTask == null)
+            {
+                Log.Logger.Information($"Session no created - Start new one");
+                // StartNewSession assigns StartTask before its first await. Do not
+                // await it while holding the transition gate; ResetDbSession also
+                // needs this gate for delete/copy/migration file operations.
+                sessionReadyTask = StartNewSession(checkInitialActions: true, null);
+            }
+            else
+            {
+                sessionReadyTask = StartTask;
+            }
+        }
+        finally
+        {
+            SessionFileTransitionLock.Release();
+        }
+
+        await sessionReadyTask;
+    }
+'''
+if old_ensure in text:
+    text = text.replace(old_ensure, new_ensure, 1)
+elif 'Task sessionReadyTask;' not in text:
+    raise RuntimeError('alpha53e EnsureSessionCreated anchor missing')
+
 old_persist = '''        await CloseConnection();
         StartTask = null;
 
@@ -43,27 +112,37 @@ old_persist = '''        await CloseConnection();
 
         StartTime = null;
 '''
-new_persist = '''        await CloseConnection();
-        StartTask = null;
+new_persist = '''        await SessionFileTransitionLock.WaitAsync();
+        try
+        {
+            await CloseConnection();
+            StartTask = null;
 
-        Log.Logger.Debug($"Move session DB to main");
-        await RetryFileOperation(
-            "move session DB to main",
-            () =>
-            {
-                fileIOService.Move(SessionDbPath, MainDbPath, overwrite: true);
-                return true;
-            }
-        );
+            Log.Logger.Debug($"Move session DB to main");
+            await RetryFileOperation(
+                "move session DB to main",
+                () =>
+                {
+                    fileIOService.Move(SessionDbPath, MainDbPath, overwrite: true);
+                    return true;
+                }
+            );
 
-        StartTime = null;
+            StartTime = null;
+        }
+        finally
+        {
+            SessionFileTransitionLock.Release();
+        }
 '''
 if old_persist in text:
     text = text.replace(old_persist, new_persist, 1)
 elif '"move session DB to main"' not in text:
     raise RuntimeError('alpha53e PersistSession anchor missing')
 
-old_reset = '''        if (fileIOService.Exists(SessionDbPath))
+old_reset = '''    private async Task ResetDbSession(DataUpdateFlags flags)
+    {
+        if (fileIOService.Exists(SessionDbPath))
         {
             using var scope = sp.CreateScope();
             using var db = scope.ServiceProvider.GetRequiredService<SessionDbContext>();
@@ -82,51 +161,77 @@ old_reset = '''        if (fileIOService.Exists(SessionDbPath))
 
             Log.Logger.Debug($"DB main copied to session");
         }
+
+        await RunDbMigrations();
+
+        flags.MainBanks.All = true;
+        flags.MainBoxes.All = true;
+        flags.MainPkmVariants.All = true;
+        flags.Dex.All = true;
+        flags.Warnings = true;
+    }
 '''
-new_reset = '''        if (fileIOService.Exists(SessionDbPath))
+new_reset = '''    private async Task ResetDbSession(DataUpdateFlags flags)
+    {
+        await SessionFileTransitionLock.WaitAsync();
+        try
         {
-            bool deleted1;
-            using (var scope = sp.CreateScope())
-            using (var db = scope.ServiceProvider.GetRequiredService<SessionDbContext>())
+            if (fileIOService.Exists(SessionDbPath))
             {
-                deleted1 = await db.Database.EnsureDeletedAsync();
-                await db.Database.CloseConnectionAsync();
+                bool deleted1;
+                using (var scope = sp.CreateScope())
+                using (var db = scope.ServiceProvider.GetRequiredService<SessionDbContext>())
+                {
+                    deleted1 = await db.Database.EnsureDeletedAsync();
+                    await db.Database.CloseConnectionAsync();
+                }
+
+                // Ensure the context is disposed before touching the file directly.
+                SqliteConnection.ClearAllPools();
+
+                var deleted2 = await RetryFileOperation(
+                    "delete stale session DB",
+                    () => fileIOService.Delete(SessionDbPath)
+                );
+                await RetryFileOperation(
+                    "delete stale session DB shm",
+                    () => fileIOService.Delete(SessionDbPath + "-shm")
+                );
+                await RetryFileOperation(
+                    "delete stale session DB wal",
+                    () => fileIOService.Delete(SessionDbPath + "-wal")
+                );
+
+                Log.Logger.Debug($"DB session deleted={deleted1}/{deleted2}");
             }
 
-            // Ensure the DbContext above is disposed before touching the file.
-            // This is especially important on Windows, where an open SQLite handle
-            // prevents deletion/replacement of the session database.
-            SqliteConnection.ClearAllPools();
+            if (fileIOService.Exists(MainDbPath))
+            {
+                await RetryFileOperation(
+                    "copy main DB to session",
+                    () =>
+                    {
+                        fileIOService.Copy(MainDbPath, SessionDbPath, overwrite: true);
+                        return true;
+                    }
+                );
 
-            var deleted2 = await RetryFileOperation(
-                "delete stale session DB",
-                () => fileIOService.Delete(SessionDbPath)
-            );
-            await RetryFileOperation(
-                "delete stale session DB shm",
-                () => fileIOService.Delete(SessionDbPath + "-shm")
-            );
-            await RetryFileOperation(
-                "delete stale session DB wal",
-                () => fileIOService.Delete(SessionDbPath + "-wal")
-            );
+                Log.Logger.Debug($"DB main copied to session");
+            }
 
-            Log.Logger.Debug($"DB session deleted={deleted1}/{deleted2}");
+            await RunDbMigrations();
         }
-
-        if (fileIOService.Exists(MainDbPath))
+        finally
         {
-            await RetryFileOperation(
-                "copy main DB to session",
-                () =>
-                {
-                    fileIOService.Copy(MainDbPath, SessionDbPath, overwrite: true);
-                    return true;
-                }
-            );
-
-            Log.Logger.Debug($"DB main copied to session");
+            SessionFileTransitionLock.Release();
         }
+
+        flags.MainBanks.All = true;
+        flags.MainBoxes.All = true;
+        flags.MainPkmVariants.All = true;
+        flags.Dex.All = true;
+        flags.Warnings = true;
+    }
 '''
 if old_reset in text:
     text = text.replace(old_reset, new_reset, 1)
