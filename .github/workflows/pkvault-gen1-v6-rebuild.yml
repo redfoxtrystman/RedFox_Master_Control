@@ -1,5 +1,5 @@
 name: PKVault V8 Essentials + TMT Compatibility
-# alpha52z difficulty/reward rebalance + alpha52y Apex/contracts + alpha52x glitch fronts
+# alpha53a trainer battles + gym achievements + alpha52z contract rebalance
 
 on:
   push:
@@ -111,6 +111,12 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52x.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52y.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52z.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53a1.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53a2.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53a3.py pkvault-src
+          grep -q 'quest-trainer-battles-1000' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'gen9-paldea' pkvault-src/PKVault.Core/quest/QuestService.cs
+          grep -q 'QUEST_GYM_BADGE_HISTORY = 26' pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           grep -q 'return single\[0\] != 0;' pkhex-src/PKHeX.Core/PKM/Shared/PokeList1.cs
           grep -q 'capacity == 1' pkhex-src/PKHeX.Core/PKM/Shared/PokeList1.cs
           grep -q '_ => "MissingNo.",' pkvault-src/PKVault.Core/storage/glitch/Gen1GlitchDex.cs
