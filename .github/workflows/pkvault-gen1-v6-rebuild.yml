@@ -118,6 +118,7 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53c.py pkvault-src
           python3 -c 'import sys,base64,zlib; sys.stdout.buffer.write(zlib.decompress(base64.b64decode(sys.stdin.buffer.read())))' < pkvault-rebuild/v8/alpha53d-item-evolutions.patch.zlib.b64 | git -C pkvault-src apply -
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53d_guard.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53d_compile.py pkvault-src
           git -C pkvault-src diff --check
           grep -q 'class EvolutionService' pkvault-src/PKVault.Core/storage/services/EvolutionService.cs
           grep -q 'Trigger.UseItem' pkvault-src/PKVault.Core/storage/services/EvolutionService.cs
