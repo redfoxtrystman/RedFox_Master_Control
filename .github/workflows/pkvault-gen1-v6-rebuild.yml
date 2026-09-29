@@ -1,5 +1,5 @@
 name: PKVault V8 Essentials + TMT Compatibility
-# alpha52x canonical local Gen-I glitch sprites + real-SRAM and berry fixes
+# alpha52x canonical direct-media Gen-I glitch fronts + real-SRAM and berry fixes
 
 on:
   push:
@@ -109,24 +109,17 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52v.py pkvault-src pkhex-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52w.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha52x.py pkvault-src
-          python3 -m pip install --disable-pip-version-check --quiet pillow
-          python3 pkvault-rebuild/v8/package_gen1_glitch_sprites_alpha52x.py pkvault-src/frontend/public/gen1-glitch
-          test -f pkvault-src/frontend/public/gen1-glitch/rb/dex095.png
-          test -f pkvault-src/frontend/public/gen1-glitch/rb/dex250.png
-          test -f pkvault-src/frontend/public/gen1-glitch/rb/missingno.png
           grep -q 'return single\[0\] != 0;' pkhex-src/PKHeX.Core/PKM/Shared/PokeList1.cs
           grep -q 'capacity == 1' pkhex-src/PKHeX.Core/PKM/Shared/PokeList1.cs
           grep -q '_ => "MissingNo.",' pkvault-src/PKVault.Core/storage/glitch/Gen1GlitchDex.cs
           ! grep -q '/api/StaticData/gen1-glitch-sprite' pkvault-src/frontend/src/img/species-img.tsx
-          grep -Fq '/gen1-glitch/rb/dex${pad}.png' pkvault-src/frontend/src/img/species-img.tsx
-          grep -q '17, 18, 24, 26, 40' pkvault-src/frontend/src/img/species-img.tsx
-          grep -q '95, 135' pkvault-src/frontend/src/img/species-img.tsx
-          grep -Fq 'RBGlitchName${hex}.png' pkvault-src/frontend/src/img/species-img.tsx
+          grep -q 'RBGlitch095.png' pkvault-src/frontend/src/img/species-img.tsx
+          grep -q 'RBGlitch250.png' pkvault-src/frontend/src/img/species-img.tsx
+          grep -q 'rbGlitchUrls\[dex\]' pkvault-src/frontend/src/img/species-img.tsx
+          grep -q 'yGlitchUrls\[dex\]' pkvault-src/frontend/src/img/species-img.tsx
+          grep -q 'missingno={gen1GlitchFront.missingno}' pkvault-src/frontend/src/img/species-img.tsx
+          grep -q 'cdn.bulbagarden.net/upload' pkvault-src/frontend/src/img/species-img.tsx
           ! grep -q 'crashGlitchSprite' pkvault-src/frontend/src/img/species-img.tsx
-          test -s pkvault-src/frontend/public/gen1-glitch/rb/dex095.png
-          test -s pkvault-src/frontend/public/gen1-glitch/rb/dex250.png
-          test -s pkvault-src/frontend/public/gen1-glitch/rb/missingno.png
-          test -s pkvault-src/frontend/public/gen1-glitch/names/RBGlitchNameE1.png
           grep -q 'new("berry", "Berries", 200, 100)' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'new("persim-berry", "Berries", 200, 100)' pkvault-src/PKVault.Core/shop/ShopService.cs
           test "$(grep -c '"Berries", 200, 100' pkvault-src/PKVault.Core/shop/ShopService.cs)" -eq 18
