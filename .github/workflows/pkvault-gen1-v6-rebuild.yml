@@ -2,17 +2,10 @@ name: PKVault V8 Essentials + TMT Compatibility
 # alpha53e SQLite/session/save-file lock hardening + alpha53d item/trade evolution + quest/contract commit support
 
 on:
-  pull_request:
-    branches:
-      - pkvault-v8-uranium-insurgence
-    paths:
-      - 'pkvault-rebuild/**'
-      - '.github/workflows/pkvault-gen1-v6-rebuild.yml'
   push:
     branches:
       - pkvault-v8-romhack-tmt
       - pkvault-v8-uranium-insurgence
-      - chatgpt/pkvault-alpha53e-db-lock-fix
       - pkvault-v233-redfox-port
     paths:
       - 'pkvault-rebuild/**'
