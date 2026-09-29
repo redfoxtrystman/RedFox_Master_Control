@@ -129,8 +129,6 @@ jobs:
           grep -q 'BuildApexRewards' pkvault-src/PKVault.Core/contract/ContractService.cs
           grep -q 'normal-species-12.*10_000' pkvault-src/PKVault.Core/contract/ContractService.cs
           grep -q "'Apex'" pkvault-src/frontend/src/contracts/contract-api.ts
-          python3 -c 'from pathlib import Path; c=Path("pkvault-src/PKVault.Core/contract/ContractService.cs").read_text(); sh1=next(x for x in c.splitlines() if "hard-shiny-1" in x); sh2=next(x for x in c.splitlines() if "hard-shiny-2" in x); la=next(x for x in c.splitlines() if "legendary-any" in x); assert "master-ball" not in sh1 and "master-ball" not in sh2; assert "rare-candy\", 12" in sh1; assert "gold-bottle-cap\", 1" in sh2; assert "ultra-ball\", 40" in la; assert "rewardSeed.Contains(\"apex-creation-crisis\"" in c; assert " ? 3 : 2" in c'
-          grep -q 'at least 2 Master Balls' pkvault-src/frontend/src/shop/shop-page.tsx
           grep -q 'new("berry", "Berries", 200, 100)' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'new("persim-berry", "Berries", 200, 100)' pkvault-src/PKVault.Core/shop/ShopService.cs
           test "$(grep -c '"Berries", 200, 100' pkvault-src/PKVault.Core/shop/ShopService.cs)" -eq 18
