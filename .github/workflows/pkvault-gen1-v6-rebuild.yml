@@ -696,9 +696,96 @@ jobs:
         run: |
           dotnet build pkvault-src/PKVault.Core/PKVault.Core.csproj -c Release --nologo
 
-      - name: Gen2 extended Unown shiny bridge tests
+      - name: Gen2 extended Unown shiny bridge smoke test
         run: |
-          dotnet test pkvault-src/PKVault.Core.Tests/PKVault.Core.Tests.csproj -c Release --nologo --filter Gen2ExtendedUnownShinyBridgeTests
+          set -euo pipefail
+          rm -rf unown-shiny-smoke
+          mkdir -p unown-shiny-smoke
+          cat > unown-shiny-smoke/unown-shiny-smoke.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <OutputType>Exe</OutputType>
+              <TargetFramework>net10.0</TargetFramework>
+              <ImplicitUsings>enable</ImplicitUsings>
+            </PropertyGroup>
+            <ItemGroup>
+              <ProjectReference Include="../pkvault-src/PKVault.Core/PKVault.Core.csproj" />
+            </ItemGroup>
+          </Project>
+          EOF
+          cat > unown-shiny-smoke/Program.cs <<'EOF'
+          using PKHeX.Core;
+          using PKVault.Core;
+
+          static void Need(bool value, string message)
+          {
+              if (!value) throw new Exception(message);
+          }
+
+          var extendedForms = new HashSet<byte>();
+          int extendedCount = 0;
+          int combinedCount = 0;
+          var vanillaForms = new HashSet<byte>();
+
+          for (int raw = 0; raw <= ushort.MaxValue; raw++)
+          {
+              ushort dv = (ushort)raw;
+              bool vanilla = ShinyUtil.GetIsShinyGB(dv);
+              bool extended = ShinyUtil.GetIsShinyGBExtendedUnown(dv);
+
+              if (vanilla || extended)
+                  combinedCount++;
+
+              if (vanilla)
+              {
+                  var pk2 = new PK2 { Species = (ushort)Species.Unown, DV16 = dv };
+                  vanillaForms.Add(pk2.Form);
+              }
+
+              if (!extended)
+                  continue;
+
+              extendedCount++;
+              var extendedPk2 = new PK2 { Species = (ushort)Species.Unown, DV16 = dv };
+              extendedForms.Add(extendedPk2.Form);
+          }
+
+          Need(extendedCount == 32, $"Expected 32 extended DV signatures, got {extendedCount}");
+          Need(combinedCount == 38, $"Expected 38 combined vanilla+extended signatures, got {combinedCount}");
+          Need(extendedForms.Count == 26, $"Expected all 26 A-Z forms, got {extendedForms.Count}");
+          Need(Enumerable.Range(0, 26).All(i => extendedForms.Contains((byte)i)), "Extended rule does not cover all A-Z forms");
+          Need(vanillaForms.SetEquals(new byte[] { 8, 21 }), $"Vanilla Gen II shiny Unown forms changed: {string.Join(",", vanillaForms.Order())}");
+
+          foreach (byte form in new byte[] { 0, 12, 25 })
+          {
+              var pk2 = new PK2 { Species = (ushort)Species.Unown, DV16 = 0xFFFF };
+              Gen2ExtendedUnownShinyBridge.ApplySilverShiny(pk2, form);
+              Need(pk2.Form == form, $"Silver bridge changed Unown form {form} to {pk2.Form}");
+              Need(pk2.IsShiny, $"Silver bridge did not mark Unown form {form} shiny");
+
+              var pk3 = new PK3
+              {
+                  Species = (ushort)Species.Unown,
+                  TID16 = 12345,
+                  SID16 = 54321,
+                  PID = 0x12345678,
+              };
+              var nature = pk3.Nature;
+              Gen2ExtendedUnownShinyBridge.ApplyVanillaGen3Shiny(pk3, form);
+
+              Need(pk3.IsShiny, $"Gen3 bridge failed to create vanilla shiny form {form}");
+              Need(ShinyUtil.GetIsShiny3(pk3.ID32, pk3.PID), $"Gen3 PID for form {form} is not vanilla shiny");
+              Need(pk3.Form == form, $"Gen3 bridge changed Unown form {form} to {pk3.Form}");
+              Need(pk3.Nature == nature, $"Gen3 bridge changed nature for form {form}");
+          }
+
+          Need(Gen2ExtendedUnownShinyBridge.CanVanillaGen2RepresentForm(8), "I should be vanilla Gen-II representable");
+          Need(Gen2ExtendedUnownShinyBridge.CanVanillaGen2RepresentForm(21), "V should be vanilla Gen-II representable");
+          Need(!Gen2ExtendedUnownShinyBridge.CanVanillaGen2RepresentForm(12), "M must not be treated as vanilla Gen-II representable");
+
+          Console.WriteLine("PASS: Gen2 Extended Unown Shiny v1 — 32 extended / 38 union / A-Z / vanilla Gen3 conversion");
+          EOF
+          dotnet run --project unown-shiny-smoke/unown-shiny-smoke.csproj -c Release
 
       - name: Shop JSON bridge smoke test
         run: |
