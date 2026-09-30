@@ -45,7 +45,7 @@ replace_once(
        16 => 0xDD99, 17 => 0xDDDD, 18 => 0xDFB9, 19 => 0xDFFD,
        20 => 0xF9D9, 21 => 0xFB9D, 22 => 0xFBF9, 23 => 0xFDBD,
        24 => 0xFF99, 25 => 0xFFDD,
-        _ => throw new ArgumentOutOfRangeException(nameof(form), form, "Gen-II Unown form must be A-Z."),
+        _ => throw new System.ArgumentOutOfRangeException(nameof(form), form, "Gen-II Unown form must be A-Z."),
     };''',
     "GetShinyGBExtendedUnownDV(byte form)",
 )
