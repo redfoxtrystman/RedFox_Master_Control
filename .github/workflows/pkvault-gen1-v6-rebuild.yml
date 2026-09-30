@@ -710,6 +710,9 @@ jobs:
             </PropertyGroup>
             <ItemGroup>
               <ProjectReference Include="../pkvault-src/PKVault.Core/PKVault.Core.csproj" />
+              <Reference Include="PKHeX.Core">
+                <HintPath>../pkvault-src/PKVault.Core/PKHeX.Core.dll</HintPath>
+              </Reference>
             </ItemGroup>
           </Project>
           EOF
