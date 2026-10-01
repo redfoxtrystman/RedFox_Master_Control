@@ -89,6 +89,7 @@ static async Task Seed(IServiceProvider sp, string profile)
         ));
     }
 
+    scope.Dispose();
     await session.PersistSession();
     Console.WriteLine($"SEEDED {profile}: {string.Join(",", set.Select(x => x.Species))}");
 }
@@ -342,11 +343,12 @@ static async Task SeedTmt(IServiceProvider sp)
         await AddToBox(gen2Box, i, p, $"compat-gen2-{i:00}");
     }
 
-    await session.PersistSession();
-
     var all = await loader.GetAllEntities();
     if (all.Count != 55)
         throw new Exception($"Expected exactly 55 compatibility test Pokemon, got {all.Count}.");
+
+    scope.Dispose();
+    await session.PersistSession();
 
     Console.WriteLine("SEEDED TMT COMPATIBILITY PROFILE: 10 TMT + 15 Emerald + 15 Gen1 + 15 Gen2 = 55");
 }
