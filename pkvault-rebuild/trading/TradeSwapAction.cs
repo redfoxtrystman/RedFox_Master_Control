@@ -9,7 +9,8 @@ public class TradeSwapAction(
     IServiceProvider sp,
     IPkmVariantLoader pkmVariantLoader,
     IBoxLoader boxLoader,
-    IPkmFileLoader pkmFileLoader
+    IPkmFileLoader pkmFileLoader,
+    ISettingsService settingsService
 ) : DataAction<TradeSwapActionInput>
 {
     private record SlotTarget(BoxDTO Box, int Slot);
@@ -88,48 +89,97 @@ public class TradeSwapAction(
             outgoingSlots.Add((outgoing, box, group));
         }
 
-        // Reuse the offered slots first. If this side is receiving more Pokemon
-        // than it sends, place the extras in the first empty normal PKVault slots.
         var targets = new List<SlotTarget>();
-        foreach (var outgoing in outgoingSlots.Take(incomingPkms.Count))
-            targets.Add(new(outgoing.Box, outgoing.Main.BoxSlot));
+        var tradeBoxId = settingsService.GetSettings().SettingsMutable.TRADE_BOX_ID?.Trim();
 
-        if (targets.Count < incomingPkms.Count)
+        if (!string.IsNullOrWhiteSpace(tradeBoxId))
         {
-            var allBoxes = (await boxLoader.GetAllDtos())
-                .Where(b => b.Type == BoxType.Box)
-                .OrderBy(b => b.BankId)
-                .ThenBy(b => b.Order)
-                .ThenBy(b => b.IdInt)
-                .ToArray();
+            // A configured Trade Box is authoritative. Incoming Pokemon never
+            // spill into another box, even if another PKVault box has room.
+            var tradeBox = await boxLoader.GetDto(tradeBoxId)
+                ?? throw new InvalidOperationException(
+                    "The selected Trade Box no longer exists. Choose another Trade Box in Settings > Trading."
+                );
+
+            if (tradeBox.Type != BoxType.Box)
+                throw new InvalidOperationException(
+                    "The selected Trade Box is not a normal PKVault storage box. Choose another Trade Box in Settings > Trading."
+                );
 
             var occupied = (await pkmVariantLoader.GetAllEntities())
                 .Values
-                .Select(e => $"{e.BoxId}:{e.BoxSlot}")
+                .Where(e => string.Equals(e.BoxId, tradeBox.Id, StringComparison.Ordinal))
+                .Select(e => e.BoxSlot)
                 .ToHashSet();
 
-            // Offered slots are about to be removed and therefore count as free.
-            foreach (var outgoing in outgoingSlots)
-                occupied.Remove($"{outgoing.Main.BoxId}:{outgoing.Main.BoxSlot}");
-
-            foreach (var target in targets)
-                occupied.Add($"{target.Box.Id}:{target.Slot}");
-
-            foreach (var box in allBoxes)
+            // Offered Pokemon already in the Trade Box are about to leave, so
+            // those exact slots are available to the incoming side.
+            foreach (var outgoing in outgoingSlots.Where(x =>
+                string.Equals(x.Main.BoxId, tradeBox.Id, StringComparison.Ordinal)))
             {
-                for (var slot = 0; slot < box.SlotCount && targets.Count < incomingPkms.Count; slot++)
-                {
-                    var key = $"{box.Id}:{slot}";
-                    if (!occupied.Add(key))
-                        continue;
-                    targets.Add(new(box, slot));
-                }
-                if (targets.Count == incomingPkms.Count)
-                    break;
+                occupied.Remove(outgoing.Main.BoxSlot);
+            }
+
+            for (var slot = 0; slot < tradeBox.SlotCount && targets.Count < incomingPkms.Count; slot++)
+            {
+                if (occupied.Add(slot))
+                    targets.Add(new(tradeBox, slot));
             }
 
             if (targets.Count != incomingPkms.Count)
-                throw new InvalidOperationException("There are not enough empty PKVault box slots to receive this trade.");
+            {
+                var missing = incomingPkms.Count - targets.Count;
+                throw new InvalidOperationException(
+                    $"The selected Trade Box '{tradeBox.Name}' does not have enough room. It needs {missing} more empty slot{(missing == 1 ? "" : "s")}. No traded Pokemon were moved."
+                );
+            }
+        }
+        else
+        {
+            // Legacy/default behavior when no Trade Box is selected: reuse
+            // offered slots first, then use the first empty normal PKVault slots.
+            foreach (var outgoing in outgoingSlots.Take(incomingPkms.Count))
+                targets.Add(new(outgoing.Box, outgoing.Main.BoxSlot));
+
+            if (targets.Count < incomingPkms.Count)
+            {
+                var allBoxes = (await boxLoader.GetAllDtos())
+                    .Where(b => b.Type == BoxType.Box)
+                    .OrderBy(b => b.BankId)
+                    .ThenBy(b => b.Order)
+                    .ThenBy(b => b.IdInt)
+                    .ToArray();
+
+                var occupied = (await pkmVariantLoader.GetAllEntities())
+                    .Values
+                    .Select(e => $"{e.BoxId}:{e.BoxSlot}")
+                    .ToHashSet();
+
+                foreach (var outgoing in outgoingSlots)
+                    occupied.Remove($"{outgoing.Main.BoxId}:{outgoing.Main.BoxSlot}");
+
+                foreach (var target in targets)
+                    occupied.Add($"{target.Box.Id}:{target.Slot}");
+
+                foreach (var box in allBoxes)
+                {
+                    for (var slot = 0; slot < box.SlotCount && targets.Count < incomingPkms.Count; slot++)
+                    {
+                        var key = $"{box.Id}:{slot}";
+                        if (!occupied.Add(key))
+                            continue;
+                        targets.Add(new(box, slot));
+                    }
+
+                    if (targets.Count == incomingPkms.Count)
+                        break;
+                }
+
+                if (targets.Count != incomingPkms.Count)
+                    throw new InvalidOperationException(
+                        "There are not enough empty PKVault box slots to receive this trade."
+                    );
+            }
         }
 
         foreach (var outgoing in outgoingSlots)
