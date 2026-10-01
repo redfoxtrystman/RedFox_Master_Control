@@ -154,10 +154,13 @@ jobs:
           ! grep -q 'GetDtosByIdBase(pkm.Id)' pkvault-src/PKVault.Core/storage/data-action/MovePkmAction.cs
           ! grep -q 'move attached cannot be done' pkvault-src/PKVault.Core/storage/data-action/MovePkmAction.cs
           ! grep -q 'move attached cannot be done' pkvault-src/PKVault.Core/storage/data-action/MovePkmBankAction.cs
-          grep -q 'class SessionDbContextTracker' pkvault-src/PKVault.Core/db/SessionDbContextTracker.cs
-          grep -q 'BeginFileTransitionAsync' pkvault-src/PKVault.Core/db/SessionDbContextTracker.cs
-          grep -q 'db.ActivateFileLease();' pkvault-src/PKVault.Core/db/loader/EntityLoader.cs
+          grep -q 'BackupDatabase(destination)' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          grep -q 'Persist session with SQLite online backup' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          ! grep -q 'fileIOService.Move(SessionDbPath, MainDbPath' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          ! grep -q 'EnsureDeletedAsync' pkvault-src/PKVault.Core/db/services/SessionService.cs
           grep -q 'using var scope = sp.CreateScope();' pkvault-src/PKVault.Core/settings/services/SettingsService.cs
+          grep -q 'using var userScope = sp.CreateScope();' pkvault-src/PKVault.Core/settings/services/SettingsService.cs
+          grep -q 'IServiceProvider scopedProvider' pkvault-src/PKVault.Core/storage/routes/StorageRoute.cs
           grep -q 'Task PersistSession();' pkvault-src/PKVault.Core/db/services/SessionService.cs
           ! grep -R -q 'PersistSession(scope)' pkvault-src/PKVault.Core
           grep -q 'TRADE_BOX_ID = null' pkvault-src/PKVault.Core/settings/dto/SettingsDTO.cs
