@@ -136,6 +136,14 @@ jobs:
           sed -n '1,220p' pkvault-src/frontend/src/header/header.tsx
           echo '===== SHOP SERVICE ====='
           sed -n '1,420p' pkvault-src/PKVault.Core/shop/ShopService.cs
+          echo '===== ITEM BANK DTO GETSTATE ====='
+          sed -n '1,350p' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          echo '===== ITEM BANK MOVE SETUP ====='
+          sed -n '620,760p' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          echo '===== ITEM BANK SOURCE ====='
+          sed -n '1020,1260p' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          echo '===== ITEM BANK TARGET ====='
+          sed -n '2010,2205p' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           echo '===== ITEM BANK HOTSPOTS ====='
           grep -n -E 'GetState|ResolveSource|ApplyTarget|GetPouchLabel|GetVersionMap|ITEM_SHOP|Apricorn' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs || true
           echo '===== APRICORN QUEST REFERENCES ====='
