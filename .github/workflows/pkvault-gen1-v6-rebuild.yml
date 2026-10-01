@@ -138,6 +138,8 @@ jobs:
           sed -n '1,420p' pkvault-src/PKVault.Core/shop/ShopService.cs
           echo '===== ITEM BANK HOTSPOTS ====='
           grep -n -E 'GetState|ResolveSource|ApplyTarget|GetPouchLabel|GetVersionMap|ITEM_SHOP|Apricorn' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs || true
+          echo 'DIAGNOSTIC COMPLETE - stopping this temporary run intentionally'
+          exit 1
           git -C pkvault-src diff --check
           git -C pkhex-src diff --check
           grep -q 'GetIsShinyGBExtendedUnown' pkhex-src/PKHeX.Core/Legality/RNG/Util/ShinyUtil.cs
