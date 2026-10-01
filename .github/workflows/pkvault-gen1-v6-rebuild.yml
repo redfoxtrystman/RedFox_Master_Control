@@ -136,6 +136,7 @@ jobs:
           python3 /tmp/patch_alpha53l.py pkvault-src
           python3 -c 'import sys,base64,zlib; sys.stdout.buffer.write(zlib.decompress(base64.b64decode(sys.stdin.buffer.read())))' < pkvault-rebuild/v8/patch_pkvault_v8_alpha53m.py.zlib.b64 > /tmp/patch_alpha53m.py
           python3 /tmp/patch_alpha53m.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53m_compile.py pkvault-src
           git -C pkvault-src diff --check
           git -C pkhex-src diff --check
           grep -q 'GetIsShinyGBExtendedUnown' pkhex-src/PKHeX.Core/Legality/RNG/Util/ShinyUtil.cs
