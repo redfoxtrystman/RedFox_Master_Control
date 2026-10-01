@@ -1964,8 +1964,13 @@ jobs:
           rm -rf "$TMT_PROFILE"
           mkdir -p "$TMT_PROFILE"
 
-          PKVAULT_PATH="$TMT_PROFILE" PKVAULT_TRADE_PROFILE="TMT-Type-Test" \
-            dotnet run --project "$HARNESS" -c Release -- seed-tmt
+          echo "Starting bounded TMT seed/save diagnostic"
+          if ! timeout 120s env PKVAULT_PATH="$TMT_PROFILE" PKVAULT_TRADE_PROFILE="TMT-Type-Test" \
+            dotnet run --project "$HARNESS" -c Release -- seed-tmt; then
+            echo "TMT seed/save timed out or failed. Dumping PKVault logs:"
+            find "$TMT_PROFILE" -type f \( -name '*.log' -o -name 'pkvault*.txt' \) -print -exec tail -n 250 {} \; || true
+            exit 1
+          fi
 
           test -f "$TMT_PROFILE/db/pkvault.db"
           test -f "$TMT_PROFILE/config/pkvault.json"
