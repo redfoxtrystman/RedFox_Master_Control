@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 import sys
 
 root = Path(sys.argv[1]).resolve()
@@ -46,6 +47,34 @@ rep(
 ''',
     "settings fields",
 )
+
+# PKVault's frontend SDK is generated from the checked-in OpenAPI document,
+# not directly from the C# record. Keep the schema in lockstep so React Hook
+# Form and the header see the new settings as real typed fields.
+swagger_path = root / "PKVault.Core/swagger.json"
+swagger = json.loads(swagger_path.read_text(encoding="utf-8"))
+settings_schema = swagger["components"]["schemas"]["SettingsMutableDTO"]
+settings_props = settings_schema["properties"]
+settings_required = settings_schema.setdefault("required", [])
+
+settings_props["tradE_BOX_ID"] = {
+    "type": "string",
+    "nullable": True,
+}
+settings_props["shoW_INVENTORY"] = {"type": "boolean"}
+settings_props["shoW_SHOP"] = {"type": "boolean"}
+settings_props["shoW_QUESTS"] = {"type": "boolean"}
+
+for field in ("shoW_INVENTORY", "shoW_SHOP", "shoW_QUESTS"):
+    if field not in settings_required:
+        settings_required.append(field)
+
+swagger_path.write_text(
+    json.dumps(swagger, indent=2, ensure_ascii=False) + "\n",
+    encoding="utf-8",
+)
+print("PATCHED PKVault.Core/swagger.json: alpha53l settings schema")
+
 
 header = "frontend/src/header/header.tsx"
 for name, field in [
