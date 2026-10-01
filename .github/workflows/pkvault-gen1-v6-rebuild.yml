@@ -174,7 +174,7 @@ jobs:
           grep -q 'settings?.settingsMutable.shoW_INVENTORY !== false' pkvault-src/frontend/src/header/header.tsx
           grep -q 'settings?.settingsMutable.shoW_SHOP !== false' pkvault-src/frontend/src/header/header.tsx
           grep -q 'settings?.settingsMutable.shoW_QUESTS !== false' pkvault-src/frontend/src/header/header.tsx
-          grep -q 'TRADE_BOX_ID' pkvault-src/PKVault.Core/trading/TradeSwapAction.cs
+          grep -q 'TRADE_BOX_ID' pkvault-src/PKVault.Core/storage/data-action/TradeSwapAction.cs
           grep -q 'only destination used for received Pokemon' pkvault-src/frontend/src/settings/trading/settings-trading-right.tsx
           grep -q 'HGSSApricornPouch = "ApricornBox"' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'GetApricornCount' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
