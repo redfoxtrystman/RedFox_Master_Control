@@ -1,5 +1,5 @@
 name: PKVault V8 Essentials + TMT Compatibility
-# alpha53k exact duplicate-safe save attachments + alpha53j Take Held Item + alpha53i Silver shiny
+# alpha53l DB/session reliability + Trade Box + HGSS Apricorn Box + discovery evolution shop + UI toggles
 
 on:
   push:
@@ -127,31 +127,8 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53i.py pkvault-src pkhex-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53j.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53k.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53l.py pkvault-src
 
-      - name: Alpha53l source diagnostics
-        run: |
-          echo '===== SETTINGS DTO ====='
-          sed -n '45,95p' pkvault-src/PKVault.Core/settings/dto/SettingsDTO.cs
-          echo '===== HEADER ====='
-          sed -n '1,220p' pkvault-src/frontend/src/header/header.tsx
-          echo '===== SHOP SERVICE ====='
-          sed -n '1,420p' pkvault-src/PKVault.Core/shop/ShopService.cs
-          echo '===== ITEM BANK DTO GETSTATE ====='
-          sed -n '1,350p' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
-          echo '===== ITEM BANK MOVE SETUP ====='
-          sed -n '620,760p' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
-          echo '===== ITEM BANK SOURCE ====='
-          sed -n '1020,1260p' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
-          echo '===== ITEM BANK TARGET ====='
-          sed -n '2010,2205p' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
-          echo '===== ITEM BANK HOTSPOTS ====='
-          grep -n -E 'GetState|ResolveSource|ApplyTarget|GetPouchLabel|GetVersionMap|ITEM_SHOP|Apricorn' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs || true
-          echo '===== APRICORN QUEST REFERENCES ====='
-          grep -n -i -C 6 'apricorn' pkvault-src/PKVault.Core/quest/QuestService.cs || true
-          echo '===== META KEYS ====='
-          cat pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
-          echo 'DIAGNOSTIC COMPLETE - stopping this temporary run intentionally'
-          exit 1
           git -C pkvault-src diff --check
           git -C pkhex-src diff --check
           grep -q 'GetIsShinyGBExtendedUnown' pkhex-src/PKHeX.Core/Legality/RNG/Util/ShinyUtil.cs
@@ -187,6 +164,24 @@ jobs:
           grep -q 'RetryFileOperation<T>' pkvault-src/PKVault.Core/db/services/SessionService.cs
           grep -q 'SessionFileTransitionLock' pkvault-src/PKVault.Core/db/services/SessionService.cs
           grep -q 'SqliteConnection.ClearAllPools();' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          grep -q 'pkvault-session-{Guid.NewGuid():N}.db' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          grep -q 'source.BackupDatabase(target);' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          grep -q 'TryDeleteRetiredSessionDatabase' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          grep -q 'string? TRADE_BOX_ID = null' pkvault-src/PKVault.Core/settings/dto/SettingsDTO.cs
+          grep -q 'bool SHOW_INVENTORY = true' pkvault-src/PKVault.Core/settings/dto/SettingsDTO.cs
+          grep -q 'bool SHOW_SHOP = true' pkvault-src/PKVault.Core/settings/dto/SettingsDTO.cs
+          grep -q 'bool SHOW_QUESTS = true' pkvault-src/PKVault.Core/settings/dto/SettingsDTO.cs
+          grep -q 'settings?.settingsMutable.shoW_INVENTORY !== false' pkvault-src/frontend/src/header/header.tsx
+          grep -q 'settings?.settingsMutable.shoW_SHOP !== false' pkvault-src/frontend/src/header/header.tsx
+          grep -q 'settings?.settingsMutable.shoW_QUESTS !== false' pkvault-src/frontend/src/header/header.tsx
+          grep -q 'TRADE_BOX_ID' pkvault-src/PKVault.Core/trading/TradeSwapAction.cs
+          grep -q 'only destination used for received Pokemon' pkvault-src/frontend/src/settings/trading/settings-trading-right.tsx
+          grep -q 'HGSSApricornPouch = "ApricornBox"' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'GetApricornCount' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'SetApricornCount' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
+          grep -q 'EvolutionItemUnlockProgressionKey = "shop.evolution-item.unlocks"' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new("metal-coat", "Evolution Items", 25_000, 12_500, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
+          grep -q 'new("masterpiece-teacup", "Evolution Items", 50_000, 25_000, false, true)' pkvault-src/PKVault.Core/shop/ShopService.cs
           grep -q 'Save file is temporarily busy; retry' pkvault-src/PKVault.Core/db/loader/save/SavesLoadersService.cs
           grep -q 'queryClient.cancelQueries' pkvault-src/frontend/src/storage/actions/actions-panel.tsx
           grep -q 'class EvolutionService' pkvault-src/PKVault.Core/storage/services/EvolutionService.cs
