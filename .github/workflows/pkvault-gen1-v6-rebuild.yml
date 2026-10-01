@@ -125,7 +125,7 @@ jobs:
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53h.py pkvault-src pkhex-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53i.py pkvault-src pkhex-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53j.py pkvault-src
-          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53l.py pkvault-src
+          python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53k.py pkvault-src
           python3 pkvault-rebuild/v8/patch_pkvault_v8_alpha53l.py pkvault-src
 
           git -C pkvault-src diff --check
