@@ -89,7 +89,10 @@ static async Task Seed(IServiceProvider sp, string profile)
         ));
     }
 
-    await session.PersistSession(scope);
+    // The seed scope has actively used SQLite; dispose it before asking SessionService
+    // to move the session DB, exactly like separate HTTP requests do in the app.
+    scope.Dispose();
+    await session.PersistSession();
     Console.WriteLine($"SEEDED {profile}: {string.Join(",", set.Select(x => x.Species))}");
 }
 
@@ -342,9 +345,13 @@ static async Task SeedTmt(IServiceProvider sp)
         await AddToBox(gen2Box, i, p, $"compat-gen2-{i:00}");
     }
 
-    await session.PersistSession(scope);
+    // Do not hold an active loader/DbContext across the physical DB transition.
+    scope.Dispose();
+    await session.PersistSession();
 
-    var all = await loader.GetAllEntities();
+    using var verifyScope = sp.CreateScope();
+    var verifyLoader = verifyScope.ServiceProvider.GetRequiredService<IPkmVariantLoader>();
+    var all = await verifyLoader.GetAllEntities();
     if (all.Count != 55)
         throw new Exception($"Expected exactly 55 compatibility test Pokemon, got {all.Count}.");
 
