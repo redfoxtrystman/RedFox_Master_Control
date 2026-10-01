@@ -179,6 +179,22 @@ rep(
 )
 rep(
     session,
+    '''            await Task.WhenAll(
+                ResetDbSession(flags),
+                savesLoadersService.Setup(flags)
+            );
+''',
+    '''            // A GUID session database starts empty. Complete its SQLite
+            // copy/migrations before any save loader is allowed to query it.
+            // Running these concurrently can race on first open and produce
+            // "no such table" errors such as PkmVersions.
+            await ResetDbSession(flags);
+            await savesLoadersService.Setup(flags);
+''',
+    "migrate unique session before save loaders",
+)
+rep(
+    session,
     '''        await SessionFileTransitionLock.WaitAsync();
         try
         {
