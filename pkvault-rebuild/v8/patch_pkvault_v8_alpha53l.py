@@ -592,7 +592,7 @@ rep(
 )
 insert_before(
     item,
-    '''    private static string GetOriginFolder(
+    '''    private static Dictionary<int, string> GetVersionMap(
 ''',
     '''    private TargetResult ApplyHGSSApricornTarget(
         MoveInventoryItemActionInput input,
