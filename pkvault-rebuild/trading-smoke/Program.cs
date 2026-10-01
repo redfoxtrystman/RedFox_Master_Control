@@ -347,8 +347,11 @@ static async Task SeedTmt(IServiceProvider sp)
     if (all.Count != 55)
         throw new Exception($"Expected exactly 55 compatibility test Pokemon, got {all.Count}.");
 
+    Console.WriteLine("TMT-SEED STAGE 1: 55 entities ready; disposing seed scope");
     scope.Dispose();
+    Console.WriteLine("TMT-SEED STAGE 2: seed scope disposed; starting PersistSession");
     await session.PersistSession();
+    Console.WriteLine("TMT-SEED STAGE 3: PersistSession returned");
 
     Console.WriteLine("SEEDED TMT COMPATIBILITY PROFILE: 10 TMT + 15 Emerald + 15 Gen1 + 15 Gen2 = 55");
 }
