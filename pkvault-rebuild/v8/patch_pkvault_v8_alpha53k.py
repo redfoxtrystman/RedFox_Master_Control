@@ -112,7 +112,7 @@ replace_once(
 
     public ImmutableDictionary<string, PkmSaveDTO> GetDtosByIdBase(string idBase)
 ''',
-    "public PkmSaveDTO? GetDtoByAttachmentRef(string attachmentRef)",
+    "// Backward compatibility for old IdBase-only attachments.",
 )
 
 # ---------------------------------------------------------------------------
