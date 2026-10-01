@@ -138,6 +138,10 @@ jobs:
           sed -n '1,420p' pkvault-src/PKVault.Core/shop/ShopService.cs
           echo '===== ITEM BANK HOTSPOTS ====='
           grep -n -E 'GetState|ResolveSource|ApplyTarget|GetPouchLabel|GetVersionMap|ITEM_SHOP|Apricorn' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs || true
+          echo '===== APRICORN QUEST REFERENCES ====='
+          grep -n -i -C 6 'apricorn' pkvault-src/PKVault.Core/quest/QuestService.cs || true
+          echo '===== META KEYS ====='
+          cat pkvault-src/PKVault.Core/db/entity/MetaEntity.cs
           echo 'DIAGNOSTIC COMPLETE - stopping this temporary run intentionally'
           exit 1
           git -C pkvault-src diff --check
