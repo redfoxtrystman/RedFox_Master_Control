@@ -214,8 +214,8 @@ new = '''    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnS
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
 '''
-if 'ActivateFileLease();
-        TrackChangesToFlags();' not in ctx:
+if '''ActivateFileLease();
+        TrackChangesToFlags();''' not in ctx:
     if old not in ctx:
         raise RuntimeError('alpha53l SaveChanges anchor missing')
     ctx = ctx.replace(old, new, 1)
@@ -332,8 +332,8 @@ if 'IServiceProvider scopedProvider' not in route:
     if old not in route:
         raise RuntimeError('alpha53l StorageController constructor anchor missing')
     route = route.replace(old, new, 1)
-    route = 'using Microsoft.Extensions.DependencyInjection;
-' + route
+    route = '''using Microsoft.Extensions.DependencyInjection;
+''' + route
 route = route.replace('itemBankService.', 'ItemBankService.')
 route = route.replace('pkmVariantLoader.', 'PkmVariantLoader.')
 route = route.replace('evolutionService.', 'EvolutionService.')
@@ -605,8 +605,8 @@ new = '''        using var scope = sp.CreateScope();
 
         // Log.Logger.Information($"CONTEXT ID = {db.ContextId.InstanceId}");
 '''
-if 'using var db = scope.ServiceProvider.GetRequiredService<SessionDbContext>();
-        db.ActivateFileLease();' not in session:
+if '''using var db = scope.ServiceProvider.GetRequiredService<SessionDbContext>();
+        db.ActivateFileLease();''' not in session:
     if old not in session:
         raise RuntimeError('alpha53l migration activation anchor missing')
     session = session.replace(old, new, 1)
@@ -735,12 +735,12 @@ if 'using var userScope = sp.CreateScope();' not in settings:
         raise RuntimeError('alpha53l Settings UpdateSettings anchor missing')
     settings = settings.replace(old, new, 1)
 settings = settings.replace(
-    '            var scope = sp.CreateScope();
+    '''            var scope = sp.CreateScope();
 
-            // DB use is required to avoid rare first-run app crash after language selection',
-    '            using var scope = sp.CreateScope();
+            // DB use is required to avoid rare first-run app crash after language selection''',
+    '''            using var scope = sp.CreateScope();
 
-            // DB use is required to avoid rare first-run app crash after language selection',
+            // DB use is required to avoid rare first-run app crash after language selection''',
     1
 )
 settings_path.write_text(settings, encoding='utf-8')
