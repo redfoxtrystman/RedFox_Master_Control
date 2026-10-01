@@ -32,7 +32,14 @@ if "public Task PersistSession(IServiceScope scope);" not in s:
     s = s.replace(iface_old, iface_new, 1)
 
 class_anchor = "    public async Task PersistSession()\n"
-wrapper = """    public Task PersistSession(IServiceScope scope) => PersistSession();
+wrapper = """    public Task PersistSession(IServiceScope scope)
+    {
+        // Legacy callers used to hand an active DB-backed scope into PersistSession.
+        // Dispose it before taking the SQLite snapshot or that writer can block the
+        // backup indefinitely. Current production callers use PersistSession().
+        scope.Dispose();
+        return PersistSession();
+    }
 
     public async Task PersistSession()
 """
