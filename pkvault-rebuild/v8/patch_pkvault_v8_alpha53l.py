@@ -240,9 +240,12 @@ rep(
             SessionFileTransitionLock.Release();
         }
 
-        // Cleanup is deliberately best-effort. A late request can still have
-        // the retired file open on Windows; that must never make Save fail.
-        TryDeleteRetiredSessionDatabase(retiredSessionPath);
+        // Do not delete the retired GUID database in-process. A scoped loader
+        // created before Save can still legitimately open its captured database
+        // path after PersistSession returns. Deleting that path is especially
+        // dangerous on Unix, where deletion succeeds and the late open creates
+        // a brand-new empty SQLite file ("no such table"). GUID session files
+        // are therefore retirement snapshots, not files Save must remove.
 ''',
     "save session with SQLite backup",
 )
