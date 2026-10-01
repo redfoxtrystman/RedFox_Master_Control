@@ -17,3 +17,29 @@ elif new not in text:
 
 path.write_text(text, encoding="utf-8")
 print("PASS alpha53m compile fix: evolution item version bytes -> GameVersion generation")
+
+
+# Compatibility wrapper for older internal harnesses/callers. The supplied scope
+# is deliberately ignored so no request-owned SessionDbContext participates in
+# the SQLite snapshot lifecycle.
+session = root / "PKVault.Core/db/services/SessionService.cs"
+s = session.read_text(encoding="utf-8")
+iface_old = "    public Task PersistSession();\n"
+iface_new = "    public Task PersistSession();\n    public Task PersistSession(IServiceScope scope);\n"
+if "public Task PersistSession(IServiceScope scope);" not in s:
+    if iface_old not in s:
+        raise RuntimeError("alpha53m PersistSession interface anchor missing")
+    s = s.replace(iface_old, iface_new, 1)
+
+class_anchor = "    public async Task PersistSession()\n"
+wrapper = """    public Task PersistSession(IServiceScope scope) => PersistSession();
+
+    public async Task PersistSession()
+"""
+if "public Task PersistSession(IServiceScope scope) => PersistSession();" not in s:
+    if class_anchor not in s:
+        raise RuntimeError("alpha53m PersistSession class anchor missing")
+    s = s.replace(class_anchor, wrapper, 1)
+
+session.write_text(s, encoding="utf-8")
+print("PASS alpha53m compatibility: legacy PersistSession(scope) delegates to safe snapshot path")
