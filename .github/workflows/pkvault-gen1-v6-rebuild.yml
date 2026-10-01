@@ -167,8 +167,9 @@ jobs:
           grep -q 'The selected Trade Box no longer exists' pkvault-src/PKVault.Core/storage/data-action/TradeSwapAction.cs
           grep -q 'class EvolutionItemShopService' pkvault-src/PKVault.Core/shop/EvolutionItemShopService.cs
           grep -q 'shop.evolution-items.unlocks' pkvault-src/PKVault.Core/shop/EvolutionItemShopService.cs
-          grep -q '"metal-coat".*25_000' pkvault-src/PKVault.Core/shop/EvolutionItemShopService.cs
-          grep -q '"kings-rock".*25_000' pkvault-src/PKVault.Core/shop/EvolutionItemShopService.cs
+          grep -q '"metal-coat"' pkvault-src/PKVault.Core/shop/EvolutionItemShopService.cs
+          grep -q '"kings-rock"' pkvault-src/PKVault.Core/shop/EvolutionItemShopService.cs
+          grep -q 'galarica-cuff".*25_000' pkvault-src/PKVault.Core/shop/EvolutionItemShopService.cs
           grep -q '"sun-stone".*15_000' pkvault-src/PKVault.Core/shop/EvolutionItemShopService.cs
           grep -q 'GetApricornCount' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
           grep -q 'SetApricornCount' pkvault-src/PKVault.Core/storage/services/ItemBankService.cs
