@@ -50,3 +50,44 @@ if "public Task PersistSession(IServiceScope scope) => PersistSession();" not in
 
 session.write_text(s, encoding="utf-8")
 print("PASS alpha53m compatibility: legacy PersistSession(scope) delegates to safe snapshot path")
+
+
+# Fresh-profile auto-save runs inside StartTask. Its private write scope must be
+# allowed to re-enter DB-backed loaders without awaiting the StartTask that is
+# currently executing, otherwise first-run persistence self-deadlocks.
+session = root / "PKVault.Core/db/services/SessionService.cs"
+s = session.read_text(encoding="utf-8")
+old_write_scope = """        using (var writeScope = sp.CreateScope())
+        {
+            var itemBankService = writeScope.ServiceProvider.GetRequiredService<ItemBankService>();
+            await itemBankService.WriteToFiles();
+
+            var pkmFileLoader = writeScope.ServiceProvider.GetRequiredService<IPkmFileLoader>();
+            await pkmFileLoader.WriteToFiles();
+        }
+"""
+new_write_scope = """        using (var writeScope = sp.CreateScope())
+        {
+            var previousByPassContextId = ByPassContextId;
+            ByPassContextId = writeScope.ServiceProvider.GetRequiredService<SessionDbContext>()
+                .ContextId.InstanceId;
+            try
+            {
+                var itemBankService = writeScope.ServiceProvider.GetRequiredService<ItemBankService>();
+                await itemBankService.WriteToFiles();
+
+                var pkmFileLoader = writeScope.ServiceProvider.GetRequiredService<IPkmFileLoader>();
+                await pkmFileLoader.WriteToFiles();
+            }
+            finally
+            {
+                ByPassContextId = previousByPassContextId;
+            }
+        }
+"""
+if "var previousByPassContextId = ByPassContextId;" not in s:
+    if old_write_scope not in s:
+        raise RuntimeError("alpha53m persistence re-entry anchor missing")
+    s = s.replace(old_write_scope, new_write_scope, 1)
+session.write_text(s, encoding="utf-8")
+print("PASS alpha53m persistence: private write scope can bypass its own active StartTask")
