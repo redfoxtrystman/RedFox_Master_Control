@@ -510,7 +510,7 @@ insert_before(
     '''    private SourceStack ResolveHGSSApricornSource(
         MoveInventoryItemActionInput input,
         SaveWrapper save,
-        SavesLoaders loaders,
+        SaveLoadersRecord loaders,
         SAV4HGSS hgss,
         Dictionary<string, List<ItemOriginDTO>> saveProvenance,
         StaticOthersData others
@@ -599,7 +599,7 @@ insert_before(
         SourceStack source,
         int requested,
         SaveWrapper save,
-        SavesLoaders loaders,
+        SaveLoadersRecord loaders,
         SAV4HGSS hgss,
         Dictionary<string, List<ItemOriginDTO>> saveProvenance,
         Func<int, List<ItemOriginDTO>> getMovedOrigins
@@ -787,7 +787,9 @@ insert_before(
             .Select(slot => Canonical(slot.ItemKey!))
             .Where(EvolutionItemKeys.Contains);
 
-        if (unlocked.UnionWith(observed))
+        var beforeCount = unlocked.Count;
+        unlocked.UnionWith(observed);
+        if (unlocked.Count != beforeCount)
         {
             await progressionStore.Set(
                 EvolutionItemUnlockProgressionKey,
