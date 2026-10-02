@@ -25,7 +25,10 @@ namespace falloutcraft
 
         RE::NiMatrix3 CameraRotation(float a_mcYawDeg, float a_mcPitchDeg)
         {
-            // Fallout: X east, Y north, Z up. Minecraft yaw 0 looks +Z/south.
+            // Fallout 4's NiMatrix3 is NOT Skyrim's packed camera basis. FO4 stores padded
+            // ROWS and the camera-root convention is row0=right, row1=forward, row2=up.
+            // v0.5.2 copied SkyCraft's column basis verbatim, cyclically permuting the axes;
+            // that is the 90-degree "walking on an incline / world on its side" view.
             const float heading = McYawToHeading(a_mcYawDeg);
             const float pitch = a_mcPitchDeg * kDegToRad;
             const float sh = std::sin(heading);
@@ -33,18 +36,18 @@ namespace falloutcraft
             const float sp = std::sin(pitch);
             const float cp = std::cos(pitch);
 
-            RE::NiPoint3 forward{ sh * cp, ch * cp, -sp };
-            RE::NiPoint3 right{ ch, -sh, 0.0f };
-            RE::NiPoint3 up{
+            const RE::NiPoint3 forward{ sh * cp, ch * cp, -sp };
+            const RE::NiPoint3 right{ ch, -sh, 0.0f };
+            const RE::NiPoint3 up{
                 right.y * forward.z - right.z * forward.y,
                 right.z * forward.x - right.x * forward.z,
                 right.x * forward.y - right.y * forward.x
             };
 
             RE::NiMatrix3 m{};
-            m.entry[0][0] = forward.x; m.entry[1][0] = forward.y; m.entry[2][0] = forward.z;
-            m.entry[0][1] = up.x;      m.entry[1][1] = up.y;      m.entry[2][1] = up.z;
-            m.entry[0][2] = right.x;   m.entry[1][2] = right.y;   m.entry[2][2] = right.z;
+            m.entry[0] = { right.x, right.y, right.z, 0.0f };
+            m.entry[1] = { forward.x, forward.y, forward.z, 0.0f };
+            m.entry[2] = { up.x, up.y, up.z, 0.0f };
             return m;
         }
 
@@ -68,7 +71,14 @@ namespace falloutcraft
             return McToSky(x, y, z);
         }
 
-        void ApplyMinecraftCamera(RE::PlayerCharacter* a_player, const proto::McState& a_mc)
+        RE::NiPoint3 g_cameraPos{};
+        RE::NiMatrix3 g_cameraRot{};
+        float g_cameraHeading = 0.0f;
+        float g_cameraFov = 0.0f;
+        std::atomic<bool> g_cameraActive{ false };
+        std::atomic<bool> g_loggedPostCamera{ false };
+
+        void StageMinecraftCamera(RE::PlayerCharacter* a_player, const proto::McState& a_mc)
         {
             float yaw = a_mc.yaw;
             float pitch = a_mc.pitch;
@@ -77,29 +87,48 @@ namespace falloutcraft
                 pitch = -pitch;
             }
 
-            const float heading = McYawToHeading(a_mc.yaw);
+            g_cameraHeading = McYawToHeading(a_mc.yaw);
             a_player->data.angle.x = a_mc.pitch * kDegToRad;
-            a_player->data.angle.z = heading;
+            a_player->data.angle.z = g_cameraHeading;
 
-            auto rot = CameraRotation(yaw, pitch);
-            const auto pos = CameraPosition(a_mc);
+            g_cameraRot = CameraRotation(yaw, pitch);
+            g_cameraPos = CameraPosition(a_mc);
+            g_cameraFov = a_mc.fovDeg;
+            g_cameraActive = true;
+        }
 
-            if (auto* camera = RE::Main::WorldRootCamera()) {
-                camera->world.translate = pos;
-                camera->world.rotate = rot;
-                camera->local.translate = pos;
-                camera->local.rotate = rot;
+        void ApplyStagedCamera(RE::PlayerCamera* a_camera)
+        {
+            if (!a_camera || !g_cameraActive.load() || !a_camera->cameraRoot) {
+                return;
             }
-            if (auto* playerCamera = RE::PlayerCamera::GetSingleton()) {
-                playerCamera->heading = heading;
-                if (playerCamera->cameraRoot) {
-                    playerCamera->cameraRoot->world.translate = pos;
-                    playerCamera->cameraRoot->world.rotate = rot;
-                }
-                if (a_mc.fovDeg > 1.0f) {
-                    const float half = std::clamp(a_mc.fovDeg, 10.0f, 170.0f) * 0.5f * kDegToRad;
-                    playerCamera->worldFOV = 2.0f * std::atan(std::tan(half) * (4.0f / 3.0f)) * kRadToDeg;
-                }
+
+            auto* root = a_camera->cameraRoot.get();
+            root->local.translate = g_cameraPos;
+            root->world.translate = g_cameraPos;
+            root->local.rotate = g_cameraRot;
+            root->world.rotate = g_cameraRot;
+
+            // These are Fallout-specific camera caches. Keeping them in lock-step with the
+            // scene-graph anchor prevents Fallout's own smoothing/collision pass from pulling
+            // the view back toward its previous frame.
+            a_camera->bufferedCameraPos = g_cameraPos;
+            a_camera->cameraPosBuffered = true;
+            a_camera->heading = g_cameraHeading;
+
+            if (g_cameraFov > 1.0f) {
+                const float half = std::clamp(g_cameraFov, 10.0f, 170.0f) * 0.5f * kDegToRad;
+                a_camera->worldFOV =
+                    2.0f * std::atan(std::tan(half) * (4.0f / 3.0f)) * kRadToDeg;
+            }
+
+            // Push the corrected root down into Fallout's NiCamera child after Fallout has
+            // completed its own PlayerCamera::Update for this frame.
+            RE::NiUpdateData update{};
+            root->UpdateDownwardPass(update, 0);
+
+            if (!g_loggedPostCamera.exchange(true)) {
+                logger::info("FalloutCraft: Minecraft camera now applied after Fallout PlayerCamera::Update (FO4 row-major basis)");
             }
         }
 
@@ -234,7 +263,7 @@ namespace falloutcraft
                 // Fallout's character controller -- the safe behavior proven by the no-GDI tests.
                 const auto p = McToSky(g_mc.x, g_mc.y, g_mc.z);
                 a_player->SetPosition(p, false);
-                ApplyMinecraftCamera(a_player, g_mc);
+                StageMinecraftCamera(a_player, g_mc);
 
                 st.feetX = g_mc.x;
                 st.feetY = g_mc.y;
@@ -242,6 +271,7 @@ namespace falloutcraft
                 st.feetValid = true;
             } else {
                 st.feetValid = false;
+                g_cameraActive = false;
             }
 
             Combat::PerFrame(a_player, puppet, a_delta);
@@ -267,6 +297,22 @@ namespace falloutcraft
             static inline REL::Relocation<decltype(thunk)> func;
         };
 
+        // Fallout 4 TESCamera has Update at vfunc 0x03. Applying the Minecraft camera
+        // only from Actor::Update is too early: Fallout's camera update subsequently overwrites
+        // part of the transform. Re-pin it after the real camera update, like SkyCraft does.
+        struct PlayerCameraUpdateHook
+        {
+            static void thunk(RE::TESCamera* a_this)
+            {
+                func(a_this);
+                auto* playerCamera = RE::PlayerCamera::GetSingleton();
+                if (playerCamera && a_this == static_cast<RE::TESCamera*>(playerCamera)) {
+                    ApplyStagedCamera(playerCamera);
+                }
+            }
+            static inline REL::Relocation<decltype(thunk)> func;
+        };
+
         std::atomic<bool> g_installed{ false };
     }
 
@@ -284,6 +330,10 @@ namespace falloutcraft
             // and was the immediate v0.5.0/v0.5.1 post-link crash.
             PlayerUpdateHook::func = vtbl.write_vfunc(0xCF, PlayerUpdateHook::thunk);
             logger::info("FalloutCraft: PlayerCharacter::Update hook installed at Fallout vfunc 0xCF");
+
+            REL::Relocation<std::uintptr_t> cameraVtbl{ RE::PlayerCamera::VTABLE[0] };
+            PlayerCameraUpdateHook::func = cameraVtbl.write_vfunc(0x03, PlayerCameraUpdateHook::thunk);
+            logger::info("FalloutCraft: PlayerCamera::Update post-hook installed at Fallout vfunc 0x03");
         }
 
         void OnGameLoaded()
@@ -291,6 +341,7 @@ namespace falloutcraft
             ++g_teleportSeq;
             ++g_epoch;
             g_forceTeleport = false;
+            g_cameraActive = false;
             Collision::Get().Reset(g_epoch);
             logger::info("FalloutCraft: game load/new game resync requested");
         }
