@@ -39,7 +39,11 @@ namespace falloutcraft
 
             RE::NiPoint3 forward{ sh * cp, ch * cp, -sp };
             RE::NiPoint3 right{ ch, -sh, 0.0f };
-            RE::NiPoint3 up = right.Cross(forward);
+            RE::NiPoint3 up{
+                right.y * forward.z - right.z * forward.y,
+                right.z * forward.x - right.x * forward.z,
+                right.x * forward.y - right.y * forward.x
+            };
 
             RE::NiMatrix3 m{};
             m.entry[0][0] = forward.x; m.entry[1][0] = forward.y; m.entry[2][0] = forward.z;
@@ -239,7 +243,8 @@ namespace falloutcraft
             }
 
             Combat::PerFrame(a_player, puppet, a_delta);
-            BlockLights::Update(puppet ? &McVec{ g_mc.x, g_mc.y, g_mc.z } : nullptr, a_delta);
+            McVec lightPos{ g_mc.x, g_mc.y, g_mc.z };
+            BlockLights::Update(puppet ? &lightPos : nullptr, a_delta);
             if (puppet) {
                 NpcBlocks::PushActorsOut(a_player, a_delta);
             }
