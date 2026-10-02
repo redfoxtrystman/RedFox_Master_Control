@@ -375,7 +375,11 @@ public final class SkyCollision {
 		} else {
 			GHOSTS.put(region, ghosts.toArray(new SkyTri[0]));
 		}
-		TRIS.put(region, java.util.Arrays.copyOf(tris, kept));
+		if (kept == 0) {
+			TRIS.remove(region);
+		} else {
+			TRIS.put(region, java.util.Arrays.copyOf(tris, kept));
+		}
 		Long before = TRI_HASH.put(region, hash);
 		if (before == null || before != hash) {
 			CHANGED.add(BlockPos.asLong(minX, minY, minZ));
