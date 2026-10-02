@@ -542,6 +542,42 @@ float4 PSMain(PSIn i) : SV_Target {
             return true;
         }
 
+        ID3D11DepthStencilView* FindFalloutSceneDepth(
+            std::uint32_t w, std::uint32_t h, UINT samples)
+        {
+            auto* rd = RE::BSGraphics::GetRendererData();
+            if (!rd) {
+                return nullptr;
+            }
+
+            // Fallout keeps its live scene depth targets in RendererData. The post-Present
+            // compatibility renderer used to clear a brand-new DSV, so Minecraft could only
+            // depth-test against Minecraft and inevitably drew through Fallout walls/props.
+            // Reuse the full-resolution Fallout scene DSV instead. Prefer the first matching
+            // target (the main scene depth is first on vanilla FO4), but validate dimensions and
+            // MSAA rather than hard-coding an index so ENB/FallUI-style renderer changes survive.
+            for (std::size_t i = 0; i < std::size(rd->depthStencilTargets); ++i) {
+                auto& target = rd->depthStencilTargets[i];
+                auto* tex = reinterpret_cast<ID3D11Texture2D*>(target.texture);
+                auto* dsv = reinterpret_cast<ID3D11DepthStencilView*>(target.dsView[0]);
+                if (!tex || !dsv) {
+                    continue;
+                }
+                D3D11_TEXTURE2D_DESC td{};
+                tex->GetDesc(&td);
+                if (td.Width == w && td.Height == h &&
+                    td.SampleDesc.Count == std::max<UINT>(1, samples)) {
+                    static int logged = -1;
+                    if (logged < 0) {
+                        logged = static_cast<int>(i);
+                        logger::info("FalloutCraft: using Fallout depth-stencil target {} for Minecraft occlusion", logged);
+                    }
+                    return dsv;
+                }
+            }
+            return nullptr;
+        }
+
         bool EnsureWorldDepth(std::uint32_t w, std::uint32_t h, UINT samples, UINT quality)
         {
             samples = std::max<UINT>(1, samples);
@@ -684,6 +720,108 @@ float4 PSMain(PSIn i) : SV_Target {
             DrawScreenVertices(out, it->second.srv);
         }
 
+        proto::RenVertex EntityVertex(float x, float y, float z, float u, float v,
+            std::uint32_t color = 0xFFFFFFFFu, std::uint32_t flags = 0)
+        {
+            proto::RenVertex out{};
+            out.x = x; out.y = y; out.z = z;
+            out.u = u; out.v = v;
+            out.color = color;
+            out.light = 0;
+            out.flags = flags;
+            return out;
+        }
+
+        void PushQuad(std::vector<proto::RenVertex>& out,
+            const std::array<std::array<float, 3>, 4>& p, const float uv[4],
+            std::uint32_t color, std::uint32_t flags)
+        {
+            const auto v0 = EntityVertex(p[0][0], p[0][1], p[0][2], uv[0], uv[3], color, flags);
+            const auto v1 = EntityVertex(p[1][0], p[1][1], p[1][2], uv[1], uv[3], color, flags);
+            const auto v2 = EntityVertex(p[2][0], p[2][1], p[2][2], uv[1], uv[1], color, flags);
+            const auto v3 = EntityVertex(p[3][0], p[3][1], p[3][2], uv[0], uv[1], color, flags);
+            out.insert(out.end(), { v0, v1, v2, v0, v2, v3 });
+        }
+
+        void DrawWorldEntities(RE::NiCamera* camera)
+        {
+            proto::WorldEntities table{};
+            if (!camera || !Link::Get().ReadWorldEntities(table) || table.count == 0) {
+                return;
+            }
+
+            const double ox = State().feetValid ? std::floor(State().feetX) : 0.0;
+            const double oy = State().feetValid ? std::floor(State().feetY) : 0.0;
+            const double oz = State().feetValid ? std::floor(State().feetZ) : 0.0;
+            std::vector<proto::RenVertex> verts;
+            verts.reserve(std::min<std::uint32_t>(table.count, proto::kMaxWorldEntities) * 36u);
+
+            const auto addItem = [&](const proto::WorldEntity& e) {
+                const float cx = e.x - static_cast<float>(ox);
+                const float cy = e.y - static_cast<float>(oy);
+                const float cz = e.z - static_cast<float>(oz);
+                const float half = std::max(0.08f, e.scale * 0.5f);
+                const float rad = e.yaw * 0.01745329251994329577f;
+                const float rx = std::cos(rad) * half;
+                const float rz = std::sin(rad) * half;
+                const float bottom = cy - half;
+                const float top = cy + half;
+                const std::array<std::array<float,3>,4> p{{
+                    { cx - rx, bottom, cz - rz },
+                    { cx + rx, bottom, cz + rz },
+                    { cx + rx, top,    cz + rz },
+                    { cx - rx, top,    cz - rz }
+                }};
+                PushQuad(verts, p, e.uv[0], 0xFFFFFFFFu, 2u);
+            };
+
+            const auto addCube = [&](const proto::WorldEntity& e) {
+                const float cx = e.x - static_cast<float>(ox);
+                const float cy = e.y - static_cast<float>(oy);
+                const float cz = e.z - static_cast<float>(oz);
+                const float h = std::max(0.08f, e.scale * 0.5f);
+                const float rad = e.yaw * 0.01745329251994329577f;
+                const float cs = std::cos(rad), sn = std::sin(rad);
+                auto P = [&](float x, float y, float z) {
+                    return std::array<float,3>{
+                        cx + x * cs - z * sn,
+                        cy + y,
+                        cz + x * sn + z * cs
+                    };
+                };
+                const auto p000=P(-h,-h,-h), p100=P(h,-h,-h), p110=P(h,h,-h), p010=P(-h,h,-h);
+                const auto p001=P(-h,-h,h),  p101=P(h,-h,h),  p111=P(h,h,h),  p011=P(-h,h,h);
+                const std::uint32_t white=0xFFFFFFFFu;
+                const std::uint32_t top=e.tint ? e.tint : white;
+                PushQuad(verts, {p001,p101,p111,p011}, e.uv[0], white, (4u<<4));
+                PushQuad(verts, {p100,p000,p010,p110}, e.uv[0], white, (3u<<4));
+                PushQuad(verts, {p000,p001,p011,p010}, e.uv[0], white, (5u<<4));
+                PushQuad(verts, {p101,p100,p110,p111}, e.uv[0], white, (6u<<4));
+                PushQuad(verts, {p010,p011,p111,p110}, e.uv[1], top,   (2u<<4));
+                PushQuad(verts, {p000,p100,p101,p001}, e.uv[2], white, (1u<<4));
+            };
+
+            const auto count = std::min<std::uint32_t>(table.count, proto::kMaxWorldEntities);
+            for (std::uint32_t i = 0; i < count; ++i) {
+                const auto& e = table.entities[i];
+                switch (e.kind) {
+                case proto::kWeItem:
+                case proto::kWeArrow:
+                case proto::kWeTrident:
+                    addItem(e);
+                    break;
+                case proto::kWeBlock:
+                    addCube(e);
+                    break;
+                default:
+                    break;
+                }
+            }
+            if (!verts.empty()) {
+                DrawProjected(camera, verts.data(), 0, verts.size(), ox, oy, oz, 0);
+            }
+        }
+
         void DrawWorld(ID3D11RenderTargetView* rtv, std::uint32_t w, std::uint32_t h, UINT samples, UINT quality)
         {
             if (!State().puppeting.load()) {
@@ -695,8 +833,14 @@ float4 PSMain(PSIn i) : SV_Target {
             }
 
             BindCommon(rtv, w, h, g_worldBlend);
-            if (EnsureWorldDepth(w, h, samples, quality)) {
-                const bool reversed = CameraUsesReversedDepth(camera);
+            const bool reversed = CameraUsesReversedDepth(camera);
+            if (auto* falloutDepth = FindFalloutSceneDepth(w, h, samples)) {
+                // Do NOT clear Fallout's depth. Its existing values are what keep Minecraft
+                // blocks/items behind cryopods, walls, floors and every other host mesh.
+                g_context->OMSetRenderTargets(1, &rtv, falloutDepth);
+                g_context->OMSetDepthStencilState(reversed ? g_depthWriteRev : g_depthWrite, 0);
+            } else if (EnsureWorldDepth(w, h, samples, quality)) {
+                // Safe fallback if a modded renderer exposes no compatible host DSV.
                 g_context->OMSetRenderTargets(1, &rtv, g_worldDsv);
                 g_context->OMSetDepthStencilState(reversed ? g_depthWriteRev : g_depthWrite, 0);
                 g_context->ClearDepthStencilView(g_worldDsv, D3D11_CLEAR_DEPTH, reversed ? 0.0f : 1.0f, 0);
@@ -716,6 +860,10 @@ float4 PSMain(PSIn i) : SV_Target {
                     }
                 }
             }
+
+            // Dropped items/block items/arrows live in the dedicated seqlock table, not RenScene.
+            // The Fallout compatibility renderer had simply never consumed that table.
+            DrawWorldEntities(camera);
 
             if (State().feetValid && !g_avatar.vertices.empty()) {
                 for (const auto& batch : g_avatar.batches) {
@@ -846,7 +994,7 @@ float4 PSMain(PSIn i) : SV_Target {
             // will replace this post-scene pass as the Fallout render-target indices are validated.
             DrawWorld(rtv, desc.Width, desc.Height, desc.SampleDesc.Count, desc.SampleDesc.Quality);
             DrawOverlay(rtv, desc.Width, desc.Height);
-            DrawCursor(rtv, desc.Width, desc.Height);
+            // Minecraft GUIs now use Fallout's real Windows cursor; no second drawn pointer.
             Release(rtv);
         }
 
