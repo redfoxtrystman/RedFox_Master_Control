@@ -1,0 +1,325 @@
+#include "Collision.h"
+
+namespace falloutcraft
+{
+    namespace
+    {
+        constexpr std::uint64_t kCoordMask = (1ull << 21) - 1;
+        constexpr std::uint64_t kSignBit = 1ull << 20;
+
+        std::uint64_t Pack(int x, int y, int z)
+        {
+            return (std::uint64_t(std::uint32_t(x)) & kCoordMask) |
+                   ((std::uint64_t(std::uint32_t(y)) & kCoordMask) << 21) |
+                   ((std::uint64_t(std::uint32_t(z)) & kCoordMask) << 42);
+        }
+
+        int UnpackPart(std::uint64_t v)
+        {
+            v &= kCoordMask;
+            if (v & kSignBit) {
+                v |= ~kCoordMask;
+            }
+            return static_cast<int>(static_cast<std::int64_t>(v));
+        }
+
+        void Unpack(std::uint64_t key, int& x, int& y, int& z)
+        {
+            x = UnpackPart(key);
+            y = UnpackPart(key >> 21);
+            z = UnpackPart(key >> 42);
+        }
+
+        int FloorDiv8(int v)
+        {
+            return v >= 0 ? v / 8 : -(((-v) + 7) / 8);
+        }
+
+        void PushTri(std::vector<proto::ColTri>& out,
+            float ax, float ay, float az,
+            float bx, float by, float bz,
+            float cx, float cy, float cz)
+        {
+            proto::ColTri t{};
+            const float v[9]{ ax, ay, az, bx, by, bz, cx, cy, cz };
+            std::copy(std::begin(v), std::end(v), std::begin(t.v));
+            t.flags = 0;
+            out.push_back(t);
+        }
+
+        void CubeTriangles(int x, int y, int z, std::vector<proto::ColTri>& out)
+        {
+            const float x0 = static_cast<float>(x), x1 = x0 + 1.0f;
+            const float y0 = static_cast<float>(y), y1 = y0 + 1.0f;
+            const float z0 = static_cast<float>(z), z1 = z0 + 1.0f;
+
+            // -X
+            PushTri(out, x0,y0,z0, x0,y0,z1, x0,y1,z1);
+            PushTri(out, x0,y0,z0, x0,y1,z1, x0,y1,z0);
+            // +X
+            PushTri(out, x1,y0,z0, x1,y1,z0, x1,y1,z1);
+            PushTri(out, x1,y0,z0, x1,y1,z1, x1,y0,z1);
+            // -Y
+            PushTri(out, x0,y0,z0, x1,y0,z0, x1,y0,z1);
+            PushTri(out, x0,y0,z0, x1,y0,z1, x0,y0,z1);
+            // +Y
+            PushTri(out, x0,y1,z0, x0,y1,z1, x1,y1,z1);
+            PushTri(out, x0,y1,z0, x1,y1,z1, x1,y1,z0);
+            // -Z
+            PushTri(out, x0,y0,z0, x0,y1,z0, x1,y1,z0);
+            PushTri(out, x0,y0,z0, x1,y1,z0, x1,y0,z0);
+            // +Z
+            PushTri(out, x0,y0,z1, x1,y0,z1, x1,y1,z1);
+            PushTri(out, x0,y0,z1, x1,y1,z1, x0,y1,z1);
+        }
+
+        std::uint64_t RegionKey(int rx, int ry, int rz)
+        {
+            return Pack(rx, ry, rz);
+        }
+    }
+
+    Collision& Collision::Get()
+    {
+        static Collision c;
+        return c;
+    }
+
+    void Collision::Start()
+    {
+        lastSample_ = {};
+        logger::info("FalloutCraft: Fallout hknp collision sampler ready");
+    }
+
+    void Collision::Reset(std::uint32_t a_epoch)
+    {
+        epoch_ = a_epoch;
+        occupied_.clear();
+        lastSample_ = {};
+        {
+            std::unique_lock lock(boxesLock_);
+            boxes_.clear();
+            ++boxesGen_;
+        }
+        Link::Get().WriteCollision(proto::kColClear, &epoch_, sizeof(epoch_));
+    }
+
+    bool Collision::Ray(const RE::NiPoint3& a_from, const RE::NiPoint3& a_to, RE::NiPoint3& a_hit) const
+    {
+        auto* player = RE::PlayerCharacter::GetSingleton();
+        auto* cell = player ? player->GetParentCell() : nullptr;
+        if (!cell || !cell->IsAttached()) {
+            return false;
+        }
+
+        RE::bhkPickData pick;
+        pick.SetStartEnd(a_from, a_to);
+        cell->Pick(pick);
+        if (!pick.HasHit()) {
+            return false;
+        }
+
+        const float f = std::clamp(pick.GetHitFraction(), 0.0f, 1.0f);
+        a_hit.x = a_from.x + (a_to.x - a_from.x) * f;
+        a_hit.y = a_from.y + (a_to.y - a_from.y) * f;
+        a_hit.z = a_from.z + (a_to.z - a_from.z) * f;
+        return true;
+    }
+
+    void Collision::MarkBlock(std::int32_t a_x, std::int32_t a_y, std::int32_t a_z)
+    {
+        occupied_.insert(Pack(a_x, a_y, a_z));
+    }
+
+    void Collision::Sample(const McVec& a_playerMc)
+    {
+        occupied_.clear();
+
+        const int cx = static_cast<int>(std::floor(a_playerMc.x));
+        const int cy = static_cast<int>(std::floor(a_playerMc.y));
+        const int cz = static_cast<int>(std::floor(a_playerMc.z));
+
+        // Floors/terrain/stairs. Sampling a generous grid makes the arrival region usable before
+        // Minecraft is released and keeps several seconds of walking around the player populated.
+        for (int dz = -10; dz <= 10; ++dz) {
+            for (int dx = -10; dx <= 10; ++dx) {
+                RE::NiPoint3 hit{};
+                const auto from = McToSky(cx + dx + 0.5, cy + 6.0, cz + dz + 0.5);
+                const auto to = McToSky(cx + dx + 0.5, cy - 18.0, cz + dz + 0.5);
+                if (Ray(from, to, hit)) {
+                    const auto mc = SkyToMc(hit);
+                    MarkBlock(
+                        static_cast<int>(std::floor(mc.x)),
+                        static_cast<int>(std::floor(mc.y - 0.05)),
+                        static_cast<int>(std::floor(mc.z)));
+                }
+            }
+        }
+
+        // Ceilings immediately around the player.
+        for (int dz = -5; dz <= 5; ++dz) {
+            for (int dx = -5; dx <= 5; ++dx) {
+                RE::NiPoint3 hit{};
+                const auto from = McToSky(cx + dx + 0.5, a_playerMc.y + 0.15, cz + dz + 0.5);
+                const auto to = McToSky(cx + dx + 0.5, a_playerMc.y + 7.0, cz + dz + 0.5);
+                if (Ray(from, to, hit)) {
+                    const auto mc = SkyToMc(hit);
+                    MarkBlock(
+                        static_cast<int>(std::floor(mc.x)),
+                        static_cast<int>(std::floor(mc.y + 0.05)),
+                        static_cast<int>(std::floor(mc.z)));
+                }
+            }
+        }
+
+        // Walls, doors, vault geometry and other vertical collision. Multiple eye/body heights
+        // prevent a low railing or a high overhang from disappearing from Minecraft's collision.
+        constexpr int kRays = 96;
+        constexpr double kRange = 10.0;
+        constexpr std::array<double, 4> kHeights{ 0.25, 0.85, 1.45, 2.05 };
+        for (double h : kHeights) {
+            for (int i = 0; i < kRays; ++i) {
+                const double a = (double(i) / kRays) * 6.2831853071795864769;
+                const double dx = std::cos(a);
+                const double dz = std::sin(a);
+                const auto from = McToSky(a_playerMc.x, a_playerMc.y + h, a_playerMc.z);
+                const auto to = McToSky(a_playerMc.x + dx * kRange, a_playerMc.y + h, a_playerMc.z + dz * kRange);
+                RE::NiPoint3 hit{};
+                if (Ray(from, to, hit)) {
+                    auto mc = SkyToMc(hit);
+                    // Step a little into the surface so a hit lying exactly on a cell edge is
+                    // assigned to the solid side rather than the empty side.
+                    mc.x += dx * 0.06;
+                    mc.z += dz * 0.06;
+                    MarkBlock(
+                        static_cast<int>(std::floor(mc.x)),
+                        static_cast<int>(std::floor(mc.y)),
+                        static_cast<int>(std::floor(mc.z)));
+                }
+            }
+        }
+
+        // Cache full-block contact boxes for the renderer/NPC systems.
+        {
+            std::unique_lock lock(boxesLock_);
+            boxes_.clear();
+            constexpr std::uint32_t full =
+                2u | (7u << 11) | (7u << 14) | (7u << 17);
+            for (auto key : occupied_) {
+                int x, y, z;
+                Unpack(key, x, y, z);
+                const int rx = FloorDiv8(x), ry = FloorDiv8(y), rz = FloorDiv8(z);
+                auto& box = boxes_[RegionKey(rx, ry, rz)];
+                const int bx = x - rx * 8, by = y - ry * 8, bz = z - rz * 8;
+                if (bx >= 0 && bx < 8 && by >= 0 && by < 8 && bz >= 0 && bz < 8) {
+                    box[bx + 8 * (by + 8 * bz)] = full;
+                }
+            }
+            ++boxesGen_;
+        }
+    }
+
+    void Collision::Publish(const McVec& a_playerMc)
+    {
+        const int prx = FloorDiv8(static_cast<int>(std::floor(a_playerMc.x)));
+        const int pry = FloorDiv8(static_cast<int>(std::floor(a_playerMc.y)));
+        const int prz = FloorDiv8(static_cast<int>(std::floor(a_playerMc.z)));
+
+        for (int rz = prz - 1; rz <= prz + 1; ++rz) {
+            for (int ry = pry - 2; ry <= pry + 1; ++ry) {
+                for (int rx = prx - 1; rx <= prx + 1; ++rx) {
+                    std::vector<std::array<int, 3>> blocks;
+                    for (auto key : occupied_) {
+                        int x, y, z;
+                        Unpack(key, x, y, z);
+                        if (FloorDiv8(x) == rx && FloorDiv8(y) == ry && FloorDiv8(z) == rz) {
+                            blocks.push_back({ x, y, z });
+                        }
+                    }
+
+                    proto::ColRegion region{};
+                    region.minX = rx * 8;
+                    region.minY = ry * 8;
+                    region.minZ = rz * 8;
+                    region.maxX = region.minX + 7;
+                    region.maxY = region.minY + 7;
+                    region.maxZ = region.minZ + 7;
+                    region.epoch = epoch_;
+
+                    // Exact triangles for the local player's smooth collider.
+                    std::vector<proto::ColTri> tris;
+                    tris.reserve(blocks.size() * 12);
+                    for (const auto& b : blocks) {
+                        CubeTriangles(b[0], b[1], b[2], tris);
+                    }
+                    region.count = static_cast<std::uint32_t>(tris.size());
+                    std::vector<std::uint8_t> triPayload(sizeof(region) + tris.size() * sizeof(proto::ColTri));
+                    std::memcpy(triPayload.data(), &region, sizeof(region));
+                    if (!tris.empty()) {
+                        std::memcpy(triPayload.data() + sizeof(region), tris.data(), tris.size() * sizeof(proto::ColTri));
+                    }
+                    Link::Get().WriteCollision(proto::kColTris, triPayload.data(), static_cast<std::uint32_t>(triPayload.size()));
+
+                    // 1/8 voxel protocol remains intact. This first Fallout-native pass emits
+                    // conservative whole-block occupancy; later hknp body harvesting can refine it
+                    // without changing Minecraft or the wire format.
+                    region.count = static_cast<std::uint32_t>(blocks.size());
+                    std::vector<std::uint8_t> payload(sizeof(region) + blocks.size() * sizeof(proto::ColBlock));
+                    std::memcpy(payload.data(), &region, sizeof(region));
+                    auto* out = reinterpret_cast<proto::ColBlock*>(payload.data() + sizeof(region));
+                    for (std::size_t i = 0; i < blocks.size(); ++i) {
+                        out[i].x = blocks[i][0];
+                        out[i].y = blocks[i][1];
+                        out[i].z = blocks[i][2];
+                        out[i].pad = 0;
+                        std::fill(std::begin(out[i].bits), std::end(out[i].bits), ~0ull);
+                    }
+                    Link::Get().WriteCollision(proto::kColRegion, payload.data(), static_cast<std::uint32_t>(payload.size()));
+                }
+            }
+        }
+    }
+
+    void Collision::Update(const McVec& a_playerMc)
+    {
+        const auto now = std::chrono::steady_clock::now();
+        if (lastSample_.time_since_epoch().count() != 0 &&
+            now - lastSample_ < std::chrono::milliseconds(140)) {
+            return;
+        }
+        lastSample_ = now;
+        Sample(a_playerMc);
+        Publish(a_playerMc);
+    }
+
+    void Collision::CopyBoxes(const std::int32_t a_origin[3], const std::int32_t a_size[3],
+        std::uint32_t* a_out) const
+    {
+        if (!a_out) {
+            return;
+        }
+        std::shared_lock lock(boxesLock_);
+        const int w = a_size[0], h = a_size[1], d = a_size[2];
+        for (int z = 0; z < d; ++z) {
+            for (int y = 0; y < h; ++y) {
+                for (int x = 0; x < w; ++x) {
+                    const int wx = a_origin[0] + x;
+                    const int wy = a_origin[1] + y;
+                    const int wz = a_origin[2] + z;
+                    const int rx = FloorDiv8(wx), ry = FloorDiv8(wy), rz = FloorDiv8(wz);
+                    const auto it = boxes_.find(RegionKey(rx, ry, rz));
+                    if (it == boxes_.end()) {
+                        continue;
+                    }
+                    const int bx = wx - rx * 8, by = wy - ry * 8, bz = wz - rz * 8;
+                    a_out[x + w * (y + h * z)] |= it->second[bx + 8 * (by + 8 * bz)];
+                }
+            }
+        }
+    }
+
+    void Collision::DigChanged(const std::vector<std::array<int, 3>>&)
+    {
+        lastSample_ = {};
+    }
+}
