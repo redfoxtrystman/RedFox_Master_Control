@@ -198,7 +198,7 @@ namespace falloutcraft
     void Collision::Reset(std::uint32_t a_epoch)
     {
         epoch_ = a_epoch;
-        occupied_.clear();
+        voxels_.clear();
         lastSample_ = {};
         firstSampleLogged_ = false;
         firstRayLogged_ = false;
@@ -255,62 +255,175 @@ namespace falloutcraft
         return true;
     }
 
-    void Collision::MarkBlock(std::int32_t a_x, std::int32_t a_y, std::int32_t a_z)
+    void Collision::SetVoxel(std::int32_t a_x, std::int32_t a_y, std::int32_t a_z,
+        int a_sx, int a_sy, int a_sz)
     {
-        occupied_.insert(Pack(a_x, a_y, a_z));
+        if (a_sx < 0 || a_sx > 7 || a_sy < 0 || a_sy > 7 || a_sz < 0 || a_sz > 7) {
+            return;
+        }
+        auto& bits = voxels_[Pack(a_x, a_y, a_z)];
+        bits[static_cast<std::size_t>(a_sy)] |=
+            1ull << static_cast<unsigned>(a_sx + 8 * a_sz);
+    }
+
+    void Collision::SetFullBlock(std::int32_t a_x, std::int32_t a_y, std::int32_t a_z)
+    {
+        auto& bits = voxels_[Pack(a_x, a_y, a_z)];
+        bits.fill(~0ull);
+    }
+
+    void Collision::MarkFloorSurface(double a_x, double a_y, double a_z)
+    {
+        // Quantize DOWN to the nearest 1/8-block boundary and occupy the slice directly
+        // below it. The top of the collision never protrudes above Fallout's sampled floor,
+        // so Minecraft cannot spawn embedded in a whole fake cube.
+        const int globalSy = static_cast<int>(std::floor(a_y * 8.0 + 1.0e-4)) - 1;
+        const int by = FloorDiv8(globalSy);
+        const int sy = globalSy - by * 8;
+        const int bx = static_cast<int>(std::floor(a_x));
+        const int bz = static_cast<int>(std::floor(a_z));
+        auto& bits = voxels_[Pack(bx, by, bz)];
+        bits[static_cast<std::size_t>(sy)] = ~0ull;
+    }
+
+    void Collision::MarkCeilingSurface(double a_x, double a_y, double a_z)
+    {
+        // Mirror of MarkFloorSurface: occupy the first 1/8 slice wholly above the sampled
+        // ceiling so head collision does not extend down into empty space.
+        const int globalSy = static_cast<int>(std::ceil(a_y * 8.0 - 1.0e-4));
+        const int by = FloorDiv8(globalSy);
+        const int sy = globalSy - by * 8;
+        const int bx = static_cast<int>(std::floor(a_x));
+        const int bz = static_cast<int>(std::floor(a_z));
+        auto& bits = voxels_[Pack(bx, by, bz)];
+        bits[static_cast<std::size_t>(sy)] = ~0ull;
+    }
+
+    void Collision::MarkWallSurface(double a_x, double a_y, double a_z, double a_dx, double a_dz)
+    {
+        // The ray travels from the player INTO the wall, so move a few centimetres past the
+        // hit to choose the solid side. Then represent it as a 1/8-block vertical slab, the
+        // same sub-voxel resolution SkyCraft feeds to Minecraft rather than a whole block.
+        const double ix = a_x + a_dx * 0.04;
+        const double iz = a_z + a_dz * 0.04;
+        const int bx = static_cast<int>(std::floor(ix));
+        const int by = static_cast<int>(std::floor(a_y));
+        const int bz = static_cast<int>(std::floor(iz));
+        const int sx = std::clamp(static_cast<int>(std::floor((ix - bx) * 8.0)), 0, 7);
+        const int sz = std::clamp(static_cast<int>(std::floor((iz - bz) * 8.0)), 0, 7);
+        auto& bits = voxels_[Pack(bx, by, bz)];
+
+        if (std::abs(a_dx) >= std::abs(a_dz)) {
+            std::uint64_t column = 0;
+            for (int z = 0; z < 8; ++z) {
+                column |= 1ull << static_cast<unsigned>(sx + 8 * z);
+            }
+            bits.fill(column);
+        } else {
+            const std::uint64_t row = 0xFFull << static_cast<unsigned>(sz * 8);
+            bits.fill(row);
+        }
+    }
+
+    void Collision::RebuildContactBoxes()
+    {
+        std::unordered_map<std::uint64_t, std::array<std::uint32_t, 512>> fresh;
+        constexpr std::uint32_t kBoxPresent = 2u;
+
+        for (const auto& [key, bits] : voxels_) {
+            int x, y, z;
+            Unpack(key, x, y, z);
+
+            int loX = 8, loY = 8, loZ = 8;
+            int hiX = -1, hiY = -1, hiZ = -1;
+            for (int sy = 0; sy < 8; ++sy) {
+                std::uint64_t layer = bits[static_cast<std::size_t>(sy)];
+                if (!layer) {
+                    continue;
+                }
+                loY = std::min(loY, sy);
+                hiY = std::max(hiY, sy);
+                while (layer) {
+                    const int bit = std::countr_zero(layer);
+                    layer &= layer - 1;
+                    const int sx = bit & 7;
+                    const int sz = bit >> 3;
+                    loX = std::min(loX, sx);
+                    hiX = std::max(hiX, sx);
+                    loZ = std::min(loZ, sz);
+                    hiZ = std::max(hiZ, sz);
+                }
+            }
+            if (hiX < 0) {
+                continue;
+            }
+
+            const int rx = FloorDiv8(x), ry = FloorDiv8(y), rz = FloorDiv8(z);
+            auto& region = fresh[RegionKey(rx, ry, rz)];
+            const int bx = x - rx * 8, by = y - ry * 8, bz = z - rz * 8;
+            if (bx < 0 || bx >= 8 || by < 0 || by >= 8 || bz < 0 || bz >= 8) {
+                continue;
+            }
+            region[bx + 8 * (by + 8 * bz)] =
+                kBoxPresent |
+                (static_cast<std::uint32_t>(loX) << 2) |
+                (static_cast<std::uint32_t>(loY) << 5) |
+                (static_cast<std::uint32_t>(loZ) << 8) |
+                (static_cast<std::uint32_t>(hiX) << 11) |
+                (static_cast<std::uint32_t>(hiY) << 14) |
+                (static_cast<std::uint32_t>(hiZ) << 17);
+        }
+
+        std::unique_lock lock(boxesLock_);
+        boxes_.swap(fresh);
+        ++boxesGen_;
     }
 
     void Collision::Sample(const McVec& a_playerMc)
     {
-        occupied_.clear();
+        voxels_.clear();
 
         if (!firstSampleLogged_) {
             firstSampleLogged_ = true;
-            logger::info("FalloutCraft: first post-link collision sample beginning (guarded hknp Pick, low ray budget)");
+            logger::info("FalloutCraft: first post-link collision sample beginning (SkyCraft-style 1/8 voxel surfaces)");
         }
 
         const int cx = static_cast<int>(std::floor(a_playerMc.x));
         const int cy = static_cast<int>(std::floor(a_playerMc.y));
         const int cz = static_cast<int>(std::floor(a_playerMc.z));
 
-        // Floors/terrain/stairs. Sampling a generous grid makes the arrival region usable before
-        // Minecraft is released and keeps several seconds of walking around the player populated.
-        for (int dz = -4; dz <= 4; ++dz) {
-            for (int dx = -4; dx <= 4; ++dx) {
+        // Floors/terrain/stairs. Fallout's ray gives us the exact surface height; preserve that
+        // height at 1/8-block resolution instead of inflating every hit to a whole Minecraft cube.
+        for (int dz = -5; dz <= 5; ++dz) {
+            for (int dx = -5; dx <= 5; ++dx) {
                 RE::NiPoint3 hit{};
                 const auto from = McToSky(cx + dx + 0.5, cy + 6.0, cz + dz + 0.5);
                 const auto to = McToSky(cx + dx + 0.5, cy - 18.0, cz + dz + 0.5);
                 if (Ray(from, to, hit)) {
                     const auto mc = SkyToMc(hit);
-                    MarkBlock(
-                        static_cast<int>(std::floor(mc.x)),
-                        static_cast<int>(std::floor(mc.y - 0.05)),
-                        static_cast<int>(std::floor(mc.z)));
+                    MarkFloorSurface(mc.x, mc.y, mc.z);
                 }
             }
         }
 
-        // Ceilings immediately around the player.
-        for (int dz = -2; dz <= 2; ++dz) {
-            for (int dx = -2; dx <= 2; ++dx) {
+        // Ceilings: thin 1/8-block support plane on the solid side only.
+        for (int dz = -3; dz <= 3; ++dz) {
+            for (int dx = -3; dx <= 3; ++dx) {
                 RE::NiPoint3 hit{};
                 const auto from = McToSky(cx + dx + 0.5, a_playerMc.y + 0.15, cz + dz + 0.5);
                 const auto to = McToSky(cx + dx + 0.5, a_playerMc.y + 7.0, cz + dz + 0.5);
                 if (Ray(from, to, hit)) {
                     const auto mc = SkyToMc(hit);
-                    MarkBlock(
-                        static_cast<int>(std::floor(mc.x)),
-                        static_cast<int>(std::floor(mc.y + 0.05)),
-                        static_cast<int>(std::floor(mc.z)));
+                    MarkCeilingSurface(mc.x, mc.y, mc.z);
                 }
             }
         }
 
-        // Walls, doors, vault geometry and other vertical collision. Multiple eye/body heights
-        // prevent a low railing or a high overhang from disappearing from Minecraft's collision.
-        constexpr int kRays = 24;
+        // Walls/doors/railings. Two body heights plus a denser angular fan give Minecraft thin
+        // vertical slabs near the real Fallout collision rather than body-sized fake cubes.
+        constexpr int kRays = 48;
         constexpr double kRange = 10.0;
-        constexpr std::array<double, 2> kHeights{ 0.65, 1.55 };
+        constexpr std::array<double, 3> kHeights{ 0.35, 1.0, 1.65 };
         for (double h : kHeights) {
             for (int i = 0; i < kRays; ++i) {
                 const double a = (double(i) / kRays) * 6.2831853071795864769;
@@ -320,26 +433,16 @@ namespace falloutcraft
                 const auto to = McToSky(a_playerMc.x + dx * kRange, a_playerMc.y + h, a_playerMc.z + dz * kRange);
                 RE::NiPoint3 hit{};
                 if (Ray(from, to, hit)) {
-                    auto mc = SkyToMc(hit);
-                    // Step a little into the surface so a hit lying exactly on a cell edge is
-                    // assigned to the solid side rather than the empty side.
-                    mc.x += dx * 0.06;
-                    mc.z += dz * 0.06;
-                    MarkBlock(
-                        static_cast<int>(std::floor(mc.x)),
-                        static_cast<int>(std::floor(mc.y)),
-                        static_cast<int>(std::floor(mc.z)));
+                    const auto mc = SkyToMc(hit);
+                    MarkWallSurface(mc.x, mc.y, mc.z, dx, dz);
                 }
             }
         }
 
-        // If Fallout's live ray path faults on this machine/runtime, do not take the
-        // host down with it. Keep a small temporary support plane under the MC player so the
-        // rest of the full-port stack (link, input, HUD, renderer, avatar) can still be tested.
-        if (raycastingDisabled_ && occupied_.empty()) {
-            // Keep the fallback at the ORIGINAL arrival height. v0.5.2 recomputed it from
-            // Minecraft's falling Y every sample, so the emergency floor literally fell with
-            // the player and could never catch them.
+        // If the verified Fallout ray path faults, retain a stable emergency support floor so
+        // the rest of the bridge remains testable. This fallback is intentionally the only place
+        // that still publishes whole cubes.
+        if (raycastingDisabled_ && voxels_.empty()) {
             if (!fallbackFloorSet_) {
                 fallbackFloorSet_ = true;
                 fallbackFloorY_ = static_cast<int>(std::floor(a_playerMc.y - 0.05)) - 1;
@@ -347,29 +450,12 @@ namespace falloutcraft
             }
             for (int dz = -8; dz <= 8; ++dz) {
                 for (int dx = -8; dx <= 8; ++dx) {
-                    MarkBlock(cx + dx, fallbackFloorY_, cz + dz);
+                    SetFullBlock(cx + dx, fallbackFloorY_, cz + dz);
                 }
             }
         }
 
-        // Cache full-block contact boxes for the renderer/NPC systems.
-        {
-            std::unique_lock lock(boxesLock_);
-            boxes_.clear();
-            constexpr std::uint32_t full =
-                2u | (7u << 11) | (7u << 14) | (7u << 17);
-            for (auto key : occupied_) {
-                int x, y, z;
-                Unpack(key, x, y, z);
-                const int rx = FloorDiv8(x), ry = FloorDiv8(y), rz = FloorDiv8(z);
-                auto& box = boxes_[RegionKey(rx, ry, rz)];
-                const int bx = x - rx * 8, by = y - ry * 8, bz = z - rz * 8;
-                if (bx >= 0 && bx < 8 && by >= 0 && by < 8 && bz >= 0 && bz < 8) {
-                    box[bx + 8 * (by + 8 * bz)] = full;
-                }
-            }
-            ++boxesGen_;
-        }
+        RebuildContactBoxes();
     }
 
     void Collision::Publish(const McVec& a_playerMc)
@@ -378,31 +464,33 @@ namespace falloutcraft
         const int pry = FloorDiv8(static_cast<int>(std::floor(a_playerMc.y)));
         const int prz = FloorDiv8(static_cast<int>(std::floor(a_playerMc.z)));
 
+        // Publish the same ColBlock 8x8x8 sub-voxel representation used by SkyCraft. Empty
+        // regions are sent too, which tells Minecraft old collision in that region is gone.
         for (int rz = prz - 1; rz <= prz + 1; ++rz) {
             for (int ry = pry - 2; ry <= pry + 1; ++ry) {
                 for (int rx = prx - 1; rx <= prx + 1; ++rx) {
-                    std::vector<std::array<int, 3>> blocks;
-                    // The ray sampler only tells us that a surface was touched; it does not give
-                    // us the exact hknp shape inside that Minecraft cell. Publishing every wall,
-                    // railing and ceiling hit as a *full cube* can surround the player with fake
-                    // collision and pin Minecraft in place even though its walk animation runs.
-                    //
-                    // Until the real hknp triangle/sub-voxel harvester is online, only publish
-                    // conservative SUPPORT cells at/below the player's feet. Keep the richer
-                    // occupied_ set host-side for NPC/contact-lighting systems, but do not let
-                    // coarse body-height/ceiling samples become authoritative player collision.
-                    // Because each published sample is still a whole Minecraft cube, only
-                    // keep cells whose *top* is at/below the feet. A cell containing the feet
-                    // would overlap the player's AABB and recreate the "walking animation but
-                    // stuck in place" bug we are trying to eliminate.
-                    const int supportTop = static_cast<int>(std::floor(a_playerMc.y + 0.01)) - 1;
-                    for (auto key : occupied_) {
+                    std::vector<proto::ColBlock> blocks;
+                    blocks.reserve(96);
+                    for (const auto& [key, bits] : voxels_) {
                         int x, y, z;
                         Unpack(key, x, y, z);
-                        if (y <= supportTop &&
-                            FloorDiv8(x) == rx && FloorDiv8(y) == ry && FloorDiv8(z) == rz) {
-                            blocks.push_back({ x, y, z });
+                        if (FloorDiv8(x) != rx || FloorDiv8(y) != ry || FloorDiv8(z) != rz) {
+                            continue;
                         }
+                        bool any = false;
+                        for (auto layer : bits) {
+                            any |= layer != 0;
+                        }
+                        if (!any) {
+                            continue;
+                        }
+                        proto::ColBlock block{};
+                        block.x = x;
+                        block.y = y;
+                        block.z = z;
+                        block.pad = 0;
+                        std::copy(bits.begin(), bits.end(), std::begin(block.bits));
+                        blocks.push_back(block);
                     }
 
                     proto::ColRegion region{};
@@ -413,22 +501,12 @@ namespace falloutcraft
                     region.maxY = region.minY + 7;
                     region.maxZ = region.minZ + 7;
                     region.epoch = epoch_;
-
-                    // Fallout's current hknp sampler only knows conservative occupied cells.
-                    // Do NOT advertise those whole cubes as exact triangles. For v0.5.6 the
-                    // Minecraft player receives support-only voxel occupancy; body-height walls
-                    // and ceilings stay host-side until exact hknp geometry is available.
-                    // The 1/8 voxel and exact-triangle protocol remains intact for that upgrade.
                     region.count = static_cast<std::uint32_t>(blocks.size());
+
                     std::vector<std::uint8_t> payload(sizeof(region) + blocks.size() * sizeof(proto::ColBlock));
                     std::memcpy(payload.data(), &region, sizeof(region));
-                    auto* out = reinterpret_cast<proto::ColBlock*>(payload.data() + sizeof(region));
-                    for (std::size_t i = 0; i < blocks.size(); ++i) {
-                        out[i].x = blocks[i][0];
-                        out[i].y = blocks[i][1];
-                        out[i].z = blocks[i][2];
-                        out[i].pad = 0;
-                        std::fill(std::begin(out[i].bits), std::end(out[i].bits), ~0ull);
+                    if (!blocks.empty()) {
+                        std::memcpy(payload.data() + sizeof(region), blocks.data(), blocks.size() * sizeof(proto::ColBlock));
                     }
                     Link::Get().WriteCollision(proto::kColRegion, payload.data(), static_cast<std::uint32_t>(payload.size()));
                 }
@@ -440,7 +518,7 @@ namespace falloutcraft
     {
         const auto now = std::chrono::steady_clock::now();
         if (lastSample_.time_since_epoch().count() != 0 &&
-            now - lastSample_ < std::chrono::milliseconds(350)) {
+            now - lastSample_ < std::chrono::milliseconds(100)) {
             return;
         }
         lastSample_ = now;
