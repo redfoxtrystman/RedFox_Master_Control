@@ -213,12 +213,17 @@ namespace falloutcraft
 
             // Collision must stream before takeover. Minecraft deliberately withholds teleportAck
             // until the arrival regions are known.
+            const bool acknowledged = haveMc && g_mc.teleportAck == g_teleportSeq;
             if (mcAlive && !loading) {
-                const McVec collisionAt = st.mcInWorld ? McVec{ g_mc.x, g_mc.y, g_mc.z } : SkyToMc(a_player->GetPosition());
+                // Until Minecraft acknowledges the current teleport, collision must be harvested
+                // around Fallout's real player. Sampling stale MC coordinates here deadlocks the
+                // arrival hold because the regions Minecraft is waiting for never arrive.
+                const McVec collisionAt = (st.mcInWorld && acknowledged)
+                    ? McVec{ g_mc.x, g_mc.y, g_mc.z }
+                    : SkyToMc(a_player->GetPosition());
                 Collision::Get().Update(collisionAt);
             }
 
-            const bool acknowledged = haveMc && g_mc.teleportAck == g_teleportSeq;
             const bool puppet = haveMc && st.mcInWorld && acknowledged && !loading;
             st.minecraftOwnsPlayer = puppet;
             st.puppeting = puppet;
