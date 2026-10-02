@@ -277,7 +277,7 @@ namespace falloutcraft
             if (!g_installed.compare_exchange_strong(expected, true)) {
                 return;
             }
-            REL::Relocation<std::uintptr_t> vtbl{ RE::VTABLE_PlayerCharacter[0] };
+            REL::Relocation<std::uintptr_t> vtbl{ RE::PlayerCharacter::VTABLE[0] };
             PlayerUpdateHook::func = vtbl.write_vfunc(0xAD, PlayerUpdateHook::thunk);
             logger::info("FalloutCraft: PlayerCharacter::Update hook installed at vfunc 0xAD");
         }
