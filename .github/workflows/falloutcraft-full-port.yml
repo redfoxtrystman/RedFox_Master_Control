@@ -82,8 +82,8 @@ jobs:
           if (-not $jar) { throw 'FalloutCraft Fabric jar artifact missing' }
           Copy-Item $jar.FullName dist/mods/FalloutCraft-fabric-0.1.0.jar
           Copy-Item projects/FalloutCraft/source/full_port/README_ALPHA.txt dist/README_FULL_PORT_ALPHA.txt
-          Compress-Archive -Path dist/* -DestinationPath FalloutCraft_v0.5.7_FULL_PORT_ALPHA.zip -Force
+          Compress-Archive -Path dist/* -DestinationPath FalloutCraft_v0.5.8_FULL_PORT_ALPHA.zip -Force
       - uses: actions/upload-artifact@v4
         with:
-          name: FalloutCraft-v0.5.7-FULL-PORT-ALPHA
-          path: FalloutCraft_v0.5.7_FULL_PORT_ALPHA.zip
+          name: FalloutCraft-v0.5.8-FULL-PORT-ALPHA
+          path: FalloutCraft_v0.5.8_FULL_PORT_ALPHA.zip
