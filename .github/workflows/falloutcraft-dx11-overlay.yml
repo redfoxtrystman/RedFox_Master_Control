@@ -1,0 +1,54 @@
+name: FalloutCraft DX11 Overlay
+
+on:
+  push:
+    branches:
+      - falloutcraft-v0.3.4-recovery
+    paths:
+      - 'projects/FalloutCraft/source/dx11_overlay/**'
+      - '.github/workflows/falloutcraft-dx11-overlay.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout F4SE reference workspace
+        shell: pwsh
+        run: |
+          git clone --depth 1 https://github.com/DCCStudios/F4SEMenuFramework _deps/F4SEMenuFramework
+
+      - name: Bootstrap vcpkg
+        shell: pwsh
+        run: |
+          git clone --depth 1 https://github.com/microsoft/vcpkg _deps/vcpkg
+          .\_deps\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+
+      - name: Configure
+        shell: pwsh
+        working-directory: projects/FalloutCraft/source/dx11_overlay
+        run: |
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE="$env:GITHUB_WORKSPACE/_deps/vcpkg/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static-md `
+            -DCOMMONLIBF4_PATH="$env:GITHUB_WORKSPACE/_deps/F4SEMenuFramework/extern/commonlibf4"
+
+      - name: Build
+        shell: pwsh
+        working-directory: projects/FalloutCraft/source/dx11_overlay
+        run: cmake --build build --config Release --target FalloutCraftDX11Overlay
+
+      - name: Stage artifact
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist/Data/F4SE/Plugins | Out-Null
+          Copy-Item projects/FalloutCraft/source/dx11_overlay/build/out/Release/FalloutCraftDX11Overlay.dll dist/Data/F4SE/Plugins/
+          Copy-Item projects/FalloutCraft/source/dx11_overlay/README.md dist/README_DX11_OVERLAY.txt
+          Compress-Archive -Path dist/* -DestinationPath FalloutCraft_DX11_Overlay_TEST.zip -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FalloutCraft-DX11-Overlay-TEST
+          path: FalloutCraft_DX11_Overlay_TEST.zip
