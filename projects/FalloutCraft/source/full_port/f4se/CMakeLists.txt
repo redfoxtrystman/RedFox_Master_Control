@@ -9,15 +9,23 @@ set(COMMONLIBF4_PATH "" CACHE PATH "Path to CommonLibF4 source tree")
 if(NOT COMMONLIBF4_PATH)
   message(FATAL_ERROR "COMMONLIBF4_PATH must point at CommonLibF4")
 endif()
-
 if(NOT TARGET CommonLibF4)
   add_subdirectory("${COMMONLIBF4_PATH}" CommonLibF4)
 endif()
 
 find_package(spdlog REQUIRED CONFIG)
-find_package(SimpleIni CONFIG REQUIRED)
 
-file(GLOB_RECURSE FALLOUTCRAFT_SOURCES CONFIGURE_DEPENDS src/*.cpp src/*.h)
+# The complete SkyCraft-derived source remains in src/ for reference/adaptation.
+# The Fallout runtime target uses the Fallout-native compatibility implementations below.
+set(FALLOUTCRAFT_SOURCES
+  src/Link.cpp
+  src/CompatMain.cpp
+  src/CompatGame.cpp
+  src/CompatInput.cpp
+  src/CompatRenderer.cpp
+  src/CompatCollision.cpp
+  src/CompatSubsystems.cpp
+)
 add_library(FalloutCraft SHARED ${FALLOUTCRAFT_SOURCES})
 target_include_directories(FalloutCraft PRIVATE src ${CMAKE_CURRENT_SOURCE_DIR}/../protocol)
 target_precompile_headers(FalloutCraft PRIVATE src/PCH.h)
@@ -25,7 +33,6 @@ target_compile_definitions(FalloutCraft PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
 target_link_libraries(FalloutCraft PRIVATE
   CommonLibF4::CommonLibF4
   spdlog::spdlog
-  SimpleIni::SimpleIni
   d3d11
   d3dcompiler
   dxgi
@@ -33,7 +40,7 @@ target_link_libraries(FalloutCraft PRIVATE
   oleaut32
 )
 if(MSVC)
-  target_compile_options(FalloutCraft PRIVATE /W4 /permissive- /Zc:preprocessor /utf-8 /MP /wd4200)
+  target_compile_options(FalloutCraft PRIVATE /W4 /permissive- /Zc:preprocessor /utf-8 /MP /wd4200 /wd4100 /wd4189)
   target_link_options(FalloutCraft PRIVATE /DEBUG:FULL)
 endif()
 set_target_properties(FalloutCraft PROPERTIES
