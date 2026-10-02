@@ -13,6 +13,9 @@ namespace falloutcraft
         float g_lookDx = 0.0f;
         float g_lookDy = 0.0f;
         std::mutex g_lookLock;
+        std::array<bool, 256> g_keyDown{};
+        std::array<bool, 8> g_mouseDown{};
+        std::mutex g_buttonLock;
 
         std::uint16_t VkToSdl(WPARAM a_vk, LPARAM a_lParam)
         {
@@ -129,11 +132,37 @@ namespace falloutcraft
             }
         }
 
+        void RouteKey(std::uint16_t a_scancode, bool a_down)
+        {
+            if (!RoutesToMinecraft() || a_scancode >= g_keyDown.size()) {
+                return;
+            }
+            std::lock_guard lock(g_buttonLock);
+            if (g_keyDown[a_scancode] == a_down) {
+                return;  // Fallout emits held button events every frame; Minecraft wants edges.
+            }
+            g_keyDown[a_scancode] = a_down;
+            Link::Get().PushInput(proto::kInKey, a_scancode, a_down ? 1 : 0);
+        }
+
         void RouteButton(std::uint16_t a_button, bool a_down)
         {
-            if (RoutesToMinecraft()) {
-                Link::Get().PushInput(proto::kInMouseButton, a_button, a_down ? 1 : 0);
+            if (!RoutesToMinecraft() || a_button >= g_mouseDown.size()) {
+                return;
             }
+            std::lock_guard lock(g_buttonLock);
+            if (g_mouseDown[a_button] == a_down) {
+                return;
+            }
+            g_mouseDown[a_button] = a_down;
+            Link::Get().PushInput(proto::kInMouseButton, a_button, a_down ? 1 : 0);
+        }
+
+        void ClearBridgeButtonState()
+        {
+            std::lock_guard lock(g_buttonLock);
+            g_keyDown.fill(false);
+            g_mouseDown.fill(false);
         }
 
         LRESULT CALLBACK FalloutCraftWndProc(HWND a_hwnd, UINT a_msg, WPARAM a_wParam, LPARAM a_lParam)
@@ -178,7 +207,7 @@ namespace falloutcraft
                 if (!g_nativeInputInstalled.load() && RoutesToMinecraft()) {
                     if (const auto sc = VkToSdl(a_wParam, a_lParam); sc != 0) {
                         const bool down = a_msg == WM_KEYDOWN || a_msg == WM_SYSKEYDOWN;
-                        Link::Get().PushInput(proto::kInKey, sc, down ? 1 : 0);
+                        RouteKey(sc, down);
                     }
                 }
                 break;
@@ -241,7 +270,7 @@ namespace falloutcraft
                 if (a_event->device == RE::INPUT_DEVICE::kKeyboard) {
                     const auto vk = static_cast<WPARAM>(static_cast<std::uint32_t>(a_event->GetBSButtonCode()));
                     if (const auto sc = VkToSdl(vk, 0); sc != 0) {
-                        Link::Get().PushInput(proto::kInKey, sc, down ? 1 : 0);
+                        RouteKey(sc, down);
                     }
                     const_cast<RE::ButtonEvent*>(a_event)->handled = RE::InputEvent::HANDLED_RESULT::kStop;
                     return;
@@ -250,9 +279,9 @@ namespace falloutcraft
                 if (a_event->device == RE::INPUT_DEVICE::kMouse) {
                     const auto code = static_cast<std::uint32_t>(a_event->GetBSButtonCode());
                     if (code == static_cast<std::uint32_t>(RE::BS_BUTTON_CODE::kWheelUp)) {
-                        if (down) Link::Get().PushInput(proto::kInScroll, 0, 120);
+                        if (a_event->QJustPressed()) Link::Get().PushInput(proto::kInScroll, 0, 120);
                     } else if (code == static_cast<std::uint32_t>(RE::BS_BUTTON_CODE::kWheelDown)) {
-                        if (down) Link::Get().PushInput(proto::kInScroll, 0, -120);
+                        if (a_event->QJustPressed()) Link::Get().PushInput(proto::kInScroll, 0, -120);
                     } else {
                         static constexpr std::uint16_t buttons[8]{ 1, 3, 2, 4, 5, 0, 0, 0 };
                         const auto id = a_event->QIDCode();
@@ -339,6 +368,12 @@ namespace falloutcraft
 
         void ReleaseAll()
         {
+            ClearBridgeButtonState();
+            {
+                std::lock_guard lock(g_lookLock);
+                g_lookDx = 0.0f;
+                g_lookDy = 0.0f;
+            }
             Link::Get().PushInput(proto::kInReleaseAll, 0);
         }
 
