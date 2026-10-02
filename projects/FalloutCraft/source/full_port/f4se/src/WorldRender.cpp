@@ -1498,19 +1498,25 @@ float4 OverlayPS(float4 pos : SV_Position) : SV_Target
 			a_out[0] = a_x, a_out[1] = a_y, a_out[2] = a_z, a_out[3] = a_w;
 		}
 
-		void SetColor(float a_out[4], const RE::Color& a_c, float a_w = 0.0f)
+		void SetPackedColor(float a_out[4], std::uint32_t a_rgb, float a_w = 0.0f)
 		{
-			Set4(a_out, a_c.red / 255.0f, a_c.green / 255.0f, a_c.blue / 255.0f, a_w);
+			// Fallout 4 CELL/TESWeather colours are stored as packed RGB bytes.
+			const float r = float((a_rgb >> 16) & 0xFF) / 255.0f;
+			const float g = float((a_rgb >> 8) & 0xFF) / 255.0f;
+			const float b = float(a_rgb & 0xFF) / 255.0f;
+			Set4(a_out, r, g, b, a_w);
 		}
 
-		// An interior cell's lighting values, from its lighting template where the cell inherits them.
-		template <class F>
-		void InteriorValue(RE::TESObjectCELL* a_cell, RE::INTERIOR_DATA::Inherit a_flag, F a_get)
+		std::optional<std::filesystem::path> RenderLogDirectory()
 		{
-			auto*      own = a_cell->GetLighting();
-			auto*      tmpl = a_cell->GetRuntimeData().lightingTemplate;
-			const bool inherit = tmpl && own->lightingTemplateInheritanceFlags.any(a_flag);
-			a_get(inherit ? tmpl->data : *own, inherit ? tmpl : nullptr);
+			wchar_t* docsRaw = nullptr;
+			if (FAILED(::SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_DEFAULT, nullptr, &docsRaw))) {
+				if (docsRaw) ::CoTaskMemFree(docsRaw);
+				return std::nullopt;
+			}
+			std::filesystem::path docs(docsRaw);
+			::CoTaskMemFree(docsRaw);
+			return docs / "My Games" / "Fallout4" / "F4SE";
 		}
 
 		// Fallout's lighting, for Minecraft surfaces to be lit the way Fallout lights its own: the
@@ -1563,19 +1569,18 @@ float4 OverlayPS(float4 pos : SV_Position) : SV_Target
 		// contact shadows off (checked every 2 s), to measure what they cost.
 		bool ContactShadowsWanted()
 		{
-			static bool          wanted = true;
-			static std::int64_t  next = 0;
-			LARGE_INTEGER        now, freq;
-			::QueryPerformanceCounter(&now);
-			::QueryPerformanceFrequency(&freq);
-			if (now.QuadPart >= next) {
-				next = now.QuadPart + freq.QuadPart * 2;
-				const auto dir = F4SE::log::log_directory();
-				const bool off = dir && std::filesystem::exists(*dir / "falloutcraft_nocontact");
-				if (wanted == off) {
-					logger::info("contact shadows {}", off ? "switched off (falloutcraft_nocontact)" : "switched on");
+			static bool wanted = true;
+			static auto nextCheck = std::chrono::steady_clock::time_point{};
+			const auto now = std::chrono::steady_clock::now();
+			if (now >= nextCheck) {
+				nextCheck = now + std::chrono::seconds(2);
+				if (const auto dir = RenderLogDirectory()) {
+					const bool off = std::filesystem::exists(*dir / "falloutcraft_nocontact");
+					if (wanted == off) {
+						logger::info("contact shadows {}", off ? "switched off (falloutcraft_nocontact)" : "switched on");
+					}
+					wanted = !off;
 				}
-				wanted = !off;
 			}
 			return wanted;
 		}
@@ -1639,191 +1644,45 @@ float4 OverlayPS(float4 pos : SV_Position) : SV_Target
 			return true;
 		}
 
-		void GatherLighting(FrameConstants& a_fc, const RE::NiPoint3& a_cam)
+		void GatherLighting(FrameConstants& a_fc, const RE::NiPoint3&)
 		{
-			// Fallbacks, should any of Fallout's lighting be missing: plain daylight.
+			// Fallout 4 compatibility path. The full SkyCraft renderer stays enabled, while
+			// Fallout-specific light extraction is sourced from CELL data instead of Skyrim's
+			// BSShaderManager/Sky runtime layout.
 			Set4(a_fc.sunDir, 0.3f, -0.4f, 0.87f, kExposure);
 			Set4(a_fc.sunColor, 0.9f, 0.85f, 0.75f, 0.0f);
 			for (auto& a : a_fc.ambient) {
 				Set4(a, 0.45f, 0.47f, 0.5f, 0.0f);
 			}
 			Set4(a_fc.fogNear, 0, 0, 0, 0);
+			Set4(a_fc.fogFar, 0, 0, 0, 0);
+			Set4(a_fc.fogRange, 0, 0, 1, 0);
 			Set4(a_fc.grade, 1, 1, 1, 0);
+			Set4(a_fc.tint, 1, 1, 1, 0);
+			for (auto& p : a_fc.lightPos) Set4(p, 0, 0, 0, 0);
+			for (auto& p : a_fc.lightColor) Set4(p, 0, 0, 0, 0);
+			a_fc.sunColor[3] = 0.0f;
+			a_fc.shadowParams[0] = 0.0f;
 
-			auto*      player = RE::PlayerCharacter::GetSingleton();
-			auto*      cell = player ? player->GetParentCell() : nullptr;
-			const bool interior = cell && cell->IsInteriorCell() && cell->GetLighting();
-			auto*      sky = RE::Sky::GetSingleton();
-			auto*      ssn = RE::BSShaderManager::State::GetSingleton().shadowSceneNode[0];
-
-			// The directional light Fallout's shaders use: sun or moon outside, the cell's light inside.
-			RE::NiDirectionalLight* dirLight = nullptr;
-			if (ssn) {
-				auto* bsSun = ssn->GetRuntimeData().sunLight;
-				if (bsSun && bsSun->light) {
-					dirLight = netimmerse_cast<RE::NiDirectionalLight*>(bsSun->light.get());
-				}
+			auto* player = RE::PlayerCharacter::GetSingleton();
+			auto* cell = player ? player->GetParentCell() : nullptr;
+			if (!cell || !cell->IsInterior() || !cell->cellData.interior) {
+				return;
 			}
-			float sunFade = 1.0f;
-			if (dirLight) {
-				const auto  dir = dirLight->GetWorldDirection();
-				const float len = dir.Length();
-				if (len > 1e-4f) {
-					Set4(a_fc.sunDir, -dir.x / len, -dir.y / len, -dir.z / len, kExposure);
-				}
-				const auto& ld = dirLight->GetLightRuntimeData();
-				sunFade = ld.fade > 0.0f && ld.fade < 16.0f ? ld.fade : 1.0f;
-				Set4(a_fc.sunColor, ld.diffuse.red * sunFade, ld.diffuse.green * sunFade, ld.diffuse.blue * sunFade, 0.0f);
+			const auto& d = *cell->cellData.interior;
+			float ambient[4]{};
+			SetPackedColor(ambient, d.ambient);
+			for (auto& a : a_fc.ambient) {
+				Set4(a, ambient[0], ambient[1], ambient[2], 0.0f);
 			}
-
-			// Directional ambient ("DALC"): six colours named by the way the light travels, so a
-			// face looking along +Z (up) takes the Z- colour, the sky's light coming down. (Checked
-			// in game: Z- is the bright sky colour, and the sides facing the sun take X-/Y-.)
-			using Inherit = RE::INTERIOR_DATA::Inherit;
-			if (interior) {
-				InteriorValue(cell, Inherit::kAmbientColor, [&](const RE::INTERIOR_DATA& a_d, RE::BGSLightingTemplate* a_t) {
-					const auto& dal = a_t ? a_t->directionalAmbientLightingColors.directional : a_d.directionalAmbientLightingColors.directional;
-					SetColor(a_fc.ambient[0], dal.x.min);
-					SetColor(a_fc.ambient[1], dal.x.max);
-					SetColor(a_fc.ambient[2], dal.y.min);
-					SetColor(a_fc.ambient[3], dal.y.max);
-					SetColor(a_fc.ambient[4], dal.z.min);
-					SetColor(a_fc.ambient[5], dal.z.max);
-				});
-			} else if (sky) {
-				// Fallout's blended copy of the weather's colours: [axis][0] is the + colour, [axis][1] the - one.
-				for (int axis = 0; axis < 3; ++axis) {
-					const auto& plus = sky->directionalAmbientColors[axis][0];
-					const auto& minus = sky->directionalAmbientColors[axis][1];
-					Set4(a_fc.ambient[axis * 2], minus.red, minus.green, minus.blue, 0.0f);  // faces looking +axis
-					Set4(a_fc.ambient[axis * 2 + 1], plus.red, plus.green, plus.blue, 0.0f);
-				}
-			}
-
-			// Fog, as Fallout fades its own geometry with distance.
-			float fogNearD = 0, fogFarD = 0, fogPower = 1, fogMax = 0;
-			if (interior) {
-				InteriorValue(cell, Inherit::kFogNear, [&](const RE::INTERIOR_DATA& a_d, auto*) { fogNearD = a_d.fogNear; });
-				InteriorValue(cell, Inherit::kFogFar, [&](const RE::INTERIOR_DATA& a_d, auto*) { fogFarD = a_d.fogFar; });
-				InteriorValue(cell, Inherit::kFogPower, [&](const RE::INTERIOR_DATA& a_d, auto*) { fogPower = a_d.fogPower; });
-				InteriorValue(cell, Inherit::kFogMax, [&](const RE::INTERIOR_DATA& a_d, auto*) { fogMax = a_d.fogClamp; });
-				InteriorValue(cell, Inherit::kFogColor, [&](const RE::INTERIOR_DATA& a_d, auto*) {
-					SetColor(a_fc.fogNear, a_d.fogColorNear);
-					SetColor(a_fc.fogFar, a_d.fogColorFar);
-				});
-			} else if (sky) {
-				fogNearD = sky->fogNear, fogFarD = sky->fogFar, fogPower = sky->fogPower, fogMax = sky->fogClamp;
-				const auto& n = sky->skyColor[RE::TESWeather::ColorTypes::kFogNear];
-				const auto& f = sky->skyColor[RE::TESWeather::ColorTypes::kFogFar];
-				Set4(a_fc.fogNear, n.red, n.green, n.blue, 0.0f);
-				Set4(a_fc.fogFar, f.red, f.green, f.blue, 0.0f);
-			}
-			if (fogFarD > fogNearD + 1.0f && fogMax > 0.0f) {
-				Set4(a_fc.fogRange, 1.0f / (fogFarD - fogNearD), fogNearD / (fogFarD - fogNearD), fogPower > 0.0f ? fogPower : 1.0f, std::min(fogMax, 1.0f));
-				a_fc.fogNear[3] = 1.0f;
-			}
-
-			// The image space's colour grading (Fallout's look: saturation, tint, brightness, contrast).
-			if (auto* ism = RE::ImageSpaceManager::GetSingleton()) {
-				const auto& base = ism->GetImageSpaceData().baseData;
-				const auto& cin = base.cinematic;
-				if (cin.saturation >= 0.0f && cin.saturation < 4.0f && cin.brightness > 0.05f && cin.brightness < 4.0f && cin.contrast > 0.05f && cin.contrast < 4.0f) {
-					Set4(a_fc.grade, cin.saturation, cin.brightness, cin.contrast, 1.0f);
-					Set4(a_fc.tint, base.tint.color.red, base.tint.color.green, base.tint.color.blue, std::clamp(base.tint.amount, 0.0f, 1.0f));
-				}
-			}
-
-			// The point lights nearest to reaching the camera.
-			struct Candidate
-			{
-				float        reach;
-				RE::NiPoint3 pos;
-				float        radius;
-				RE::NiColor  color;
-			};
-			static std::vector<Candidate> candidates;
-			candidates.clear();
-			auto consider = [&](RE::BSLight* a_light) {
-				if (!a_light || !a_light->pointLight || !a_light->light) {
-					return;
-				}
-				auto* light = a_light->light.get();
-				if (BlockLights::IsOurs(light)) {
-					return;  // Minecraft's own block light is already in the blocks' vertices
-				}
-				const auto& ld = light->GetLightRuntimeData();
-				const float radius = ld.radius.x;
-				if (!(radius > 1.0f) || light->GetFlags().any(RE::NiAVObject::Flag::kHidden)) {
-					return;
-				}
-				const float dimmer = std::clamp(a_light->lodDimmer, 0.0f, 1.0f) * ld.fade;
-				const auto  pos = light->world.translate;
-				const float reach = pos.GetDistance(a_cam) - radius;
-				if (reach > 6000.0f || std::fabs(dimmer) < 1e-3f) {
-					return;
-				}
-				candidates.push_back({ reach, pos, radius, { ld.diffuse.red * dimmer, ld.diffuse.green * dimmer, ld.diffuse.blue * dimmer } });
-			};
-			if (ssn) {
-				auto& rd = ssn->GetRuntimeData();
-				for (auto& light : rd.activeLights) {
-					consider(light.get());
-				}
-				for (auto& light : rd.activeShadowLights) {
-					consider(light.get());
-				}
-			}
-			std::ranges::sort(candidates, {}, &Candidate::reach);
-			const auto count = std::min<std::size_t>(candidates.size(), kMaxLights);
-			for (std::size_t k = 0; k < count; ++k) {
-				const auto& c = candidates[k];
-				Set4(a_fc.lightPos[k], c.pos.x - a_cam.x, c.pos.y - a_cam.y, c.pos.z - a_cam.z, 1.0f / c.radius);
-				Set4(a_fc.lightColor[k], c.color.red, c.color.green, c.color.blue, 0.0f);
-			}
-			a_fc.sunColor[3] = float(count);
-			a_fc.shadowParams[0] = (!interior && dirLight && a_fc.sunDir[2] > 0.03f) ? 1.0f : 0.0f;
-
-			// What Fallout gave us, now and then, for tuning.
-			static RE::TESObjectCELL* loggedCell = nullptr;
-			static auto               lastLog = std::chrono::steady_clock::time_point{};
-			const auto                now = std::chrono::steady_clock::now();
-			if (DiagnosticsEnabled() && (cell != loggedCell || now - lastLog > std::chrono::seconds(30))) {
-				loggedCell = cell;
-				lastLog = now;
-				const float* up = a_fc.ambient[4];
-				const float* down = a_fc.ambient[5];
-				const float* east = a_fc.ambient[0];
-				logger::info("lighting ({}{}): sun dir ({:.2f} {:.2f} {:.2f}) colour ({:.2f} {:.2f} {:.2f}) fade {:.2f}; ambient up ({:.2f} {:.2f} {:.2f}) down ({:.2f} {:.2f} {:.2f}) east ({:.2f} {:.2f} {:.2f})",
-					interior ? "interior" : "exterior", dirLight ? "" : ", no directional light", a_fc.sunDir[0], a_fc.sunDir[1], a_fc.sunDir[2],
-					a_fc.sunColor[0], a_fc.sunColor[1], a_fc.sunColor[2], sunFade, up[0], up[1], up[2], down[0], down[1], down[2], east[0], east[1], east[2]);
-				static RE::TESWeather* loggedWeather = nullptr;
-				if (sky && sky->currentWeather && sky->currentWeather != loggedWeather) {
-					loggedWeather = sky->currentWeather;
-					// The weather's own record (X+, X-, Y+, Y-, Z+, Z-) beside the blended runtime copy, to check the order.
-					const auto& d = sky->currentWeather->directionalAmbientLightingColors[RE::TESWeather::ColorTime::kDay].directional;
-					const auto& r = sky->directionalAmbientColors;
-					auto        avg = [](const RE::Color& a_c) { return (a_c.red + a_c.green + a_c.blue) / 765.0f; };
-					auto        avgN = [](const RE::NiColor& a_c) { return (a_c.red + a_c.green + a_c.blue) / 3.0f; };
-					logger::info("lighting: weather {:08X} day ambient X+ {:.2f} X- {:.2f} Y+ {:.2f} Y- {:.2f} Z+ {:.2f} Z- {:.2f}; runtime [x] {:.2f} {:.2f} [y] {:.2f} {:.2f} [z] {:.2f} {:.2f}",
-						sky->currentWeather->GetFormID(), avg(d.x.max), avg(d.x.min), avg(d.y.max), avg(d.y.min), avg(d.z.max), avg(d.z.min), avgN(r[0][0]), avgN(r[0][1]),
-						avgN(r[1][0]), avgN(r[1][1]), avgN(r[2][0]), avgN(r[2][1]));
-				}
-				if (sky) {
-					const auto& su = sky->directionalAmbientColors[2][1];
-					const auto& sa = sky->skyColor[RE::TESWeather::ColorTypes::kAmbient];
-					const auto& sl = sky->skyColor[RE::TESWeather::ColorTypes::kSunlight];
-					logger::info("lighting: sky mode {} ambient-up ({:.2f} {:.2f} {:.2f}) ambient ({:.2f} {:.2f} {:.2f}) sunlight ({:.2f} {:.2f} {:.2f}); fog {:.0f}-{:.0f} power {:.2f} max {:.2f} ({})",
-						static_cast<int>(sky->mode.get()), su.red, su.green, su.blue, sa.red, sa.green, sa.blue, sl.red, sl.green, sl.blue, fogNearD, fogFarD, fogPower,
-						fogMax, a_fc.fogNear[3] > 0.5f ? "on" : "off");
-				}
-				logger::info("lighting: grade saturation {:.2f} brightness {:.2f} contrast {:.2f} tint ({:.2f} {:.2f} {:.2f}) x{:.2f} ({}); {} point lights of {} in range",
-					a_fc.grade[0], a_fc.grade[1], a_fc.grade[2], a_fc.tint[0], a_fc.tint[1], a_fc.tint[2], a_fc.tint[3], a_fc.grade[3] > 0.5f ? "on" : "off", count,
-					candidates.size());
-				for (std::size_t k = 0; k < std::min<std::size_t>(count, 3); ++k) {
-					const auto& c = candidates[k];
-					logger::info("lighting:   light {:.0f} away, radius {:.0f}, colour ({:.2f} {:.2f} {:.2f})", c.reach + c.radius, c.radius, c.color.red, c.color.green,
-						c.color.blue);
-				}
+			SetPackedColor(a_fc.fogNear, d.fogColorNear, 1.0f);
+			SetPackedColor(a_fc.fogFar, d.fogColorFar, 1.0f);
+			if (d.fogFar > d.fogNear + 1.0f && d.fogClamp > 0.0f) {
+				Set4(a_fc.fogRange,
+					1.0f / (d.fogFar - d.fogNear),
+					d.fogNear / (d.fogFar - d.fogNear),
+					d.fogPower > 0.0f ? d.fogPower : 1.0f,
+					std::min(d.fogClamp, 1.0f));
 			}
 		}
 
@@ -1988,198 +1847,20 @@ float4 OverlayPS(float4 pos : SV_Position) : SV_Target
 		}
 
 		// Called right after Fallout renders the sun's shadow maps: copy its cascades.
-		void CaptureSunShadows(RE::BSShadowLight* a_sun)
+		void CaptureSunShadows(RE::BSShadowLight*)
 		{
-			auto* renderer = RE::BSGraphics::Renderer::GetSingleton();
-			if (!device || !renderer || !a_sun || !State().puppeting) {
-				return;
-			}
-			auto& descs = a_sun->GetRuntimeData().shadowmapDescriptors;
-			const auto count = std::min<std::uint32_t>(descs.size(), 2);
-			if (count == 0) {
-				return;
-			}
-			auto* context = reinterpret_cast<ID3D11DeviceContext*>(renderer->GetRuntimeData().context);
-			// Where they went: the depth buffer still bound, else the shared shadow map array.
-			ID3D11Resource*         src = nullptr;
-			ID3D11DepthStencilView* bound = nullptr;
-			context->OMGetRenderTargets(0, nullptr, &bound);
-			if (bound) {
-				bound->GetResource(&src);
-				Release(bound);
-			}
-			if (!src) {
-				auto* tex = reinterpret_cast<ID3D11Texture2D*>(renderer->GetDepthStencilData().depthStencils[RE::RENDER_TARGETS_DEPTHSTENCIL::kSHADOWMAPS].texture);
-				if (tex) {
-					tex->AddRef();
-					src = tex;
-				}
-			}
-			if (!src) {
-				return;
-			}
-			D3D11_TEXTURE2D_DESC sd{};
-			static_cast<ID3D11Texture2D*>(src)->GetDesc(&sd);
-			if (!sunShadowCopy) {
-				D3D11_TEXTURE2D_DESC cd = sd;
-				cd.ArraySize = 2;
-				cd.MipLevels = 1;
-				cd.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-				cd.Usage = D3D11_USAGE_DEFAULT;
-				cd.CPUAccessFlags = 0;
-				cd.MiscFlags = 0;
-				D3D11_SHADER_RESOURCE_VIEW_DESC vd{};
-				vd.Format = DepthReadFormat(sd.Format);
-				vd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-				vd.Texture2DArray.MipLevels = 1;
-				vd.Texture2DArray.ArraySize = 2;
-				const bool ok = vd.Format != DXGI_FORMAT_UNKNOWN && sd.SampleDesc.Count == 1 && SUCCEEDED(device->CreateTexture2D(&cd, nullptr, &sunShadowCopy)) &&
-				                SUCCEEDED(device->CreateShaderResourceView(sunShadowCopy, &vd, &sunShadowCopySrv));
-				logger::info("Fallout shadows on blocks: capturing the sun's cascades from a {}x{} x{} format {} depth array ({})", sd.Width, sd.Height, sd.ArraySize,
-					static_cast<int>(sd.Format), ok ? "ok" : "can't read that format");
-				if (!ok) {
-					Release(sunShadowCopySrv);
-					Release(sunShadowCopy);
-					Release(src);
-					return;
-				}
-			}
-			D3D11_TEXTURE2D_DESC cd{};
-			sunShadowCopy->GetDesc(&cd);
-			if (cd.Width != sd.Width || cd.Height != sd.Height || cd.Format != sd.Format) {
-				Release(sunShadowCopySrv);
-				Release(sunShadowCopy);
-				Release(src);
-				return;  // recreated next frame
-			}
-			const auto& dsl = static_cast<RE::BSShadowDirectionalLight*>(a_sun)->GetShadowDirectionalLightRuntimeData();
-			for (std::uint32_t k = 0; k < count; ++k) {
-				const UINT slice = descs[k].shadowmapIndex;
-				if (slice < sd.ArraySize) {
-					context->CopySubresourceRegion(sunShadowCopy, D3D11CalcSubresource(0, k, 1), 0, 0, 0, src, D3D11CalcSubresource(0, slice, sd.MipLevels), nullptr);
-				}
-				std::memcpy(cascadeSnapshot[k].m, &descs[k].lightTransform.m, sizeof(cascadeSnapshot[k].m));
-				cascadeSnapshot[k].split = k < 3 ? dsl.endSplitDistances[k] : 0.0f;
-				cascadeSnapshot[k].slice = slice;
-			}
-			cascadeSnapshotCount = count;
-			Release(src);
-			sunShadowCaptureTime = std::chrono::steady_clock::now();
+			// Fallout 4's shadow scene layout differs from Skyrim's. World rendering remains
+			// active; direct reuse of Fallout's cascades is disabled until its exact AE layout
+			// is validated. Minecraft's own block lighting and fallback sun still render.
 		}
 
 		// Fallout's sun shadow cascades for this frame (outside only). Returns the shadow map array to
 		// read, or null. The cascades' lightTransform maps a world position straight to shadow-map
 		// uv and depth; it's re-based on the camera here like everything else.
-		ID3D11ShaderResourceView* SetFalloutShadows(FrameConstants& a_fc, const RE::NiPoint3& a_cam)
+		ID3D11ShaderResourceView* SetFalloutShadows(FrameConstants& a_fc, const RE::NiPoint3&)
 		{
 			a_fc.skyShadowSplits[3] = 0.0f;
-			static int failLogs = 0;
-			auto       fail = [&](const char* a_why) -> ID3D11ShaderResourceView* {
-                if (failLogs < 3) {
-                    ++failLogs;
-                    logger::info("Fallout shadows on blocks: not this frame ({})", a_why);
-                }
-                return nullptr;
-			};
-			auto* ssn = RE::BSShaderManager::State::GetSingleton().shadowSceneNode[0];
-			auto* renderer = RE::BSGraphics::Renderer::GetSingleton();
-			if (!ssn || !renderer) {
-				return fail("no shadow scene");
-			}
-			// The sun's shadow light: its own slot, or the directional one among the active shadow lights.
-			RE::BSShadowLight* sun = ssn->GetRuntimeData().sunShadowDirLight;
-			if (!sun) {
-				for (auto& light : ssn->GetRuntimeData().activeShadowLights) {
-					if (light && light->GetIsDirectionalLight()) {
-						sun = light.get();
-						break;
-					}
-				}
-			}
-			if (!sun) {
-				return fail("no sun shadow light");
-			}
-			auto&      descs = sun->GetRuntimeData().shadowmapDescriptors;
-			const auto count = std::min<std::uint32_t>(descs.size(), 2);
-			if (count == 0) {
-				return fail("sun shadow light has no cascades");
-			}
-			const auto& dsl = static_cast<RE::BSShadowDirectionalLight*>(sun)->GetShadowDirectionalLightRuntimeData();
-			static bool dumped = false;
-			if (!dumped) {
-				dumped = true;
-				for (std::uint32_t k = 0; k < std::min<std::uint32_t>(descs.size(), 4); ++k) {
-					const auto& d = descs[k];
-					const auto& m = d.lightTransform.m;
-					const auto* port = reinterpret_cast<const std::int32_t*>(&d.port);  // left, right, top, bottom
-					logger::info("sun shadow cascade {} of {}: target {} slice {} port ({} {} {} {}) enabled {} camera {} split {:.0f}-{:.0f}; transform rows ({:.3g} {:.3g} {:.3g} {:.3g}) ({:.3g} {:.3g} {:.3g} {:.3g}) ({:.3g} {:.3g} {:.3g} {:.3g}) ({:.3g} {:.3g} {:.3g} {:.3g})",
-						k, descs.size(), static_cast<std::int64_t>(d.renderTarget), d.shadowmapIndex, port[0], port[1], port[2], port[3], d.isEnabled,
-						d.camera ? d.camera->GetRTTI() ? "yes" : "?" : "none", k < 3 ? dsl.startSplitDistances[k] : 0.0f, k < 3 ? dsl.endSplitDistances[k] : 0.0f, m[0][0], m[0][1],
-						m[0][2], m[0][3], m[1][0], m[1][1], m[1][2], m[1][3], m[2][0], m[2][1], m[2][2], m[2][3], m[3][0], m[3][1], m[3][2], m[3][3]);
-				}
-			}
-			// Vanilla renders the sun's cascades into the shared shadow map array.
-			auto target = descs[0].renderTarget;
-			if (static_cast<std::uint32_t>(target) >= RE::RENDER_TARGETS_DEPTHSTENCIL::kTOTAL) {
-				target = RE::RENDER_TARGETS_DEPTHSTENCIL::kSHADOWMAPS;
-			}
-			(void)target;
-			if (!sunShadowCopySrv || std::chrono::steady_clock::now() - sunShadowCaptureTime > std::chrono::seconds(1)) {
-				return fail("the sun's shadow maps haven't been captured lately");
-			}
-			auto* srv = sunShadowCopySrv;
-			D3D11_SHADER_RESOURCE_VIEW_DESC sd{};
-			srv->GetDesc(&sd);
-			if (sd.ViewDimension != D3D11_SRV_DIMENSION_TEXTURE2DARRAY) {
-				static bool warned = false;
-				if (!warned) {
-					warned = true;
-					logger::warn("Fallout shadows on blocks: shadow maps aren't a texture array (view {}); left out", static_cast<int>(sd.ViewDimension));
-				}
-				return nullptr;
-			}
-			ID3D11Resource* res = nullptr;
-			srv->GetResource(&res);
-			D3D11_TEXTURE2D_DESC td{};
-			static_cast<ID3D11Texture2D*>(res)->GetDesc(&td);
-			Release(res);
-
-			bool standard = true;
-			if (cascadeSnapshotCount < count) {
-				return fail("no cascade snapshot yet");
-			}
-			for (std::uint32_t k = 0; k < count; ++k) {
-				const auto& m = cascadeSnapshot[k].m;  // the transform the copy was drawn with
-				// Row-vector convention (v * M, translation in the last row) unless the matrix says otherwise.
-				const bool rowVector = std::fabs(m[0][3]) + std::fabs(m[1][3]) + std::fabs(m[2][3]) < 1e-6f;
-				auto       at = [&](int a_r, int a_c) { return double(rowVector ? m[a_r][a_c] : m[a_c][a_r]); };  // as v * M
-				// HLSL gets mul(P, float4(rel, 1)) with P[out][in] = M[in][out], translation re-based on the camera.
-				for (int out = 0; out < 4; ++out) {
-					for (int in = 0; in < 3; ++in) {
-						a_fc.skyShadowProj[k][out][in] = float(at(in, out));
-					}
-					a_fc.skyShadowProj[k][out][3] = float(at(3, out) + at(0, out) * a_cam.x + at(1, out) * a_cam.y + at(2, out) * a_cam.z);
-				}
-				if (k == 0) {
-					// Depth grows along the sunlight (standard) or against it (reversed).
-					const double g = at(0, 2) * -a_fc.sunDir[0] + at(1, 2) * -a_fc.sunDir[1] + at(2, 2) * -a_fc.sunDir[2];
-					standard = g > 0.0;
-					static bool logged = false;
-					if (!logged) {
-						logged = true;
-						// Where the camera lands in cascade 0: should be inside (0-1) with a sane depth.
-						const float u = a_fc.skyShadowProj[0][0][3], v = a_fc.skyShadowProj[0][1][3], z = a_fc.skyShadowProj[0][2][3], w = a_fc.skyShadowProj[0][3][3];
-						logger::info("Fallout shadows on blocks: {} cascades, slices {} {}, maps {}x{} x{} format {}, splits {:.0f} {:.0f}; matrix {}, depth {}; camera at uv ({:.3f}, {:.3f}) depth {:.4f} w {:.3f}",
-							count, descs[0].shadowmapIndex, count > 1 ? descs[1].shadowmapIndex : 0, td.Width, td.Height, td.ArraySize, static_cast<int>(td.Format),
-							dsl.endSplitDistances[0], dsl.endSplitDistances[1], rowVector ? "row-vector" : "column-vector", standard ? "standard" : "reversed", u / w, v / w, z / w, w);
-					}
-				}
-			}
-			a_fc.skyShadowSplits[0] = cascadeSnapshot[0].split;
-			a_fc.skyShadowSplits[1] = count > 1 ? cascadeSnapshot[1].split : cascadeSnapshot[0].split;
-			a_fc.skyShadowSplits[3] = float(count);
-			Set4(a_fc.skyShadowParams, 0.0f, count > 1 ? 1.0f : 0.0f, 1.0f / float(std::max<UINT>(td.Width, 1)), standard ? 1.0f : -1.0f);
-			return srv;
+			return nullptr;
 		}
 
 		// 4x4 inverse (row-major), for turning Fallout's depth back into positions.
@@ -3293,14 +2974,7 @@ float4 OverlayPS(float4 pos : SV_Position) : SV_Target
 				RenderWorldHook::func = F4SE::GetTrampoline().write_call<5>(worldSite, RenderWorldHook::thunk);
 				logger::info("in-frame block drawing: hooked after Main::RenderWorld");
 			}
-			REL::Relocation<std::uintptr_t> sunVtbl{ RE::VTABLE_BSShadowDirectionalLight[0] };
-			SunShadowRenderHook::func = sunVtbl.write_vfunc(0x0A, SunShadowRenderHook::thunk);
-			logger::info("Fallout shadows on blocks: hooked the sun's shadow map rendering");
-			// Inside RenderWorld, the late accumulation pass: only logged.
-			const auto lateSite = REL::ID(107142).address() + 0x2DF;
-			if (hookCall(lateSite, REL::ID(106438).address(), "FinishAccumulatingPostResolveDepth's call")) {
-				LatePassProbeHook::func = F4SE::GetTrampoline().write_call<5>(lateSite, LatePassProbeHook::thunk);
-			}
+			logger::info("Fallout shadow-cascade capture deferred; Minecraft world rendering remains active");
 		}
 
 		void CaptureIfRequested(ID3D11DeviceContext* a_context, IDXGISwapChain* a_swapChain)
@@ -3310,7 +2984,7 @@ float4 OverlayPS(float4 pos : SV_Position) : SV_Target
 				return;
 			}
 			captureCheckTimer = 1.0f;
-			const auto dir = F4SE::log::log_directory();
+			const auto dir = RenderLogDirectory();
 			if (!dir) {
 				return;
 			}
