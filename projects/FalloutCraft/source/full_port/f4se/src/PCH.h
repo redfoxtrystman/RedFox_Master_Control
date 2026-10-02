@@ -11,6 +11,7 @@
 #include <condition_variable>
 #include <deque>
 #include <functional>
+#include <filesystem>
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
@@ -27,6 +28,7 @@
 #include <vector>
 
 #include <Windows.h>
+#include <ShlObj_core.h>
 #include <d3d11.h>
 #include <dxgi.h>
 
