@@ -467,24 +467,30 @@ namespace falloutcraft
             auto* rw = RE::BSGraphics::GetCurrentRendererWindow();
             HWND hwnd = rw ? reinterpret_cast<HWND>(rw->hwnd) : nullptr;
             const bool want = hwnd && RoutesToMinecraft() && State().mcScreenOpen.load();
-            if (want == g_nativeCursorVisible) {
-                return;
-            }
-
+            const bool changed = want != g_nativeCursorVisible;
             g_nativeCursorVisible = want;
+
             if (want) {
+                // Fallout gameplay aggressively re-captures/hides the cursor. Reassert the real
+                // OS pointer every frame while a Minecraft screen is open instead of only on the
+                // transition. This is still one cursor: Minecraft receives WM_MOUSEMOVE from it.
                 ClipCursor(nullptr);
-                while (ShowCursor(TRUE) < 0) {}
+                CURSORINFO ci{ sizeof(ci) };
+                if (!GetCursorInfo(&ci) || (ci.flags & CURSOR_SHOWING) == 0) {
+                    while (ShowCursor(TRUE) < 0) {}
+                }
                 SetCursor(LoadCursorW(nullptr, MAKEINTRESOURCEW(32512)));
 
-                // Open the Minecraft screen with the real pointer where the virtual pointer was
-                // already expected, so the first frame cannot jump to a stale Fallout position.
-                POINT p{ State().cursorX.load(), State().cursorY.load() };
-                if (ClientToScreen(hwnd, &p)) {
-                    SetCursorPos(p.x, p.y);
+                if (changed) {
+                    // Open the Minecraft screen with the pointer where the bridge last expected
+                    // it, preventing a first-frame jump to a stale Fallout mouse position.
+                    POINT p{ State().cursorX.load(), State().cursorY.load() };
+                    if (ClientToScreen(hwnd, &p)) {
+                        SetCursorPos(p.x, p.y);
+                    }
+                    logger::info("FalloutCraft: native Windows cursor handed to Minecraft GUI");
                 }
-                logger::info("FalloutCraft: native Windows cursor handed to Minecraft GUI");
-            } else {
+            } else if (changed) {
                 while (ShowCursor(FALSE) >= 0) {}
                 logger::info("FalloutCraft: native Windows cursor returned to captured-look mode");
             }
