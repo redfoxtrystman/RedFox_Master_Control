@@ -30,12 +30,20 @@ namespace falloutcraft
     private:
         void Sample(const McVec& a_playerMc);
         bool Ray(const RE::NiPoint3& a_from, const RE::NiPoint3& a_to, RE::NiPoint3& a_hit) const;
-        void MarkBlock(std::int32_t a_x, std::int32_t a_y, std::int32_t a_z);
+        void SetVoxel(std::int32_t a_x, std::int32_t a_y, std::int32_t a_z,
+            int a_sx, int a_sy, int a_sz);
+        void SetFullBlock(std::int32_t a_x, std::int32_t a_y, std::int32_t a_z);
+        void MarkFloorSurface(double a_x, double a_y, double a_z);
+        void MarkCeilingSurface(double a_x, double a_y, double a_z);
+        void MarkWallSurface(double a_x, double a_y, double a_z, double a_dx, double a_dz);
         void Publish(const McVec& a_playerMc);
+        void RebuildContactBoxes();
 
         std::uint32_t epoch_{ 0 };
         std::chrono::steady_clock::time_point lastSample_{};
-        std::unordered_set<std::uint64_t> occupied_;
+        // Same 8x8x8 sub-voxel format SkyCraft streams to Minecraft: one 64-bit X/Z
+        // occupancy layer for each of the eight Y slices in a block.
+        std::unordered_map<std::uint64_t, std::array<std::uint64_t, 8>> voxels_;
         bool raycastingDisabled_{ false };
         bool firstSampleLogged_{ false };
         bool firstRayLogged_{ false };
