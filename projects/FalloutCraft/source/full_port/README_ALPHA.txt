@@ -1,7 +1,7 @@
-FalloutCraft v0.5.0 FULL-PORT ALPHA
+FalloutCraft v0.5.1 FULL-PORT ALPHA
 ==================================
 
-This is the first whole-system Fallout 4 port of the SkyCraft architecture.
+This is the guarded follow-up to the first whole-system Fallout 4 port of the SkyCraft architecture.
 
 Install:
   Data/F4SE/Plugins/FalloutCraft.dll -> Fallout 4
@@ -12,7 +12,7 @@ IMPORTANT:
 - Launch Fallout 4 through F4SE exactly as before.
 - The old GDI/layered-window overlay is permanently removed.
 
-Systems present in this alpha:
+0.5.1 crash fix:\r\n- Guards Fallout hknp Pick() calls with SEH, sets the required LOS query filter, and drastically lowers the per-frame ray budget.\r\n- If a live Fallout physics pick faults, collision rays disable for the session and a small support plane keeps the rest of the bridge testable instead of crashing Fallout.\r\n\r\nSystems present in this alpha:
 - Minecraft-authoritative movement and camera state
 - Fallout->Minecraft keyboard/mouse bridge
 - Fallout collision stream -> Minecraft collision queries
