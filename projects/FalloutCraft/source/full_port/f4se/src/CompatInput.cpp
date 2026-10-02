@@ -366,9 +366,9 @@ namespace falloutcraft
                 std::vector<RE::InputEvent*> keep;
                 for (auto* e = const_cast<RE::InputEvent*>(a_queueHead); e; e = e->next) {
                     all.push_back(e);
-                    if (e->GetEventType() == RE::INPUT_EVENT_TYPE::kButton &&
+                    if (e->eventType == RE::INPUT_EVENT_TYPE::kButton &&
                         e->device == RE::INPUT_DEVICE::kKeyboard) {
-                        auto* b = e->AsButtonEvent();
+                        auto* b = e->As<RE::ButtonEvent>();
                         if (b && b->QIDCode() == kDikFalloutActivate) {
                             keep.push_back(e);
                         }
@@ -475,7 +475,7 @@ namespace falloutcraft
             if (want) {
                 ClipCursor(nullptr);
                 while (ShowCursor(TRUE) < 0) {}
-                SetCursor(LoadCursorW(nullptr, IDC_ARROW));
+                SetCursor(LoadCursorW(nullptr, MAKEINTRESOURCEW(32512)));
 
                 // Open the Minecraft screen with the real pointer where the virtual pointer was
                 // already expected, so the first frame cannot jump to a stale Fallout position.
@@ -510,7 +510,7 @@ namespace falloutcraft
                 }
                 if (a_minecraftControls && savedKey < 0) {
                     savedKey = mapping.inputKey;
-                    mapping.inputKey = static_cast<std::int32_t>(VK_G);
+                    mapping.inputKey = static_cast<std::int32_t>('G');
                     logger::info("FalloutCraft: Fallout Activate temporarily rebound to G (saved VK {})", savedKey);
                 } else if (!a_minecraftControls && savedKey >= 0) {
                     mapping.inputKey = savedKey;
