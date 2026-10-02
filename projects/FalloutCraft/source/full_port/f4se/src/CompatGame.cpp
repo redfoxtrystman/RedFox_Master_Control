@@ -78,21 +78,27 @@ namespace falloutcraft
         std::atomic<bool> g_cameraActive{ false };
         std::atomic<bool> g_loggedPostCamera{ false };
 
-        void StageMinecraftCamera(RE::PlayerCharacter* a_player, const proto::McState& a_mc)
+        void StageMinecraftCamera(RE::PlayerCharacter* a_player, const proto::McState& a_mc, float a_yaw, float a_pitch)
         {
-            float yaw = a_mc.yaw;
-            float pitch = a_mc.pitch;
+            float cameraYaw = a_yaw;
+            float cameraPitch = a_pitch;
             if (a_mc.cameraMode == 2) {
-                yaw = std::fmod(yaw + 180.0f, 360.0f);
-                pitch = -pitch;
+                cameraYaw = std::fmod(cameraYaw + 180.0f, 360.0f);
+                cameraPitch = -cameraPitch;
             }
 
-            g_cameraHeading = McYawToHeading(a_mc.yaw);
-            a_player->data.angle.x = a_mc.pitch * kDegToRad;
+            g_cameraHeading = McYawToHeading(a_yaw);
+            a_player->data.angle.x = a_pitch * kDegToRad;
             a_player->data.angle.z = g_cameraHeading;
 
-            g_cameraRot = CameraRotation(yaw, pitch);
-            g_cameraPos = CameraPosition(a_mc);
+            g_cameraRot = CameraRotation(cameraYaw, cameraPitch);
+
+            // CameraPosition uses MC's actual eye and third-person distance, but its detached
+            // camera offset must use the same host-authoritative look angle as the render root.
+            proto::McState cameraState = a_mc;
+            cameraState.yaw = a_yaw;
+            cameraState.pitch = a_pitch;
+            g_cameraPos = CameraPosition(cameraState);
             g_cameraFov = a_mc.fovDeg;
             g_cameraActive = true;
         }
@@ -168,8 +174,9 @@ namespace falloutcraft
             out.posX = pos.x;
             out.posY = pos.y;
             out.posZ = pos.z;
-            out.yaw = a_player ? HeadingToMcYaw(a_player->data.angle.z) : 0.0f;
-            out.pitch = a_player ? a_player->data.angle.x * kRadToDeg : 0.0f;
+            auto& st = State();
+            out.yaw = a_player ? st.yaw : 0.0f;
+            out.pitch = a_player ? st.pitch : 0.0f;
             out.teleportSeq = g_teleportSeq;
 
             if (auto* w = RE::BSGraphics::GetCurrentRendererWindow()) {
@@ -217,6 +224,7 @@ namespace falloutcraft
                 ++g_epoch;
                 ++g_teleportSeq;
                 g_forceTeleport = false;
+                st.lookInitialized = false;
                 Collision::Get().Reset(g_epoch);
                 link.ResetOverlay();
             }
@@ -232,13 +240,41 @@ namespace falloutcraft
                 ++g_teleportSeq;
                 Collision::Get().Reset(g_epoch);
                 g_forceTeleport = false;
+                st.lookInitialized = false;
             }
 
             st.mcInWorld = haveMc && ((g_mc.flags & proto::kMcInWorld) != 0);
-            st.mcScreenOpen = haveMc && ((g_mc.flags & proto::kMcScreenOpen) != 0);
+            const bool screenOpen = haveMc && ((g_mc.flags & proto::kMcScreenOpen) != 0);
+            if (screenOpen && !st.mcScreenOpen.load()) {
+                st.cursorX = std::max(1, st.viewportW.load()) / 2;
+                st.cursorY = std::max(1, st.viewportH.load()) / 2;
+            }
+            st.mcScreenOpen = screenOpen;
             st.falloutMenuOpen = Game::FalloutMenuOpen();
+            if (haveMc && g_mc.sensitivity > 0.0f) {
+                st.sensitivity = g_mc.sensitivity;
+            }
             st.mcGuiScale = haveMc ? static_cast<int>(g_mc.guiScale) : 0;
             st.mcCrosshair = haveMc && g_mc.cameraMode == 0 && !st.mcScreenOpen && !st.falloutMenuOpen;
+
+            // Preserve SkyCraft's proven input ownership model: Fallout consumes the raw mouse
+            // event, applies Minecraft's exact sensitivity curve here, then publishes one stable
+            // yaw/pitch to both engines. Letting the hidden Minecraft window independently
+            // integrate mouse deltas caused the v0.5.3 snap/jitter feedback loop.
+            float lookDx = 0.0f;
+            float lookDy = 0.0f;
+            Input::ConsumeLook(lookDx, lookDy);
+            if (!st.lookInitialized) {
+                st.yaw = HeadingToMcYaw(a_player->data.angle.z);
+                st.pitch = a_player->data.angle.x * kRadToDeg;
+                st.lookInitialized = true;
+            }
+            if (!st.mcScreenOpen.load() && !st.falloutMenuOpen.load()) {
+                const float s = st.sensitivity * 0.6f + 0.2f;
+                const float factor = s * s * s * 8.0f * 0.15f;
+                st.yaw = std::fmod(st.yaw + lookDx * factor, 360.0f);
+                st.pitch = std::clamp(st.pitch + lookDy * factor, -90.0f, 90.0f);
+            }
 
             // Collision must stream before takeover. Minecraft deliberately withholds teleportAck
             // until the arrival regions are known.
@@ -263,7 +299,7 @@ namespace falloutcraft
                 // Fallout's character controller -- the safe behavior proven by the no-GDI tests.
                 const auto p = McToSky(g_mc.x, g_mc.y, g_mc.z);
                 a_player->SetPosition(p, false);
-                StageMinecraftCamera(a_player, g_mc);
+                StageMinecraftCamera(a_player, g_mc, st.yaw, st.pitch);
 
                 st.feetX = g_mc.x;
                 st.feetY = g_mc.y;
@@ -342,14 +378,25 @@ namespace falloutcraft
             ++g_epoch;
             g_forceTeleport = false;
             g_cameraActive = false;
+            State().lookInitialized = false;
             Collision::Get().Reset(g_epoch);
             logger::info("FalloutCraft: game load/new game resync requested");
         }
 
         bool FalloutMenuOpen()
         {
-            // Fallout's own input still receives its native messages in this first full-port alpha.
-            // MC screen ownership is handled independently through McState.
+            auto* ui = RE::UI::GetSingleton();
+            if (!ui) {
+                return false;
+            }
+            for (const auto& menu : ui->menuStack) {
+                if (!menu || !menu->OnStack()) {
+                    continue;
+                }
+                if (menu->menuFlags.any(RE::UI_MENU_FLAGS::kPausesGame, RE::UI_MENU_FLAGS::kUsesCursor)) {
+                    return true;
+                }
+            }
             return false;
         }
 
