@@ -1,4 +1,4 @@
-FalloutCraft v0.5.4 FULL-PORT ALPHA
+FalloutCraft v0.5.5 FULL-PORT ALPHA
 ==================================
 
 This is the guarded follow-up to the first whole-system Fallout 4 port of the SkyCraft architecture.
@@ -11,6 +11,16 @@ IMPORTANT:
 - Remove/replace older FalloutCraft.dll and older FalloutCraft Fabric jars.
 - Launch Fallout 4 through F4SE exactly as before.
 - The old GDI/layered-window overlay is permanently removed.
+
+0.5.5 movement/input/viewmodel/block-projection pass:
+- Filters Fallout's held key/button events into true press/release edges before sending them to Minecraft. This stops E, F5, mouse buttons and other base Minecraft controls from firing multiple times per physical press.
+- Uses WM_INPUT raw relative mouse movement as the single host look source while the native Fallout input handler only consumes Fallout's duplicate mouse event. This removes cursor-bounded vertical look and preserves Minecraft's full pitch range.
+- Stops the temporary Fallout hknp sampler from advertising conservative whole-block samples as exact collision triangles. Minecraft now uses its vanilla voxel collision solver until real hknp triangles exist, preventing the smooth collider from pinning the player in place.
+- Reduces the arrival collision hold fail-open to 2.5 seconds so missing early collision data cannot leave movement frozen.
+- Hides Fallout's first-person scene root while Minecraft owns the player, removing Fallout hands/weapons from behind Minecraft's HUD and hand.
+- Keeps F5 as a normal one-shot Minecraft key and logs camera-mode changes on the host; the existing host camera follows Minecraft first/third/front modes.
+- Replaces the temporary renderer's CPU screen-space projection (w=1, z=.5) with Fallout's true homogeneous clip coordinates so block textures interpolate perspectively and near-plane clipping works correctly.
+- Adds a per-frame Minecraft depth buffer to the compatibility renderer so Minecraft blocks occlude their own far faces instead of drawing in arbitrary triangle order.
 
 0.5.4 input/look/cursor pass:
 - Restores SkyCraft's proven single look authority: Fallout consumes raw mouse deltas, applies Minecraft's sensitivity curve once, then publishes stable yaw/pitch back to Minecraft. This removes the v0.5.3 double-integration snap/jitter loop.
