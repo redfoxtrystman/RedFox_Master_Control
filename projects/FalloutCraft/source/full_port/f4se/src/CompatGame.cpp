@@ -171,9 +171,25 @@ namespace falloutcraft
             }
 
             auto* root = a_camera->cameraRoot.get();
-            root->local.translate = g_cameraPos;
+
+            // Drive the camera in WORLD space, but compute a matching LOCAL transform before
+            // running Fallout's downward scene-graph update. v0.5.5 wrote the desired world
+            // transform and then also wrote the same values into local space. If cameraRoot has
+            // a transformed parent, UpdateDownwardPass composes that parent a second time and
+            // partially fights Minecraft's pitch/position. That is especially visible near
+            // straight up/down. Invert the parent transform so the update lands exactly on the
+            // Minecraft camera instead.
+            if (root->parent) {
+                const auto& parentWorld = root->parent->world;
+                const auto invParent = parentWorld.rotate.Transpose();
+                const float parentScale = std::abs(parentWorld.scale) > 1e-6f ? parentWorld.scale : 1.0f;
+                root->local.rotate = invParent * g_cameraRot;
+                root->local.translate = invParent * ((g_cameraPos - parentWorld.translate) / parentScale);
+            } else {
+                root->local.translate = g_cameraPos;
+                root->local.rotate = g_cameraRot;
+            }
             root->world.translate = g_cameraPos;
-            root->local.rotate = g_cameraRot;
             root->world.rotate = g_cameraRot;
 
             // These are Fallout-specific camera caches. Keeping them in lock-step with the
