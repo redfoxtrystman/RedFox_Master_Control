@@ -30,5 +30,5 @@
 #include <d3d11.h>
 #include <dxgi.h>
 
-namespace logger = F4SE::log;
+namespace logger = spdlog;
 using namespace std::literals;
