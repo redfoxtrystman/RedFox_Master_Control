@@ -214,7 +214,7 @@ namespace falloutcraft::Launcher
 	// A Minecraft with the FalloutCraft mod holds this mutex while it runs (SkyLink.announceRunning).
 	bool MinecraftRunning()
 	{
-		HANDLE mutex = ::OpenMutexW(SYNCHRONIZE, FALSE, L"Local\\FalloutCraft_v1_minecraft");
+		HANDLE mutex = ::OpenMutexW(SYNCHRONIZE, FALSE, L"Local\\FalloutCraft_v2_minecraft");
 		if (mutex) {
 			::CloseHandle(mutex);
 			return true;
