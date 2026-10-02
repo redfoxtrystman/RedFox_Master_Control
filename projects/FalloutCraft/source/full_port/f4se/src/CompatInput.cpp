@@ -16,6 +16,9 @@ namespace falloutcraft
         std::array<bool, 256> g_keyDown{};
         std::array<bool, 8> g_mouseDown{};
         std::mutex g_buttonLock;
+        bool g_nativeCursorVisible = false;
+        constexpr std::uint32_t kDikFalloutActivate = 0x22;  // G, matching SkyCraft's host-interact key
+        constexpr WPARAM kVkFalloutActivate = 'G';
 
         std::uint16_t VkToSdl(WPARAM a_vk, LPARAM a_lParam)
         {
@@ -148,21 +151,18 @@ namespace falloutcraft
 
             auto& st = State();
             if (st.mcScreenOpen.load()) {
-                const int w = std::max(1, st.viewportW.load());
-                const int h = std::max(1, st.viewportH.load());
-                const int x = std::clamp(st.cursorX.load() + a_dx, 0, w - 1);
-                const int y = std::clamp(st.cursorY.load() + a_dy, 0, h - 1);
-                st.cursorX = x;
-                st.cursorY = y;
-                Link::Get().PushInput(proto::kInCursor, 0, x, y);
-            } else {
-                // Match SkyCraft's proven design: raw host mouse input drives the host-side
-                // zero-latency look accumulator. Minecraft receives the resulting yaw/pitch
-                // through HostState instead of independently integrating the same delta.
-                std::lock_guard lock(g_lookLock);
-                g_lookDx += static_cast<float>(a_dx);
-                g_lookDy += static_cast<float>(a_dy);
+                // A Minecraft GUI uses Fallout's real Windows cursor. Absolute WM_MOUSEMOVE below
+                // is the single cursor source; raw relative motion must not move a second virtual
+                // pointer on top of it.
+                return;
             }
+
+            // Match SkyCraft's proven design: raw host mouse input drives the host-side
+            // zero-latency look accumulator. Minecraft receives the resulting yaw/pitch
+            // through HostState instead of independently integrating the same delta.
+            std::lock_guard lock(g_lookLock);
+            g_lookDx += static_cast<float>(a_dx);
+            g_lookDy += static_cast<float>(a_dy);
         }
 
         void RouteKey(std::uint16_t a_scancode, bool a_down)
@@ -236,14 +236,32 @@ namespace falloutcraft
                     Link::Get().PushInput(proto::kInScroll, 0, GET_WHEEL_DELTA_WPARAM(a_wParam));
                 }
                 break;
+            case WM_MOUSEMOVE:
+                if (RoutesToMinecraft() && State().mcScreenOpen.load()) {
+                    const int w = std::max(1, State().viewportW.load());
+                    const int h = std::max(1, State().viewportH.load());
+                    const int x = std::clamp(static_cast<int>(static_cast<short>(LOWORD(a_lParam))), 0, w - 1);
+                    const int y = std::clamp(static_cast<int>(static_cast<short>(HIWORD(a_lParam))), 0, h - 1);
+                    State().cursorX = x;
+                    State().cursorY = y;
+                    Link::Get().PushInput(proto::kInCursor, 0, x, y);
+                }
+                break;
             case WM_KEYDOWN:
             case WM_SYSKEYDOWN:
             case WM_KEYUP:
             case WM_SYSKEYUP:
                 if (RoutesToMinecraft()) {
-                    if (const auto sc = VkToSdl(a_wParam, a_lParam); sc != 0) {
-                        const bool down = a_msg == WM_KEYDOWN || a_msg == WM_SYSKEYDOWN;
-                        RouteKey(sc, down);
+                    // G is Fallout interaction while Minecraft owns gameplay, exactly the split
+                    // SkyCraft uses for Skyrim. In an actual Minecraft screen every key belongs
+                    // to Minecraft, so G types/binds normally there.
+                    const bool falloutActivate =
+                        !State().mcScreenOpen.load() && a_wParam == kVkFalloutActivate;
+                    if (!falloutActivate) {
+                        if (const auto sc = VkToSdl(a_wParam, a_lParam); sc != 0) {
+                            const bool down = a_msg == WM_KEYDOWN || a_msg == WM_SYSKEYDOWN;
+                            RouteKey(sc, down);
+                        }
                     }
                 }
                 break;
@@ -308,9 +326,17 @@ namespace falloutcraft
                 if (!a_event || !RoutesToMinecraft()) {
                     return;
                 }
-                // Keyboard/mouse buttons come from the Fallout HWND so Escape/E/F5/clicks use the
-                // same dependable Windows edge stream as normal desktop input. RouteKey/RouteButton
-                // de-duplicate Windows repeat messages. This native handler is consumption-only.
+                // G remains a real Fallout gameplay event while Minecraft owns the rest of the
+                // player. PlayerControlsInputHook below filters the queue to this one key, allowing
+                // Fallout's own ActivateHandler to keep tap-to-use AND hold-to-grab physics objects.
+                if (!State().mcScreenOpen.load() &&
+                    a_event->device == RE::INPUT_DEVICE::kKeyboard &&
+                    a_event->QIDCode() == kDikFalloutActivate) {
+                    return;
+                }
+
+                // Every other keyboard/mouse button is owned by Minecraft and is consumed here so
+                // Fallout cannot perform the same action a second time.
                 const_cast<RE::ButtonEvent*>(a_event)->handled = RE::InputEvent::HANDLED_RESULT::kStop;
             }
         };
@@ -322,10 +348,48 @@ namespace falloutcraft
         {
             static void thunk(RE::PlayerControls* a_this, const RE::InputEvent* a_queueHead)
             {
-                if (State().minecraftOwnsPlayer.load() && !State().falloutMenuOpen.load()) {
+                auto& st = State();
+                if (!st.minecraftOwnsPlayer.load() || st.falloutMenuOpen.load()) {
+                    func(a_this, a_queueHead);
                     return;
                 }
-                func(a_this, a_queueHead);
+                if (!a_queueHead || st.mcScreenOpen.load()) {
+                    return;
+                }
+
+                // Let Fallout see only physical G while Minecraft owns gameplay. Because Fallout's
+                // ControlMap "Activate" binding is temporarily moved to G, the game's native
+                // ActivateHandler receives exactly the event it expects. This preserves doors,
+                // containers, NPCs, furniture and Fallout's hold-to-grab physics behavior without
+                // sacrificing Minecraft's E inventory or right-click use/place button.
+                std::vector<RE::InputEvent*> all;
+                std::vector<RE::InputEvent*> keep;
+                for (auto* e = const_cast<RE::InputEvent*>(a_queueHead); e; e = e->next) {
+                    all.push_back(e);
+                    if (e->GetEventType() == RE::INPUT_EVENT_TYPE::kButton &&
+                        e->device == RE::INPUT_DEVICE::kKeyboard) {
+                        auto* b = e->AsButtonEvent();
+                        if (b && b->QIDCode() == kDikFalloutActivate) {
+                            keep.push_back(e);
+                        }
+                    }
+                }
+                if (keep.empty()) {
+                    return;
+                }
+
+                std::vector<RE::InputEvent*> savedNext;
+                savedNext.reserve(all.size());
+                for (auto* e : all) {
+                    savedNext.push_back(e->next);
+                }
+                for (std::size_t i = 0; i < keep.size(); ++i) {
+                    keep[i]->next = i + 1 < keep.size() ? keep[i + 1] : nullptr;
+                }
+                func(a_this, keep.front());
+                for (std::size_t i = 0; i < all.size(); ++i) {
+                    all[i]->next = savedNext[i];
+                }
             }
             static inline REL::Relocation<decltype(thunk)> func;
         };
@@ -398,6 +462,63 @@ namespace falloutcraft
             Link::Get().PushInput(proto::kInReleaseAll, 0);
         }
 
-        void SetActivatePromptKey(bool) {}
+        void UpdateCursorMode()
+        {
+            auto* rw = RE::BSGraphics::GetCurrentRendererWindow();
+            HWND hwnd = rw ? reinterpret_cast<HWND>(rw->hwnd) : nullptr;
+            const bool want = hwnd && RoutesToMinecraft() && State().mcScreenOpen.load();
+            if (want == g_nativeCursorVisible) {
+                return;
+            }
+
+            g_nativeCursorVisible = want;
+            if (want) {
+                ClipCursor(nullptr);
+                while (ShowCursor(TRUE) < 0) {}
+                SetCursor(LoadCursorW(nullptr, IDC_ARROW));
+
+                // Open the Minecraft screen with the real pointer where the virtual pointer was
+                // already expected, so the first frame cannot jump to a stale Fallout position.
+                POINT p{ State().cursorX.load(), State().cursorY.load() };
+                if (ClientToScreen(hwnd, &p)) {
+                    SetCursorPos(p.x, p.y);
+                }
+                logger::info("FalloutCraft: native Windows cursor handed to Minecraft GUI");
+            } else {
+                while (ShowCursor(FALSE) >= 0) {}
+                logger::info("FalloutCraft: native Windows cursor returned to captured-look mode");
+            }
+        }
+
+        void SetActivatePromptKey(bool a_minecraftControls)
+        {
+            static std::int32_t savedKey = -1;
+            auto* controls = RE::ControlMap::GetSingleton();
+            if (!controls) {
+                return;
+            }
+            constexpr auto ctx = RE::UserEvents::INPUT_CONTEXT_ID::kMainGameplay;
+            auto* context = controls->controlMaps[std::to_underlying(ctx)];
+            if (!context) {
+                return;
+            }
+            auto& mappings = context->deviceMappings[std::to_underlying(RE::INPUT_DEVICE::kKeyboard)];
+            for (auto& mapping : mappings) {
+                const char* id = mapping.eventID.c_str();
+                if (!id || std::strcmp(id, "Activate") != 0) {
+                    continue;
+                }
+                if (a_minecraftControls && savedKey < 0) {
+                    savedKey = mapping.inputKey;
+                    mapping.inputKey = static_cast<std::int32_t>(VK_G);
+                    logger::info("FalloutCraft: Fallout Activate temporarily rebound to G (saved VK {})", savedKey);
+                } else if (!a_minecraftControls && savedKey >= 0) {
+                    mapping.inputKey = savedKey;
+                    logger::info("FalloutCraft: restored Fallout Activate binding to VK {}", savedKey);
+                    savedKey = -1;
+                }
+                break;
+            }
+        }
     }
 }
