@@ -20,6 +20,7 @@
 #include <cstring>
 #include <memory>
 #include <limits>
+#include <new>
 #include <mutex>
 #include <shared_mutex>
 #include <optional>
