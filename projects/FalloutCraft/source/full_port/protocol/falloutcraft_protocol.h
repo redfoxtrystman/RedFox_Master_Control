@@ -1,4 +1,4 @@
-// FalloutCraft shared-memory protocol (Fallout SKSE plugin <-> Minecraft Fabric mod).
+// FalloutCraft shared-memory protocol (Fallout 4 F4SE plugin <-> Minecraft Fabric mod).
 //
 // This header is the single source of truth for the byte layout. The Java side mirrors it in
 // fabric/src/main/java/dev/skycraft/link/Proto.java; if you change anything here, change it
@@ -14,7 +14,7 @@ namespace falloutcraft::proto
 {
 	inline constexpr std::uint32_t kMagic = 0x43594B53;  // "SKYC"
 	inline constexpr std::uint32_t kVersion = 11;
-	inline constexpr wchar_t       kMappingName[] = L"Local\\FalloutCraft_v1";
+	inline constexpr wchar_t       kMappingName[] = L"Local\\FalloutCraft_v2";
 
 	// 1 Minecraft block == 70 Fallout units (Fallout player ~128 units tall, MC player 1.8 blocks).
 	inline constexpr double kUnitsPerBlock = 70.0;
@@ -46,9 +46,9 @@ namespace falloutcraft::proto
 	{
 		std::uint32_t magic;
 		std::uint32_t version;
-		std::uint32_t skyrimPid;
+		std::uint32_t falloutPid;
 		std::uint32_t mcPid;
-		std::uint64_t skyrimHeartbeatMs;  // GetTickCount64() at last Fallout frame
+		std::uint64_t falloutHeartbeatMs;  // GetTickCount64() at last Fallout frame
 		std::uint64_t mcHeartbeatMs;      // GetTickCount64() at last MC frame
 	};
 	static_assert(sizeof(Header) == 0x20);
