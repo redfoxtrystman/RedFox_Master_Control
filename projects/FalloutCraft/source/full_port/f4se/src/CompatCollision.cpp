@@ -101,6 +101,18 @@ namespace falloutcraft
             std::byte data[0xE0]{};
         };
 
+        using PickCtorFn = void* (*)(void*);
+        using PickSetStartEndFn = void (*)(void*, const RE::NiPoint3&, const RE::NiPoint3&);
+        using PickHasHitFn = bool (*)(void*);
+        using PickGetFractionFn = float (*)(void*);
+        using CellPickFn = RE::NiAVObject* (*)(RE::TESObjectCELL*, void*);
+
+        REL::Relocation<PickCtorFn> g_pickCtor{ REL::ID(526783) };
+        REL::Relocation<PickSetStartEndFn> g_pickSetStartEnd{ REL::ID(747470) };
+        REL::Relocation<PickHasHitFn> g_pickHasHit{ REL::ID(1181584) };
+        REL::Relocation<PickGetFractionFn> g_pickGetFraction{ REL::ID(476687) };
+        REL::Relocation<CellPickFn> g_cellPick{ REL::ID(434717) };
+
         GuardedPickResult SafeFullPick(
             RE::TESObjectCELL* a_cell,
             const RE::NiPoint3* a_from,
@@ -111,18 +123,6 @@ namespace falloutcraft
                 return GuardedPickResult::kSetupFault;
             }
 
-            using CtorFn = void* (*)(void*);
-            using SetStartEndFn = void (*)(void*, const RE::NiPoint3&, const RE::NiPoint3&);
-            using HasHitFn = bool (*)(void*);
-            using GetFractionFn = float (*)(void*);
-            using CellPickFn = RE::NiAVObject* (*)(RE::TESObjectCELL*, void*);
-
-            static REL::Relocation<CtorFn> ctor{ REL::ID(526783) };
-            static REL::Relocation<SetStartEndFn> setStartEnd{ REL::ID(747470) };
-            static REL::Relocation<HasHitFn> hasHit{ REL::ID(1181584) };
-            static REL::Relocation<GetFractionFn> getFraction{ REL::ID(476687) };
-            static REL::Relocation<CellPickFn> cellPick{ REL::ID(434717) };
-
             VerifiedPickStorage storage{};
             void* pick = storage.data;
             GuardedPickResult stage = GuardedPickResult::kCtorFault;
@@ -131,36 +131,36 @@ namespace falloutcraft
 
 #if defined(_MSC_VER)
             __try {
-                ctor(pick);
+                g_pickCtor(pick);
 
                 stage = GuardedPickResult::kSetupFault;
                 // castQuery.m_filterData.m_collisionFilterInfo is +0x0C.
                 *reinterpret_cast<std::uint32_t*>(
                     reinterpret_cast<std::byte*>(pick) + 0x0C) =
                     static_cast<std::uint32_t>(RE::COL_LAYER::kLOS);
-                setStartEnd(pick, *a_from, *a_to);
+                g_pickSetStartEnd(pick, *a_from, *a_to);
 
                 stage = GuardedPickResult::kPickFault;
-                (void)cellPick(a_cell, pick);
+                (void)g_cellPick(a_cell, pick);
 
                 stage = GuardedPickResult::kResultFault;
-                hit = hasHit(pick);
+                hit = g_pickHasHit(pick);
                 if (hit) {
-                    fraction = getFraction(pick);
+                    fraction = g_pickGetFraction(pick);
                 }
             } __except (EXCEPTION_EXECUTE_HANDLER) {
                 return stage;
             }
 #else
-            ctor(pick);
+            g_pickCtor(pick);
             *reinterpret_cast<std::uint32_t*>(
                 reinterpret_cast<std::byte*>(pick) + 0x0C) =
                 static_cast<std::uint32_t>(RE::COL_LAYER::kLOS);
-            setStartEnd(pick, *a_from, *a_to);
-            (void)cellPick(a_cell, pick);
-            hit = hasHit(pick);
+            g_pickSetStartEnd(pick, *a_from, *a_to);
+            (void)g_cellPick(a_cell, pick);
+            hit = g_pickHasHit(pick);
             if (hit) {
-                fraction = getFraction(pick);
+                fraction = g_pickGetFraction(pick);
             }
 #endif
 
