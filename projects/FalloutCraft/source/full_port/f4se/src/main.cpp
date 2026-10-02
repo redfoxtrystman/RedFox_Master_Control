@@ -44,7 +44,6 @@ namespace
 			}
 			falloutcraft::Game::Install();
 			falloutcraft::Input::Install();
-			falloutcraft::Overlay::Install();
 			falloutcraft::WorldRender::Install();
 			falloutcraft::PathAvoid::Install();
 			falloutcraft::Dig::Install();
@@ -95,6 +94,7 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	SetupLog();
 	F4SE::Init(a_f4se, { .log = false, .trampoline = true, .trampolineSize = 1024 });
 	falloutcraft::CrashLog::Install();
+	falloutcraft::Overlay::Install();
 	logger::info("FalloutCraft 0.5.0 full-port loading (runtime {})", a_f4se->RuntimeVersion().string());
 
 	auto* messaging = F4SE::GetMessagingInterface();
