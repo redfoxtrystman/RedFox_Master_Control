@@ -1,4 +1,4 @@
-FalloutCraft v0.5.3 FULL-PORT ALPHA
+FalloutCraft v0.5.4 FULL-PORT ALPHA
 ==================================
 
 This is the guarded follow-up to the first whole-system Fallout 4 port of the SkyCraft architecture.
@@ -11,6 +11,14 @@ IMPORTANT:
 - Remove/replace older FalloutCraft.dll and older FalloutCraft Fabric jars.
 - Launch Fallout 4 through F4SE exactly as before.
 - The old GDI/layered-window overlay is permanently removed.
+
+0.5.4 input/look/cursor pass:
+- Restores SkyCraft's proven single look authority: Fallout consumes raw mouse deltas, applies Minecraft's sensitivity curve once, then publishes stable yaw/pitch back to Minecraft. This removes the v0.5.3 double-integration snap/jitter loop.
+- Routes Fallout 4 input through a native BSInputEventUser inserted first in MenuControls, marking Minecraft-owned events handled so Fallout does not also open menus or move its own player.
+- Restores host-driven Minecraft yaw/pitch every frame so WASD movement direction, ray picking and the Fallout camera all use the same look state.
+- Adds the missing virtual Minecraft cursor to the Fallout D3D11 compositor for inventory/crafting/chest screens.
+- Adds a hard timeout to the arrival hold so a missing early Fallout collision region cannot freeze Minecraft movement forever.
+- Rejects behind-camera and extreme projected block vertices to stop near-plane triangles from exploding across the screen while the temporary post-scene block renderer is still in use.
 
 0.5.3 camera/collision pass:
 - Corrects Fallout 4's padded row-major camera basis (row0=right, row1=forward, row2=up). The previous Skyrim-style column basis is what rotated/tilted the world.
