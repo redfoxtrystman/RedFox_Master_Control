@@ -1,4 +1,4 @@
-FalloutCraft v0.5.1 FULL-PORT ALPHA
+FalloutCraft v0.5.2 FULL-PORT ALPHA
 ==================================
 
 This is the guarded follow-up to the first whole-system Fallout 4 port of the SkyCraft architecture.
@@ -11,6 +11,11 @@ IMPORTANT:
 - Remove/replace older FalloutCraft.dll and older FalloutCraft Fabric jars.
 - Launch Fallout 4 through F4SE exactly as before.
 - The old GDI/layered-window overlay is permanently removed.
+
+0.5.2 crash fix:
+- Corrected the Fallout player update hook: Actor::Update is vfunc 0xCF. The previous full-port alpha incorrectly hooked TESObjectREFR::ApplyMovementDelta at 0xAD with the wrong function signature, which could corrupt movement calls and run bridge work on the wrong engine path.
+- Fallout collision sampling now waits until Minecraft has a real player in the mirror world instead of firing as soon as the heartbeat appears.
+- The entire bhkPickData constructor/setup/Pick/result/destructor sequence is guarded, and the hknp world is read-locked during queries.
 
 0.5.1 crash fix:\r\n- Guards Fallout hknp Pick() calls with SEH, sets the required LOS query filter, and drastically lowers the per-frame ray budget.\r\n- If a live Fallout physics pick faults, collision rays disable for the session and a small support plane keeps the rest of the bridge testable instead of crashing Fallout.\r\n\r\nSystems present in this alpha:
 - Minecraft-authoritative movement and camera state
