@@ -54,22 +54,11 @@ namespace falloutcraft
 
         RE::NiPoint3 CameraPosition(const proto::McState& a_mc)
         {
-            double x = a_mc.eyeX;
-            double y = a_mc.eyeY;
-            double z = a_mc.eyeZ;
-            if (a_mc.cameraMode != 0 && a_mc.cameraDistance > 0.0f) {
-                const double yaw = double(a_mc.yaw) * 0.01745329251994329577;
-                const double pitch = double(a_mc.pitch) * 0.01745329251994329577;
-                const double cp = std::cos(pitch);
-                const double fx = -std::sin(yaw) * cp;
-                const double fy = -std::sin(pitch);
-                const double fz = std::cos(yaw) * cp;
-                const double sign = a_mc.cameraMode == 2 ? 1.0 : -1.0;
-                x += fx * double(a_mc.cameraDistance) * sign;
-                y += fy * double(a_mc.cameraDistance) * sign;
-                z += fz * double(a_mc.cameraDistance) * sign;
-            }
-            return McToSky(x, y, z);
+            // Since v0.5.8 eyeX/Y/Z carry Minecraft's final Camera.position(), including its
+            // own third-person wall zoom. Do not reconstruct F5 on the Fallout side: doing that
+            // from player eye + yaw/pitch/distance was the reason the player could walk away
+            // while Fallout's rendered camera appeared frozen at the old spot.
+            return McToSky(a_mc.eyeX, a_mc.eyeY, a_mc.eyeZ);
         }
 
         RE::NiPoint3 g_cameraPos{};
