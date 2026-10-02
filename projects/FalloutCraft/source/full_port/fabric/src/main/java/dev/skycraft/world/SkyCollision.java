@@ -9,6 +9,8 @@ import java.lang.foreign.MemorySegment;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.CubeVoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -55,6 +57,46 @@ public final class SkyCollision {
 
 	public static @Nullable VoxelShape shapeAt(BlockPos pos) {
 		return SHAPES.isEmpty() ? null : SHAPES.get(pos.asLong());
+	}
+
+	/**
+	 * Ray hit against the streamed 1/8-block collision when exact Fallout triangles are not
+	 * available yet. This keeps block placement/picking usable during the hknp compatibility
+	 * stage without switching the local player to the exact-triangle collider prematurely.
+	 */
+	public static @Nullable BlockHitResult clipVoxels(Vec3 from, Vec3 to) {
+		if (SHAPES.isEmpty()) {
+			return null;
+		}
+		int minX = (int) Math.floor(Math.min(from.x, to.x)) - 1;
+		int minY = (int) Math.floor(Math.min(from.y, to.y)) - 1;
+		int minZ = (int) Math.floor(Math.min(from.z, to.z)) - 1;
+		int maxX = (int) Math.floor(Math.max(from.x, to.x)) + 1;
+		int maxY = (int) Math.floor(Math.max(from.y, to.y)) + 1;
+		int maxZ = (int) Math.floor(Math.max(from.z, to.z)) + 1;
+		double best = Double.POSITIVE_INFINITY;
+		BlockHitResult nearest = null;
+		for (int x = minX; x <= maxX; x++) {
+			for (int y = minY; y <= maxY; y++) {
+				for (int z = minZ; z <= maxZ; z++) {
+					BlockPos pos = new BlockPos(x, y, z);
+					VoxelShape shape = SHAPES.get(pos.asLong());
+					if (shape == null || shape.isEmpty()) {
+						continue;
+					}
+					BlockHitResult hit = shape.clip(from, to, pos);
+					if (hit == null) {
+						continue;
+					}
+					double d = from.distanceToSqr(hit.getLocation());
+					if (d < best) {
+						best = d;
+						nearest = hit;
+					}
+				}
+			}
+		}
+		return nearest;
 	}
 
 	/** Entities (the local player) that collide with Skyrim's exact triangles instead of its voxels. */
