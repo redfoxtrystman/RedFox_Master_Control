@@ -1,4 +1,4 @@
-FalloutCraft v0.5.6 FULL-PORT ALPHA
+FalloutCraft v0.5.7 FULL-PORT ALPHA
 ==================================
 
 This is the guarded follow-up to the first whole-system Fallout 4 port of the SkyCraft architecture.
@@ -11,6 +11,16 @@ IMPORTANT:
 - Remove/replace older FalloutCraft.dll and older FalloutCraft Fabric jars.
 - Launch Fallout 4 through F4SE exactly as before.
 - The old GDI/layered-window overlay is permanently removed.
+
+0.5.7 input/collision/HUD/lighting pass:
+- Restores the Fallout HWND as the single authoritative keyboard/mouse-button source while Minecraft owns the player. WM_KEYDOWN/UP, mouse buttons, wheel and WM_CHAR now reach Minecraft even though Fallout gameplay/menu receivers are suppressed. This restores Escape, E/inventory, F5, held movement, block breaking and block placing without Fallout also reacting to the same input.
+- Adds a MenuControls vtable suppression hook alongside PlayerControls, matching SkyCraft's ownership model: Minecraft receives the raw Windows input while Fallout's gameplay/menu handlers do not double-consume it during takeover.
+- Replaces the temporary whole-block Fallout collision samples with SkyCraft-style 8x8x8 sub-voxel ColBlock masks. Floor and ceiling ray hits become thin horizontal slices; wall/door/railing hits become 1/8-block vertical slabs. The fallback whole-cube floor remains only for a faulted hknp ray path.
+- Samples nearby Fallout collision every 100 ms with denser floor/ceiling grids and a 48-ray, three-height wall fan. Contact boxes are rebuilt from the same sub-voxel masks using SkyCraft's packed min/max convention.
+- Culls Fallout's actual firstPerson3D root, separate first-person torso and loaded player data3D root while Minecraft owns the camera, and reasserts the cull after Fallout PlayerCamera::Update so Fallout cannot re-show its hands/weapon before rendering.
+- Moves BottomCenterGroup_mc.CompassWidget_mc upward by 48 HUD stage pixels while the Minecraft HUD is active, preserving and restoring the user's original compass Y position.
+- Applies Fallout's live six-direction directional ambient cube to Minecraft world vertices using the face-normal flags exported by Minecraft, while retaining Minecraft block emission. Blocks now react to the Fallout interior/weather/time-of-day environment instead of rendering fullbright.
+- Locks the detected standard/reversed depth convention after the first valid camera comparison so post-scene block depth ordering cannot alternate between frames.
 
 0.5.6 runtime-correction pass:
 - Fixes the native keyboard bridge at the source: Fallout ButtonEvent IDs are DirectInput scan codes, not Win32 virtual keys. The bridge now uses the proven SkyCraft DIK -> SDL/HID table, so E, F5, movement keys, function keys and modifiers map to the Minecraft keys they actually represent.
