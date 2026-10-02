@@ -79,6 +79,27 @@ namespace falloutcraft
         }
     }
 
+    namespace
+    {
+        bool SafeCellPick(RE::TESObjectCELL* a_cell, RE::bhkPickData* a_pick)
+        {
+            if (!a_cell || !a_pick) {
+                return false;
+            }
+#if defined(_MSC_VER)
+            __try {
+                a_cell->Pick(*a_pick);
+                return true;
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+                return false;
+            }
+#else
+            a_cell->Pick(*a_pick);
+            return true;
+#endif
+        }
+    }
+
     Collision& Collision::Get()
     {
         static Collision c;
@@ -96,6 +117,8 @@ namespace falloutcraft
         epoch_ = a_epoch;
         occupied_.clear();
         lastSample_ = {};
+        firstSampleLogged_ = false;
+        firstRayLogged_ = false;
         {
             std::unique_lock lock(boxesLock_);
             boxes_.clear();
@@ -112,14 +135,36 @@ namespace falloutcraft
             return false;
         }
 
+        if (raycastingDisabled_) {
+            return false;
+        }
+
         RE::bhkPickData pick;
+        // Fallout 4's hknp ray query needs a valid query layer. Leaving the
+        // filter at the ctor's default is not a safe "hit everything" query.
+        pick.castQuery.m_filterData.m_collisionFilterInfo =
+            static_cast<std::uint32_t>(RE::COL_LAYER::kLOS);
         pick.SetStartEnd(a_from, a_to);
-        cell->Pick(pick);
+
+        if (!SafeCellPick(cell, &pick)) {
+            logger::error("FalloutCraft: TESObjectCELL::Pick raised a structured exception; disabling live Fallout collision rays for this session");
+            const_cast<Collision*>(this)->raycastingDisabled_ = true;
+            return false;
+        }
         if (!pick.HasHit()) {
             return false;
         }
 
-        const float f = std::clamp(pick.GetHitFraction(), 0.0f, 1.0f);
+        const float raw = pick.GetHitFraction();
+        if (!std::isfinite(raw) || raw <= 0.0001f || raw > 1.0f) {
+            return false;
+        }
+        if (!firstRayLogged_) {
+            logger::info("FalloutCraft: first guarded Fallout collision ray returned safely (fraction {:.3f})", raw);
+            const_cast<Collision*>(this)->firstRayLogged_ = true;
+        }
+
+        const float f = std::clamp(raw, 0.0f, 1.0f);
         a_hit.x = a_from.x + (a_to.x - a_from.x) * f;
         a_hit.y = a_from.y + (a_to.y - a_from.y) * f;
         a_hit.z = a_from.z + (a_to.z - a_from.z) * f;
@@ -135,14 +180,19 @@ namespace falloutcraft
     {
         occupied_.clear();
 
+        if (!firstSampleLogged_) {
+            firstSampleLogged_ = true;
+            logger::info("FalloutCraft: first post-link collision sample beginning (guarded hknp Pick, low ray budget)");
+        }
+
         const int cx = static_cast<int>(std::floor(a_playerMc.x));
         const int cy = static_cast<int>(std::floor(a_playerMc.y));
         const int cz = static_cast<int>(std::floor(a_playerMc.z));
 
         // Floors/terrain/stairs. Sampling a generous grid makes the arrival region usable before
         // Minecraft is released and keeps several seconds of walking around the player populated.
-        for (int dz = -10; dz <= 10; ++dz) {
-            for (int dx = -10; dx <= 10; ++dx) {
+        for (int dz = -4; dz <= 4; ++dz) {
+            for (int dx = -4; dx <= 4; ++dx) {
                 RE::NiPoint3 hit{};
                 const auto from = McToSky(cx + dx + 0.5, cy + 6.0, cz + dz + 0.5);
                 const auto to = McToSky(cx + dx + 0.5, cy - 18.0, cz + dz + 0.5);
@@ -157,8 +207,8 @@ namespace falloutcraft
         }
 
         // Ceilings immediately around the player.
-        for (int dz = -5; dz <= 5; ++dz) {
-            for (int dx = -5; dx <= 5; ++dx) {
+        for (int dz = -2; dz <= 2; ++dz) {
+            for (int dx = -2; dx <= 2; ++dx) {
                 RE::NiPoint3 hit{};
                 const auto from = McToSky(cx + dx + 0.5, a_playerMc.y + 0.15, cz + dz + 0.5);
                 const auto to = McToSky(cx + dx + 0.5, a_playerMc.y + 7.0, cz + dz + 0.5);
@@ -174,9 +224,9 @@ namespace falloutcraft
 
         // Walls, doors, vault geometry and other vertical collision. Multiple eye/body heights
         // prevent a low railing or a high overhang from disappearing from Minecraft's collision.
-        constexpr int kRays = 96;
+        constexpr int kRays = 24;
         constexpr double kRange = 10.0;
-        constexpr std::array<double, 4> kHeights{ 0.25, 0.85, 1.45, 2.05 };
+        constexpr std::array<double, 2> kHeights{ 0.65, 1.55 };
         for (double h : kHeights) {
             for (int i = 0; i < kRays; ++i) {
                 const double a = (double(i) / kRays) * 6.2831853071795864769;
@@ -195,6 +245,18 @@ namespace falloutcraft
                         static_cast<int>(std::floor(mc.x)),
                         static_cast<int>(std::floor(mc.y)),
                         static_cast<int>(std::floor(mc.z)));
+                }
+            }
+        }
+
+        // If Fallout's live ray path faults on this machine/runtime, do not take the
+        // host down with it. Keep a small temporary support plane under the MC player so the
+        // rest of the full-port stack (link, input, HUD, renderer, avatar) can still be tested.
+        if (raycastingDisabled_ && occupied_.empty()) {
+            const int fy = static_cast<int>(std::floor(a_playerMc.y - 0.05)) - 1;
+            for (int dz = -2; dz <= 2; ++dz) {
+                for (int dx = -2; dx <= 2; ++dx) {
+                    MarkBlock(cx + dx, fy, cz + dz);
                 }
             }
         }
@@ -284,7 +346,7 @@ namespace falloutcraft
     {
         const auto now = std::chrono::steady_clock::now();
         if (lastSample_.time_since_epoch().count() != 0 &&
-            now - lastSample_ < std::chrono::milliseconds(140)) {
+            now - lastSample_ < std::chrono::milliseconds(350)) {
             return;
         }
         lastSample_ = now;
