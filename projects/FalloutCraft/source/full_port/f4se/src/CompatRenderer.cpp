@@ -737,8 +737,8 @@ float4 PSMain(PSIn i) : SV_Target {
             std::uint32_t color, std::uint32_t flags)
         {
             const auto v0 = EntityVertex(p[0][0], p[0][1], p[0][2], uv[0], uv[3], color, flags);
-            const auto v1 = EntityVertex(p[1][0], p[1][1], p[1][2], uv[1], uv[3], color, flags);
-            const auto v2 = EntityVertex(p[2][0], p[2][1], p[2][2], uv[1], uv[1], color, flags);
+            const auto v1 = EntityVertex(p[1][0], p[1][1], p[1][2], uv[2], uv[3], color, flags);
+            const auto v2 = EntityVertex(p[2][0], p[2][1], p[2][2], uv[2], uv[1], color, flags);
             const auto v3 = EntityVertex(p[3][0], p[3][1], p[3][2], uv[0], uv[1], color, flags);
             out.insert(out.end(), { v0, v1, v2, v0, v2, v3 });
         }
