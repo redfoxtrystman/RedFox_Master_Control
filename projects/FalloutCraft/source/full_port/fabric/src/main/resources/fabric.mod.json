@@ -3,8 +3,8 @@
   "id": "falloutcraft",
   "version": "${version}",
   "name": "FalloutCraft",
-  "description": "Play Skyrim with Minecraft physics, inventory and viewmodels.",
-  "authors": ["chasmlol"],
+  "description": "Play Fallout 4 as Minecraft: Minecraft physics, inventory, HUD, blocks, entities and player rendering inside Fallout.",
+  "authors": ["chasmlol (SkyCraft upstream)", "RedFox FalloutCraft port"],
   "contact": {
     "sources": "https://github.com/chasmlol/SkyCraft"
   },
