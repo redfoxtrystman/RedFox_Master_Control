@@ -3,6 +3,7 @@
 #include <RE/Fallout.h>
 #include <F4SE/F4SE.h>
 
+#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 
 #include <atomic>
@@ -34,3 +35,6 @@
 
 namespace logger = spdlog;
 using namespace std::literals;
+
+// CommonLibSSE compatibility used by the imported SkyCraft host code.
+namespace RE { using FormID = std::uint32_t; }
