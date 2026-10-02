@@ -21,7 +21,7 @@ namespace
 	void OnMessage(F4SE::MessagingInterface::Message* a_msg)
 	{
 		switch (a_msg->type) {
-		case F4SE::MessagingInterface::kDataLoaded:
+		case F4SE::MessagingInterface::kGameDataReady:
 			if (!falloutcraft::Link::Get().Create()) {
 				logger::error("FalloutCraft disabled: could not create shared memory");
 				return;
