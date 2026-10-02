@@ -81,22 +81,114 @@ namespace falloutcraft
 
     namespace
     {
-        bool SafeCellPick(RE::TESObjectCELL* a_cell, RE::bhkPickData* a_pick)
+        enum class GuardedPickResult : int
         {
-            if (!a_cell || !a_pick) {
-                return false;
+            kMiss = 0,
+            kHit = 1,
+            kCtorFault = -1,
+            kSetupFault = -2,
+            kPickFault = -3,
+            kResultFault = -4,
+            kDestroyFault = -5,
+        };
+
+        bool SafeDestroyPick(RE::bhkPickData* a_pick)
+        {
+            if (!a_pick) {
+                return true;
             }
 #if defined(_MSC_VER)
             __try {
-                a_cell->Pick(*a_pick);
+                a_pick->~bhkPickData();
                 return true;
             } __except (EXCEPTION_EXECUTE_HANDLER) {
                 return false;
             }
 #else
-            a_cell->Pick(*a_pick);
+            a_pick->~bhkPickData();
             return true;
 #endif
+        }
+
+        GuardedPickResult SafeFullPick(
+            RE::TESObjectCELL* a_cell,
+            const RE::NiPoint3* a_from,
+            const RE::NiPoint3* a_to,
+            float* a_fraction)
+        {
+            if (!a_cell || !a_from || !a_to || !a_fraction) {
+                return GuardedPickResult::kSetupFault;
+            }
+
+            alignas(16) std::byte storage[sizeof(RE::bhkPickData)]{};
+            auto* pick = reinterpret_cast<RE::bhkPickData*>(storage);
+
+#if defined(_MSC_VER)
+            __try {
+                ::new (static_cast<void*>(pick)) RE::bhkPickData();
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+                return GuardedPickResult::kCtorFault;
+            }
+
+            __try {
+                pick->castQuery.m_filterData.m_collisionFilterInfo =
+                    static_cast<std::uint32_t>(RE::COL_LAYER::kLOS);
+                pick->SetStartEnd(*a_from, *a_to);
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+                SafeDestroyPick(pick);
+                return GuardedPickResult::kSetupFault;
+            }
+
+            __try {
+                a_cell->Pick(*pick);
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+                SafeDestroyPick(pick);
+                return GuardedPickResult::kPickFault;
+            }
+
+            bool hasHit = false;
+            float fraction = 0.0f;
+            __try {
+                hasHit = pick->HasHit();
+                if (hasHit) {
+                    fraction = pick->GetHitFraction();
+                }
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+                SafeDestroyPick(pick);
+                return GuardedPickResult::kResultFault;
+            }
+
+            if (!SafeDestroyPick(pick)) {
+                return GuardedPickResult::kDestroyFault;
+            }
+#else
+            ::new (static_cast<void*>(pick)) RE::bhkPickData();
+            pick->castQuery.m_filterData.m_collisionFilterInfo =
+                static_cast<std::uint32_t>(RE::COL_LAYER::kLOS);
+            pick->SetStartEnd(*a_from, *a_to);
+            a_cell->Pick(*pick);
+            const bool hasHit = pick->HasHit();
+            const float fraction = hasHit ? pick->GetHitFraction() : 0.0f;
+            pick->~bhkPickData();
+#endif
+
+            if (!hasHit) {
+                return GuardedPickResult::kMiss;
+            }
+            *a_fraction = fraction;
+            return GuardedPickResult::kHit;
+        }
+
+        const char* GuardedPickStageName(GuardedPickResult a_result)
+        {
+            switch (a_result) {
+            case GuardedPickResult::kCtorFault: return "bhkPickData constructor";
+            case GuardedPickResult::kSetupFault: return "bhkPickData SetStartEnd/query setup";
+            case GuardedPickResult::kPickFault: return "TESObjectCELL::Pick";
+            case GuardedPickResult::kResultFault: return "bhkPickData result read";
+            case GuardedPickResult::kDestroyFault: return "bhkPickData destructor";
+            default: return "unknown";
+            }
         }
     }
 
@@ -139,23 +231,29 @@ namespace falloutcraft
             return false;
         }
 
-        RE::bhkPickData pick;
-        // Fallout 4's hknp ray query needs a valid query layer. Leaving the
-        // filter at the ctor's default is not a safe "hit everything" query.
-        pick.castQuery.m_filterData.m_collisionFilterInfo =
-            static_cast<std::uint32_t>(RE::COL_LAYER::kLOS);
-        pick.SetStartEnd(a_from, a_to);
+        auto* bhkWorld = cell->GetbhkWorld();
+        auto* worldNP = bhkWorld ? bhkWorld->m_worldNP.get() : nullptr;
+        if (!worldNP) {
+            return false;
+        }
 
-        if (!SafeCellPick(cell, &pick)) {
-            logger::error("FalloutCraft: TESObjectCELL::Pick raised a structured exception; disabling live Fallout collision rays for this session");
+        // Fallout 4's hknp world is stepped asynchronously. Keep the world stable while the
+        // engine's Pick wrapper walks compressed-mesh bodies, matching proven FO4 raycast code.
+        RE::BSAutoReadLock worldLock{ &worldNP->m_worldLock };
+
+        float raw = 0.0f;
+        const auto result = SafeFullPick(cell, &a_from, &a_to, &raw);
+        if (static_cast<int>(result) < 0) {
+            logger::error(
+                "FalloutCraft: guarded collision fault in {}; disabling live Fallout collision rays for this session",
+                GuardedPickStageName(result));
             const_cast<Collision*>(this)->raycastingDisabled_ = true;
             return false;
         }
-        if (!pick.HasHit()) {
+        if (result == GuardedPickResult::kMiss) {
             return false;
         }
 
-        const float raw = pick.GetHitFraction();
         if (!std::isfinite(raw) || raw <= 0.0001f || raw > 1.0f) {
             return false;
         }
