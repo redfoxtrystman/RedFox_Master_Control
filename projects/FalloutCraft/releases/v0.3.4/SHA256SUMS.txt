@@ -1,0 +1,4 @@
+e68d05fd8d7be03b7ac89118d4d8b4e5e28fca5b90c084ec62c21506ed23bd60  FalloutCraft_v0.3.4_SOURCE_PIPELINE_FIX.zip
+0ffbb676912c80ffdb3da676d7c677d254168cb0425fbdc23707e91e822a51f7  Data/F4SE/Plugins/FalloutCraft.dll
+9e59639f2c81b986204ed9131ef693cd47e2e07fec98af36689eaad8a8438075  mods/FalloutCraft-fabric-0.1.0.jar
+8f39aa679f53082182f4960066080fe49ef4865b00bd52715d3021479587b229  embedded:natives/windows-x86_64/falloutcraft_native.dll
