@@ -57,6 +57,14 @@ namespace falloutcraft
         ID3D11BlendState* g_worldBlend = nullptr;
         ID3D11BlendState* g_overlayBlend = nullptr;
         ID3D11DepthStencilState* g_noDepth = nullptr;
+        ID3D11DepthStencilState* g_depthWrite = nullptr;
+        ID3D11DepthStencilState* g_depthWriteRev = nullptr;
+        ID3D11Texture2D* g_worldDepth = nullptr;
+        ID3D11DepthStencilView* g_worldDsv = nullptr;
+        std::uint32_t g_worldDepthW = 0;
+        std::uint32_t g_worldDepthH = 0;
+        UINT g_worldDepthSamples = 0;
+        UINT g_worldDepthQuality = 0;
         ID3D11RasterizerState* g_raster = nullptr;
         ID3D11Buffer* g_vb = nullptr;
         std::size_t g_vbCapacity = 0;
@@ -195,6 +203,13 @@ float4 PSMain(PSIn i) : SV_Target {
             dd.StencilEnable = FALSE;
             hr |= g_device->CreateDepthStencilState(&dd, &g_noDepth);
 
+            dd.DepthEnable = TRUE;
+            dd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+            dd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+            hr |= g_device->CreateDepthStencilState(&dd, &g_depthWrite);
+            dd.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
+            hr |= g_device->CreateDepthStencilState(&dd, &g_depthWriteRev);
+
             D3D11_RASTERIZER_DESC rd{};
             rd.FillMode = D3D11_FILL_SOLID;
             rd.CullMode = D3D11_CULL_NONE;
@@ -202,7 +217,8 @@ float4 PSMain(PSIn i) : SV_Target {
             hr |= g_device->CreateRasterizerState(&rd, &g_raster);
 
             g_gpuReady = SUCCEEDED(hr) && g_vs && g_ps && g_layout && g_sampler &&
-                         g_worldBlend && g_overlayBlend && g_noDepth && g_raster;
+                         g_worldBlend && g_overlayBlend && g_noDepth && g_depthWrite &&
+                         g_depthWriteRev && g_raster;
             logger::info("FalloutCraft: D3D11 full-port renderer {}", g_gpuReady ? "ready" : "failed");
             return g_gpuReady;
         }
@@ -420,27 +436,87 @@ float4 PSMain(PSIn i) : SV_Target {
         bool ProjectVertex(RE::NiCamera* camera, const proto::RenVertex& v,
             double ox, double oy, double oz, ScreenVertex& out)
         {
+            if (!camera) {
+                return false;
+            }
+
+            // Preserve Fallout's real homogeneous clip coordinates. The old compatibility path
+            // divided every vertex to screen space on the CPU and then forced w=1/z=.5. That
+            // destroys perspective-correct texture interpolation and near-plane clipping, which
+            // is exactly why nearby Minecraft blocks became huge warped polygons.
             const auto world = McToSky(ox + v.x, oy + v.y, oz + v.z);
-            float sx = 0.0f, sy = 0.0f, sz = 0.0f;
-            if (!RE::NiCamera::WorldPtToScreenPt3(
-                    camera->worldToCam, camera->port, world, sx, sy, sz, 1e-5f)) {
+            const auto& m = camera->worldToCam;
+            float clip[4]{};
+            for (int r = 0; r < 4; ++r) {
+                clip[r] = m[r][0] * world.x + m[r][1] * world.y + m[r][2] * world.z + m[r][3];
+            }
+            if (!std::isfinite(clip[0]) || !std::isfinite(clip[1]) ||
+                !std::isfinite(clip[2]) || !std::isfinite(clip[3]) ||
+                std::abs(clip[3]) < 1e-5f) {
                 return false;
             }
-            // WorldPtToScreenPt3 returns normalized viewport coordinates and positive Z only
-            // for points in front of the camera. v0.5.3 accepted behind/near-plane points and
-            // turned them into giant screen-covering triangles.
-            if (!std::isfinite(sx) || !std::isfinite(sy) || !std::isfinite(sz) || sz <= 0.0f ||
-                sx < -2.0f || sx > 3.0f || sy < -2.0f || sy > 3.0f) {
-                return false;
-            }
-            out.x = sx * 2.0f - 1.0f;
-            out.y = 1.0f - sy * 2.0f;
-            out.z = 0.5f;
-            out.w = 1.0f;
+
+            out.x = clip[0];
+            out.y = clip[1];
+            out.z = clip[2];
+            out.w = clip[3];
             out.u = v.u;
             out.v = v.v;
             out.color = v.color ? v.color : 0xFFFFFFFFu;
             return true;
+        }
+
+        bool EnsureWorldDepth(std::uint32_t w, std::uint32_t h, UINT samples, UINT quality)
+        {
+            samples = std::max<UINT>(1, samples);
+            if (g_worldDepth && g_worldDepthW == w && g_worldDepthH == h &&
+                g_worldDepthSamples == samples && g_worldDepthQuality == quality) {
+                return true;
+            }
+            Release(g_worldDsv);
+            Release(g_worldDepth);
+            g_worldDepthW = g_worldDepthH = 0;
+
+            D3D11_TEXTURE2D_DESC td{};
+            td.Width = w;
+            td.Height = h;
+            td.MipLevels = 1;
+            td.ArraySize = 1;
+            td.Format = DXGI_FORMAT_D32_FLOAT;
+            td.SampleDesc.Count = samples;
+            td.SampleDesc.Quality = quality;
+            td.Usage = D3D11_USAGE_DEFAULT;
+            td.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+            if (FAILED(g_device->CreateTexture2D(&td, nullptr, &g_worldDepth)) ||
+                FAILED(g_device->CreateDepthStencilView(g_worldDepth, nullptr, &g_worldDsv))) {
+                Release(g_worldDsv);
+                Release(g_worldDepth);
+                return false;
+            }
+            g_worldDepthW = w;
+            g_worldDepthH = h;
+            g_worldDepthSamples = samples;
+            g_worldDepthQuality = quality;
+            return true;
+        }
+
+        bool CameraUsesReversedDepth(RE::NiCamera* camera)
+        {
+            if (!camera) {
+                return false;
+            }
+            const auto& m = camera->worldToCam;
+            const auto& R = camera->world.rotate;
+            // Fallout 4's camera node basis is row-major in this port: row 1 is forward.
+            const RE::NiPoint3 fwd{ R.entry[1][0], R.entry[1][1], R.entry[1][2] };
+            const auto cam = camera->world.translate;
+            auto depthAt = [&](float d) {
+                const auto p = cam + fwd * d;
+                const float z = m[2][0] * p.x + m[2][1] * p.y + m[2][2] * p.z + m[2][3];
+                const float wv = m[3][0] * p.x + m[3][1] * p.y + m[3][2] * p.z + m[3][3];
+                return std::abs(wv) > 1e-5f ? z / wv : 0.0f;
+            };
+            return depthAt(100.0f) > depthAt(10000.0f);
         }
 
         void BindCommon(ID3D11RenderTargetView* rtv, std::uint32_t width, std::uint32_t height,
@@ -510,7 +586,7 @@ float4 PSMain(PSIn i) : SV_Target {
             DrawScreenVertices(out, it->second.srv);
         }
 
-        void DrawWorld(ID3D11RenderTargetView* rtv, std::uint32_t w, std::uint32_t h)
+        void DrawWorld(ID3D11RenderTargetView* rtv, std::uint32_t w, std::uint32_t h, UINT samples, UINT quality)
         {
             if (!State().puppeting.load()) {
                 return;
@@ -521,6 +597,12 @@ float4 PSMain(PSIn i) : SV_Target {
             }
 
             BindCommon(rtv, w, h, g_worldBlend);
+            if (EnsureWorldDepth(w, h, samples, quality)) {
+                const bool reversed = CameraUsesReversedDepth(camera);
+                g_context->OMSetRenderTargets(1, &rtv, g_worldDsv);
+                g_context->OMSetDepthStencilState(reversed ? g_depthWriteRev : g_depthWrite, 0);
+                g_context->ClearDepthStencilView(g_worldDsv, D3D11_CLEAR_DEPTH, reversed ? 0.0f : 1.0f, 0);
+            }
 
             for (const auto& [key, section] : g_sections) {
                 (void)key;
@@ -664,7 +746,7 @@ float4 PSMain(PSIn i) : SV_Target {
             // Draw Minecraft's world-space streams first and its normal GUI last. This alpha uses
             // Fallout's finished backbuffer; the imported in-frame/depth path remains in-tree and
             // will replace this post-scene pass as the Fallout render-target indices are validated.
-            DrawWorld(rtv, desc.Width, desc.Height);
+            DrawWorld(rtv, desc.Width, desc.Height, desc.SampleDesc.Count, desc.SampleDesc.Quality);
             DrawOverlay(rtv, desc.Width, desc.Height);
             DrawCursor(rtv, desc.Width, desc.Height);
             Release(rtv);
