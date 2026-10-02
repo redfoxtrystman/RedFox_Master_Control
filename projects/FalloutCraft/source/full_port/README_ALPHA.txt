@@ -1,4 +1,4 @@
-FalloutCraft v0.5.5 FULL-PORT ALPHA
+FalloutCraft v0.5.6 FULL-PORT ALPHA
 ==================================
 
 This is the guarded follow-up to the first whole-system Fallout 4 port of the SkyCraft architecture.
@@ -11,6 +11,15 @@ IMPORTANT:
 - Remove/replace older FalloutCraft.dll and older FalloutCraft Fabric jars.
 - Launch Fallout 4 through F4SE exactly as before.
 - The old GDI/layered-window overlay is permanently removed.
+
+0.5.6 runtime-correction pass:
+- Fixes the native keyboard bridge at the source: Fallout ButtonEvent IDs are DirectInput scan codes, not Win32 virtual keys. The bridge now uses the proven SkyCraft DIK -> SDL/HID table, so E, F5, movement keys, function keys and modifiers map to the Minecraft keys they actually represent.
+- Native keyboard and mouse buttons now forward only QJustPressed/QReleased edges. Fallout held events are consumed without being replayed as repeated Minecraft presses/clicks.
+- Keeps raw WM_INPUT as the only look-delta source, so pitch is not limited by a Fallout cursor edge and Minecraft remains the single yaw/pitch authority.
+- Stops coarse Fallout ray hits at player body/ceiling height from becoming full Minecraft collision cubes. Until exact hknp triangles are available, the player only receives conservative support cells at/below the feet, preventing fake walls from pinning movement.
+- Replaces absolute-world block projection with SkyCraft's camera-relative rebased world-to-clip multiply, preserving float precision near the camera and rejecting triangles wholly behind it. This specifically targets the giant/flattened block faces visible in the v0.5.5 test.
+- Hides Fallout's actual PlayerCharacter::firstPerson3D geometry meshes (plus the separate torso when present) and restores only geometry FalloutCraft itself hid. The old Get3D(true) root path did not reliably point at Fallout's first-person hands/weapon.
+- F5 still uses Minecraft's own camera mode/state; with the corrected DIK mapping a physical F5 press now reaches Minecraft once and the host follows first-person / third-person-back / third-person-front from Minecraft's published camera mode.
 
 0.5.5 movement/input/viewmodel/block-projection pass:
 - Filters Fallout's held key/button events into true press/release edges before sending them to Minecraft. This stops E, F5, mouse buttons and other base Minecraft controls from firing multiple times per physical press.
