@@ -1,12 +1,6 @@
 name: FalloutCraft Full Port
 
 on:
-  push:
-    branches:
-      - falloutcraft-full-skycraft-port
-    paths:
-      - 'projects/FalloutCraft/source/full_port/**'
-      - '.github/workflows/falloutcraft-full-port.yml'
   workflow_dispatch:
 
 jobs:
