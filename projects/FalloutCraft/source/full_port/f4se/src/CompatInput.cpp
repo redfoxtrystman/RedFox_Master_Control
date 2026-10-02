@@ -9,6 +9,7 @@ namespace falloutcraft
         WNDPROC g_originalWndProc = nullptr;
         std::atomic<bool> g_installed{ false };
         std::atomic<bool> g_playerControlsHooked{ false };
+        std::atomic<bool> g_menuControlsHooked{ false };
         std::atomic<bool> g_nativeInputInstalled{ false };
         float g_lookDx = 0.0f;
         float g_lookDy = 0.0f;
@@ -219,20 +220,20 @@ namespace falloutcraft
                     }
                 }
                 break;
-            case WM_LBUTTONDOWN: if (!g_nativeInputInstalled.load()) RouteButton(1, true); break;
-            case WM_LBUTTONUP: if (!g_nativeInputInstalled.load()) RouteButton(1, false); break;
-            case WM_RBUTTONDOWN: if (!g_nativeInputInstalled.load()) RouteButton(3, true); break;
-            case WM_RBUTTONUP: if (!g_nativeInputInstalled.load()) RouteButton(3, false); break;
-            case WM_MBUTTONDOWN: if (!g_nativeInputInstalled.load()) RouteButton(2, true); break;
-            case WM_MBUTTONUP: if (!g_nativeInputInstalled.load()) RouteButton(2, false); break;
+            case WM_LBUTTONDOWN: if (RoutesToMinecraft()) RouteButton(1, true); break;
+            case WM_LBUTTONUP: if (RoutesToMinecraft()) RouteButton(1, false); break;
+            case WM_RBUTTONDOWN: if (RoutesToMinecraft()) RouteButton(3, true); break;
+            case WM_RBUTTONUP: if (RoutesToMinecraft()) RouteButton(3, false); break;
+            case WM_MBUTTONDOWN: if (RoutesToMinecraft()) RouteButton(2, true); break;
+            case WM_MBUTTONUP: if (RoutesToMinecraft()) RouteButton(2, false); break;
             case WM_XBUTTONDOWN:
-                if (!g_nativeInputInstalled.load()) RouteButton(HIWORD(a_wParam) == XBUTTON1 ? 4 : 5, true);
+                if (RoutesToMinecraft()) RouteButton(HIWORD(a_wParam) == XBUTTON1 ? 4 : 5, true);
                 break;
             case WM_XBUTTONUP:
-                if (!g_nativeInputInstalled.load()) RouteButton(HIWORD(a_wParam) == XBUTTON1 ? 4 : 5, false);
+                if (RoutesToMinecraft()) RouteButton(HIWORD(a_wParam) == XBUTTON1 ? 4 : 5, false);
                 break;
             case WM_MOUSEWHEEL:
-                if (!g_nativeInputInstalled.load() && RoutesToMinecraft()) {
+                if (RoutesToMinecraft()) {
                     Link::Get().PushInput(proto::kInScroll, 0, GET_WHEEL_DELTA_WPARAM(a_wParam));
                 }
                 break;
@@ -240,11 +241,16 @@ namespace falloutcraft
             case WM_SYSKEYDOWN:
             case WM_KEYUP:
             case WM_SYSKEYUP:
-                if (!g_nativeInputInstalled.load() && RoutesToMinecraft()) {
+                if (RoutesToMinecraft()) {
                     if (const auto sc = VkToSdl(a_wParam, a_lParam); sc != 0) {
                         const bool down = a_msg == WM_KEYDOWN || a_msg == WM_SYSKEYDOWN;
                         RouteKey(sc, down);
                     }
+                }
+                break;
+            case WM_CHAR:
+                if (RoutesToMinecraft() && State().mcScreenOpen.load()) {
+                    Link::Get().PushInput(proto::kInText, 0, static_cast<std::int32_t>(a_wParam));
                 }
                 break;
             case WM_KILLFOCUS:
@@ -290,10 +296,11 @@ namespace falloutcraft
 
             void OnCharacterEvent(const RE::CharacterEvent* a_event) override
             {
-                if (!a_event || !RoutesToMinecraft() || !State().mcScreenOpen.load()) {
+                if (!a_event || !RoutesToMinecraft()) {
                     return;
                 }
-                Link::Get().PushInput(proto::kInText, 0, static_cast<std::int32_t>(a_event->charCode));
+                // Text itself is forwarded exactly once by WM_CHAR. This handler only prevents
+                // Fallout's own menu/gameplay layer from also consuming the character.
                 const_cast<RE::CharacterEvent*>(a_event)->handled = RE::InputEvent::HANDLED_RESULT::kStop;
             }
 
@@ -302,46 +309,28 @@ namespace falloutcraft
                 if (!a_event || !RoutesToMinecraft()) {
                     return;
                 }
-
-                const bool pressed = a_event->QJustPressed();
-                const bool released = a_event->QReleased();
-
-                if (a_event->device == RE::INPUT_DEVICE::kKeyboard) {
-                    // Native Fallout keyboard events use DirectInput scan codes (QIDCode).
-                    // Only forward real edges; held events are consumed but never replayed as
-                    // Minecraft key presses. This fixes E/F5 and other one-shot keys firing
-                    // repeatedly while still preserving normal held movement.
-                    const auto dik = a_event->QIDCode();
-                    if ((pressed || released) && dik < kDikToSdl.size()) {
-                        if (const auto sc = kDikToSdl[dik]; sc != 0) {
-                            RouteKey(sc, pressed);
-                        }
-                    }
-                    const_cast<RE::ButtonEvent*>(a_event)->handled = RE::InputEvent::HANDLED_RESULT::kStop;
-                    return;
-                }
-
-                if (a_event->device == RE::INPUT_DEVICE::kMouse) {
-                    const auto code = static_cast<std::uint32_t>(a_event->GetBSButtonCode());
-                    if (code == static_cast<std::uint32_t>(RE::BS_BUTTON_CODE::kWheelUp)) {
-                        if (pressed) Link::Get().PushInput(proto::kInScroll, 0, 120);
-                    } else if (code == static_cast<std::uint32_t>(RE::BS_BUTTON_CODE::kWheelDown)) {
-                        if (pressed) Link::Get().PushInput(proto::kInScroll, 0, -120);
-                    } else if (pressed || released) {
-                        static constexpr std::uint16_t buttons[8]{ 1, 3, 2, 4, 5, 0, 0, 0 };
-                        const auto id = a_event->QIDCode();
-                        if (id < std::size(buttons) && buttons[id] != 0) {
-                            RouteButton(buttons[id], pressed);
-                        }
-                    }
-                    const_cast<RE::ButtonEvent*>(a_event)->handled = RE::InputEvent::HANDLED_RESULT::kStop;
-                }
+                // Keyboard/mouse buttons come from the Fallout HWND so Escape/E/F5/clicks use the
+                // same dependable Windows edge stream as normal desktop input. RouteKey/RouteButton
+                // de-duplicate Windows repeat messages. This native handler is consumption-only.
+                const_cast<RE::ButtonEvent*>(a_event)->handled = RE::InputEvent::HANDLED_RESULT::kStop;
             }
         };
 
         // Fallout's raw Windows messages still need to reach menus and the rest of the game,
         // but its gameplay PlayerControls must not turn the same mouse/keyboard input into a
         // second camera/movement stream while Minecraft owns the player.
+        struct MenuControlsInputHook
+        {
+            static void thunk(RE::MenuControls* a_this, const RE::InputEvent* a_queueHead)
+            {
+                if (State().minecraftOwnsPlayer.load() && !State().falloutMenuOpen.load()) {
+                    return;
+                }
+                func(a_this, a_queueHead);
+            }
+            static inline REL::Relocation<decltype(thunk)> func;
+        };
+
         struct PlayerControlsInputHook
         {
             static void thunk(RE::PlayerControls* a_this, const RE::InputEvent* a_queueHead)
@@ -366,6 +355,14 @@ namespace falloutcraft
                     logger::info("FalloutCraft: native Fallout input bridge installed first in MenuControls");
                 }
                 g_nativeInputInstalled = true;
+            }
+
+            bool expectedMenu = false;
+            if (g_menuControlsHooked.compare_exchange_strong(expectedMenu, true)) {
+                REL::Relocation<std::uintptr_t> menuVtbl{ RE::VTABLE_MenuControls[0] };
+                MenuControlsInputHook::func =
+                    menuVtbl.write_vfunc(0x00, MenuControlsInputHook::thunk);
+                logger::info("FalloutCraft: Fallout MenuControls input suppressed while Minecraft owns player");
             }
 
             bool expectedControls = false;
