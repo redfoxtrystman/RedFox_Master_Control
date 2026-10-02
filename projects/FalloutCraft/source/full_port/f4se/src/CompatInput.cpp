@@ -8,6 +8,7 @@ namespace falloutcraft
         HWND g_hwnd = nullptr;
         WNDPROC g_originalWndProc = nullptr;
         std::atomic<bool> g_installed{ false };
+        std::atomic<bool> g_playerControlsHooked{ false };
         long long g_virtualX = 0;
         long long g_virtualY = 0;
         bool g_lastScreenOpen = false;
@@ -223,10 +224,33 @@ namespace falloutcraft
         }
     }
 
+        // Fallout's raw Windows messages still need to reach menus and the rest of the game,
+        // but its gameplay PlayerControls must not turn the same mouse/keyboard input into a
+        // second camera/movement stream while Minecraft owns the player.
+        struct PlayerControlsInputHook
+        {
+            static void thunk(RE::PlayerControls* a_this, const RE::InputEvent* a_queueHead)
+            {
+                if (State().minecraftOwnsPlayer.load() && !State().falloutMenuOpen.load()) {
+                    return;
+                }
+                func(a_this, a_queueHead);
+            }
+            static inline REL::Relocation<decltype(thunk)> func;
+        };
+
     namespace Input
     {
         void Install()
         {
+            bool expectedControls = false;
+            if (g_playerControlsHooked.compare_exchange_strong(expectedControls, true)) {
+                REL::Relocation<std::uintptr_t> controlsVtbl{ RE::PlayerControls::VTABLE[0] };
+                PlayerControlsInputHook::func =
+                    controlsVtbl.write_vfunc(0x00, PlayerControlsInputHook::thunk);
+                logger::info("FalloutCraft: Fallout PlayerControls gameplay input suppressed while Minecraft owns player");
+            }
+
             auto* rw = RE::BSGraphics::GetCurrentRendererWindow();
             HWND hwnd = rw ? reinterpret_cast<HWND>(rw->hwnd) : nullptr;
             if (!hwnd) {
