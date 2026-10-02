@@ -135,10 +135,15 @@ public final class SkyClient {
 			holdPos = new Vec3(sky.x, sky.y, sky.z);
 		}
 
-		// Fallout only seeds look on teleports. Once linked, Minecraft owns yaw/pitch:
-		// Fallout mouse/controller deltas are routed into Minecraft and MC publishes the
-		// resulting camera rotation back to the host. Continuously copying HostState look
-		// back here creates a feedback loop and camera snap-back.
+		// Look direction is driven by Fallout's host-side zero-latency accumulator.
+		// Minecraft uses the same yaw/pitch for movement, ray picking, hand animation and
+		// publishing its camera state back to Fallout. One authority prevents snap-back.
+		if (minecraft.gui.screen() == null) {
+			player.setYRot(sky.yaw);
+			player.setXRot(sky.pitch);
+			player.yRotO = sky.yaw;
+			player.xRotO = sky.pitch;
+		}
 	}
 
 	// Minecraft is started with Skyrim (the SKSE plugin launches it), so it goes when that Skyrim has
@@ -274,8 +279,12 @@ public final class SkyClient {
 		boolean known = SkyCollision.isKnown(bx, by - 1, bz) && SkyCollision.isKnown(bx, by, bz)
 			&& SkyCollision.isKnown(bx, by - SkyCollision.REGION_SIZE, bz);
 		// Release once there is actual ground below (or after a timeout, e.g. when mid-air on purpose).
-		boolean ready = known && (SkyCollision.hasSolidBelow(bx, by, bz, 12) || System.currentTimeMillis() - holdSince > 6000);
+		long heldMs = System.currentTimeMillis() - holdSince;
+		boolean ready = (known && SkyCollision.hasSolidBelow(bx, by, bz, 12)) || heldMs > 8000;
 		if (ready && sky.inGame() && !sky.loading()) {
+			if (!known && heldMs > 8000) {
+				SkyCraft.LOG.warn("SkyCraft: arrival collision still unknown after {} ms; releasing movement on Fallout emergency support", heldMs);
+			}
 			// Skyrim's feet can sit a fraction of a voxel inside our ground layer. Minecraft's
 			// collision never pushes you out of a shape, so you'd drop through: lift out first.
 			Vec3 safe = liftOutOfGeometry(player, holdPos);
