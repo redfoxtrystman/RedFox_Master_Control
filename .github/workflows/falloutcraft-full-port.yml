@@ -55,7 +55,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: FalloutCraft-F4SE-FullPort
-          path: projects/FalloutCraft/source/full_port/f4se/build/out/Release/FalloutCraft.dll
+          path: projects/FalloutCraft/source/full_port/f4se/build/out/FalloutCraft.dll
 
   package:
     needs: [fabric, f4se]
