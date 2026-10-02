@@ -91,6 +91,52 @@ namespace falloutcraft
             kResultFault = -4,
         };
 
+        bool IsPlayerCollisionSurface(RE::COL_LAYER a_layer)
+        {
+            // Layers a Fallout player/character controller should treat as physical world.
+            // LOS rays also hit actors, trigger volumes, camera helpers and other non-world
+            // bodies; treating those as Minecraft walls was a major reason the sampled bridge
+            // did not match Fallout movement.
+            switch (a_layer) {
+            case RE::COL_LAYER::kStatic:
+            case RE::COL_LAYER::kAnimStatic:
+            case RE::COL_LAYER::kTransparent:
+            case RE::COL_LAYER::kClutter:
+            case RE::COL_LAYER::kTrees:
+            case RE::COL_LAYER::kProps:
+            case RE::COL_LAYER::kTerrain:
+            case RE::COL_LAYER::kTrap:
+            case RE::COL_LAYER::kGround:
+            case RE::COL_LAYER::kDebrisSmall:
+            case RE::COL_LAYER::kDebrisLarge:
+            case RE::COL_LAYER::kTransparentSmall:
+            case RE::COL_LAYER::kInvisibleWall:
+            case RE::COL_LAYER::kTransparentSmallAnim:
+            case RE::COL_LAYER::kClutterLarge:
+            case RE::COL_LAYER::kStairHelper:
+            case RE::COL_LAYER::kCollisionBox:
+            case RE::COL_LAYER::kDataDefined1:
+            case RE::COL_LAYER::kDataDefined2:
+            case RE::COL_LAYER::kDataDefined3:
+            case RE::COL_LAYER::kDataDefined4:
+            case RE::COL_LAYER::kDataDefined5:
+            case RE::COL_LAYER::kDataDefined6:
+            case RE::COL_LAYER::kDataDefined7:
+            case RE::COL_LAYER::kDataDefined8:
+            case RE::COL_LAYER::kDataDefined9:
+            case RE::COL_LAYER::kDataDefined10:
+            case RE::COL_LAYER::kDataDefined11:
+            case RE::COL_LAYER::kDataDefined12:
+            case RE::COL_LAYER::kDataDefined13:
+            case RE::COL_LAYER::kDataDefined14:
+            case RE::COL_LAYER::kDataDefined15:
+            case RE::COL_LAYER::kDataDefined16:
+                return true;
+            default:
+                return false;
+            }
+        }
+
         // Fallout 4 1.11.x verified bhkPickData shim. The CommonLibF4 wrappers for
         // HasHit/GetHitFraction are not reliable on the user's 1.11.240 runtime: v0.5.2
         // proved TESObjectCELL::Pick returned, then faulted only when those result helpers ran.
@@ -123,52 +169,97 @@ namespace falloutcraft
                 return GuardedPickResult::kSetupFault;
             }
 
-            VerifiedPickStorage storage{};
-            void* pick = storage.data;
-            GuardedPickResult stage = GuardedPickResult::kCtorFault;
-            bool hit = false;
-            float fraction = 0.0f;
+            // Fallout's LOS pick sees considerably more than the character can stand on/run into:
+            // the player's own controller/body, actors, triggers, camera helpers, etc. SkyCraft's
+            // exact Havok exporter naturally filters those by body/layer. For this compatibility
+            // sampler, skip-and-recast through non-world layers so the nearest REAL world surface
+            // wins instead of fabricating a collision shell around the player.
+            constexpr int kMaxAttempts = 10;
+            constexpr float kSkipWorldUnits = 6.0f;
+            const RE::NiPoint3 delta{
+                a_to->x - a_from->x,
+                a_to->y - a_from->y,
+                a_to->z - a_from->z
+            };
+            const float length = std::sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+            if (!std::isfinite(length) || length < 1.0e-4f) {
+                return GuardedPickResult::kMiss;
+            }
+
+            float consumed = 0.0f;
+            for (int attempt = 0; attempt < kMaxAttempts && consumed < 0.999f; ++attempt) {
+                const RE::NiPoint3 start{
+                    a_from->x + delta.x * consumed,
+                    a_from->y + delta.y * consumed,
+                    a_from->z + delta.z * consumed
+                };
+
+                VerifiedPickStorage storage{};
+                void* pick = storage.data;
+                GuardedPickResult stage = GuardedPickResult::kCtorFault;
+                bool hit = false;
+                float fraction = 0.0f;
+                RE::NiAVObject* hitObject = nullptr;
 
 #if defined(_MSC_VER)
-            __try {
-                g_pickCtor(pick);
+                __try {
+                    g_pickCtor(pick);
 
-                stage = GuardedPickResult::kSetupFault;
-                // castQuery.m_filterData.m_collisionFilterInfo is +0x0C.
+                    stage = GuardedPickResult::kSetupFault;
+                    *reinterpret_cast<std::uint32_t*>(
+                        reinterpret_cast<std::byte*>(pick) + 0x0C) =
+                        static_cast<std::uint32_t>(RE::COL_LAYER::kLOS);
+                    g_pickSetStartEnd(pick, start, *a_to);
+
+                    stage = GuardedPickResult::kPickFault;
+                    hitObject = g_cellPick(a_cell, pick);
+
+                    stage = GuardedPickResult::kResultFault;
+                    hit = g_pickHasHit(pick);
+                    if (hit) {
+                        fraction = g_pickGetFraction(pick);
+                    }
+                } __except (EXCEPTION_EXECUTE_HANDLER) {
+                    return stage;
+                }
+#else
+                g_pickCtor(pick);
                 *reinterpret_cast<std::uint32_t*>(
                     reinterpret_cast<std::byte*>(pick) + 0x0C) =
                     static_cast<std::uint32_t>(RE::COL_LAYER::kLOS);
-                g_pickSetStartEnd(pick, *a_from, *a_to);
-
-                stage = GuardedPickResult::kPickFault;
-                (void)g_cellPick(a_cell, pick);
-
-                stage = GuardedPickResult::kResultFault;
+                g_pickSetStartEnd(pick, start, *a_to);
+                hitObject = g_cellPick(a_cell, pick);
                 hit = g_pickHasHit(pick);
                 if (hit) {
                     fraction = g_pickGetFraction(pick);
                 }
-            } __except (EXCEPTION_EXECUTE_HANDLER) {
-                return stage;
-            }
-#else
-            g_pickCtor(pick);
-            *reinterpret_cast<std::uint32_t*>(
-                reinterpret_cast<std::byte*>(pick) + 0x0C) =
-                static_cast<std::uint32_t>(RE::COL_LAYER::kLOS);
-            g_pickSetStartEnd(pick, *a_from, *a_to);
-            (void)g_cellPick(a_cell, pick);
-            hit = g_pickHasHit(pick);
-            if (hit) {
-                fraction = g_pickGetFraction(pick);
-            }
 #endif
+                (void)hitObject;
 
-            if (!hit) {
-                return GuardedPickResult::kMiss;
+                if (!hit) {
+                    return GuardedPickResult::kMiss;
+                }
+                if (!std::isfinite(fraction) || fraction <= 0.0001f || fraction > 1.0f) {
+                    return GuardedPickResult::kMiss;
+                }
+
+                const float overall = consumed + (1.0f - consumed) * fraction;
+                // Embedded result.hitBodyInfo.shapeCollisionFilterInfo lives at +0xAC in the
+                // verified 0xE0 bhkPickData layout; low seven bits are COL_LAYER.
+                const auto rawLayer = *reinterpret_cast<const std::uint32_t*>(
+                    reinterpret_cast<const std::byte*>(pick) + 0xAC);
+                const auto layer = static_cast<RE::COL_LAYER>(rawLayer & 0x7Fu);
+                if (IsPlayerCollisionSurface(layer)) {
+                    *a_fraction = overall;
+                    return GuardedPickResult::kHit;
+                }
+
+                // Move several Fallout units beyond the ignored helper/actor body and query the
+                // remainder. This is the same skip-and-recast discipline used by working FO4
+                // hknp ray plugins, preventing the player's own capsule from hiding the wall.
+                consumed = overall + kSkipWorldUnits / length;
             }
-            *a_fraction = fraction;
-            return GuardedPickResult::kHit;
+            return GuardedPickResult::kMiss;
         }
 
         const char* GuardedPickStageName(GuardedPickResult a_result)
