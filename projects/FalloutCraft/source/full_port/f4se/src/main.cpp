@@ -3,12 +3,28 @@
 
 namespace
 {
+	std::optional<std::filesystem::path> GetLogDirectory()
+	{
+		wchar_t* docsRaw = nullptr;
+		if (FAILED(::SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_DEFAULT, nullptr, &docsRaw))) {
+			if (docsRaw) {
+				::CoTaskMemFree(docsRaw);
+			}
+			return std::nullopt;
+		}
+		std::filesystem::path docs(docsRaw);
+		::CoTaskMemFree(docsRaw);
+		return docs / "My Games" / "Fallout4" / "F4SE";
+	}
+
 	void SetupLog()
 	{
-		auto dir = F4SE::log::log_directory();
+		auto dir = GetLogDirectory();
 		if (!dir) {
 			return;
 		}
+		std::error_code ec;
+		std::filesystem::create_directories(*dir, ec);
 		auto path = *dir / "FalloutCraft.log";
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path.string(), true);
 		auto log = std::make_shared<spdlog::logger>("global", std::move(sink));
