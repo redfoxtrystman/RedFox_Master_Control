@@ -8,8 +8,9 @@ namespace falloutcraft
         HWND g_hwnd = nullptr;
         WNDPROC g_originalWndProc = nullptr;
         std::atomic<bool> g_installed{ false };
-        long long g_virtualX = 960;
-        long long g_virtualY = 540;
+        long long g_virtualX = 0;
+        long long g_virtualY = 0;
+        bool g_lastScreenOpen = false;
         int g_fallbackX = 0;
         int g_fallbackY = 0;
         bool g_haveFallback = false;
@@ -110,25 +111,39 @@ namespace falloutcraft
             if (!RoutesToMinecraft() || (a_dx == 0 && a_dy == 0)) {
                 return;
             }
+
             auto& st = State();
-            if (st.mcScreenOpen.load()) {
+            const bool screenOpen = st.mcScreenOpen.load();
+            if (screenOpen != g_lastScreenOpen) {
+                g_lastScreenOpen = screenOpen;
+                if (screenOpen) {
+                    g_virtualX = std::max(1, st.viewportW.load()) / 2;
+                    g_virtualY = std::max(1, st.viewportH.load()) / 2;
+                    st.cursorX = static_cast<int>(g_virtualX);
+                    st.cursorY = static_cast<int>(g_virtualY);
+                } else {
+                    g_virtualX = 0;
+                    g_virtualY = 0;
+                }
+            }
+
+            if (screenOpen) {
                 const int w = std::max(1, st.viewportW.load());
                 const int h = std::max(1, st.viewportH.load());
                 g_virtualX = std::clamp<long long>(g_virtualX + a_dx, 0, w - 1);
                 g_virtualY = std::clamp<long long>(g_virtualY + a_dy, 0, h - 1);
+                st.cursorX = static_cast<int>(g_virtualX);
+                st.cursorY = static_cast<int>(g_virtualY);
+                // c=0: absolute cursor coordinates for Minecraft GUI screens.
+                Link::Get().PushInput(proto::kInCursor, 0,
+                    static_cast<std::int32_t>(g_virtualX),
+                    static_cast<std::int32_t>(g_virtualY), 0);
             } else {
-                g_virtualX += a_dx;
-                g_virtualY += a_dy;
-                // Keep the virtual cursor away from integer overflow without changing the delta.
-                if (std::abs(g_virtualX) > 100000000 || std::abs(g_virtualY) > 100000000) {
-                    g_virtualX = 0;
-                    g_virtualY = 0;
-                    Link::Get().PushInput(proto::kInReleaseAll, 0);
-                }
+                // c=1: RELATIVE look delta. v0.5.2 accumulated these into a fake absolute cursor
+                // starting at 960,540; Minecraft's first event therefore looked like a gigantic
+                // 960x540 mouse swipe. Send the actual raw delta instead.
+                Link::Get().PushInput(proto::kInCursor, 0, a_dx, a_dy, 1);
             }
-            Link::Get().PushInput(proto::kInCursor, 0,
-                static_cast<std::int32_t>(g_virtualX),
-                static_cast<std::int32_t>(g_virtualY));
         }
 
         void RouteButton(std::uint16_t a_button, bool a_down)
