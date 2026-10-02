@@ -1,4 +1,4 @@
-FalloutCraft v0.5.7 FULL-PORT ALPHA
+FalloutCraft v0.5.8 FULL-PORT ALPHA
 ==================================
 
 This is the guarded follow-up to the first whole-system Fallout 4 port of the SkyCraft architecture.
@@ -11,6 +11,17 @@ IMPORTANT:
 - Remove/replace older FalloutCraft.dll and older FalloutCraft Fabric jars.
 - Launch Fallout 4 through F4SE exactly as before.
 - The old GDI/layered-window overlay is permanently removed.
+
+0.5.8 camera/depth/native-interaction pass:
+- Minecraft now publishes its actual final Camera.position() every rendered frame instead of only the player's eye plus a reconstructed F5 distance. Fallout consumes that exact camera position directly.
+- Pins both Fallout PlayerCamera::cameraRoot and Main::WorldRootCamera to Minecraft's camera after Fallout's camera update, with a second immediate apply from the player update. The sky root follows the same translation. This fixes the Minecraft player walking away while the Fallout view remains at the old location.
+- Fallout stays internally in first-person camera state while Minecraft owns the player. F5 rear/front are therefore entirely Minecraft's camera modes rather than a second Fallout third-person orbit layered on top.
+- Fallout's native PlayerCharacter/character-controller position now follows Minecraft with SetPosition(..., true), keeping Fallout interaction/crosshair physics centered on the Minecraft player's current location instead of the old spawn point.
+- Reuses Fallout's live full-resolution scene depth-stencil target when compositing Minecraft world geometry. Minecraft blocks/entities now depth-test against Fallout walls, floors, cryopods and props instead of a freshly-cleared Minecraft-only depth buffer. The private depth buffer remains a fallback only if no matching host target is exposed.
+- Starts consuming the shared WorldEntities table that the Minecraft exporter already produced. Dropped item sprites, dropped block-item cubes, arrows and tridents are now rendered by the Fallout compatibility renderer instead of silently disappearing.
+- Minecraft inventory/crafting/other screens now use the real Windows mouse cursor. Absolute WM_MOUSEMOVE drives Minecraft's GUI cursor and the old hand-drawn white/black fake pointer is no longer rendered.
+- Mirrors SkyCraft's host-interaction split: Fallout's Activate binding is temporarily moved from E to G while Minecraft owns gameplay. G alone is passed through to Fallout's native PlayerControls/ActivateHandler, preserving normal activate and hold-to-grab physics behavior. Minecraft keeps E for inventory and right-click for normal use/place. When a Minecraft screen is open, G belongs to Minecraft like every other key.
+- Tightens the temporary Fallout hknp ray collision sampler by skip-and-recasting through actors, the player's own controller, triggers, camera/helper volumes and other non-world hits. Only Fallout layers that should behave as physical world surfaces are turned into Minecraft's 1/8-block collision masks, so the player's own capsule can no longer hide the wall/floor the sampler is trying to export.
 
 0.5.7 input/collision/HUD/lighting pass:
 - Restores the Fallout HWND as the single authoritative keyboard/mouse-button source while Minecraft owns the player. WM_KEYDOWN/UP, mouse buttons, wheel and WM_CHAR now reach Minecraft even though Fallout gameplay/menu receivers are suppressed. This restores Escape, E/inventory, F5, held movement, block breaking and block placing without Fallout also reacting to the same input.
