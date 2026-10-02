@@ -78,14 +78,35 @@ namespace falloutcraft
         float g_cameraFov = 0.0f;
         std::atomic<bool> g_cameraActive{ false };
         std::atomic<bool> g_loggedPostCamera{ false };
-        // Fallout's first-person arms/weapon are a dedicated PlayerCharacter scene graph.
-        // Get3D(true) is not reliable for this on the CommonLibF4 layout used by the build, so
-        // track and hide the actual firstPerson3D geometry meshes. Never cull the root node: the
-        // camera/animation graph can still depend on it. We restore only meshes FalloutCraft hid.
-        std::vector<RE::NiPointer<RE::BSGeometry>> g_hiddenFirstPersonMeshes;
-        RE::NiPointer<RE::NiAVObject> g_hiddenFirstPersonTorso;
+        // Fallout can rebuild/re-show its first-person and player scene roots after our actor
+        // update. Hide the actual roots (not only their current geometry children), remember each
+        // object's original cull state, and reassert this after PlayerCamera::Update as well.
+        struct HiddenRoot
+        {
+            RE::NiPointer<RE::NiAVObject> object;
+            bool originallyCulled{ false };
+        };
+        std::vector<HiddenRoot> g_hiddenPlayerRoots;
         bool g_firstPersonHideActive = false;
         bool g_savedHideFirstPersonGeometry = false;
+
+        void HideRoot(RE::NiAVObject* a_object)
+        {
+            if (!a_object) {
+                return;
+            }
+            auto it = std::find_if(g_hiddenPlayerRoots.begin(), g_hiddenPlayerRoots.end(),
+                [&](const HiddenRoot& a_entry) { return a_entry.object.get() == a_object; });
+            if (it == g_hiddenPlayerRoots.end()) {
+                HiddenRoot entry;
+                entry.originallyCulled = a_object->GetAppCulled();
+                entry.object.reset(a_object);
+                g_hiddenPlayerRoots.push_back(std::move(entry));
+            }
+            if (!a_object->GetAppCulled()) {
+                a_object->SetAppCulled(true);
+            }
+        }
 
         void SetFalloutFirstPersonHidden(RE::PlayerCharacter* a_player, bool a_hide)
         {
@@ -94,18 +115,12 @@ namespace falloutcraft
             }
 
             if (!a_hide) {
-                for (auto& mesh : g_hiddenFirstPersonMeshes) {
-                    if (mesh && mesh->GetAppCulled()) {
-                        mesh->SetAppCulled(false);
+                for (auto& entry : g_hiddenPlayerRoots) {
+                    if (entry.object && entry.object->GetAppCulled() != entry.originallyCulled) {
+                        entry.object->SetAppCulled(entry.originallyCulled);
                     }
                 }
-                g_hiddenFirstPersonMeshes.clear();
-                if (g_hiddenFirstPersonTorso) {
-                    if (g_hiddenFirstPersonTorso->GetAppCulled()) {
-                        g_hiddenFirstPersonTorso->SetAppCulled(false);
-                    }
-                    g_hiddenFirstPersonTorso.reset();
-                }
+                g_hiddenPlayerRoots.clear();
                 if (g_firstPersonHideActive) {
                     a_player->hideFirstPersonGeometry = g_savedHideFirstPersonGeometry;
                     g_firstPersonHideActive = false;
@@ -119,23 +134,14 @@ namespace falloutcraft
             }
             a_player->hideFirstPersonGeometry = true;
 
-            auto* root = a_player->firstPerson3D.get();
-            if (!root) {
-                return;
-            }
-            RE::BSVisit::TraverseScenegraphGeometries(root, [&](RE::BSGeometry* a_mesh) {
-                if (a_mesh && !a_mesh->GetAppCulled()) {
-                    a_mesh->SetAppCulled(true);
-                    g_hiddenFirstPersonMeshes.emplace_back(a_mesh);
-                }
-                return RE::BSVisitControl::kContinue;
-            });
-
-            // Some Fallout first-person setups keep an extra torso object outside the normal
-            // firstPerson3D geometry traversal. Cull it too while Minecraft owns the camera.
-            if (a_player->firstPersonTorso && !a_player->firstPersonTorso->GetAppCulled()) {
-                a_player->firstPersonTorso->SetAppCulled(true);
-                g_hiddenFirstPersonTorso.reset(a_player->firstPersonTorso);
+            // firstPerson3D owns the normal weapon/hands. Fallout can also submit the torso
+            // separately, and some camera states render loadedData->data3D even in a nominally
+            // first-person view. Minecraft supplies both its own hand and its own F5 avatar, so
+            // all three Fallout roots must stay out of the final frame during takeover.
+            HideRoot(a_player->firstPerson3D.get());
+            HideRoot(a_player->firstPersonTorso);
+            if (a_player->loadedData && a_player->loadedData->data3D) {
+                HideRoot(a_player->loadedData->data3D.get());
             }
         }
 
@@ -209,6 +215,12 @@ namespace falloutcraft
             // completed its own PlayerCamera::Update for this frame.
             RE::NiUpdateData update{};
             root->UpdateDownwardPass(update, 0);
+
+            // Fallout's camera update can re-enable first-person/weapon nodes. Reassert the
+            // Minecraft takeover cull at the last camera hook before rendering.
+            if (State().minecraftOwnsPlayer.load()) {
+                SetFalloutFirstPersonHidden(RE::PlayerCharacter::GetSingleton(), true);
+            }
 
             if (!g_loggedPostCamera.exchange(true)) {
                 logger::info("FalloutCraft: Minecraft camera now applied after Fallout PlayerCamera::Update (FO4 row-major basis)");
