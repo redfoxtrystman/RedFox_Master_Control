@@ -71,7 +71,7 @@ public final class SkyDigClient {
 			return false; // (a guest asks anyway: the host's setting decides)
 		}
 		SkyRay.Hit hit = result.hit;
-		if (hit.tri() == null || !hit.tri().diggable) {
+		if (hit == null || hit.tri() == null || !hit.tri().diggable) {
 			return false; // a building, or something else that stays
 		}
 		int[] cell = SkyRay.surfaceCell(hit);
