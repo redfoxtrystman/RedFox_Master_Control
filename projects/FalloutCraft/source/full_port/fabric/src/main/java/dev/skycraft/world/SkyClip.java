@@ -41,7 +41,20 @@ public final class SkyClip {
 			}
 		}
 		if (hit == null) {
-			return vanilla;
+			// Fallout's compatibility hknp producer currently has SkyCraft-format 1/8 voxel
+			// surfaces before it has exact body triangles. Use those shapes for picking so
+			// right-click placement, selection and projectile contact still work.
+			BlockHitResult voxel = SkyCollision.clipVoxels(from, to);
+			if (voxel == null) {
+				return vanilla;
+			}
+			if (vanilla.getType() != HitResult.Type.MISS &&
+				from.distanceToSqr(vanilla.getLocation()) <= from.distanceToSqr(voxel.getLocation())) {
+				return vanilla;
+			}
+			BlockPos surface = voxel.getBlockPos();
+			BlockPos cell = use == Use.PICK ? surface.relative(voxel.getDirection()) : surface;
+			return new SkyrimHitResult(voxel.getLocation(), voxel.getDirection(), cell, null);
 		}
 		Vec3 location = new Vec3(hit.x(), hit.y(), hit.z());
 		if (vanilla.getType() != HitResult.Type.MISS && from.distanceToSqr(vanilla.getLocation()) <= from.distanceToSqr(location)) {
@@ -133,9 +146,9 @@ public final class SkyClip {
 
 		public SkyrimHitResult(Vec3 location, Direction direction, BlockPos pos, SkyRay.Hit hit) {
 			super(location, direction, pos, false);
-			this.nx = hit.nx();
-			this.ny = hit.ny();
-			this.nz = hit.nz();
+			this.nx = hit != null ? hit.nx() : direction.getStepX();
+			this.ny = hit != null ? hit.ny() : direction.getStepY();
+			this.nz = hit != null ? hit.nz() : direction.getStepZ();
 			this.hit = hit;
 		}
 	}
