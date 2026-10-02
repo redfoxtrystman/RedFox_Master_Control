@@ -36,6 +36,9 @@ namespace falloutcraft
         std::uint32_t epoch_{ 0 };
         std::chrono::steady_clock::time_point lastSample_{};
         std::unordered_set<std::uint64_t> occupied_;
+        bool raycastingDisabled_{ false };
+        bool firstSampleLogged_{ false };
+        bool firstRayLogged_{ false };
 
         mutable std::shared_mutex boxesLock_;
         std::unordered_map<std::uint64_t, std::array<std::uint32_t, 512>> boxes_;
