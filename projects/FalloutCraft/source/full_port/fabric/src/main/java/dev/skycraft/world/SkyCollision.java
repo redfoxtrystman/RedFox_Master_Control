@@ -63,7 +63,11 @@ public final class SkyCollision {
 	}
 
 	public static boolean usesSmoothCollider(net.minecraft.world.entity.@Nullable Entity entity) {
-		return entity != null && smoothCollider.test(entity);
+		// Fallout's first hknp bridge can provide voxel regions before exact triangle
+		// meshes are available. Keep vanilla+host voxel collision active until at least
+		// one exact-triangle region has arrived, then switch the local player to the
+		// smoother triangle resolver automatically.
+		return entity != null && smoothCollider.test(entity) && !TRIS.isEmpty();
 	}
 
 	/** Adds every Skyrim triangle whose bounds overlap {@code box}. */
