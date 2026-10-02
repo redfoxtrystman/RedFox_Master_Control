@@ -266,7 +266,7 @@ namespace falloutcraft::Dig
 			if (cut.clone) {
 				Bury(std::move(cut.clone));
 				if (cut.original) {
-					cut.original->GetFlags().reset(RE::NiAVObject::Flag::kHidden);
+					cut.original->SetAppCulled(false);
 				}
 			}
 			cuts.erase(a_it);
@@ -453,10 +453,8 @@ namespace falloutcraft::Dig
 						mhi[k] = std::max(mhi[k], mc[i + k]);
 					}
 				}
-				Diag("dig: {} not cut: no triangle touches the {} dug blocks (first {} {} {}); mesh spans ({:.1f} {:.1f} {:.1f})-({:.1f} {:.1f} {:.1f}), {} vertices, {} triangles, "
-					 "format {:016X}, {} data",
-					a_geom->name.c_str(), a_cubes.size(), a_cubes[0][0], a_cubes[0][1], a_cubes[0][2], mlo[0], mlo[1], mlo[2], mhi[0], mhi[1], mhi[2], vertexCount, triCount,
-					RawDesc(desc), rd->rawVertexData ? "Fallout's" : "read-back");
+				Diag("dig: {} not cut: no triangle touches nearby dug blocks ({} vertices, {} triangles)",
+					a_geom->name.c_str(), vertexCount, triCount);
 				if (old != cuts.end()) {
 					RemoveCut(old);
 				}
@@ -510,7 +508,7 @@ namespace falloutcraft::Dig
 			data->refCount = 2;  // the clone's, and ours
 			clone->GetTrishapeRuntimeData().vertexCount = std::uint16_t(outVerts.size() / stride);
 			clone->GetTrishapeRuntimeData().triangleCount = std::uint16_t(std::max<std::size_t>(outIndices.size() / 3, 1));
-			clone->GetFlags().reset(RE::NiAVObject::Flag::kHidden);
+			clone->SetAppCulled(false);
 			owned.push_back(data);
 
 			if (old != cuts.end()) {
@@ -519,10 +517,10 @@ namespace falloutcraft::Dig
 			}
 			if (!GuardedAttach(parent, clone)) {
 				logger::warn("dig: couldn't hang the cut {} in the scene", a_geom->name.c_str());
-				a_geom->GetFlags().reset(RE::NiAVObject::Flag::kHidden);  // shown whole again
+				a_geom->SetAppCulled(false);  // shown whole again
 				return true;
 			}
-			a_geom->GetFlags().set(RE::NiAVObject::Flag::kHidden);
+			a_geom->SetAppCulled(true);
 			clones.insert(clone);
 			cuts[a_geom] = Cut{ RE::NiPointer<RE::BSTriShape>(a_geom), std::move(cloneRef), data, a_signature, a_up };
 			if (++loggedCuts <= 20 || loggedCuts % 100 == 0) {
@@ -558,7 +556,7 @@ namespace falloutcraft::Dig
 			}
 			const auto it = cuts.find(a_geom);
 			// Hidden by someone else (and not by us): leave it.
-			if (it == cuts.end() && a_geom->GetFlags().any(RE::NiAVObject::Flag::kHidden)) {
+			if (it == cuts.end() && a_geom->GetAppCulled()) {
 				return;
 			}
 			float lo[3], hi[3];
@@ -869,7 +867,7 @@ namespace falloutcraft::Dig
 			auto& cut = it->second;
 			if (!cut.original || !cut.original->parent || (cut.clone && !cut.clone->parent)) {
 				if (cut.original && cut.original->parent && cut.clone) {
-					cut.original->GetFlags().reset(RE::NiAVObject::Flag::kHidden);
+					cut.original->SetAppCulled(false);
 				}
 				Bury(std::move(cut.clone));
 				it = cuts.erase(it);
