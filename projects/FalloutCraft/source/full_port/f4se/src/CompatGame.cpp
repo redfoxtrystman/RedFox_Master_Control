@@ -77,6 +77,25 @@ namespace falloutcraft
         float g_cameraFov = 0.0f;
         std::atomic<bool> g_cameraActive{ false };
         std::atomic<bool> g_loggedPostCamera{ false };
+        RE::NiPointer<RE::NiAVObject> g_hiddenFirstPerson;
+
+        void SetFalloutFirstPersonHidden(RE::PlayerCharacter* a_player, bool a_hide)
+        {
+            auto* current = a_player ? a_player->Get3D(true) : nullptr;
+            if (a_hide) {
+                if (g_hiddenFirstPerson && g_hiddenFirstPerson.get() != current) {
+                    g_hiddenFirstPerson->SetAppCulled(false);
+                    g_hiddenFirstPerson.reset();
+                }
+                if (current) {
+                    current->SetAppCulled(true);
+                    g_hiddenFirstPerson.reset(current);
+                }
+            } else if (g_hiddenFirstPerson) {
+                g_hiddenFirstPerson->SetAppCulled(false);
+                g_hiddenFirstPerson.reset();
+            }
+        }
 
         void StageMinecraftCamera(RE::PlayerCharacter* a_player, const proto::McState& a_mc, float a_yaw, float a_pitch)
         {
@@ -250,7 +269,11 @@ namespace falloutcraft
                 st.cursorY = std::max(1, st.viewportH.load()) / 2;
             }
             st.mcScreenOpen = screenOpen;
-            st.falloutMenuOpen = Game::FalloutMenuOpen();
+            const bool falloutMenu = Game::FalloutMenuOpen();
+            if (falloutMenu && !st.falloutMenuOpen.load()) {
+                Input::ReleaseAll();
+            }
+            st.falloutMenuOpen = falloutMenu;
             if (haveMc && g_mc.sensitivity > 0.0f) {
                 st.sensitivity = g_mc.sensitivity;
             }
@@ -296,6 +319,14 @@ namespace falloutcraft
             // SkyCraft. The hold may temporarily pin position, but Fallout must not steal keys.
             st.minecraftOwnsPlayer = puppet || arriving;
             st.puppeting = puppet;
+            SetFalloutFirstPersonHidden(a_player, st.minecraftOwnsPlayer.load());
+
+            static int lastCameraMode = -1;
+            if (haveMc && static_cast<int>(g_mc.cameraMode) != lastCameraMode) {
+                lastCameraMode = static_cast<int>(g_mc.cameraMode);
+                logger::info("FalloutCraft: Minecraft camera mode {}{}", lastCameraMode,
+                    lastCameraMode == 0 ? " (first person)" : lastCameraMode == 1 ? " (third person back)" : " (third person front)");
+            }
 
             if (puppet) {
                 // Minecraft remains authoritative. The Fallout reference follows without warping
@@ -381,6 +412,7 @@ namespace falloutcraft
             ++g_epoch;
             g_forceTeleport = false;
             g_cameraActive = false;
+            SetFalloutFirstPersonHidden(RE::PlayerCharacter::GetSingleton(), false);
             State().lookInitialized = false;
             Collision::Get().Reset(g_epoch);
             logger::info("FalloutCraft: game load/new game resync requested");
