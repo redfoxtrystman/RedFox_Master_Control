@@ -135,13 +135,10 @@ public final class SkyClient {
 			holdPos = new Vec3(sky.x, sky.y, sky.z);
 		}
 
-		// Look direction is driven by Skyrim (zero-latency camera); MC uses it for everything else.
-		if (minecraft.gui.screen() == null) {
-			player.setYRot(sky.yaw);
-			player.setXRot(sky.pitch);
-			player.yRotO = sky.yaw;
-			player.xRotO = sky.pitch;
-		}
+		// Fallout only seeds look on teleports. Once linked, Minecraft owns yaw/pitch:
+		// Fallout mouse/controller deltas are routed into Minecraft and MC publishes the
+		// resulting camera rotation back to the host. Continuously copying HostState look
+		// back here creates a feedback loop and camera snap-back.
 	}
 
 	// Minecraft is started with Skyrim (the SKSE plugin launches it), so it goes when that Skyrim has
