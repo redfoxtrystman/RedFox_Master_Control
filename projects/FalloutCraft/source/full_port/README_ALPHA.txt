@@ -1,4 +1,4 @@
-FalloutCraft v0.5.2 FULL-PORT ALPHA
+FalloutCraft v0.5.3 FULL-PORT ALPHA
 ==================================
 
 This is the guarded follow-up to the first whole-system Fallout 4 port of the SkyCraft architecture.
@@ -11,6 +11,13 @@ IMPORTANT:
 - Remove/replace older FalloutCraft.dll and older FalloutCraft Fabric jars.
 - Launch Fallout 4 through F4SE exactly as before.
 - The old GDI/layered-window overlay is permanently removed.
+
+0.5.3 camera/collision pass:
+- Corrects Fallout 4's padded row-major camera basis (row0=right, row1=forward, row2=up). The previous Skyrim-style column basis is what rotated/tilted the world.
+- Adds a Fallout PlayerCamera::Update post-hook at vfunc 0x03 so Minecraft's camera is applied after Fallout's own camera smoothing/collision pass instead of being overwritten later in the frame.
+- Sends raw relative mouse deltas to Minecraft; removes the first-frame fake 960x540 camera kick.
+- Replaces the failing CommonLibF4 bhkPickData result wrappers with Fallout 1.11.x verified Address Library raycast entry points and collision-filter offset.
+- Anchors the emergency collision floor at the arrival height so it cannot fall downward with the player.
 
 0.5.2 crash fix:
 - Corrected the Fallout player update hook: Actor::Update is vfunc 0xCF. The previous full-port alpha incorrectly hooked TESObjectREFR::ApplyMovementDelta at 0xAD with the wrong function signature, which could corrupt movement calls and run bridge work on the wrong engine path.
