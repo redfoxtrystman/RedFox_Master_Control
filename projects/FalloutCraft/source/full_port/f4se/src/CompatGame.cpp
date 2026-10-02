@@ -214,11 +214,12 @@ namespace falloutcraft
             // Collision must stream before takeover. Minecraft deliberately withholds teleportAck
             // until the arrival regions are known.
             const bool acknowledged = haveMc && g_mc.teleportAck == g_teleportSeq;
-            if (mcAlive && !loading) {
-                // Until Minecraft acknowledges the current teleport, collision must be harvested
-                // around Fallout's real player. Sampling stale MC coordinates here deadlocks the
-                // arrival hold because the regions Minecraft is waiting for never arrive.
-                const McVec collisionAt = (st.mcInWorld && acknowledged)
+            if (haveMc && st.mcInWorld && !loading) {
+                // Do not touch Fallout's physics merely because the shared-memory heartbeat exists.
+                // Wait until Minecraft has an actual LocalPlayer in the mirror world and is publishing
+                // kMcInWorld. Before teleport acknowledgement, harvest around Fallout's real arrival
+                // point so the collision regions Minecraft is waiting for can arrive.
+                const McVec collisionAt = acknowledged
                     ? McVec{ g_mc.x, g_mc.y, g_mc.z }
                     : SkyToMc(a_player->GetPosition());
                 Collision::Get().Update(collisionAt);
@@ -278,8 +279,11 @@ namespace falloutcraft
                 return;
             }
             REL::Relocation<std::uintptr_t> vtbl{ RE::PlayerCharacter::VTABLE[0] };
-            PlayerUpdateHook::func = vtbl.write_vfunc(0xAD, PlayerUpdateHook::thunk);
-            logger::info("FalloutCraft: PlayerCharacter::Update hook installed at vfunc 0xAD");
+            // Fallout 4 Actor::Update(float) is vfunc 0xCF. 0xAD is TESObjectREFR::ApplyMovementDelta
+            // and has a completely different signature; hooking it as Update corrupts the call frame
+            // and was the immediate v0.5.0/v0.5.1 post-link crash.
+            PlayerUpdateHook::func = vtbl.write_vfunc(0xCF, PlayerUpdateHook::thunk);
+            logger::info("FalloutCraft: PlayerCharacter::Update hook installed at Fallout vfunc 0xCF");
         }
 
         void OnGameLoaded()
