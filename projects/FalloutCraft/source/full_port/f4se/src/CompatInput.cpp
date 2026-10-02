@@ -169,7 +169,10 @@ namespace falloutcraft
         {
             switch (a_msg) {
             case WM_INPUT:
-                if (!g_nativeInputInstalled.load() && RoutesToMinecraft()) {
+                // FO4's MouseMoveEvent can be cursor-bounded/scaled. Use true raw relative
+                // WM_INPUT for Minecraft look/cursor so pitch can traverse the full +/-90 range.
+                // The native BSInputEventUser still consumes Fallout's own mouse event below.
+                if (RoutesToMinecraft()) {
                     UINT bytes = 0;
                     if (GetRawInputData(reinterpret_cast<HRAWINPUT>(a_lParam), RID_INPUT, nullptr, &bytes, sizeof(RAWINPUTHEADER)) == 0 && bytes) {
                         std::vector<std::uint8_t> storage(bytes);
@@ -247,7 +250,8 @@ namespace falloutcraft
                 if (!a_event || !RoutesToMinecraft()) {
                     return;
                 }
-                RouteMouseDelta(a_event->mouseInputX, a_event->mouseInputY);
+                // Actual relative motion comes from WM_INPUT. Consuming this native event keeps
+                // Fallout's camera from also reacting without integrating the same motion twice.
                 const_cast<RE::MouseMoveEvent*>(a_event)->handled = RE::InputEvent::HANDLED_RESULT::kStop;
             }
 
