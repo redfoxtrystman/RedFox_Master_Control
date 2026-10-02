@@ -39,6 +39,8 @@ namespace falloutcraft
         bool raycastingDisabled_{ false };
         bool firstSampleLogged_{ false };
         bool firstRayLogged_{ false };
+        bool fallbackFloorSet_{ false };
+        int fallbackFloorY_{ 0 };
 
         mutable std::shared_mutex boxesLock_;
         std::unordered_map<std::uint64_t, std::array<std::uint32_t, 512>> boxes_;
