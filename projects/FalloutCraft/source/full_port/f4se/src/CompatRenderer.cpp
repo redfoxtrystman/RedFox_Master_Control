@@ -46,6 +46,7 @@ namespace falloutcraft
         AvatarCache g_avatar;
         SceneCache g_scene;
         GpuTexture g_overlay;
+        GpuTexture g_cursor;
 
         ID3D11Device* g_device = nullptr;
         ID3D11DeviceContext* g_context = nullptr;
@@ -264,6 +265,38 @@ float4 PSMain(PSIn i) : SV_Target {
             return true;
         }
 
+        bool EnsureCursorTexture()
+        {
+            if (g_cursor.srv) {
+                return true;
+            }
+            if (!g_device) {
+                return false;
+            }
+
+            const std::uint32_t pixel = 0xFFFFFFFFu;
+            D3D11_TEXTURE2D_DESC td{};
+            td.Width = 1;
+            td.Height = 1;
+            td.MipLevels = 1;
+            td.ArraySize = 1;
+            td.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            td.SampleDesc.Count = 1;
+            td.Usage = D3D11_USAGE_DEFAULT;
+            td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+            D3D11_SUBRESOURCE_DATA init{};
+            init.pSysMem = &pixel;
+            init.SysMemPitch = sizeof(pixel);
+            if (FAILED(g_device->CreateTexture2D(&td, &init, &g_cursor.texture)) ||
+                FAILED(g_device->CreateShaderResourceView(g_cursor.texture, nullptr, &g_cursor.srv))) {
+                FreeTexture(g_cursor);
+                return false;
+            }
+            g_cursor.width = g_cursor.height = 1;
+            return true;
+        }
+
         void HandleRenderMessage(std::uint32_t type, const std::uint8_t* data, std::uint32_t bytes)
         {
             switch (type) {
@@ -393,7 +426,11 @@ float4 PSMain(PSIn i) : SV_Target {
                     camera->worldToCam, camera->port, world, sx, sy, sz, 1e-5f)) {
                 return false;
             }
-            if (!std::isfinite(sx) || !std::isfinite(sy) || !std::isfinite(sz)) {
+            // WorldPtToScreenPt3 returns normalized viewport coordinates and positive Z only
+            // for points in front of the camera. v0.5.3 accepted behind/near-plane points and
+            // turned them into giant screen-covering triangles.
+            if (!std::isfinite(sx) || !std::isfinite(sy) || !std::isfinite(sz) || sz <= 0.0f ||
+                sx < -2.0f || sx > 3.0f || sy < -2.0f || sy > 3.0f) {
                 return false;
             }
             out.x = sx * 2.0f - 1.0f;
@@ -566,6 +603,35 @@ float4 PSMain(PSIn i) : SV_Target {
             DrawScreenVertices(q, g_overlay.srv);
         }
 
+        void DrawCursor(ID3D11RenderTargetView* rtv, std::uint32_t w, std::uint32_t h)
+        {
+            auto& st = State();
+            if (!st.mcScreenOpen.load() || w == 0 || h == 0 || !EnsureCursorTexture()) {
+                return;
+            }
+
+            BindCommon(rtv, w, h, g_overlayBlend);
+
+            const float x = static_cast<float>(std::clamp(st.cursorX.load(), 0, static_cast<int>(w) - 1));
+            const float y = static_cast<float>(std::clamp(st.cursorY.load(), 0, static_cast<int>(h) - 1));
+            auto ndcX = [w](float px) { return px / static_cast<float>(w) * 2.0f - 1.0f; };
+            auto ndcY = [h](float py) { return 1.0f - py / static_cast<float>(h) * 2.0f; };
+
+            auto tri = [&](float x0, float y0, float x1, float y1, float x2, float y2, std::uint32_t color) {
+                std::vector<ScreenVertex> v{
+                    { ndcX(x0), ndcY(y0), 0, 1, 0, 0, color },
+                    { ndcX(x1), ndcY(y1), 0, 1, 0, 0, color },
+                    { ndcX(x2), ndcY(y2), 0, 1, 0, 0, color },
+                };
+                DrawScreenVertices(v, g_cursor.srv);
+            };
+
+            // Minecraft's hidden window has no OS cursor, so reproduce SkyCraft's virtual
+            // pointer in the Fallout backbuffer. Black outline first, white inset second.
+            tri(x, y, x + 13.0f, y + 20.0f, x + 5.0f, y + 16.0f, 0xFF000000u);
+            tri(x + 2.0f, y + 2.0f, x + 10.0f, y + 17.0f, x + 5.0f, y + 14.0f, 0xFFFFFFFFu);
+        }
+
         void RenderPresent(IDXGISwapChain* swap)
         {
             if (!InitGpu(swap)) {
@@ -600,6 +666,7 @@ float4 PSMain(PSIn i) : SV_Target {
             // will replace this post-scene pass as the Fallout render-target indices are validated.
             DrawWorld(rtv, desc.Width, desc.Height);
             DrawOverlay(rtv, desc.Width, desc.Height);
+            DrawCursor(rtv, desc.Width, desc.Height);
             Release(rtv);
         }
 
