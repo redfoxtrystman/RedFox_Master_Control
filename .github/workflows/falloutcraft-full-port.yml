@@ -56,3 +56,34 @@ jobs:
         with:
           name: FalloutCraft-F4SE-FullPort
           path: projects/FalloutCraft/source/full_port/f4se/build/out/Release/FalloutCraft.dll
+
+  package:
+    needs: [fabric, f4se]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: FalloutCraft-Fabric-FullPort
+          path: _artifacts/fabric
+      - uses: actions/download-artifact@v4
+        with:
+          name: FalloutCraft-F4SE-FullPort
+          path: _artifacts/f4se
+      - name: Build install ZIP
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist/Data/F4SE/Plugins | Out-Null
+          New-Item -ItemType Directory -Force dist/mods | Out-Null
+          $dll = Get-ChildItem _artifacts/f4se -Recurse -Filter FalloutCraft.dll | Select-Object -First 1
+          if (-not $dll) { throw 'FalloutCraft.dll artifact missing' }
+          Copy-Item $dll.FullName dist/Data/F4SE/Plugins/FalloutCraft.dll
+          $jar = Get-ChildItem _artifacts/fabric -Recurse -Filter *.jar | Where-Object { $_.Name -notmatch 'sources|javadoc|dev' } | Select-Object -First 1
+          if (-not $jar) { throw 'FalloutCraft Fabric jar artifact missing' }
+          Copy-Item $jar.FullName dist/mods/FalloutCraft-fabric-0.1.0.jar
+          Copy-Item projects/FalloutCraft/source/full_port/README_ALPHA.txt dist/README_FULL_PORT_ALPHA.txt
+          Compress-Archive -Path dist/* -DestinationPath FalloutCraft_v0.5.0_FULL_PORT_ALPHA.zip -Force
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FalloutCraft-v0.5.0-FULL-PORT-ALPHA
+          path: FalloutCraft_v0.5.0_FULL_PORT_ALPHA.zip
