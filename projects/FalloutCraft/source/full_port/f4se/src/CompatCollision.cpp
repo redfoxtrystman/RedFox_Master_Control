@@ -391,7 +391,11 @@ namespace falloutcraft
                     // conservative SUPPORT cells at/below the player's feet. Keep the richer
                     // occupied_ set host-side for NPC/contact-lighting systems, but do not let
                     // coarse body-height/ceiling samples become authoritative player collision.
-                    const int supportTop = static_cast<int>(std::floor(a_playerMc.y - 0.05));
+                    // Because each published sample is still a whole Minecraft cube, only
+                    // keep cells whose *top* is at/below the feet. A cell containing the feet
+                    // would overlap the player's AABB and recreate the "walking animation but
+                    // stuck in place" bug we are trying to eliminate.
+                    const int supportTop = static_cast<int>(std::floor(a_playerMc.y + 0.01)) - 1;
                     for (auto key : occupied_) {
                         int x, y, z;
                         Unpack(key, x, y, z);
