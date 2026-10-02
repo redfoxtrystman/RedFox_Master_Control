@@ -50,11 +50,22 @@ public final class InputBridge {
 			}
 			case Proto.IN_SCROLL -> minecraft.mouseHandler.onScroll(handle, 0.0, a / 120.0);
 			case Proto.IN_CURSOR -> {
-				double dx = a - cursorX;
-				double dy = b - cursorY;
-				cursorX = a;
-				cursorY = b;
-				minecraft.mouseHandler.onMove(handle, a, b, dx, dy);
+				if (c != 0) {
+					// Fallout full-port extension: c!=0 means a/b are true raw relative mouse
+					// deltas. This avoids the first-frame camera kick caused by treating a fake
+					// 960x540 host cursor as an absolute Minecraft cursor position.
+					double dx = a;
+					double dy = b;
+					cursorX += dx;
+					cursorY += dy;
+					minecraft.mouseHandler.onMove(handle, cursorX, cursorY, dx, dy);
+				} else {
+					double dx = a - cursorX;
+					double dy = b - cursorY;
+					cursorX = a;
+					cursorY = b;
+					minecraft.mouseHandler.onMove(handle, a, b, dx, dy);
+				}
 			}
 			case Proto.IN_TEXT -> {
 				if (minecraft.gui.screen() != null) {
