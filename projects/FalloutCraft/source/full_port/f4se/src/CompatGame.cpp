@@ -290,8 +290,11 @@ namespace falloutcraft
                 Collision::Get().Update(collisionAt);
             }
 
+            const bool arriving = haveMc && st.mcInWorld && !acknowledged && !loading;
             const bool puppet = haveMc && st.mcInWorld && acknowledged && !loading;
-            st.minecraftOwnsPlayer = puppet;
+            // Route input to Minecraft during the collision/teleport arrival hold too, matching
+            // SkyCraft. The hold may temporarily pin position, but Fallout must not steal keys.
+            st.minecraftOwnsPlayer = puppet || arriving;
             st.puppeting = puppet;
 
             if (puppet) {
