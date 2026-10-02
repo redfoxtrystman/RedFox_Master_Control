@@ -9,13 +9,10 @@ namespace falloutcraft
         WNDPROC g_originalWndProc = nullptr;
         std::atomic<bool> g_installed{ false };
         std::atomic<bool> g_playerControlsHooked{ false };
-        long long g_virtualX = 0;
-        long long g_virtualY = 0;
-        bool g_lastScreenOpen = false;
-        int g_fallbackX = 0;
-        int g_fallbackY = 0;
-        bool g_haveFallback = false;
-        std::uint64_t g_lastRawMouseMs = 0;
+        std::atomic<bool> g_nativeInputInstalled{ false };
+        float g_lookDx = 0.0f;
+        float g_lookDy = 0.0f;
+        std::mutex g_lookLock;
 
         std::uint16_t VkToSdl(WPARAM a_vk, LPARAM a_lParam)
         {
@@ -114,36 +111,21 @@ namespace falloutcraft
             }
 
             auto& st = State();
-            const bool screenOpen = st.mcScreenOpen.load();
-            if (screenOpen != g_lastScreenOpen) {
-                g_lastScreenOpen = screenOpen;
-                if (screenOpen) {
-                    g_virtualX = std::max(1, st.viewportW.load()) / 2;
-                    g_virtualY = std::max(1, st.viewportH.load()) / 2;
-                    st.cursorX = static_cast<int>(g_virtualX);
-                    st.cursorY = static_cast<int>(g_virtualY);
-                } else {
-                    g_virtualX = 0;
-                    g_virtualY = 0;
-                }
-            }
-
-            if (screenOpen) {
+            if (st.mcScreenOpen.load()) {
                 const int w = std::max(1, st.viewportW.load());
                 const int h = std::max(1, st.viewportH.load());
-                g_virtualX = std::clamp<long long>(g_virtualX + a_dx, 0, w - 1);
-                g_virtualY = std::clamp<long long>(g_virtualY + a_dy, 0, h - 1);
-                st.cursorX = static_cast<int>(g_virtualX);
-                st.cursorY = static_cast<int>(g_virtualY);
-                // c=0: absolute cursor coordinates for Minecraft GUI screens.
-                Link::Get().PushInput(proto::kInCursor, 0,
-                    static_cast<std::int32_t>(g_virtualX),
-                    static_cast<std::int32_t>(g_virtualY), 0);
+                const int x = std::clamp(st.cursorX.load() + a_dx, 0, w - 1);
+                const int y = std::clamp(st.cursorY.load() + a_dy, 0, h - 1);
+                st.cursorX = x;
+                st.cursorY = y;
+                Link::Get().PushInput(proto::kInCursor, 0, x, y);
             } else {
-                // c=1: RELATIVE look delta. v0.5.2 accumulated these into a fake absolute cursor
-                // starting at 960,540; Minecraft's first event therefore looked like a gigantic
-                // 960x540 mouse swipe. Send the actual raw delta instead.
-                Link::Get().PushInput(proto::kInCursor, 0, a_dx, a_dy, 1);
+                // Match SkyCraft's proven design: raw host mouse input drives the host-side
+                // zero-latency look accumulator. Minecraft receives the resulting yaw/pitch
+                // through HostState instead of independently integrating the same delta.
+                std::lock_guard lock(g_lookLock);
+                g_lookDx += static_cast<float>(a_dx);
+                g_lookDy += static_cast<float>(a_dy);
             }
         }
 
@@ -158,7 +140,7 @@ namespace falloutcraft
         {
             switch (a_msg) {
             case WM_INPUT:
-                if (RoutesToMinecraft()) {
+                if (!g_nativeInputInstalled.load() && RoutesToMinecraft()) {
                     UINT bytes = 0;
                     if (GetRawInputData(reinterpret_cast<HRAWINPUT>(a_lParam), RID_INPUT, nullptr, &bytes, sizeof(RAWINPUTHEADER)) == 0 && bytes) {
                         std::vector<std::uint8_t> storage(bytes);
@@ -167,38 +149,25 @@ namespace falloutcraft
                             if (raw->header.dwType == RIM_TYPEMOUSE &&
                                 (raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) == 0) {
                                 RouteMouseDelta(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-                                g_lastRawMouseMs = GetTickCount64();
                             }
                         }
                     }
                 }
                 break;
-            case WM_MOUSEMOVE:
-                if (RoutesToMinecraft() && GetTickCount64() - g_lastRawMouseMs > 100) {
-                    const int x = static_cast<short>(LOWORD(a_lParam));
-                    const int y = static_cast<short>(HIWORD(a_lParam));
-                    if (g_haveFallback) {
-                        RouteMouseDelta(x - g_fallbackX, y - g_fallbackY);
-                    }
-                    g_fallbackX = x;
-                    g_fallbackY = y;
-                    g_haveFallback = true;
-                }
-                break;
-            case WM_LBUTTONDOWN: RouteButton(1, true); break;
-            case WM_LBUTTONUP: RouteButton(1, false); break;
-            case WM_RBUTTONDOWN: RouteButton(3, true); break;
-            case WM_RBUTTONUP: RouteButton(3, false); break;
-            case WM_MBUTTONDOWN: RouteButton(2, true); break;
-            case WM_MBUTTONUP: RouteButton(2, false); break;
+            case WM_LBUTTONDOWN: if (!g_nativeInputInstalled.load()) RouteButton(1, true); break;
+            case WM_LBUTTONUP: if (!g_nativeInputInstalled.load()) RouteButton(1, false); break;
+            case WM_RBUTTONDOWN: if (!g_nativeInputInstalled.load()) RouteButton(3, true); break;
+            case WM_RBUTTONUP: if (!g_nativeInputInstalled.load()) RouteButton(3, false); break;
+            case WM_MBUTTONDOWN: if (!g_nativeInputInstalled.load()) RouteButton(2, true); break;
+            case WM_MBUTTONUP: if (!g_nativeInputInstalled.load()) RouteButton(2, false); break;
             case WM_XBUTTONDOWN:
-                RouteButton(HIWORD(a_wParam) == XBUTTON1 ? 4 : 5, true);
+                if (!g_nativeInputInstalled.load()) RouteButton(HIWORD(a_wParam) == XBUTTON1 ? 4 : 5, true);
                 break;
             case WM_XBUTTONUP:
-                RouteButton(HIWORD(a_wParam) == XBUTTON1 ? 4 : 5, false);
+                if (!g_nativeInputInstalled.load()) RouteButton(HIWORD(a_wParam) == XBUTTON1 ? 4 : 5, false);
                 break;
             case WM_MOUSEWHEEL:
-                if (RoutesToMinecraft()) {
+                if (!g_nativeInputInstalled.load() && RoutesToMinecraft()) {
                     Link::Get().PushInput(proto::kInScroll, 0, GET_WHEEL_DELTA_WPARAM(a_wParam));
                 }
                 break;
@@ -206,7 +175,7 @@ namespace falloutcraft
             case WM_SYSKEYDOWN:
             case WM_KEYUP:
             case WM_SYSKEYUP:
-                if (RoutesToMinecraft()) {
+                if (!g_nativeInputInstalled.load() && RoutesToMinecraft()) {
                     if (const auto sc = VkToSdl(a_wParam, a_lParam); sc != 0) {
                         const bool down = a_msg == WM_KEYDOWN || a_msg == WM_SYSKEYDOWN;
                         Link::Get().PushInput(proto::kInKey, sc, down ? 1 : 0);
@@ -223,6 +192,78 @@ namespace falloutcraft
                                      : DefWindowProcW(a_hwnd, a_msg, a_wParam, a_lParam);
         }
     }
+
+        class FalloutCraftInputUser final : public RE::BSInputEventUser
+        {
+        public:
+            static FalloutCraftInputUser* GetSingleton()
+            {
+                static FalloutCraftInputUser sink;
+                return &sink;
+            }
+
+            bool ShouldHandleEvent(const RE::InputEvent* a_event) override
+            {
+                if (!a_event || !RoutesToMinecraft()) {
+                    return false;
+                }
+                const auto type = a_event->eventType.get();
+                return type == RE::INPUT_EVENT_TYPE::kButton ||
+                       type == RE::INPUT_EVENT_TYPE::kMouseMove ||
+                       type == RE::INPUT_EVENT_TYPE::kChar;
+            }
+
+            void OnMouseMoveEvent(const RE::MouseMoveEvent* a_event) override
+            {
+                if (!a_event || !RoutesToMinecraft()) {
+                    return;
+                }
+                RouteMouseDelta(a_event->mouseInputX, a_event->mouseInputY);
+                const_cast<RE::MouseMoveEvent*>(a_event)->handled = RE::InputEvent::HANDLED_RESULT::kStop;
+            }
+
+            void OnCharacterEvent(const RE::CharacterEvent* a_event) override
+            {
+                if (!a_event || !RoutesToMinecraft() || !State().mcScreenOpen.load()) {
+                    return;
+                }
+                Link::Get().PushInput(proto::kInText, 0, static_cast<std::int32_t>(a_event->charCode));
+                const_cast<RE::CharacterEvent*>(a_event)->handled = RE::InputEvent::HANDLED_RESULT::kStop;
+            }
+
+            void OnButtonEvent(const RE::ButtonEvent* a_event) override
+            {
+                if (!a_event || !RoutesToMinecraft()) {
+                    return;
+                }
+
+                const bool down = a_event->QAnalogValue() != 0.0f;
+                if (a_event->device == RE::INPUT_DEVICE::kKeyboard) {
+                    const auto vk = static_cast<WPARAM>(static_cast<std::uint32_t>(a_event->GetBSButtonCode()));
+                    if (const auto sc = VkToSdl(vk, 0); sc != 0) {
+                        Link::Get().PushInput(proto::kInKey, sc, down ? 1 : 0);
+                    }
+                    const_cast<RE::ButtonEvent*>(a_event)->handled = RE::InputEvent::HANDLED_RESULT::kStop;
+                    return;
+                }
+
+                if (a_event->device == RE::INPUT_DEVICE::kMouse) {
+                    const auto code = static_cast<std::uint32_t>(a_event->GetBSButtonCode());
+                    if (code == static_cast<std::uint32_t>(RE::BS_BUTTON_CODE::kWheelUp)) {
+                        if (down) Link::Get().PushInput(proto::kInScroll, 0, 120);
+                    } else if (code == static_cast<std::uint32_t>(RE::BS_BUTTON_CODE::kWheelDown)) {
+                        if (down) Link::Get().PushInput(proto::kInScroll, 0, -120);
+                    } else {
+                        static constexpr std::uint16_t buttons[8]{ 1, 3, 2, 4, 5, 0, 0, 0 };
+                        const auto id = a_event->QIDCode();
+                        if (id < std::size(buttons) && buttons[id] != 0) {
+                            RouteButton(buttons[id], down);
+                        }
+                    }
+                    const_cast<RE::ButtonEvent*>(a_event)->handled = RE::InputEvent::HANDLED_RESULT::kStop;
+                }
+            }
+        };
 
         // Fallout's raw Windows messages still need to reach menus and the rest of the game,
         // but its gameplay PlayerControls must not turn the same mouse/keyboard input into a
@@ -243,6 +284,16 @@ namespace falloutcraft
     {
         void Install()
         {
+            if (auto* menuControls = RE::MenuControls::GetSingleton()) {
+                auto* sink = FalloutCraftInputUser::GetSingleton();
+                auto& handlers = menuControls->handlers;
+                if (std::find(handlers.begin(), handlers.end(), sink) == handlers.end()) {
+                    handlers.insert(handlers.begin(), sink);
+                    logger::info("FalloutCraft: native Fallout input bridge installed first in MenuControls");
+                }
+                g_nativeInputInstalled = true;
+            }
+
             bool expectedControls = false;
             if (g_playerControlsHooked.compare_exchange_strong(expectedControls, true)) {
                 REL::Relocation<std::uintptr_t> controlsVtbl{ RE::PlayerControls::VTABLE[0] };
@@ -279,9 +330,11 @@ namespace falloutcraft
 
         void ConsumeLook(float& a_dx, float& a_dy)
         {
-            // Mouse deltas are delivered directly to Minecraft through the input ring.
-            a_dx = 0.0f;
-            a_dy = 0.0f;
+            std::lock_guard lock(g_lookLock);
+            a_dx = g_lookDx;
+            a_dy = g_lookDy;
+            g_lookDx = 0.0f;
+            g_lookDy = 0.0f;
         }
 
         void ReleaseAll()
