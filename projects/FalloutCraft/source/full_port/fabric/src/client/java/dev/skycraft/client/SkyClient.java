@@ -280,10 +280,10 @@ public final class SkyClient {
 			&& SkyCollision.isKnown(bx, by - SkyCollision.REGION_SIZE, bz);
 		// Release once there is actual ground below (or after a timeout, e.g. when mid-air on purpose).
 		long heldMs = System.currentTimeMillis() - holdSince;
-		boolean ready = (known && SkyCollision.hasSolidBelow(bx, by, bz, 12)) || heldMs > 8000;
+		boolean ready = (known && SkyCollision.hasSolidBelow(bx, by, bz, 12)) || heldMs > 2500;
 		if (ready && sky.inGame() && !sky.loading()) {
-			if (!known && heldMs > 8000) {
-				SkyCraft.LOG.warn("SkyCraft: arrival collision still unknown after {} ms; releasing movement on Fallout emergency support", heldMs);
+			if ((!known || !SkyCollision.hasSolidBelow(bx, by, bz, 12)) && heldMs > 2500) {
+				SkyCraft.LOG.warn("SkyCraft: arrival collision not ready after {} ms; releasing movement instead of pinning the player", heldMs);
 			}
 			// Skyrim's feet can sit a fraction of a voxel inside our ground layer. Minecraft's
 			// collision never pushes you out of a shape, so you'd drop through: lift out first.
