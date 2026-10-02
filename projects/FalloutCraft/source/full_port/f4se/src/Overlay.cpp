@@ -7,7 +7,13 @@ namespace falloutcraft
 	namespace
 	{
 		using PresentFn = HRESULT(WINAPI*)(IDXGISwapChain*, UINT, UINT);
-		PresentFn originalPresent = nullptr;
+		using CreateDeviceFn = HRESULT(WINAPI*)(
+			IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT,
+			const D3D_FEATURE_LEVEL*, UINT, UINT,
+			const DXGI_SWAP_CHAIN_DESC*, IDXGISwapChain**,
+			ID3D11Device**, D3D_FEATURE_LEVEL*, ID3D11DeviceContext**);
+		PresentFn      originalPresent = nullptr;
+		CreateDeviceFn originalCreate = nullptr;
 
 		ID3D11Device*             device = nullptr;
 		ID3D11DeviceContext*      context = nullptr;
@@ -367,6 +373,39 @@ float4 PSMain(VSOut i) : SV_Target {
 			SafeRelease(rtv);
 		}
 
+		HRESULT WINAPI CreateDeviceHook(
+			IDXGIAdapter* a_adapter,
+			D3D_DRIVER_TYPE a_driverType,
+			HMODULE a_software,
+			UINT a_flags,
+			const D3D_FEATURE_LEVEL* a_featureLevels,
+			UINT a_featureLevelCount,
+			UINT a_sdkVersion,
+			const DXGI_SWAP_CHAIN_DESC* a_desc,
+			IDXGISwapChain** a_swapChain,
+			ID3D11Device** a_device,
+			D3D_FEATURE_LEVEL* a_featureLevel,
+			ID3D11DeviceContext** a_context)
+		{
+			const auto hr = originalCreate(
+				a_adapter, a_driverType, a_software, a_flags,
+				a_featureLevels, a_featureLevelCount, a_sdkVersion,
+				a_desc, a_swapChain, a_device, a_featureLevel, a_context);
+			if (FAILED(hr) || !a_swapChain || !*a_swapChain) {
+				return hr;
+			}
+
+			auto** vtable = *reinterpret_cast<void***>(*a_swapChain);
+			if (vtable && vtable[8] != reinterpret_cast<void*>(&PresentHook)) {
+				originalPresent = reinterpret_cast<PresentFn>(vtable[8]);
+				REL::WriteSafeData(
+					reinterpret_cast<std::uintptr_t>(&vtable[8]),
+					reinterpret_cast<std::uintptr_t>(&PresentHook));
+				logger::info("overlay: Fallout 4 real IDXGISwapChain::Present hooked");
+			}
+			return hr;
+		}
+
 		HRESULT WINAPI PresentHook(IDXGISwapChain* a_swapChain, UINT a_sync, UINT a_flags)
 		{
 			// Present runs even while the game is paused (menus, loading), unlike the player update,
@@ -392,19 +431,26 @@ float4 PSMain(VSOut i) : SV_Target {
 	{
 		void Install()
 		{
-			auto* window = RE::BSGraphics::Renderer::GetCurrentRenderWindow();
-			auto* swapChain = window ? reinterpret_cast<IDXGISwapChain*>(window->swapChain) : nullptr;
-			if (!swapChain) {
-				logger::error("overlay: no swap chain yet");
+			static bool installed = false;
+			if (installed) {
 				return;
 			}
-			auto** vtable = *reinterpret_cast<void***>(swapChain);
-			DWORD  oldProtect = 0;
-			::VirtualProtect(&vtable[8], sizeof(void*), PAGE_EXECUTE_READWRITE, &oldProtect);
-			originalPresent = reinterpret_cast<PresentFn>(vtable[8]);
-			vtable[8] = reinterpret_cast<void*>(&PresentHook);
-			::VirtualProtect(&vtable[8], sizeof(void*), oldProtect, &oldProtect);
-			logger::info("overlay: Present hooked");
+			installed = true;
+
+			// Fallout 4 does not expose Skyrim's Renderer::GetCurrentRenderWindow().
+			// Hook the game's D3D11 device/swap-chain creation call instead, then hook
+			// the real swap chain's Present vtable as soon as it exists.
+			if (REX::FModule::IsRuntimeNG()) {
+				logger::error("overlay: NG 1.10.980/984 needs the import-pointer fallback; unsupported in this build");
+				return;
+			}
+			static const REL::ID kRendererInitFn{ 224250, 0, 4492363 };
+			const std::ptrdiff_t callOffset = REX::FModule::IsRuntimeOG() ? 0x419 : 0x410;
+			const std::uintptr_t callSite = kRendererInitFn.address() + callOffset;
+			auto& trampoline = REL::GetTrampoline();
+			originalCreate = reinterpret_cast<CreateDeviceFn>(
+				trampoline.write_call<5>(callSite, &CreateDeviceHook));
+			logger::info("overlay: D3D11CreateDeviceAndSwapChain hook installed at {:X}", callSite);
 		}
 	}
 }
