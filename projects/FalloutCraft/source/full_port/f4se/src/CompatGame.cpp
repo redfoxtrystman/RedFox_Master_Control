@@ -227,6 +227,43 @@ namespace falloutcraft
             }
         }
 
+        void PositionFalloutCompass(bool a_minecraftHud)
+        {
+            auto* ui = RE::UI::GetSingleton();
+            if (!ui) {
+                return;
+            }
+            auto hud = ui->GetMenu<RE::HUDMenu>();
+            if (!hud || !hud->uiMovie) {
+                return;
+            }
+
+            // Fallout's vanilla/FallUI layout puts CompassWidget_mc inside BottomCenterGroup_mc.
+            // Preserve whatever position the user's HUD started with, then lift it 48 stage pixels
+            // while Minecraft's HUD is on screen so it sits above the armor/health rows.
+            static Scaleform::GFx::Movie* lastMovie = nullptr;
+            static double originalY = -24.0;
+            static bool haveOriginal = false;
+            auto* movie = hud->uiMovie.get();
+            if (movie != lastMovie) {
+                lastMovie = movie;
+                haveOriginal = false;
+            }
+
+            constexpr const char* kCompassY =
+                "_root.HUDMovieBaseInstance.BottomCenterGroup_mc.CompassWidget_mc._y";
+            if (!haveOriginal) {
+                Scaleform::GFx::Value y;
+                if (movie->GetVariable(&y, kCompassY) && y.IsNumber()) {
+                    originalY = y.GetNumber();
+                }
+                haveOriginal = true;
+            }
+
+            const double wanted = a_minecraftHud ? originalY - 48.0 : originalY;
+            movie->SetVariable(kCompassY, Scaleform::GFx::Value(wanted));
+        }
+
         std::uint32_t CurrentWorldId(RE::PlayerCharacter* a_player)
         {
             auto* cell = a_player ? a_player->GetParentCell() : nullptr;
@@ -390,6 +427,7 @@ namespace falloutcraft
             st.minecraftOwnsPlayer = puppet || arriving;
             st.puppeting = puppet;
             SetFalloutFirstPersonHidden(a_player, st.minecraftOwnsPlayer.load());
+            PositionFalloutCompass(st.minecraftOwnsPlayer.load());
 
             static int lastCameraMode = -1;
             if (haveMc && static_cast<int>(g_mc.cameraMode) != lastCameraMode) {
@@ -483,6 +521,7 @@ namespace falloutcraft
             g_forceTeleport = false;
             g_cameraActive = false;
             SetFalloutFirstPersonHidden(RE::PlayerCharacter::GetSingleton(), false);
+            PositionFalloutCompass(false);
             State().lookInitialized = false;
             Collision::Get().Reset(g_epoch);
             logger::info("FalloutCraft: game load/new game resync requested");
