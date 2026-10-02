@@ -399,20 +399,11 @@ namespace falloutcraft
                     region.maxZ = region.minZ + 7;
                     region.epoch = epoch_;
 
-                    // Exact triangles for the local player's smooth collider.
-                    std::vector<proto::ColTri> tris;
-                    tris.reserve(blocks.size() * 12);
-                    for (const auto& b : blocks) {
-                        CubeTriangles(b[0], b[1], b[2], tris);
-                    }
-                    region.count = static_cast<std::uint32_t>(tris.size());
-                    std::vector<std::uint8_t> triPayload(sizeof(region) + tris.size() * sizeof(proto::ColTri));
-                    std::memcpy(triPayload.data(), &region, sizeof(region));
-                    if (!tris.empty()) {
-                        std::memcpy(triPayload.data() + sizeof(region), tris.data(), tris.size() * sizeof(proto::ColTri));
-                    }
-                    Link::Get().WriteCollision(proto::kColTris, triPayload.data(), static_cast<std::uint32_t>(triPayload.size()));
-
+                    // Fallout's current hknp sampler only knows conservative occupied cells.
+                    // Do NOT advertise those whole cubes as exact triangles: Minecraft's smooth
+                    // TriCollider then treats the coarse samples as authoritative geometry and can
+                    // pin the player in place. Until the real hknp triangle harvester is online,
+                    // publish only voxel occupancy and let Minecraft's normal collision solver move.
                     // 1/8 voxel protocol remains intact. This first Fallout-native pass emits
                     // conservative whole-block occupancy; later hknp body harvesting can refine it
                     // without changing Minecraft or the wire format.
