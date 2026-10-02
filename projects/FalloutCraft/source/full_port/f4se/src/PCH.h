@@ -8,6 +8,7 @@
 
 #include <atomic>
 #include <array>
+#include <bit>
 #include <chrono>
 #include <condition_variable>
 #include <deque>
