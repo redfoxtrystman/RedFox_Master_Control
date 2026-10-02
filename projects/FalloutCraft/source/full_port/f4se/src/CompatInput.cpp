@@ -117,7 +117,7 @@ namespace falloutcraft
             t[0x1A] = 47; t[0x1B] = 48; t[0x1C] = 40; t[0x1D] = 224;               // [ ] Enter LCtrl
             t[0x1E] = 4; t[0x1F] = 22; t[0x20] = 7; t[0x21] = 9; t[0x22] = 10;     // A S D F G
             t[0x23] = 11; t[0x24] = 13; t[0x25] = 14; t[0x26] = 15;                // H J K L
-            t[0x27] = 51; t[0x28] = 52; t[0x29] = 53; t[0x2A] = 225; t[0x2B] = 49; // ; ' ` LShift \
+            t[0x27] = 51; t[0x28] = 52; t[0x29] = 53; t[0x2A] = 225; t[0x2B] = 49; // ; apostrophe grave LShift Backslash
             t[0x2C] = 29; t[0x2D] = 27; t[0x2E] = 6; t[0x2F] = 25; t[0x30] = 5;    // Z X C V B
             t[0x31] = 17; t[0x32] = 16; t[0x33] = 54; t[0x34] = 55; t[0x35] = 56;  // N M , . /
             t[0x36] = 229; t[0x37] = 85; t[0x38] = 226; t[0x39] = 44; t[0x3A] = 57; // RShift KP* LAlt Space Caps
