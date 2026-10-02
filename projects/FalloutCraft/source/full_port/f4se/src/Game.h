@@ -100,6 +100,9 @@ namespace falloutcraft
 		void ConsumeLook(float& a_dx, float& a_dy);
 		// Tells MC to release everything (input focus moved to Fallout).
 		void ReleaseAll();
+		// Shows the real Windows cursor over Minecraft GUIs and restores captured-look mode when
+		// the GUI closes. Called once per Fallout frame after mcScreenOpen is updated.
+		void UpdateCursorMode();
 	}
 
 	namespace Input
