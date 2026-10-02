@@ -113,6 +113,11 @@ namespace falloutcraft
             // The full light stream and hazard data are already consumed here.
         }
 
+        bool IsOurs(const RE::NiLight*)
+        {
+            return false;
+        }
+
         std::uint8_t HazardAt(int a_x, int a_y, int a_z)
         {
             std::shared_lock lock(g_hazardLock);
@@ -134,7 +139,7 @@ namespace falloutcraft
             logger::info("FalloutCraft: NPC path avoidance compatibility layer loaded");
         }
 
-        bool GoalOf(RE::Actor*, RE::NiPoint3&)
+        bool GoalOf(RE::FormID, RE::NiPoint3&)
         {
             return false;
         }
@@ -184,7 +189,8 @@ namespace falloutcraft
             return it != g_solids.end() && BitAt(it->second, bx, by, bz);
         }
 
-        void CopySolids(const std::int32_t a_origin[3], const std::int32_t a_size[3], std::uint8_t* a_out)
+        void CopySolids(const std::int32_t a_origin[3], const std::int32_t a_size[3],
+            std::uint32_t* a_out, std::uint32_t a_bit)
         {
             if (!a_origin || !a_size || !a_out) {
                 return;
@@ -193,8 +199,9 @@ namespace falloutcraft
             for (int z = 0; z < d; ++z) {
                 for (int y = 0; y < h; ++y) {
                     for (int x = 0; x < w; ++x) {
-                        a_out[x + w * (y + h * z)] =
-                            SolidAt(a_origin[0] + x, a_origin[1] + y, a_origin[2] + z) ? 1 : 0;
+                        if (SolidAt(a_origin[0] + x, a_origin[1] + y, a_origin[2] + z)) {
+                            a_out[x + w * (y + h * z)] |= a_bit;
+                        }
                     }
                 }
             }
