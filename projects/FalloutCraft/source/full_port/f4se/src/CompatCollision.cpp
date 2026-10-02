@@ -382,10 +382,21 @@ namespace falloutcraft
             for (int ry = pry - 2; ry <= pry + 1; ++ry) {
                 for (int rx = prx - 1; rx <= prx + 1; ++rx) {
                     std::vector<std::array<int, 3>> blocks;
+                    // The ray sampler only tells us that a surface was touched; it does not give
+                    // us the exact hknp shape inside that Minecraft cell. Publishing every wall,
+                    // railing and ceiling hit as a *full cube* can surround the player with fake
+                    // collision and pin Minecraft in place even though its walk animation runs.
+                    //
+                    // Until the real hknp triangle/sub-voxel harvester is online, only publish
+                    // conservative SUPPORT cells at/below the player's feet. Keep the richer
+                    // occupied_ set host-side for NPC/contact-lighting systems, but do not let
+                    // coarse body-height/ceiling samples become authoritative player collision.
+                    const int supportTop = static_cast<int>(std::floor(a_playerMc.y - 0.05));
                     for (auto key : occupied_) {
                         int x, y, z;
                         Unpack(key, x, y, z);
-                        if (FloorDiv8(x) == rx && FloorDiv8(y) == ry && FloorDiv8(z) == rz) {
+                        if (y <= supportTop &&
+                            FloorDiv8(x) == rx && FloorDiv8(y) == ry && FloorDiv8(z) == rz) {
                             blocks.push_back({ x, y, z });
                         }
                     }
@@ -400,13 +411,10 @@ namespace falloutcraft
                     region.epoch = epoch_;
 
                     // Fallout's current hknp sampler only knows conservative occupied cells.
-                    // Do NOT advertise those whole cubes as exact triangles: Minecraft's smooth
-                    // TriCollider then treats the coarse samples as authoritative geometry and can
-                    // pin the player in place. Until the real hknp triangle harvester is online,
-                    // publish only voxel occupancy and let Minecraft's normal collision solver move.
-                    // 1/8 voxel protocol remains intact. This first Fallout-native pass emits
-                    // conservative whole-block occupancy; later hknp body harvesting can refine it
-                    // without changing Minecraft or the wire format.
+                    // Do NOT advertise those whole cubes as exact triangles. For v0.5.6 the
+                    // Minecraft player receives support-only voxel occupancy; body-height walls
+                    // and ceilings stay host-side until exact hknp geometry is available.
+                    // The 1/8 voxel and exact-triangle protocol remains intact for that upgrade.
                     region.count = static_cast<std::uint32_t>(blocks.size());
                     std::vector<std::uint8_t> payload(sizeof(region) + blocks.size() * sizeof(proto::ColBlock));
                     std::memcpy(payload.data(), &region, sizeof(region));
