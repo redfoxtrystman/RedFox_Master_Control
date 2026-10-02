@@ -19,6 +19,7 @@ find_package(spdlog REQUIRED CONFIG)
 # The Fallout runtime target uses the Fallout-native compatibility implementations below.
 set(FALLOUTCRAFT_SOURCES
   src/Link.cpp
+  src/Launcher.cpp
   src/CompatMain.cpp
   src/CompatGame.cpp
   src/CompatInput.cpp
