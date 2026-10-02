@@ -109,7 +109,7 @@ namespace falloutcraft
 		header->falloutHeartbeatMs = ::GetTickCount64();
 		Atomic(header->magic).store(proto::kMagic, std::memory_order_release);
 
-		logger::info("shared memory {} ({} MB, {})", "Local\\FalloutCraft_v1", size >> 20, existed ? "reused" : "created");
+		logger::info("shared memory {} ({} MB, {})", "Local\\FalloutCraft_v2", size >> 20, existed ? "reused" : "created");
 		return true;
 	}
 
