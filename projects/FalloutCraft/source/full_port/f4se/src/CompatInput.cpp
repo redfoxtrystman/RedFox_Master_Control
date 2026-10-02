@@ -9,7 +9,6 @@ namespace falloutcraft
         WNDPROC g_originalWndProc = nullptr;
         std::atomic<bool> g_installed{ false };
         std::atomic<bool> g_playerControlsHooked{ false };
-        std::atomic<bool> g_menuControlsHooked{ false };
         std::atomic<bool> g_nativeInputInstalled{ false };
         float g_lookDx = 0.0f;
         float g_lookDy = 0.0f;
@@ -319,18 +318,6 @@ namespace falloutcraft
         // Fallout's raw Windows messages still need to reach menus and the rest of the game,
         // but its gameplay PlayerControls must not turn the same mouse/keyboard input into a
         // second camera/movement stream while Minecraft owns the player.
-        struct MenuControlsInputHook
-        {
-            static void thunk(RE::MenuControls* a_this, const RE::InputEvent* a_queueHead)
-            {
-                if (State().minecraftOwnsPlayer.load() && !State().falloutMenuOpen.load()) {
-                    return;
-                }
-                func(a_this, a_queueHead);
-            }
-            static inline REL::Relocation<decltype(thunk)> func;
-        };
-
         struct PlayerControlsInputHook
         {
             static void thunk(RE::PlayerControls* a_this, const RE::InputEvent* a_queueHead)
@@ -355,14 +342,6 @@ namespace falloutcraft
                     logger::info("FalloutCraft: native Fallout input bridge installed first in MenuControls");
                 }
                 g_nativeInputInstalled = true;
-            }
-
-            bool expectedMenu = false;
-            if (g_menuControlsHooked.compare_exchange_strong(expectedMenu, true)) {
-                REL::Relocation<std::uintptr_t> menuVtbl{ RE::VTABLE_MenuControls[0] };
-                MenuControlsInputHook::func =
-                    menuVtbl.write_vfunc(0x00, MenuControlsInputHook::thunk);
-                logger::info("FalloutCraft: Fallout MenuControls input suppressed while Minecraft owns player");
             }
 
             bool expectedControls = false;
