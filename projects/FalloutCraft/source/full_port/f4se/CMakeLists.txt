@@ -15,6 +15,7 @@ if(NOT TARGET CommonLibF4)
 endif()
 
 find_package(spdlog REQUIRED CONFIG)
+find_package(SimpleIni CONFIG REQUIRED)
 
 file(GLOB_RECURSE FALLOUTCRAFT_SOURCES CONFIGURE_DEPENDS src/*.cpp src/*.h)
 add_library(FalloutCraft SHARED ${FALLOUTCRAFT_SOURCES})
@@ -24,6 +25,7 @@ target_compile_definitions(FalloutCraft PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
 target_link_libraries(FalloutCraft PRIVATE
   CommonLibF4::CommonLibF4
   spdlog::spdlog
+  SimpleIni::SimpleIni
   d3d11
   d3dcompiler
   dxgi
