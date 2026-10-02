@@ -83,6 +83,7 @@ namespace falloutcraft
         // track and hide the actual firstPerson3D geometry meshes. Never cull the root node: the
         // camera/animation graph can still depend on it. We restore only meshes FalloutCraft hid.
         std::vector<RE::NiPointer<RE::BSGeometry>> g_hiddenFirstPersonMeshes;
+        RE::NiPointer<RE::NiAVObject> g_hiddenFirstPersonTorso;
         bool g_firstPersonHideActive = false;
         bool g_savedHideFirstPersonGeometry = false;
 
@@ -99,8 +100,11 @@ namespace falloutcraft
                     }
                 }
                 g_hiddenFirstPersonMeshes.clear();
-                if (a_player->firstPersonTorso && a_player->firstPersonTorso->GetAppCulled()) {
-                    a_player->firstPersonTorso->SetAppCulled(false);
+                if (g_hiddenFirstPersonTorso) {
+                    if (g_hiddenFirstPersonTorso->GetAppCulled()) {
+                        g_hiddenFirstPersonTorso->SetAppCulled(false);
+                    }
+                    g_hiddenFirstPersonTorso.reset();
                 }
                 if (g_firstPersonHideActive) {
                     a_player->hideFirstPersonGeometry = g_savedHideFirstPersonGeometry;
@@ -131,6 +135,7 @@ namespace falloutcraft
             // firstPerson3D geometry traversal. Cull it too while Minecraft owns the camera.
             if (a_player->firstPersonTorso && !a_player->firstPersonTorso->GetAppCulled()) {
                 a_player->firstPersonTorso->SetAppCulled(true);
+                g_hiddenFirstPersonTorso.reset(a_player->firstPersonTorso);
             }
         }
 
