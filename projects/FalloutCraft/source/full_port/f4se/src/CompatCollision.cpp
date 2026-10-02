@@ -89,26 +89,17 @@ namespace falloutcraft
             kSetupFault = -2,
             kPickFault = -3,
             kResultFault = -4,
-            kDestroyFault = -5,
         };
 
-        bool SafeDestroyPick(RE::bhkPickData* a_pick)
+        // Fallout 4 1.11.x verified bhkPickData shim. The CommonLibF4 wrappers for
+        // HasHit/GetHitFraction are not reliable on the user's 1.11.240 runtime: v0.5.2
+        // proved TESObjectCELL::Pick returned, then faulted only when those result helpers ran.
+        // These Address Library IDs/offsets match the current Fallout hknp layout used by
+        // working FO4 raycast plugins.
+        struct alignas(16) VerifiedPickStorage
         {
-            if (!a_pick) {
-                return true;
-            }
-#if defined(_MSC_VER)
-            __try {
-                a_pick->~bhkPickData();
-                return true;
-            } __except (EXCEPTION_EXECUTE_HANDLER) {
-                return false;
-            }
-#else
-            a_pick->~bhkPickData();
-            return true;
-#endif
-        }
+            std::byte data[0xE0]{};
+        };
 
         GuardedPickResult SafeFullPick(
             RE::TESObjectCELL* a_cell,
@@ -120,59 +111,60 @@ namespace falloutcraft
                 return GuardedPickResult::kSetupFault;
             }
 
-            alignas(16) std::byte storage[sizeof(RE::bhkPickData)]{};
-            auto* pick = reinterpret_cast<RE::bhkPickData*>(storage);
+            using CtorFn = void* (*)(void*);
+            using SetStartEndFn = void (*)(void*, const RE::NiPoint3&, const RE::NiPoint3&);
+            using HasHitFn = bool (*)(void*);
+            using GetFractionFn = float (*)(void*);
+            using CellPickFn = RE::NiAVObject* (*)(RE::TESObjectCELL*, void*);
+
+            static REL::Relocation<CtorFn> ctor{ REL::ID(526783) };
+            static REL::Relocation<SetStartEndFn> setStartEnd{ REL::ID(747470) };
+            static REL::Relocation<HasHitFn> hasHit{ REL::ID(1181584) };
+            static REL::Relocation<GetFractionFn> getFraction{ REL::ID(476687) };
+            static REL::Relocation<CellPickFn> cellPick{ REL::ID(434717) };
+
+            VerifiedPickStorage storage{};
+            void* pick = storage.data;
+            GuardedPickResult stage = GuardedPickResult::kCtorFault;
+            bool hit = false;
+            float fraction = 0.0f;
 
 #if defined(_MSC_VER)
             __try {
-                ::new (static_cast<void*>(pick)) RE::bhkPickData();
-            } __except (EXCEPTION_EXECUTE_HANDLER) {
-                return GuardedPickResult::kCtorFault;
-            }
+                ctor(pick);
 
-            __try {
-                pick->castQuery.m_filterData.m_collisionFilterInfo =
+                stage = GuardedPickResult::kSetupFault;
+                // castQuery.m_filterData.m_collisionFilterInfo is +0x0C.
+                *reinterpret_cast<std::uint32_t*>(
+                    reinterpret_cast<std::byte*>(pick) + 0x0C) =
                     static_cast<std::uint32_t>(RE::COL_LAYER::kLOS);
-                pick->SetStartEnd(*a_from, *a_to);
-            } __except (EXCEPTION_EXECUTE_HANDLER) {
-                SafeDestroyPick(pick);
-                return GuardedPickResult::kSetupFault;
-            }
+                setStartEnd(pick, *a_from, *a_to);
 
-            __try {
-                a_cell->Pick(*pick);
-            } __except (EXCEPTION_EXECUTE_HANDLER) {
-                SafeDestroyPick(pick);
-                return GuardedPickResult::kPickFault;
-            }
+                stage = GuardedPickResult::kPickFault;
+                (void)cellPick(a_cell, pick);
 
-            bool hasHit = false;
-            float fraction = 0.0f;
-            __try {
-                hasHit = pick->HasHit();
-                if (hasHit) {
-                    fraction = pick->GetHitFraction();
+                stage = GuardedPickResult::kResultFault;
+                hit = hasHit(pick);
+                if (hit) {
+                    fraction = getFraction(pick);
                 }
             } __except (EXCEPTION_EXECUTE_HANDLER) {
-                SafeDestroyPick(pick);
-                return GuardedPickResult::kResultFault;
-            }
-
-            if (!SafeDestroyPick(pick)) {
-                return GuardedPickResult::kDestroyFault;
+                return stage;
             }
 #else
-            ::new (static_cast<void*>(pick)) RE::bhkPickData();
-            pick->castQuery.m_filterData.m_collisionFilterInfo =
+            ctor(pick);
+            *reinterpret_cast<std::uint32_t*>(
+                reinterpret_cast<std::byte*>(pick) + 0x0C) =
                 static_cast<std::uint32_t>(RE::COL_LAYER::kLOS);
-            pick->SetStartEnd(*a_from, *a_to);
-            a_cell->Pick(*pick);
-            const bool hasHit = pick->HasHit();
-            const float fraction = hasHit ? pick->GetHitFraction() : 0.0f;
-            pick->~bhkPickData();
+            setStartEnd(pick, *a_from, *a_to);
+            (void)cellPick(a_cell, pick);
+            hit = hasHit(pick);
+            if (hit) {
+                fraction = getFraction(pick);
+            }
 #endif
 
-            if (!hasHit) {
+            if (!hit) {
                 return GuardedPickResult::kMiss;
             }
             *a_fraction = fraction;
@@ -182,11 +174,10 @@ namespace falloutcraft
         const char* GuardedPickStageName(GuardedPickResult a_result)
         {
             switch (a_result) {
-            case GuardedPickResult::kCtorFault: return "bhkPickData constructor";
-            case GuardedPickResult::kSetupFault: return "bhkPickData SetStartEnd/query setup";
-            case GuardedPickResult::kPickFault: return "TESObjectCELL::Pick";
-            case GuardedPickResult::kResultFault: return "bhkPickData result read";
-            case GuardedPickResult::kDestroyFault: return "bhkPickData destructor";
+            case GuardedPickResult::kCtorFault: return "verified bhkPickData constructor";
+            case GuardedPickResult::kSetupFault: return "verified bhkPickData SetStartEnd/query setup";
+            case GuardedPickResult::kPickFault: return "verified CellPick";
+            case GuardedPickResult::kResultFault: return "verified bhkPickData result helpers";
             default: return "unknown";
             }
         }
@@ -211,6 +202,8 @@ namespace falloutcraft
         lastSample_ = {};
         firstSampleLogged_ = false;
         firstRayLogged_ = false;
+        fallbackFloorSet_ = false;
+        fallbackFloorY_ = 0;
         {
             std::unique_lock lock(boxesLock_);
             boxes_.clear();
@@ -231,17 +224,10 @@ namespace falloutcraft
             return false;
         }
 
-        auto* bhkWorld = cell->GetbhkWorld();
-        auto* worldNP = bhkWorld ? bhkWorld->m_worldNP.get() : nullptr;
-        if (!worldNP) {
-            return false;
-        }
-
-        // Fallout 4's hknp world is stepped asynchronously. Keep the world stable while the
-        // engine's Pick wrapper walks compressed-mesh bodies, matching proven FO4 raycast code.
-        RE::BSAutoReadLock worldLock{ &worldNP->m_worldLock };
-
         float raw = 0.0f;
+        // CellPick is the engine's own main-thread wrapper around the loaded hknp world.
+        // Do not externally lock m_worldLock here; working Fallout raycast code leaves the
+        // lock discipline to the engine wrapper itself.
         const auto result = SafeFullPick(cell, &a_from, &a_to, &raw);
         if (static_cast<int>(result) < 0) {
             logger::error(
@@ -351,10 +337,17 @@ namespace falloutcraft
         // host down with it. Keep a small temporary support plane under the MC player so the
         // rest of the full-port stack (link, input, HUD, renderer, avatar) can still be tested.
         if (raycastingDisabled_ && occupied_.empty()) {
-            const int fy = static_cast<int>(std::floor(a_playerMc.y - 0.05)) - 1;
-            for (int dz = -2; dz <= 2; ++dz) {
-                for (int dx = -2; dx <= 2; ++dx) {
-                    MarkBlock(cx + dx, fy, cz + dz);
+            // Keep the fallback at the ORIGINAL arrival height. v0.5.2 recomputed it from
+            // Minecraft's falling Y every sample, so the emergency floor literally fell with
+            // the player and could never catch them.
+            if (!fallbackFloorSet_) {
+                fallbackFloorSet_ = true;
+                fallbackFloorY_ = static_cast<int>(std::floor(a_playerMc.y - 0.05)) - 1;
+                logger::warn("FalloutCraft: anchoring emergency collision floor at Minecraft Y {}", fallbackFloorY_);
+            }
+            for (int dz = -8; dz <= 8; ++dz) {
+                for (int dx = -8; dx <= 8; ++dx) {
+                    MarkBlock(cx + dx, fallbackFloorY_, cz + dz);
                 }
             }
         }
