@@ -27,7 +27,7 @@ namespace
 
 F4SE_PLUGIN_VERSION = []() noexcept {
     F4SE::PluginVersionData v{};
-    v.PluginVersion({ 0, 5, 3, 0 });
+    v.PluginVersion({ 0, 5, 4, 0 });
     v.PluginName("FalloutCraft");
     v.AuthorName("RedFox");
     v.UsesAddressLibraryNG(true);
@@ -50,14 +50,14 @@ extern "C" __declspec(dllexport) bool F4SEAPI F4SEPlugin_Query(
 {
     a_info->infoVersion = F4SE::PluginInfo::kVersion;
     a_info->name = kName.data();
-    a_info->version = 503;
+    a_info->version = 504;
     return !a_f4se->IsEditor();
 }
 
 extern "C" __declspec(dllexport) bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f4se)
 {
     F4SE::Init(a_f4se, { .log = true, .trampoline = true, .trampolineSize = 1024 });
-    logger::info("FalloutCraft 0.5.3 full-port host loading");
+    logger::info("FalloutCraft 0.5.4 full-port host loading");
 
     if (!falloutcraft::Link::Get().Create()) {
         logger::critical("FalloutCraft: shared-memory link creation failed");
