@@ -10,7 +10,7 @@ if(NOT COMMONLIBF4_PATH)
 endif()
 
 if(NOT TARGET CommonLibF4)
-  add_subdirectory("\${COMMONLIBF4_PATH}" CommonLibF4)
+  add_subdirectory("${COMMONLIBF4_PATH}" CommonLibF4)
 endif()
 
 find_package(spdlog REQUIRED CONFIG)
@@ -35,6 +35,6 @@ if(MSVC)
 endif()
 
 set_target_properties(FalloutCraftDX11Overlay PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "\${CMAKE_BINARY_DIR}/out"
-  RUNTIME_OUTPUT_DIRECTORY_RELEASE "\${CMAKE_BINARY_DIR}/out"
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
+  RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/out"
 )
