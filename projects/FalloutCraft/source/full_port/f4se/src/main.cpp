@@ -60,14 +60,50 @@ namespace
 	}
 }
 
-F4SEPluginLoad(const F4SE::LoadInterface* a_skse)
+F4SE_PLUGIN_VERSION = []() noexcept {
+	F4SE::PluginVersionData v{};
+	v.PluginVersion({ 0, 5, 0, 0 });
+	v.PluginName("FalloutCraft");
+	v.AuthorName("FalloutCraft");
+	v.UsesAddressLibraryNG(true);
+	v.UsesAddressLibraryAE(true);
+	v.UsesSigScanning(false);
+	v.IsLayoutDependentNG(true);
+	v.IsLayoutDependentAE(true);
+	v.CompatibleVersions({
+		F4SE::RUNTIME_1_10_163,
+		F4SE::RUNTIME_1_10_980,
+		F4SE::RUNTIME_1_10_984,
+		F4SE::RUNTIME_LATEST,
+		REL::Version{ 1, 11, 240, 0 },
+	});
+	return v;
+}();
+
+extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(
+	const F4SE::QueryInterface* a_f4se,
+	F4SE::PluginInfo* a_info)
 {
-	F4SE::Init(a_skse, { .trampoline = true, .trampolineSize = 1024 });
+	a_info->infoVersion = F4SE::PluginInfo::kVersion;
+	a_info->name = "FalloutCraft";
+	a_info->version = 0x00050000;
+	return !a_f4se->IsEditor();
+}
+
+extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f4se)
+{
 	SetupLog();
+	F4SE::Init(a_f4se, { .log = false, .trampoline = true, .trampolineSize = 1024 });
 	falloutcraft::CrashLog::Install();
-	logger::info("FalloutCraft {} loading (runtime {})", "0.1.2", a_skse->RuntimeVersion().string());
-	F4SE::GetMessagingInterface()->RegisterListener(OnMessage);
-	// As early as possible: Minecraft takes about as long to start as Fallout does to reach its menu.
+	logger::info("FalloutCraft 0.5.0 full-port loading (runtime {})", a_f4se->RuntimeVersion().string());
+
+	auto* messaging = F4SE::GetMessagingInterface();
+	if (!messaging || !messaging->RegisterListener(OnMessage)) {
+		logger::critical("FalloutCraft: failed to register F4SE messaging listener");
+		return false;
+	}
+
+	// Start Minecraft as early as possible; takeover itself waits for game data and a loaded player.
 	falloutcraft::Launcher::StartMinecraft();
 	return true;
 }
