@@ -117,7 +117,7 @@ namespace falloutcraft::proto
 		float         bobPhase;       // MC walk-bob phase (interpolated walk distance); 0 if bobbing is off
 		float         bobAmount;      // MC walk-bob amplitude
 		std::uint32_t pad4C;
-		double        eyeX, eyeY, eyeZ;  // MC camera position (interpolated, includes sneak eye lerp)
+		double        eyeX, eyeY, eyeZ;  // MC's final rendered Camera.position() (includes F5/zoom collision)
 
 		// Raw 20 Hz physics ticks, so Fallout can interpolate on its own frame clock exactly like
 		// Minecraft's renderer does with partial ticks (no judder from the two games' frame phase).
