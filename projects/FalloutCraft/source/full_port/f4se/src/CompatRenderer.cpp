@@ -440,15 +440,29 @@ float4 PSMain(PSIn i) : SV_Target {
                 return false;
             }
 
-            // Preserve Fallout's real homogeneous clip coordinates. The old compatibility path
-            // divided every vertex to screen space on the CPU and then forced w=1/z=.5. That
-            // destroys perspective-correct texture interpolation and near-plane clipping, which
-            // is exactly why nearby Minecraft blocks became huge warped polygons.
+            // Preserve Fallout's real homogeneous clip coordinates, but do the multiply in
+            // camera-relative space. Fallout world coordinates are large enough that multiplying
+            // absolute positions here loses the low bits that distinguish nearby Minecraft
+            // vertices. The result is the giant/flattened/warped block faces seen in v0.5.5.
+            //
+            // This is the same re-basing used by SkyCraft's mature renderer: fold the camera
+            // position into the matrix translation once, then multiply a small relative vector.
+            // It is algebraically identical to M * world, but dramatically more stable in float.
             const auto world = McToSky(ox + v.x, oy + v.y, oz + v.z);
+            const auto cam = camera->world.translate;
+            const RE::NiPoint3 rel{ world.x - cam.x, world.y - cam.y, world.z - cam.z };
             const auto& m = camera->worldToCam;
             float clip[4]{};
             for (int r = 0; r < 4; ++r) {
-                clip[r] = m[r][0] * world.x + m[r][1] * world.y + m[r][2] * world.z + m[r][3];
+                const double rebasedT = double(m[r][3]) +
+                    double(m[r][0]) * cam.x +
+                    double(m[r][1]) * cam.y +
+                    double(m[r][2]) * cam.z;
+                clip[r] = static_cast<float>(
+                    double(m[r][0]) * rel.x +
+                    double(m[r][1]) * rel.y +
+                    double(m[r][2]) * rel.z +
+                    rebasedT);
             }
             if (!std::isfinite(clip[0]) || !std::isfinite(clip[1]) ||
                 !std::isfinite(clip[2]) || !std::isfinite(clip[3]) ||
@@ -580,7 +594,12 @@ float4 PSMain(PSIn i) : SV_Target {
                 if (ProjectVertex(camera, vertices[i], ox, oy, oz, tri[0]) &&
                     ProjectVertex(camera, vertices[i + 1], ox, oy, oz, tri[1]) &&
                     ProjectVertex(camera, vertices[i + 2], ox, oy, oz, tri[2])) {
-                    out.insert(out.end(), std::begin(tri), std::end(tri));
+                    // Let D3D clip triangles crossing the near plane, but never submit a triangle
+                    // that is wholly behind the camera. Keeping those was another source of
+                    // screen-filling wedges when the player turned through nearby blocks.
+                    if (!(tri[0].w <= 1e-5f && tri[1].w <= 1e-5f && tri[2].w <= 1e-5f)) {
+                        out.insert(out.end(), std::begin(tri), std::end(tri));
+                    }
                 }
             }
             DrawScreenVertices(out, it->second.srv);
