@@ -9,10 +9,6 @@ namespace falloutcraft
         return state;
     }
 
-    bool DiagnosticsEnabled()
-    {
-        return false;
-    }
 
     namespace
     {
