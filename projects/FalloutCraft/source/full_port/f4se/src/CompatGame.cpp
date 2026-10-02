@@ -159,6 +159,26 @@ namespace falloutcraft
             g_cameraActive = true;
         }
 
+        void PinObjectWorldTransform(RE::NiAVObject* a_object, const RE::NiPoint3& a_pos,
+            const RE::NiMatrix3& a_rot)
+        {
+            if (!a_object) {
+                return;
+            }
+            if (a_object->parent) {
+                const auto& parentWorld = a_object->parent->world;
+                const auto invParent = parentWorld.rotate.Transpose();
+                const float parentScale = std::abs(parentWorld.scale) > 1e-6f ? parentWorld.scale : 1.0f;
+                a_object->local.rotate = invParent * a_rot;
+                a_object->local.translate = invParent * ((a_pos - parentWorld.translate) / parentScale);
+            } else {
+                a_object->local.rotate = a_rot;
+                a_object->local.translate = a_pos;
+            }
+            a_object->world.rotate = a_rot;
+            a_object->world.translate = a_pos;
+        }
+
         void ApplyStagedCamera(RE::PlayerCamera* a_camera)
         {
             if (!a_camera || !g_cameraActive.load() || !a_camera->cameraRoot) {
@@ -167,25 +187,10 @@ namespace falloutcraft
 
             auto* root = a_camera->cameraRoot.get();
 
-            // Drive the camera in WORLD space, but compute a matching LOCAL transform before
-            // running Fallout's downward scene-graph update. v0.5.5 wrote the desired world
-            // transform and then also wrote the same values into local space. If cameraRoot has
-            // a transformed parent, UpdateDownwardPass composes that parent a second time and
-            // partially fights Minecraft's pitch/position. That is especially visible near
-            // straight up/down. Invert the parent transform so the update lands exactly on the
-            // Minecraft camera instead.
-            if (root->parent) {
-                const auto& parentWorld = root->parent->world;
-                const auto invParent = parentWorld.rotate.Transpose();
-                const float parentScale = std::abs(parentWorld.scale) > 1e-6f ? parentWorld.scale : 1.0f;
-                root->local.rotate = invParent * g_cameraRot;
-                root->local.translate = invParent * ((g_cameraPos - parentWorld.translate) / parentScale);
-            } else {
-                root->local.translate = g_cameraPos;
-                root->local.rotate = g_cameraRot;
-            }
-            root->world.translate = g_cameraPos;
-            root->world.rotate = g_cameraRot;
+            // Pin Fallout's PlayerCamera root to Minecraft's exact world camera. Do the
+            // parent-relative local transform too so any later scene-graph update composes back
+            // to the same world transform instead of snapping to Fallout's old player camera.
+            PinObjectWorldTransform(root, g_cameraPos, g_cameraRot);
 
             // These are Fallout-specific camera caches. Keeping them in lock-step with the
             // scene-graph anchor prevents Fallout's own smoothing/collision pass from pulling
@@ -200,10 +205,24 @@ namespace falloutcraft
                     2.0f * std::atan(std::tan(half) * (4.0f / 3.0f)) * kRadToDeg;
             }
 
-            // Push the corrected root down into Fallout's NiCamera child after Fallout has
-            // completed its own PlayerCamera::Update for this frame.
+            // Push the corrected root down, then pin Fallout's ACTUAL render NiCamera as well.
+            // The screenshots from v0.5.7 proved PlayerCamera::cameraRoot could move while
+            // Main::WorldRootCamera (what Fallout rendered) remained behind. Keeping both in
+            // lock-step makes camera translation follow the Minecraft player every frame.
             RE::NiUpdateData update{};
             root->UpdateDownwardPass(update, 0);
+            if (auto* renderCamera = RE::Main::WorldRootCamera()) {
+                PinObjectWorldTransform(renderCamera, g_cameraPos, g_cameraRot);
+                renderCamera->UpdateWorldData(&update);
+            }
+
+            // Skyrim's original integration also pins the sky root to the camera so sky/fog
+            // calculations do not retain the host camera's previous translation.
+            if (auto* sky = RE::Sky::GetSingleton(); sky && sky->root) {
+                auto skyRot = sky->root->world.rotate;
+                PinObjectWorldTransform(sky->root.get(), g_cameraPos, skyRot);
+                sky->root->UpdateWorldData(&update);
+            }
 
             // Fallout's camera update can re-enable first-person/weapon nodes. Reassert the
             // Minecraft takeover cull at the last camera hook before rendering.
@@ -415,6 +434,8 @@ namespace falloutcraft
             // SkyCraft. The hold may temporarily pin position, but Fallout must not steal keys.
             st.minecraftOwnsPlayer = puppet || arriving;
             st.puppeting = puppet;
+            Input::SetActivatePromptKey(st.minecraftOwnsPlayer.load());
+            Input::UpdateCursorMode();
             SetFalloutFirstPersonHidden(a_player, st.minecraftOwnsPlayer.load());
             PositionFalloutCompass(st.minecraftOwnsPlayer.load());
 
@@ -426,11 +447,29 @@ namespace falloutcraft
             }
 
             if (puppet) {
-                // Minecraft remains authoritative. The Fallout reference follows without warping
-                // Fallout's character controller -- the safe behavior proven by the no-GDI tests.
+                // Fallout itself stays in first-person camera state. Minecraft's cameraMode/F5
+                // controls where the physical camera is placed and whether its avatar is drawn;
+                // letting Fallout enter its own third-person state adds a second orbit and is why
+                // v0.5.7 showed the back of the head without moving the camera.
+                if (auto* pc = RE::PlayerCamera::GetSingleton()) {
+                    if (!pc->QCameraEquals(RE::CameraState::kFirstPerson)) {
+                        auto first = pc->GetState(RE::CameraState::kFirstPerson);
+                        if (first) {
+                            pc->SetState(first.get());
+                        }
+                    }
+                }
+
+                // Keep Fallout's native character controller at the same feet as Minecraft, not
+                // only the visual reference. The false flag in v0.5.7 left Havok/crosshair targets
+                // behind while the Minecraft player walked away.
                 const auto p = McToSky(g_mc.x, g_mc.y, g_mc.z);
-                a_player->SetPosition(p, false);
+                a_player->SetPosition(p, true);
                 StageMinecraftCamera(a_player, g_mc, st.yaw, st.pitch);
+
+                // Apply once immediately as SkyCraft does, then the post-camera hook reasserts it
+                // if Fallout runs another camera update later in this frame.
+                ApplyStagedCamera(RE::PlayerCamera::GetSingleton());
 
                 st.feetX = g_mc.x;
                 st.feetY = g_mc.y;
@@ -511,6 +550,8 @@ namespace falloutcraft
             g_cameraActive = false;
             SetFalloutFirstPersonHidden(RE::PlayerCharacter::GetSingleton(), false);
             PositionFalloutCompass(false);
+            Input::SetActivatePromptKey(false);
+            Input::UpdateCursorMode();
             State().lookInitialized = false;
             Collision::Get().Reset(g_epoch);
             logger::info("FalloutCraft: game load/new game resync requested");
