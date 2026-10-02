@@ -433,6 +433,68 @@ float4 PSMain(PSIn i) : SV_Target {
             return SUCCEEDED(g_device->CreateBuffer(&bd, nullptr, &g_vb));
         }
 
+        std::uint32_t EnvironmentLitColor(const proto::RenVertex& v)
+        {
+            const std::uint32_t rgba = v.color ? v.color : 0xFFFFFFFFu;
+            auto* sky = RE::Sky::GetSingleton();
+            if (!sky) {
+                return rgba;
+            }
+
+            // WorldExporter intentionally removes Minecraft's hard-coded face brightness. Like
+            // SkyCraft, the host now supplies directional environment lighting instead. Fallout's
+            // live Sky singleton already contains the blended six-direction ambient cube for the
+            // current interior/weather/time of day.
+            RE::NiColor ambient{};
+            const int face = static_cast<int>((v.flags >> 4) & 7u);
+            auto pick = [&](int axis, int sign) {
+                return sky->directionalAmbientColorsA[axis][sign];
+            };
+            switch (face) {
+            case 1: ambient = pick(2, 1); break;  // MC down  -> Fallout -Z
+            case 2: ambient = pick(2, 0); break;  // MC up    -> Fallout +Z
+            case 3: ambient = pick(1, 0); break;  // MC north -> Fallout +Y
+            case 4: ambient = pick(1, 1); break;  // MC south -> Fallout -Y
+            case 5: ambient = pick(0, 1); break;  // MC west  -> Fallout -X
+            case 6: ambient = pick(0, 0); break;  // MC east  -> Fallout +X
+            default:
+                for (int axis = 0; axis < 3; ++axis) {
+                    for (int sign = 0; sign < 2; ++sign) {
+                        const auto a = pick(axis, sign);
+                        ambient.r += a.r / 6.0f;
+                        ambient.g += a.g / 6.0f;
+                        ambient.b += a.b / 6.0f;
+                    }
+                }
+                break;
+            }
+
+            // A not-yet-initialized ambient cube is safer as neutral light than black. Minecraft
+            // block light remains authoritative for torches/glowstone while Fallout supplies the
+            // environmental component.
+            const float energy = ambient.r + ambient.g + ambient.b;
+            float lr = 1.0f, lg = 1.0f, lb = 1.0f;
+            if (std::isfinite(energy) && energy > 0.015f) {
+                lr = std::clamp(0.12f + ambient.r * 1.45f, 0.12f, 1.20f);
+                lg = std::clamp(0.12f + ambient.g * 1.45f, 0.12f, 1.20f);
+                lb = std::clamp(0.12f + ambient.b * 1.45f, 0.12f, 1.20f);
+            }
+            const float block = std::clamp(float(v.light & 0xFFu) / 15.0f, 0.0f, 1.0f);
+            const float emitted = 0.28f + 0.72f * block;
+            lr = std::max(lr, emitted * block);
+            lg = std::max(lg, emitted * block);
+            lb = std::max(lb, emitted * block);
+
+            const auto mul = [](std::uint32_t channel, float light) {
+                return static_cast<std::uint32_t>(std::clamp(
+                    std::lround(float(channel) * light), 0l, 255l));
+            };
+            const std::uint32_t r = mul(rgba & 0xFFu, lr);
+            const std::uint32_t g = mul((rgba >> 8) & 0xFFu, lg);
+            const std::uint32_t b = mul((rgba >> 16) & 0xFFu, lb);
+            return (rgba & 0xFF000000u) | (b << 16) | (g << 8) | r;
+        }
+
         bool ProjectVertex(RE::NiCamera* camera, const proto::RenVertex& v,
             double ox, double oy, double oz, ScreenVertex& out)
         {
@@ -476,7 +538,7 @@ float4 PSMain(PSIn i) : SV_Target {
             out.w = clip[3];
             out.u = v.u;
             out.v = v.v;
-            out.color = v.color ? v.color : 0xFFFFFFFFu;
+            out.color = EnvironmentLitColor(v);
             return true;
         }
 
@@ -516,21 +578,38 @@ float4 PSMain(PSIn i) : SV_Target {
 
         bool CameraUsesReversedDepth(RE::NiCamera* camera)
         {
+            // Fallout's depth convention does not change when the player turns or changes FOV.
+            // Cache the first valid comparison instead of re-deciding every frame from floats;
+            // the old per-frame test could flip on borderline matrices and make overlapping block
+            // faces alternate between two visibly different depth orders.
+            static int cached = -1;
+            if (cached >= 0) {
+                return cached != 0;
+            }
             if (!camera) {
                 return false;
             }
+
             const auto& m = camera->worldToCam;
             const auto& R = camera->world.rotate;
-            // Fallout 4's camera node basis is row-major in this port: row 1 is forward.
             const RE::NiPoint3 fwd{ R.entry[1][0], R.entry[1][1], R.entry[1][2] };
             const auto cam = camera->world.translate;
             auto depthAt = [&](float d) {
                 const auto p = cam + fwd * d;
-                const float z = m[2][0] * p.x + m[2][1] * p.y + m[2][2] * p.z + m[2][3];
-                const float wv = m[3][0] * p.x + m[3][1] * p.y + m[3][2] * p.z + m[3][3];
-                return std::abs(wv) > 1e-5f ? z / wv : 0.0f;
+                const double z = double(m[2][0]) * p.x + double(m[2][1]) * p.y +
+                                 double(m[2][2]) * p.z + double(m[2][3]);
+                const double wv = double(m[3][0]) * p.x + double(m[3][1]) * p.y +
+                                  double(m[3][2]) * p.z + double(m[3][3]);
+                return std::abs(wv) > 1e-7 ? z / wv : std::numeric_limits<double>::quiet_NaN();
             };
-            return depthAt(100.0f) > depthAt(10000.0f);
+            const double nearZ = depthAt(100.0f);
+            const double farZ = depthAt(10000.0f);
+            if (std::isfinite(nearZ) && std::isfinite(farZ) && std::abs(nearZ - farZ) > 1e-7) {
+                cached = nearZ > farZ ? 1 : 0;
+                logger::info("FalloutCraft: locked Minecraft world depth convention to {}",
+                    cached ? "reversed-Z" : "standard-Z");
+            }
+            return cached > 0;
         }
 
         void BindCommon(ID3D11RenderTargetView* rtv, std::uint32_t width, std::uint32_t height,
