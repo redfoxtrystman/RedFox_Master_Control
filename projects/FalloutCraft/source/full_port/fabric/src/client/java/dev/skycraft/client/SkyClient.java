@@ -367,16 +367,20 @@ public final class SkyClient {
 			mc.z = feet.z;
 			mc.yaw = player.getYRot();
 			mc.pitch = player.getXRot();
-			// The eye, not the camera: in third person Minecraft's camera sits behind or in front.
-			Vec3 eye = camera.isDetached() ? player.getEyePosition(partial) : camera.position();
-			mc.eyeHeight = (float) (eye.y - feet.y);
-			mc.eyeX = eye.x;
-			mc.eyeY = eye.y;
-			mc.eyeZ = eye.z;
+			// Publish BOTH the player's eye height and Minecraft's ACTUAL rendered camera position.
+			// In older FalloutCraft builds eyeX/Y/Z meant the player eye and Fallout tried to
+			// reconstruct F5 by yaw/pitch/distance. That made the host camera stay at the wrong
+			// place even while Minecraft's player walked. SkyCraft already treats Minecraft's
+			// camera as authoritative, so send that exact final camera position instead.
+			Vec3 playerEye = player.getEyePosition(partial);
+			Vec3 renderCamera = camera.position();
+			mc.eyeHeight = (float) (playerEye.y - feet.y);
+			mc.eyeX = renderCamera.x;
+			mc.eyeY = renderCamera.y;
+			mc.eyeZ = renderCamera.z;
 			mc.fov = camera.getFov();
-			// Minecraft's F5 camera: Skyrim puts its camera where Minecraft's would be.
 			mc.cameraMode = minecraft.options.getCameraType().ordinal();
-			mc.cameraDistance = camera.isDetached() ? (float) camera.position().distanceTo(player.getEyePosition(partial)) : 0.0F;
+			mc.cameraDistance = camera.isDetached() ? (float) renderCamera.distanceTo(playerEye) : 0.0F;
 			// Walk bob, exactly what GameRenderer.bobView() uses this frame.
 			var entityState = minecraft.gameRenderer.gameRenderState().levelRenderState.cameraRenderState.entityRenderState;
 			boolean bob = minecraft.options.bobView().get() && entityState.isPlayer;
