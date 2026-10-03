@@ -234,9 +234,17 @@ mouse buttons and so on.
   be used while Minecraft drives the player.
 - Fallout's stimpaks and food don't heal Minecraft's hearts yet; eat Minecraft food.
 - Charisma and Intelligence don't change anything in Minecraft yet.
-- Not ported from SkyCraft yet: digging into the world itself, Minecraft lights lighting Fallout,
-  Minecraft water, NPCs walking around blocks, training Fallout skills from Minecraft play, and
-  multiplayer.
+- Current main already includes Fallout-world digging/gathering and Fallout-side collision for
+  placed Minecraft blocks. NPCs and creatures collide with builds, but their route planning still
+  does not understand those blocks.
+- Multiplayer plumbing is present (LAN/e4mc join/leave) but is still experimental and needs more
+  Fallout-host state synchronization and testing.
+- Still missing or incomplete: Fallout consumables healing Minecraft hearts, meaningful Minecraft
+  effects for Charisma/Intelligence, Minecraft dynamic lights illuminating Fallout geometry, and
+  Fallout water being published into Minecraft's existing water-grid support.
+- The old SkyCraft limitation about "training Fallout skills" does not map directly to Fallout 4,
+  which has S.P.E.C.I.A.L., perks and XP rather than Skyrim-style trainable skills. A FalloutCraft
+  extension should award appropriate Fallout XP/perk progress from Minecraft actions instead.
 - `FalloutCraft_worlds.txt` (next to the logs) remembers where each interior lives in the
   Minecraft world. Deleting it moves interiors around, and what you built inside them won't show
   up in the same place.
