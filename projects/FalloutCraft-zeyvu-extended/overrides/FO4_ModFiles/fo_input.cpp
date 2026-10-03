@@ -17,6 +17,8 @@
 #undef ERROR  // wingdi.h; clashes with REX::ERROR
 
 #include <array>
+#include <cstring>
+#include <utility>
 #include <vector>
 
 namespace skycraft
