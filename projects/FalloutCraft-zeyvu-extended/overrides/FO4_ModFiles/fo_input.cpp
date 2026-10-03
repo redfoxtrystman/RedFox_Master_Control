@@ -335,5 +335,36 @@ namespace skycraft
 			sentAs.fill(0);
 			link::PushInput(proto::kInReleaseAll, 0);
 		}
+
+		void SyncBindings(bool a_minecraftOwnsPlayer)
+		{
+			static std::int32_t savedActivate = -1;
+			auto* controls = RE::ControlMap::GetSingleton();
+			if (!controls) {
+				return;
+			}
+			constexpr auto ctx = RE::UserEvents::INPUT_CONTEXT_ID::kMainGameplay;
+			auto* context = controls->controlMaps[std::to_underlying(ctx)];
+			if (!context) {
+				return;
+			}
+			auto& mappings = context->deviceMappings[std::to_underlying(RE::INPUT_DEVICE::kKeyboard)];
+			for (auto& mapping : mappings) {
+				const char* id = mapping.eventID.c_str();
+				if (!id || std::strcmp(id, "Activate") != 0) {
+					continue;
+				}
+				if (a_minecraftOwnsPlayer && savedActivate < 0) {
+					savedActivate = mapping.inputKey;
+					mapping.inputKey = static_cast<std::int32_t>('G');
+					REX::INFO("Fallout Activate temporarily mapped to G (saved VK {:#x})", savedActivate);
+				} else if (!a_minecraftOwnsPlayer && savedActivate >= 0) {
+					mapping.inputKey = savedActivate;
+					REX::INFO("Fallout Activate restored to VK {:#x}", savedActivate);
+					savedActivate = -1;
+				}
+				break;
+			}
+		}
 	}
 }
