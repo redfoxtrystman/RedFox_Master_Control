@@ -1,0 +1,102 @@
+name: FalloutCraft zeyvu Extended
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - falloutcraft-zeyvu-extended
+    paths:
+      - "projects/FalloutCraft-zeyvu-extended/**"
+      - ".github/workflows/falloutcraft-zeyvu-extended.yml"
+
+jobs:
+  build:
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - name: Checkout RedFox overlay
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned FalloutCraft upstream
+        uses: actions/checkout@v4
+        with:
+          repository: zeyvu/FalloutCraft
+          ref: 52030998d63532a1a4d147b394bcc7b07da6f4f4
+          path: upstream
+
+      - name: Apply RedFox overrides
+        shell: pwsh
+        run: |
+          Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/FO4_ModFiles/fo_input.cpp" "upstream/FO4_ModFiles/fo_input.cpp"
+          Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/README.md" "upstream/README.md"
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Build Fabric mod
+        shell: pwsh
+        working-directory: upstream/fabric
+        run: |
+          ./gradlew.bat build --no-daemon
+
+      - name: Set up xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: Clone CommonLibF4 template
+        shell: pwsh
+        run: |
+          git clone --recurse-submodules https://github.com/libxse/commonlibf4-template.git commonlibf4-template
+
+      - name: Overlay FalloutCraft F4SE sources
+        shell: pwsh
+        run: |
+          Copy-Item -Force "upstream/FO4_ModFiles/*.cpp" "commonlibf4-template/src/"
+          Copy-Item -Force "upstream/FO4_ModFiles/*.h" "commonlibf4-template/src/"
+          Copy-Item -Force "upstream/FO4_ModFiles/xmake.lua" "commonlibf4-template/xmake.lua"
+
+      - name: Build F4SE plugin
+        shell: pwsh
+        working-directory: commonlibf4-template
+        run: |
+          xmake f -m releasedbg -y
+          xmake build -y
+
+      - name: Stage package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force "package/Data/F4SE/Plugins" | Out-Null
+          New-Item -ItemType Directory -Force "package/mods" | Out-Null
+
+          $dll = Get-ChildItem -Path "commonlibf4-template/build" -Recurse -Filter "commonlibf4-template.dll" | Select-Object -First 1
+          if (-not $dll) { throw "F4SE DLL was not produced" }
+          Copy-Item -Force $dll.FullName "package/Data/F4SE/Plugins/commonlibf4-template.dll"
+
+          $pdb = Get-ChildItem -Path "commonlibf4-template/build" -Recurse -Filter "commonlibf4-template.pdb" | Select-Object -First 1
+          if ($pdb) { Copy-Item -Force $pdb.FullName "package/Data/F4SE/Plugins/commonlibf4-template.pdb" }
+
+          $jar = Get-ChildItem -Path "upstream/fabric/build/libs" -Filter "*.jar" |
+            Where-Object { $_.Name -notmatch "sources|dev|javadoc" } |
+            Sort-Object Length -Descending | Select-Object -First 1
+          if (-not $jar) { throw "Fabric JAR was not produced" }
+          Copy-Item -Force $jar.FullName "package/mods/$($jar.Name)"
+
+          Copy-Item -Force "upstream/README.md" "package/README.md"
+          @"
+          RedFox FalloutCraft Extended
+          Base: zeyvu/FalloutCraft @ 52030998d63532a1a4d147b394bcc7b07da6f4f4
+          Controls: E inventory, Ctrl sprint, Shift crouch, O Minecraft pause, G Fallout Activate.
+          "@ | Set-Content -Encoding UTF8 "package/REDFOX_BUILD.txt"
+
+          Compress-Archive -Path "package/*" -DestinationPath "FalloutCraft-RedFox-v0.1.2-keybind-fix.zip" -Force
+
+      - name: Upload combined package
+        uses: actions/upload-artifact@v4
+        with:
+          name: FalloutCraft-RedFox-v0.1.2-keybind-fix
+          path: FalloutCraft-RedFox-v0.1.2-keybind-fix.zip
+          if-no-files-found: error
