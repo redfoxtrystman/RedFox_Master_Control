@@ -28,6 +28,8 @@ jobs:
         shell: pwsh
         run: |
           Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/FO4_ModFiles/fo_input.cpp" "upstream/FO4_ModFiles/fo_input.cpp"
+          Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/FO4_ModFiles/fo_common.h" "upstream/FO4_ModFiles/fo_common.h"
+          Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/FO4_ModFiles/fo_game.cpp" "upstream/FO4_ModFiles/fo_game.cpp"
           Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/README.md" "upstream/README.md"
 
       - name: Set up Java 25
