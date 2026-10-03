@@ -166,6 +166,7 @@ jobs:
           grep -q 'pkvault-session-{Guid.NewGuid():N}.db' pkvault-src/PKVault.Core/db/services/SessionService.cs
           grep -q 'source.BackupDatabase(target);' pkvault-src/PKVault.Core/db/services/SessionService.cs
           grep -q 'TryDeleteRetiredSessionDatabase' pkvault-src/PKVault.Core/db/services/SessionService.cs
+          grep -q 'settings user-id scope owns IMetaLoader/SessionDbContext' pkvault-src/PKVault.Core/settings/services/SettingsService.cs
           grep -q 'string? TRADE_BOX_ID = null' pkvault-src/PKVault.Core/settings/dto/SettingsDTO.cs
           grep -q 'bool SHOW_INVENTORY = true' pkvault-src/PKVault.Core/settings/dto/SettingsDTO.cs
           grep -q 'bool SHOW_SHOP = true' pkvault-src/PKVault.Core/settings/dto/SettingsDTO.cs
