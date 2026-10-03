@@ -27,6 +27,30 @@ def insert_before(path: str, marker: str, insertion: str, label: str):
     print(f"PATCHED {path}: {label}")
 
 # ===========================================================================
+# Root-cause SQLite handle leak.
+#
+# GetSettingsWithUserId resolves IMetaLoader from an IServiceScope. The upstream
+# implementation creates that scope without disposing it, which can leave its
+# scoped SessionDbContext/SQLite connection alive across Save/Undo/session-file
+# transitions on Windows. The GUID session database hardening below protects
+# against already-in-flight contexts; this change fixes the actual scope leak so
+# new settings reads release their database handle normally.
+# ===========================================================================
+rep(
+    "PKVault.Core/settings/services/SettingsService.cs",
+    '''            var scope = sp.CreateScope();
+
+            // DB use is required to avoid rare first-run app crash after language selection
+''',
+    '''            // alpha53l: settings user-id scope owns IMetaLoader/SessionDbContext; dispose the SQLite handle.
+            using var scope = sp.CreateScope();
+
+            // DB use is required to avoid rare first-run app crash after language selection
+''',
+    "dispose settings user-id DB scope",
+)
+
+# ===========================================================================
 # Settings: dedicated Trade Box + optional header buttons.
 # All new fields have defaults so every existing settings.json upgrades with
 # the three buttons visible and no dedicated Trade Box selected.
