@@ -56,6 +56,21 @@ internal static class Program
                 AssertNear(0.75f, view.ReadSingle(wg + BridgeProtocol.WGSurface), "water surface");
                 AssertNear(BridgeProtocol.NoWater, view.ReadSingle(wg + BridgeProtocol.WGSurface + 3 * 4L), "dry sentinel");
 
+                // Host -> Minecraft input ring.
+                AssertTrue(bridge.PushKey(26, true), "push W down");
+                long input = BridgeProtocol.OffInputRing;
+                AssertEqual(1UL, view.ReadUInt64(input + BridgeProtocol.IRHead), "input head");
+                long ev = input + BridgeProtocol.IRData;
+                AssertEqual(BridgeProtocol.InputKey, view.ReadUInt16(ev + 0), "input type");
+                AssertEqual((ushort)26, view.ReadUInt16(ev + 2), "input scancode");
+                AssertEqual(1, view.ReadInt32(ev + 4), "input down");
+
+                view.Write(input + BridgeProtocol.IRTail, 1UL);
+                AssertTrue(bridge.ReleaseAllInput(), "release-all input");
+                AssertEqual(2UL, view.ReadUInt64(input + BridgeProtocol.IRHead), "input head after release");
+                long ev2 = input + BridgeProtocol.IRData + BridgeProtocol.InputEventBytes;
+                AssertEqual(BridgeProtocol.InputReleaseAll, view.ReadUInt16(ev2 + 0), "release-all type");
+
                 // Simulate the existing SkyCraft Minecraft side publishing McState.
                 long ms = BridgeProtocol.OffMinecraftState;
                 view.Write(ms + BridgeProtocol.MSSeq, 1u);
@@ -96,6 +111,18 @@ internal static class Program
     }
 
     private static void AssertEqual(uint expected, uint actual, string name)
+    {
+        if (expected != actual)
+            throw new InvalidOperationException($"{name}: expected {expected}, got {actual}");
+    }
+
+    private static void AssertEqual(ulong expected, ulong actual, string name)
+    {
+        if (expected != actual)
+            throw new InvalidOperationException($"{name}: expected {expected}, got {actual}");
+    }
+
+    private static void AssertEqual(ushort expected, ushort actual, string name)
     {
         if (expected != actual)
             throw new InvalidOperationException($"{name}: expected {expected}, got {actual}");
