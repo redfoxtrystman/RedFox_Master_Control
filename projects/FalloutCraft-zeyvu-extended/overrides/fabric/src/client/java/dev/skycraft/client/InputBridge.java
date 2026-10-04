@@ -135,13 +135,15 @@ public final class InputBridge {
 	}
 
 	private static void updateModifiers() {
+		// MouseButtonInfo/KeyEvent expect Minecraft's InputWithModifiers bit mask, NOT SDL_KMOD.
+		// SDL scancodes are still used for KEYS[]; only the modifier *bits* are translated here.
+		// Shift-click was broken because Ctrl/Alt used SDL's 0x40/0x100 values and RShift (0x2)
+		// accidentally looked like Minecraft Ctrl.
 		int m = 0;
-		if (KEYS[225]) m |= 0x0001; // SDL_KMOD_LSHIFT
-		if (KEYS[229]) m |= 0x0002; // SDL_KMOD_RSHIFT
-		if (KEYS[224]) m |= 0x0040; // SDL_KMOD_LCTRL
-		if (KEYS[228]) m |= 0x0080; // SDL_KMOD_RCTRL
-		if (KEYS[226]) m |= 0x0100; // SDL_KMOD_LALT
-		if (KEYS[230]) m |= 0x0200; // SDL_KMOD_RALT
+		if (KEYS[225] || KEYS[229]) m |= 0x01; // shift
+		if (KEYS[224] || KEYS[228]) m |= 0x02; // control
+		if (KEYS[226] || KEYS[230]) m |= 0x04; // alt
+		if (KEYS[227] || KEYS[231]) m |= 0x08; // super / Windows
 		modifiers = m;
 	}
 
