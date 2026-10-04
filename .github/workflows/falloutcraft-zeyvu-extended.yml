@@ -9,6 +9,10 @@ on:
       - "projects/FalloutCraft-zeyvu-extended/**"
       - ".github/workflows/falloutcraft-zeyvu-extended.yml"
 
+concurrency:
+  group: falloutcraft-zeyvu-extended-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: windows-2025
