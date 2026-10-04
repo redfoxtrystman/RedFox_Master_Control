@@ -76,6 +76,9 @@ namespace skycraft
 		float         holdMismatch = 0.0f;
 		std::uint32_t worldId = 0;
 		std::uint32_t epoch = 0;
+		bool          wasNativeDimension = false;
+		bool          haveNativeAnchor = false;
+		RE::NiPoint3  nativeAnchor{};
 		RE::NiPoint3  lastSetPos{};
 		bool          haveLastSet = false;
 		float         settleTimer = 2.0f;
@@ -486,6 +489,7 @@ namespace skycraft
 			mcWasAlive = mcAlive;
 
 			const bool inWorld = haveMc && (mc.flags & proto::kMcInWorld);
+			const bool nativeDimension = inWorld && (mc.flags & proto::kMcNativeDimension);
 			st.mcInWorld = inWorld;
 			st.mcGuiScale = haveMc ? static_cast<int>(mc.guiScale) : 0;
 			Overlay::Install();
@@ -534,11 +538,34 @@ namespace skycraft
 
 			// Fallout moved the player itself (load door, fast travel, script, loading a save).
 			const RE::NiPoint3 current{ a_player->data.location.x, a_player->data.location.y, a_player->data.location.z };
+			if (nativeDimension != wasNativeDimension) {
+				if (nativeDimension) {
+					nativeAnchor = current;
+					haveNativeAnchor = true;
+					teleportPending = false;
+					haveLastSet = false;
+					REX::INFO("Minecraft entered native dimension{}{}; parking Fallout at ({:.0f}, {:.0f}, {:.0f})",
+						(mc.flags & proto::kMcNether) ? " Nether" : "", (mc.flags & proto::kMcEnd) ? " End" : "",
+						nativeAnchor.x, nativeAnchor.y, nativeAnchor.z);
+				} else {
+					haveNativeAnchor = false;
+					teleportPending = false;  // vanilla return portal coordinates are authoritative
+					haveLastSet = false;
+					haveSafeGround = haveGround = pinned = false;
+					++epoch;
+					Collision::Get().Reset(epoch);
+					settleTimer = 0.0f;
+					REX::INFO("Minecraft returned to Fallout mirror Overworld; Fallout follows the vanilla portal destination");
+				}
+				wasNativeDimension = nativeDimension;
+			}
 			if (loading) {
-				teleportPending = true;
+				if (!nativeDimension) {
+					teleportPending = true;
+				}
 				haveLastSet = false;
 				settleTimer = kSettleSeconds;
-			} else if (haveLastSet && current.GetDistance(lastSetPos) > kTeleportThreshold) {
+			} else if (!nativeDimension && haveLastSet && current.GetDistance(lastSetPos) > kTeleportThreshold) {
 				REX::INFO("Fallout moved the player ({:.0f} units); resyncing Minecraft", current.GetDistance(lastSetPos));
 				teleportPending = true;
 				haveLastSet = false;
@@ -561,7 +588,7 @@ namespace skycraft
 			}
 			takeover = takeoverNow;
 
-			if (teleportPending && !loading && !takeover) {
+			if (teleportPending && !nativeDimension && !loading && !takeover) {
 				++teleportSeq;
 				teleportPending = false;
 				st.yaw = HeadingToMcYaw(a_player->data.angle.z);
@@ -586,7 +613,7 @@ namespace skycraft
 
 			// Minecraft holds its player after a teleport until the ground around them arrives. If it
 			// holds somewhere Fallout's player isn't, that ground never comes: send it again.
-			const bool arriving = haveMc && inWorld && !loading && mc.teleportAck != teleportSeq && !takeover;
+			const bool arriving = haveMc && inWorld && !nativeDimension && !loading && mc.teleportAck != teleportSeq && !takeover;
 			// Minecraft got the teleport but holds the player until it has ground there. If that
 			// doesn't come (its copy of the collision there is broken), go back to where it last stood.
 			if (arriving && mc.teleportAck + 1 == teleportSeq) {
@@ -630,16 +657,29 @@ namespace skycraft
 			}
 
 			const bool dead = a_player->IsDead(false);
-			bool       puppet = haveMc && inWorld && mc.teleportAck == teleportSeq && !loading && !dead && !takeover;
-			st.minecraftOwnsPlayer = puppet || (arriving && !dead);
-			if (puppet != st.puppeting) {
-				REX::INFO("puppet {}", puppet ? "on (Minecraft drives the player)" : "off");
+			bool       falloutPuppet = haveMc && inWorld && !nativeDimension && mc.teleportAck == teleportSeq && !loading && !dead && !takeover;
+			const bool minecraftControl = (nativeDimension && haveMc && inWorld && !loading && !dead && !takeover) || falloutPuppet || (arriving && !dead);
+			st.minecraftOwnsPlayer = minecraftControl;
+			if (minecraftControl != st.puppeting) {
+				REX::INFO("Minecraft control {}{}", minecraftControl ? "on" : "off", nativeDimension ? " (native dimension)" : "");
 			}
-			st.puppeting = puppet;
-			st.mcCrosshair = puppet && mc.cameraMode == 0 && !st.mcScreenOpen && !st.falloutMenuOpen;
-			HideFirstPerson(a_player, puppet && !st.falloutMenuOpen);  // the Pip-Boy needs Fallout's arm
-			Hud::Update(puppet);
+			st.puppeting = minecraftControl;
+			st.mcCrosshair = falloutPuppet && mc.cameraMode == 0 && !st.mcScreenOpen && !st.falloutMenuOpen;
+			HideFirstPerson(a_player, minecraftControl && !st.falloutMenuOpen);  // the Pip-Boy needs Fallout's arm
+			Hud::Update(minecraftControl);
 			Input::SyncBindings(st.minecraftOwnsPlayer.load());
+
+			if (nativeDimension && haveNativeAnchor) {
+				// Fallout stays safely parked while Minecraft is wholly in the Nether/End. The opaque
+				// Minecraft frame is what the player sees, so no Commonwealth collision/camera follows
+				// Nether coordinates. Returning through a portal hands its vanilla position back to Fallout.
+				a_player->SetPosition(nativeAnchor, true);
+				if (auto* controller = CharController(a_player)) {
+					controller->SetLinearVelocityImpl(RE::hkVector4f(0.0f, 0.0f, 0.0f, 0.0f));
+					controller->fallStartHeight = nativeAnchor.z;
+					controller->fallTime = 0.0f;
+				}
+			}
 
 			// Minecraft's 20 Hz physics ticks, interpolated on our own clock exactly like Minecraft's
 			// renderer does with partial ticks (sampling its per-frame position judders instead).
@@ -651,7 +691,7 @@ namespace skycraft
 			// Fall rescue: if Minecraft's player drops through a gap in the collision (ground that
 			// hadn't arrived yet), put both players back where they last stood instead of letting
 			// them fall under Fallout's world (fall damage, and Fallout crashed down there).
-			if (puppet && (mc.flags & proto::kMcOnGround) && !(mc.flags & (proto::kMcFlying | proto::kMcSwimming))) {
+			if (falloutPuppet && (mc.flags & proto::kMcOnGround) && !(mc.flags & (proto::kMcFlying | proto::kMcSwimming))) {
 				lastGround = current;
 				lastGroundMcY = mc.y;
 				haveGround = true;
@@ -667,7 +707,7 @@ namespace skycraft
 			// can't legitimately move the feet down through a Fallout floor (its collision is a copy of
 			// it), so if they did, its copy had a hole there: stop them on Fallout's surface right away,
 			// before any fall builds up.
-			if (puppet && airborne && havePrevFeet && feetNow.z < prevFeet.z - 0.5f) {
+			if (falloutPuppet && airborne && havePrevFeet && feetNow.z < prevFeet.z - 0.5f) {
 				const float mx = feetNow.x - prevFeet.x, my = feetNow.y - prevFeet.y;
 				if (mx * mx + my * my < 300.0f * 300.0f) {
 					// From just above last frame's feet (feet resting slightly inside a floor aren't
@@ -705,7 +745,7 @@ namespace skycraft
 				}
 			}
 			// Fallback: a long drop below where the player last stood.
-			if (!rescue && puppet && haveGround && airborne && mc.y < lastGroundMcY - kRescueDrop) {
+			if (!rescue && falloutPuppet && haveGround && airborne && mc.y < lastGroundMcY - kRescueDrop) {
 				rescue = true;
 				rescueAt = lastGround;
 				RE::NiPoint3 hit{};
@@ -735,10 +775,10 @@ namespace skycraft
 				haveLastSet = false;
 				haveGround = false;
 				havePrevFeet = false;
-				puppet = false;
+				falloutPuppet = false;
 				st.puppeting = false;
 			}
-			if (puppet) {
+			if (falloutPuppet) {
 				prevFeet = feetNow;
 				havePrevFeet = true;
 				if (!airborne) {
@@ -751,7 +791,7 @@ namespace skycraft
 				sinking = 0;
 			}
 
-			if (!puppet) {
+			if (!falloutPuppet) {
 				st.feetValid = false;
 				st.cameraMode = 0;
 				Camera::Set(false, 0, RE::NiPoint3{}, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -764,7 +804,7 @@ namespace skycraft
 			float lift = 0.0f;
 			trustedAge += a_delta;
 			dipLogTimer -= a_delta;
-			if (puppet) {
+			if (falloutPuppet) {
 				RE::NiPoint3 ground{};
 				if (PickGroundAt(cell, { feetNow.x, feetNow.y, feetNow.z + 120.0f }, { feetNow.x, feetNow.y, feetNow.z - 30.0f }, ground)) {
 					const float d = ground.z - feetNow.z;
@@ -782,7 +822,7 @@ namespace skycraft
 				}
 			}
 
-			if (puppet) {
+			if (falloutPuppet) {
 				const auto pos = McToGame(feetX, feetY + lift / proto::kUnitsPerBlock, feetZ);
 				a_player->SetPosition(pos, true);
 				if (auto* controller = CharController(a_player)) {
@@ -841,7 +881,7 @@ namespace skycraft
 			}
 			// Fallout's own ground around Minecraft's player, for Minecraft to land on when its copy of
 			// the triangles misses (sprint-jump landings, seams in the road).
-			if (puppet && cell) {
+			if (falloutPuppet && cell) {
 				constexpr float kStep = 0.5f;
 				const int       n = static_cast<int>(proto::kGroundGrid);
 				const double    x0 = std::floor(mc.x / kStep) * kStep - kStep * (n / 2);
@@ -887,12 +927,12 @@ namespace skycraft
 			}
 			link::WriteSkyState(sky);
 
-			Combat::PerFrame(a_player, puppet && !st.falloutMenuOpen, a_delta);
+			Combat::PerFrame(a_player, falloutPuppet && !st.falloutMenuOpen, a_delta);
 
 			settleTimer -= a_delta;
-			if (haveMc && !loading && cell && settleTimer <= 0.0f) {
-				Collision::Get().Update(cell, puppet ? McVec{ mc.x, mc.y, mc.z } : playerMc);
-				BlockCollision::Update(cell, puppet ? McVec{ mc.x, mc.y, mc.z } : playerMc);
+			if (haveMc && !nativeDimension && !loading && cell && settleTimer <= 0.0f) {
+				Collision::Get().Update(cell, falloutPuppet ? McVec{ mc.x, mc.y, mc.z } : playerMc);
+				BlockCollision::Update(cell, falloutPuppet ? McVec{ mc.x, mc.y, mc.z } : playerMc);
 			}
 
 			logTimer -= a_delta;
@@ -902,8 +942,8 @@ namespace skycraft
 					REX::INFO("motion: {} of {} frames waited for a late Minecraft tick, render delay {:.1f} ms", lateFrames, frames, renderDelayMs);
 				}
 				lateFrames = frames = 0;
-				REX::INFO("frame: minecraft={} inWorld={} puppet={} ack={}/{} game=({:.0f}, {:.0f}, {:.0f}) mc=({:.2f}, {:.2f}, {:.2f}) onGround={} yaw={:.1f} pitch={:.1f} world={:08X} epoch={}",
-					mcAlive ? "connected" : "no", inWorld, puppet, haveMc ? mc.teleportAck : 0, teleportSeq, current.x, current.y, current.z,
+				REX::INFO("frame: minecraft={} inWorld={} falloutPuppet={} ack={}/{} game=({:.0f}, {:.0f}, {:.0f}) mc=({:.2f}, {:.2f}, {:.2f}) onGround={} yaw={:.1f} pitch={:.1f} world={:08X} epoch={}",
+					mcAlive ? "connected" : "no", inWorld, falloutPuppet, haveMc ? mc.teleportAck : 0, teleportSeq, current.x, current.y, current.z,
 					mc.x, mc.y, mc.z, (mc.flags & proto::kMcOnGround) != 0, st.yaw, st.pitch, worldId, epoch);
 			}
 		}
@@ -993,6 +1033,7 @@ namespace skycraft
 			teleportPending = true;
 			haveLastSet = false;
 			haveSafeGround = haveGround = pinned = false;
+			wasNativeDimension = haveNativeAnchor = false;
 			State().lookInitialized = false;
 			Hud::Reset();
 		}
