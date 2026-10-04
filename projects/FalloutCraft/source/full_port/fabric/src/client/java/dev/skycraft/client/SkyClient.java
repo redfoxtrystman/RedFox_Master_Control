@@ -2,6 +2,7 @@ package dev.skycraft.client;
 
 import dev.skycraft.SkyCraft;
 import dev.skycraft.client.render.WorldExporter;
+import dev.skycraft.link.CrossGameItemLink;
 import dev.skycraft.link.Proto;
 import dev.skycraft.link.SkyLink;
 import dev.skycraft.world.SkyCollision;
@@ -69,6 +70,7 @@ public final class SkyClient {
 	/** Start of Minecraft.runTick: pull state and input from Skyrim before anything else runs. */
 	public static void beginFrame() {
 		SkyLink.poll();
+		CrossGameItemLink.poll();
 		quitWithSkyrim(Minecraft.getInstance());
 		if (START_HIDDEN && !startedHidden) {
 			startedHidden = true;
