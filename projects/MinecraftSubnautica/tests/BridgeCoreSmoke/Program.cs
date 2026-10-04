@@ -9,6 +9,7 @@ internal static class Program
     private static int Main()
     {
         string name = @"Local\MinecraftSubnautica_Smoke_" + Process.GetCurrentProcess().Id;
+        string itemName = @"Local\MinecraftSubnautica_Items_Smoke_" + Process.GetCurrentProcess().Id;
 
         try
         {
@@ -56,7 +57,6 @@ internal static class Program
                 AssertNear(0.75f, view.ReadSingle(wg + BridgeProtocol.WGSurface), "water surface");
                 AssertNear(BridgeProtocol.NoWater, view.ReadSingle(wg + BridgeProtocol.WGSurface + 3 * 4L), "dry sentinel");
 
-                // Host -> Minecraft input ring.
                 AssertTrue(bridge.PushKey(26, true), "push W down");
                 long input = BridgeProtocol.OffInputRing;
                 AssertEqual(1UL, view.ReadUInt64(input + BridgeProtocol.IRHead), "input head");
@@ -71,7 +71,6 @@ internal static class Program
                 long ev2 = input + BridgeProtocol.IRData + BridgeProtocol.InputEventBytes;
                 AssertEqual(BridgeProtocol.InputReleaseAll, view.ReadUInt16(ev2 + 0), "release-all type");
 
-                // Simulate the existing SkyCraft Minecraft side publishing McState.
                 long ms = BridgeProtocol.OffMinecraftState;
                 view.Write(ms + BridgeProtocol.MSSeq, 1u);
                 Thread.MemoryBarrier();
@@ -94,7 +93,66 @@ internal static class Program
                 AssertNear(80.0f, minecraft.Fov, "Minecraft FOV");
             }
 
-            Console.WriteLine("PASS: SkyCraft v11 shared-memory contract smoke test");
+            using (var items = new CrossGameItemChannel(itemName))
+            using (var itemMap = MemoryMappedFile.OpenExisting(itemName, MemoryMappedFileRights.ReadWrite))
+            using (var itemView = itemMap.CreateViewAccessor(0, CrossGameItemProtocol.MappingBytes, MemoryMappedFileAccess.ReadWrite))
+            {
+                AssertEqual(CrossGameItemProtocol.Magic, itemView.ReadUInt32(CrossGameItemProtocol.OffHeader + CrossGameItemProtocol.HMagic), "item magic");
+                AssertEqual(CrossGameItemProtocol.Version, itemView.ReadUInt32(CrossGameItemProtocol.OffHeader + CrossGameItemProtocol.HVersion), "item version");
+
+                var seaglide = new CrossGameItem
+                {
+                    TransferId = 42,
+                    Operation = CrossGameItemOp.Transfer,
+                    Origin = CrossGameOrigin.Subnautica,
+                    Flags = CrossGameItemFlags.Tool | CrossGameItemFlags.HasEnergy,
+                    Count = 1,
+                    MaxStack = 1,
+                    Energy = 72.38f,
+                    MaxEnergy = 100.0f,
+                    ItemId = "subnautica:seaglide",
+                    DisplayName = "Seaglide",
+                    StateJson = "{\"battery\":{\"techType\":\"Battery\",\"charge\":72.38}}"
+                };
+
+                AssertTrue(items.TrySendToMinecraft(seaglide), "host -> Minecraft item enqueue");
+                long h2m = CrossGameItemProtocol.OffHostToMinecraft;
+                AssertEqual(1UL, itemView.ReadUInt64(h2m + CrossGameItemProtocol.RHead), "host -> Minecraft item head");
+                long record = h2m + CrossGameItemProtocol.RData;
+                AssertEqual(42UL, itemView.ReadUInt64(record + CrossGameItemProtocol.ITransferId), "seaglide transfer id");
+                AssertNear(72.38f, itemView.ReadSingle(record + CrossGameItemProtocol.IEnergy), "seaglide charge");
+
+                // Simulate Minecraft consuming that item and sending a state update back after use.
+                itemView.Write(h2m + CrossGameItemProtocol.RTail, 1UL);
+
+                long m2h = CrossGameItemProtocol.OffMinecraftToHost;
+                itemView.Write(m2h + CrossGameItemProtocol.RHead, 0UL);
+                itemView.Write(m2h + CrossGameItemProtocol.RTail, 0UL);
+                WriteItemRecord(itemView, m2h + CrossGameItemProtocol.RData, new CrossGameItem
+                {
+                    TransferId = 42,
+                    Operation = CrossGameItemOp.Update,
+                    Origin = CrossGameOrigin.Subnautica,
+                    Flags = CrossGameItemFlags.Tool | CrossGameItemFlags.HasEnergy,
+                    Count = 1,
+                    MaxStack = 1,
+                    Energy = 41.06f,
+                    MaxEnergy = 100.0f,
+                    ItemId = "subnautica:seaglide",
+                    DisplayName = "Seaglide",
+                    StateJson = "{\"battery\":{\"techType\":\"Battery\",\"charge\":41.06}}"
+                });
+                Thread.MemoryBarrier();
+                itemView.Write(m2h + CrossGameItemProtocol.RHead, 1UL);
+
+                AssertTrue(items.TryReceiveFromMinecraft(out CrossGameItem updated), "Minecraft -> host item dequeue");
+                AssertEqual(42UL, updated.TransferId, "returned transfer id");
+                AssertEqual("subnautica:seaglide", updated.ItemId, "returned item id");
+                AssertNear(41.06f, updated.Energy, "returned charge");
+                AssertEqual(1UL, itemView.ReadUInt64(m2h + CrossGameItemProtocol.RTail), "Minecraft -> host item tail");
+            }
+
+            Console.WriteLine("PASS: SkyCraft v11 + cross-game item transport smoke test");
             return 0;
         }
         catch (Exception ex)
@@ -102,6 +160,34 @@ internal static class Program
             Console.Error.WriteLine("FAIL: " + ex);
             return 1;
         }
+    }
+
+    private static void WriteItemRecord(MemoryMappedViewAccessor view, long b, CrossGameItem item)
+    {
+        view.Write(b + CrossGameItemProtocol.ITransferId, item.TransferId);
+        view.Write(b + CrossGameItemProtocol.IOperation, (uint)item.Operation);
+        view.Write(b + CrossGameItemProtocol.IOrigin, (uint)item.Origin);
+        view.Write(b + CrossGameItemProtocol.IFlags, (uint)item.Flags);
+        view.Write(b + CrossGameItemProtocol.ICount, item.Count);
+        view.Write(b + CrossGameItemProtocol.IMaxStack, item.MaxStack);
+        view.Write(b + CrossGameItemProtocol.IEnergy, item.Energy);
+        view.Write(b + CrossGameItemProtocol.IMaxEnergy, item.MaxEnergy);
+        view.Write(b + CrossGameItemProtocol.IDurability, item.Durability);
+        view.Write(b + CrossGameItemProtocol.IMaxDurability, item.MaxDurability);
+        WriteUtf8(view, b + CrossGameItemProtocol.IId, CrossGameItemProtocol.IdBytes, b + CrossGameItemProtocol.IIdLength, item.ItemId);
+        WriteUtf8(view, b + CrossGameItemProtocol.IName, CrossGameItemProtocol.NameBytes, b + CrossGameItemProtocol.INameLength, item.DisplayName);
+        WriteUtf8(view, b + CrossGameItemProtocol.IState, CrossGameItemProtocol.StateBytes, b + CrossGameItemProtocol.IStateLength, item.StateJson);
+    }
+
+    private static void WriteUtf8(MemoryMappedViewAccessor view, long offset, int capacity, long lengthOffset, string value)
+    {
+        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(value ?? string.Empty);
+        if (bytes.Length > capacity)
+            throw new InvalidOperationException("test string exceeds protocol capacity");
+        byte[] zero = new byte[capacity];
+        view.WriteArray(offset, zero, 0, zero.Length);
+        view.WriteArray(offset, bytes, 0, bytes.Length);
+        view.Write(lengthOffset, bytes.Length);
     }
 
     private static void AssertTrue(bool condition, string name)
@@ -131,6 +217,12 @@ internal static class Program
     private static void AssertEqual(int expected, int actual, string name)
     {
         if (expected != actual)
+            throw new InvalidOperationException($"{name}: expected {expected}, got {actual}");
+    }
+
+    private static void AssertEqual(string expected, string actual, string name)
+    {
+        if (!string.Equals(expected, actual, StringComparison.Ordinal))
             throw new InvalidOperationException($"{name}: expected {expected}, got {actual}");
     }
 
