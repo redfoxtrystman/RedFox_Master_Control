@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
-import org.lwjgl.sdl.SDLVideo;
 
 /**
  * Per-frame glue between the Minecraft client and Skyrim. Everything here runs on the render
@@ -29,8 +28,7 @@ public final class SkyClient {
 	private static final SkyLink.McState mc = new SkyLink.McState();
 	private static volatile boolean linked;
 	private static boolean tookOver;
-	private static boolean windowParked;
-	private static int appliedViewportW, appliedViewportH;
+		private static int appliedViewportW, appliedViewportH;
 
 	// Teleport / hold state: Skyrim decides where the player is after loads, doors and respawns.
 	private static int lastTeleportSeq = -1;
@@ -75,7 +73,6 @@ public final class SkyClient {
 		if (START_HIDDEN && !startedHidden) {
 			startedHidden = true;
 			Minecraft minecraft = Minecraft.getInstance();
-			parkWindowForRendering(minecraft);
 			minecraft.options.getSoundSourceOptionInstance(net.minecraft.sounds.SoundSource.MUSIC).set(0.0);
 			minecraft.getMusicManager().stopPlaying();
 		}
@@ -105,7 +102,6 @@ public final class SkyClient {
 		}
 
 		Minecraft minecraft = Minecraft.getInstance();
-		parkWindowForRendering(minecraft);
 		applyViewportSize(minecraft);
 		MirrorWorld.openWhenReady(minecraft);
 
@@ -400,7 +396,9 @@ public final class SkyClient {
 		mc.frameCounter = ++frameCounter;
 		SkyLink.writeMcState(mc);
 
-		if ((flags & Proto.MC_IN_WORLD) != 0) {
+		if ((flags & Proto.MC_IN_WORLD) != 0 && !SubnauticaCameraLink.active()) {
+			// Legacy SkyCraft native-mesh host path. Subnautica's compositor instead captures
+			// the real framebuffer/depth inside GameRenderer via SubnauticaFrameExporter.
 			try {
 				WorldExporter.frame(minecraft, minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false));
 			} catch (RuntimeException e) {
@@ -441,8 +439,8 @@ public final class SkyClient {
 		options.vignette().set(false);
 		options.enableVsync().set(false);
 		options.framerateLimit().set(260);
-		// Minecraft doesn't draw the world itself; these only decide how far out placed blocks,
-		// arrows and Skyrim NPC stand-ins stay loaded and simulated.
+		// Legacy mesh-host mode exports nearby sections; Subnautica compositor mode also renders
+		// this distance into the real colour+depth framebuffer.
 		options.renderDistance().set(8);
 		options.simulationDistance().set(8);
 		options.autoJump().set(false);
@@ -454,28 +452,6 @@ public final class SkyClient {
 		options.save();
 	}
 
-	private static void parkWindowForRendering(Minecraft minecraft) {
-		if (windowParked || SHOW_WINDOW) {
-			return;
-		}
-		windowParked = true;
-
-		long handle = minecraft.getWindow().handle();
-
-		// DO NOT SDL_HideWindow/MinimizeWindow here. Minecraft 26.x/SDL can stop producing
-		// presentation frames for a truly hidden window, which kills FrameExporter/WorldExporter
-		// while the simulation and audio continue ticking. Subnautica needs Minecraft to remain
-		// a live GPU renderer, just not a user-facing window.
-		SDLVideo.SDL_ShowWindow(handle);
-		SDLVideo.SDL_SetWindowOpacity(handle, 0.01F);
-		SDLVideo.SDL_SetWindowPosition(handle, -32000, -32000);
-
-		SkyCraft.LOG.info(
-			"SkyCraft: render window parked off-screen at 1% opacity; GPU frame export remains active " +
-			"(run with -Dskycraft.showWindow=true to keep the normal window)"
-		);
-	}
-
 	private static void applyViewportSize(Minecraft minecraft) {
 		int w = Math.min(sky.viewportW, Proto.MAX_OVERLAY_W);
 		int h = Math.min(sky.viewportH, Proto.MAX_OVERLAY_H);
@@ -485,7 +461,6 @@ public final class SkyClient {
 		appliedViewportW = w;
 		appliedViewportH = h;
 		minecraft.getWindow().setWindowed(w, h);
-		windowParked = false; // resizing may let the OS move it back; park it again.
 		SkyCraft.LOG.info("SkyCraft: sizing overlay to host viewport {}x{}", w, h);
 	}
 }
