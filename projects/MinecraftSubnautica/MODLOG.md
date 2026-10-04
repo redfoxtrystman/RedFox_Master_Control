@@ -121,3 +121,95 @@
   - prevent duplication with transfer IDs/idempotent consumption.
 - Then add battery swap, scanner, oxygen tank and survival consumables.
 - Continue spatial water-volume sampling so bases/moonpools/air pockets do not look like open ocean to Minecraft.
+
+
+## 2026-10-04 — implementation pass 5: functional Seaglide vertical slice
+
+### Completed
+
+- Added a real Minecraft item registration: `skycraft:seaglide`.
+- Added legal placeholder presentation using Minecraft's prismarine-shard model; no Subnautica retail asset is committed.
+- Added live Subnautica `Inventory.Pickup(Pickupable, bool)` Harmony integration.
+- A Seaglide is exported only when:
+  - the Subnautica pickup actually succeeded,
+  - Minecraft's item-channel heartbeat is live,
+  - the item ring accepts the transfer.
+- The Subnautica copy is removed only after the ring accepts it.
+- Minecraft leaves incoming records queued until both the local player and integrated-server inventory exist.
+- Full Minecraft inventory now rejects the exact transfer ID and causes Subnautica to reconstruct the outgoing Seaglide.
+- Added transfer-ID compensation/removal on both sides to close duplicate/loss paths after partial transfer failures.
+- Current Subnautica GameLibs expose `EnergyMixin.charge` as read-only; charge restoration correctly writes the installed `IBattery.charge`.
+- Minecraft stack data preserves:
+  - transfer ID,
+  - Subnautica item ID,
+  - current/max energy,
+  - opaque origin state JSON,
+  - return-pending state.
+- Minecraft-side Seaglide propulsion now follows the Subnautica rules inspected for this slice:
+  - forward max: 25 m/s,
+  - backward max: 5 m/s,
+  - strafe max: 5 m/s,
+  - base underwater acceleration: 20 m/s²,
+  - Seaglide acceleration multiplier: 1.45,
+  - active energy use: 0.1 per second.
+- Vertical movement remains Minecraft's own swimming/fluid behavior.
+- Active energy drain updates:
+  - client stack,
+  - integrated-server stack,
+  - Subnautica state channel.
+- Proof return control: press R while holding the bridged Seaglide.
+  - state is sent back,
+  - Minecraft marks the stack pending return,
+  - exact transfer ID is removed server-side,
+  - Subnautica creates the real Seaglide and restores battery charge,
+  - full Subnautica inventory drops the real item safely in front of the player.
+- Added `docs/VERTICAL_SLICE_002_SEAGLIDE.md` with explicit pass/fail tests.
+
+### Automated verification
+
+GREEN:
+- Minecraft Subnautica Bridge workflow:
+  - current Subnautica/Nautilus/GameLib plugin compilation,
+  - bridge-core compilation,
+  - shared-memory state/water/input/item smoke test.
+- Minecraft Subnautica SkyCraft workflow:
+  - Minecraft 26.3 / Java 25 / Fabric full build,
+  - functional Seaglide proxy code,
+  - item registration/resources,
+  - item-channel readiness guard.
+
+Key green runs from this pass:
+- `37215483260` — Subnautica rejected-transfer recovery.
+- `37215495814` — Minecraft keeps incoming item queued until inventory is ready.
+- `37215345933` — SkyCraft build including registered item/resources.
+- `37214059279` — stateful Seaglide shared-memory round trip (72.38 -> 41.06).
+
+### What is proven vs. what is not
+
+Proven by CI/code:
+- both current codebases compile;
+- shared-memory state and item layouts agree;
+- Seaglide mutable charge survives a protocol round trip;
+- real Subnautica inventory APIs compile;
+- real Minecraft 26.3 item/runtime APIs compile;
+- water continues to enter Minecraft through real fluid queries.
+
+Still requires the user's local games for runtime proof:
+- actual visual composite inside Subnautica;
+- live Subnautica ocean -> Minecraft swimming/drowning;
+- live zombie -> drowned conversion;
+- axis/yaw calibration under takeover;
+- live Seaglide pickup -> Minecraft -> propulsion -> charge drain -> Subnautica return.
+
+### Next after live proof
+
+Do not widen item coverage before Vertical Slice 001/002 are observed in the real games. After proof:
+- restore exact alternate battery TechType, not only exact charge;
+- battery swapping in Minecraft;
+- scanner;
+- oxygen tanks/fins;
+- survival consumables;
+- spatial water volumes/air pockets;
+- Subnautica collision streaming;
+- creature proxies and cross-game combat;
+- bidirectional general inventory/container support.
