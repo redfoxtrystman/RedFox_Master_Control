@@ -27,6 +27,7 @@ public final class FrameExporter {
 	private static final Staging[] staging = new Staging[STAGING];
 	private static long nextFrameId = 1;
 	private static boolean loggedFormat;
+	private static boolean loggedPublished;
 
 	private static final class Staging {
 		GpuBuffer buffer;
@@ -110,6 +111,13 @@ public final class FrameExporter {
 				MemorySegment.copy(src, 0, shm, SkyLink.overlayBackSlotOffset(), Math.min(bytes, src.byteSize()));
 			}
 			SkyLink.publishOverlay(newest.width, newest.height, true, newest.frameId);
+			if (!loggedPublished) {
+				loggedPublished = true;
+				SkyCraft.LOG.info(
+					"SkyCraft render proof: published first HUD/hand overlay frame {} ({}x{}) to host",
+					newest.frameId, newest.width, newest.height
+				);
+			}
 		}
 		// Anything older than what we just shipped is useless now.
 		for (Staging s : staging) {
