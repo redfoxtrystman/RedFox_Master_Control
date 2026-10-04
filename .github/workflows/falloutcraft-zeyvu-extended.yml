@@ -38,8 +38,10 @@ jobs:
           Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/fabric/src/main/java/dev/skycraft/link/Proto.java" "upstream/fabric/src/main/java/dev/skycraft/link/Proto.java"
           Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/fabric/src/main/java/dev/skycraft/net/SkyNet.java" "upstream/fabric/src/main/java/dev/skycraft/net/SkyNet.java"
           Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/fabric/src/main/java/dev/skycraft/combat/FalloutSpecial.java" "upstream/fabric/src/main/java/dev/skycraft/combat/FalloutSpecial.java"
+          Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/fabric/src/main/java/dev/skycraft/combat/SkyCombat.java" "upstream/fabric/src/main/java/dev/skycraft/combat/SkyCombat.java"
           Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/fabric/src/client/java/dev/skycraft/client/InputBridge.java" "upstream/fabric/src/client/java/dev/skycraft/client/InputBridge.java"
           Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/fabric/src/client/java/dev/skycraft/client/SkyClient.java" "upstream/fabric/src/client/java/dev/skycraft/client/SkyClient.java"
+          Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/fabric/src/client/java/dev/skycraft/client/SkyCraftClient.java" "upstream/fabric/src/client/java/dev/skycraft/client/SkyCraftClient.java"
           Copy-Item -Force "projects/FalloutCraft-zeyvu-extended/overrides/README.md" "upstream/README.md"
 
       - name: Set up Java 25
@@ -102,7 +104,7 @@ jobs:
           RedFox FalloutCraft Extended
           Base: zeyvu/FalloutCraft @ 52030998d63532a1a4d147b394bcc7b07da6f4f4
           Controls: E inventory, Ctrl sprint, Shift crouch, O Minecraft pause, G Fallout Activate.
-          Extended: Fallout healing -> MC hearts; Fallout water -> MC swimming; C/I effects; rough-ground smoothing; MC activity -> Fallout XP; Minecraft lights -> Fallout geometry.
+          Extended: Fallout healing -> MC hearts; Fallout water -> MC swimming; C/I effects; rough-ground smoothing; MC activity -> Fallout XP; Minecraft lights -> Fallout geometry; per-player multiplayer SPECIAL/XP.
           "@ | Set-Content -Encoding UTF8 "package/REDFOX_BUILD.txt"
 
           Compress-Archive -Path "package/*" -DestinationPath "FalloutCraft-RedFox-v0.2.0-gameplay-bridge.zip" -Force
