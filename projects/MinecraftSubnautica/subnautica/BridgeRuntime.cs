@@ -21,6 +21,13 @@ namespace MinecraftSubnautica.Bridge
         public uint MinecraftPid => _bridge.MinecraftPid;
         public bool MinecraftConnected => _bridge.MinecraftHeartbeatIsFresh();
 
+        public bool PushKey(ushort sdlScancode, bool down) => _bridge.PushKey(sdlScancode, down);
+        public bool PushMouseButton(ushort sdlButton, bool down) => _bridge.PushMouseButton(sdlButton, down);
+        public bool PushScroll(int wheelUnits) => _bridge.PushScroll(wheelUnits);
+        public bool PushCursor(int x, int y) => _bridge.PushCursor(x, y);
+        public bool ReleaseAllInput() => _bridge.ReleaseAllInput();
+        public bool OpenMinecraftMenu() => _bridge.OpenMinecraftMenu();
+
         public void Tick()
         {
             _bridge.PulseHeartbeat();
