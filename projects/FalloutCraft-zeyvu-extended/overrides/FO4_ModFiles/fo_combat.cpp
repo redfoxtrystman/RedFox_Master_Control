@@ -58,6 +58,9 @@ namespace skycraft
 		// another Fallout takeover has control, so stimpaks/food used in Fallout still heal MC hearts.
 		bool  observedHealth = false;
 		float observedDeficit = 0.0f;
+		float pendingHealShare = 0.0f;
+		float pendingHealFallout = 0.0f;
+		float pendingHealAge = 0.0f;
 		float actorLogTimer = 0.0f;
 		std::size_t lastActorCount = static_cast<std::size_t>(-1);
 
@@ -160,21 +163,32 @@ namespace skycraft
 			return std::max(0.0f, -a_player->GetModifier(RE::ACTOR_VALUE_MODIFIER::kDamage, a_health));
 		}
 
-		void ObserveFalloutHealing(RE::PlayerCharacter* a_player)
+		void ObserveFalloutHealing(RE::PlayerCharacter* a_player, float a_delta)
 		{
 			auto* health = HealthAV();
 			if (!health) {
 				observedHealth = false;
+				pendingHealShare = pendingHealFallout = pendingHealAge = 0.0f;
 				return;
 			}
 			const float max = a_player->GetPermanentActorValue(*health);
 			const float now = Deficit(a_player, *health);
 			if (observedHealth && State().mcHealth >= 0.0f && now + 0.05f < observedDeficit) {
 				const float healed = observedDeficit - now;
-				SendHeal(ToMinecraftShare(healed, max), healed);
+				pendingHealShare += ToMinecraftShare(healed, max);
+				pendingHealFallout += healed;
 			}
 			observedDeficit = now;
 			observedHealth = true;
+			if (pendingHealShare > 0.0f) {
+				pendingHealAge += std::max(a_delta, 0.0f);
+				// Stimpaks and food can restore health over many tiny frames. Batch those changes so
+				// the shared-memory input ring gets at most ~10 healing messages per second.
+				if (pendingHealAge >= 0.10f || pendingHealShare >= 8.0f) {
+					SendHeal(pendingHealShare, pendingHealFallout);
+					pendingHealShare = pendingHealFallout = pendingHealAge = 0.0f;
+				}
+			}
 		}
 
 		// Gives the player's health back; returns what is still missing afterwards.
@@ -512,7 +526,7 @@ namespace skycraft
 		void PerFrame(RE::PlayerCharacter* a_player, bool a_puppeting, float a_delta)
 		{
 			actorLogTimer -= a_delta;
-			ObserveFalloutHealing(a_player);
+			ObserveFalloutHealing(a_player, a_delta);
 			if (!a_puppeting) {
 				if (essentialSet) {
 					SetEssential(a_player, false);
