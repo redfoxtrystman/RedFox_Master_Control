@@ -18,6 +18,8 @@ namespace MinecraftSubnautica.Bridge
         private SubnauticaWorldAdapter _host;
         private SubnauticaInputForwarder _input;
         private float _nextErrorLog;
+        private bool _haveConnectionState;
+        private bool _lastConnected;
 
         private void Awake()
         {
@@ -47,6 +49,16 @@ namespace MinecraftSubnautica.Bridge
             try
             {
                 bool minecraftConnected = _runtime.MinecraftConnected;
+                if (!_haveConnectionState || minecraftConnected != _lastConnected)
+                {
+                    Logger.LogInfo(
+                        minecraftConnected
+                            ? $"BRIDGE PROOF: Minecraft connected (PID {_runtime.MinecraftPid})."
+                            : "BRIDGE PROOF: Minecraft disconnected.");
+                    _lastConnected = minecraftConnected;
+                    _haveConnectionState = true;
+                }
+
                 bool takeoverActive = _takeover.Value && minecraftConnected;
 
                 // Never leave the native Subnautica motor disabled if Minecraft disappears.
