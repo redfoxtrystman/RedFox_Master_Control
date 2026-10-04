@@ -4,6 +4,9 @@ import dev.skycraft.SkyCraft;
 import dev.skycraft.combat.SkyCombat;
 import dev.skycraft.world.SkyDig;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.BlockPos;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -20,6 +23,8 @@ import net.minecraft.server.level.ServerPlayer;
  * host's server through these packets instead.
  */
 public final class SkyNet {
+	private static final Map<UUID, int[]> SPECIALS = new ConcurrentHashMap<>();
+
 	private SkyNet() {
 	}
 
@@ -46,6 +51,35 @@ public final class SkyNet {
 		public static final StreamCodec<RegistryFriendlyByteBuf, Heal> CODEC = StreamCodec.composite(
 			ByteBufCodecs.FLOAT, Heal::falloutHealthShare,
 			Heal::new
+		);
+
+		@Override
+		public Type<? extends CustomPacketPayload> type() {
+			return TYPE;
+		}
+	}
+
+	/** Guest -> server: this guest's own Fallout S.P.E.C.I.A.L. snapshot. */
+	public record Special(List<Integer> values) implements CustomPacketPayload {
+		public static final Type<Special> TYPE = new Type<>(Identifier.fromNamespaceAndPath(SkyCraft.MOD_ID, "special"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, Special> CODEC = StreamCodec.composite(
+			ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list(7)), Special::values,
+			Special::new
+		);
+
+		@Override
+		public Type<? extends CustomPacketPayload> type() {
+			return TYPE;
+		}
+	}
+
+	/** Server -> guest: Minecraft activity should award XP in that guest's own Fallout process. */
+	public record Activity(int activity, float uses) implements CustomPacketPayload {
+		public static final Type<Activity> TYPE = new Type<>(Identifier.fromNamespaceAndPath(SkyCraft.MOD_ID, "activity"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, Activity> CODEC = StreamCodec.composite(
+			ByteBufCodecs.VAR_INT, Activity::activity,
+			ByteBufCodecs.FLOAT, Activity::uses,
+			Activity::new
 		);
 
 		@Override
@@ -100,6 +134,7 @@ public final class SkyNet {
 	public static void init() {
 		PayloadTypeRegistry.serverboundPlay().register(Hurt.TYPE, Hurt.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(Heal.TYPE, Heal.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(Special.TYPE, Special.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(DigOpen.TYPE, DigOpen.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(DigReveal.TYPE, DigReveal.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(DigOpen.TYPE, (payload, context) -> {
@@ -112,6 +147,7 @@ public final class SkyNet {
 			context.server().execute(() -> SkyDig.reveal(player, payload.world(), payload.cells(), materials));
 		});
 		PayloadTypeRegistry.clientboundPlay().register(Died.TYPE, Died.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(Activity.TYPE, Activity.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(Hurt.TYPE, (payload, context) -> {
 			ServerPlayer player = context.player();
 			// A hit's worth of damage, whatever the guest's client claims (friends only, but still).
@@ -127,11 +163,44 @@ public final class SkyNet {
 				}
 			});
 		});
+		ServerPlayNetworking.registerGlobalReceiver(Special.TYPE, (payload, context) -> {
+			ServerPlayer player = context.player();
+			if (payload.values().size() != 7) {
+				return;
+			}
+			int[] values = new int[7];
+			for (int k = 0; k < 7; k++) {
+				values[k] = Math.max(0, Math.min(payload.values().get(k), 20));
+			}
+			SPECIALS.put(player.getUUID(), values);
+		});
 	}
 
-	/** True if this player plays on this machine (their Skyrim is on the shared-memory link). */
+	/** True if this player plays on this machine (their Fallout is on the shared-memory link). */
 	public static boolean isHost(ServerPlayer player) {
 		var server = player.level().getServer();
 		return server != null && server.isSingleplayerOwner(player.nameAndId());
+	}
+
+	/** The S.P.E.C.I.A.L. belonging to this Minecraft player, never another player's Fallout stats. */
+	public static int[] specialFor(ServerPlayer player) {
+		if (isHost(player)) {
+			int[] local = dev.skycraft.link.SkyLink.special;
+			return local == null ? null : local.clone();
+		}
+		int[] remote = SPECIALS.get(player.getUUID());
+		return remote == null ? null : remote.clone();
+	}
+
+	/** Route Fallout-style XP activity to the correct Fallout process. */
+	public static void awardActivity(ServerPlayer player, int activity, float uses) {
+		if (uses <= 0.0F) {
+			return;
+		}
+		if (isHost(player)) {
+			dev.skycraft.link.SkyLink.pushEvent(dev.skycraft.link.Proto.EV_SKILL_USE, activity, uses, 0.0F, 0.0F, 0.0F, 0);
+		} else if (ServerPlayNetworking.canSend(player, Activity.TYPE)) {
+			ServerPlayNetworking.send(player, new Activity(activity, uses));
+		}
 	}
 }
