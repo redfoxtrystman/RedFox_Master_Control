@@ -19,6 +19,7 @@ namespace MinecraftSubnautica.Bridge
         private readonly object _collisionLock = new object();
         private readonly object _renderLock = new object();
         private int _overlayFront = 2;
+        private byte[] _overlayPixels;
         private bool _disposed;
 
         public string MappingName { get; private set; }
@@ -288,7 +289,9 @@ namespace MinecraftSubnautica.Bridge
             if (bytesLong <= 0 || bytesLong > int.MaxValue)
                 return false;
 
-            byte[] pixels = new byte[(int)bytesLong];
+            if (_overlayPixels == null || _overlayPixels.Length != (int)bytesLong)
+                _overlayPixels = new byte[(int)bytesLong];
+            byte[] pixels = _overlayPixels;
             long pixelOffset = BridgeProtocol.OffOverlayPixels
                 + _overlayFront * BridgeProtocol.OverlaySlotBytes;
 
