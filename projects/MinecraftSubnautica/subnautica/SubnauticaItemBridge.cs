@@ -18,6 +18,7 @@ namespace MinecraftSubnautica.Bridge
         private readonly ManualLogSource _log;
         private readonly CrossGameItemChannel _channel;
         private readonly Dictionary<ulong, CrossGameItem> _latestState = new Dictionary<ulong, CrossGameItem>();
+        private readonly Dictionary<ulong, CrossGameItem> _outgoingTransfers = new Dictionary<ulong, CrossGameItem>();
         private readonly Dictionary<ulong, Pickupable> _restoredItems = new Dictionary<ulong, Pickupable>();
         private readonly HashSet<ulong> _cancelledTransfers = new HashSet<ulong>();
 
@@ -49,6 +50,7 @@ namespace MinecraftSubnautica.Bridge
 
                 if (item.Operation == CrossGameItemOp.Transfer)
                 {
+                    _outgoingTransfers.Remove(item.TransferId);
                     _cancelledTransfers.Remove(item.TransferId);
                     CoroutineHost.StartCoroutine(RestoreToSubnautica(item));
                 }
@@ -58,6 +60,9 @@ namespace MinecraftSubnautica.Bridge
                 }
                 else
                 {
+                    if (item.Operation == CrossGameItemOp.Update)
+                        _outgoingTransfers.Remove(item.TransferId);
+
                     _log.LogInfo(
                         $"ITEM BRIDGE: state {item.Operation} id={item.TransferId} item={item.ItemId} " +
                         $"energy={item.Energy:F2}/{item.MaxEnergy:F2}");
@@ -107,6 +112,7 @@ namespace MinecraftSubnautica.Bridge
             }
 
             _latestState[item.TransferId] = item;
+            _outgoingTransfers[item.TransferId] = item;
             UnityEngine.Object.Destroy(pickupable.gameObject);
 
             _log.LogInfo(
@@ -166,24 +172,37 @@ namespace MinecraftSubnautica.Bridge
         {
             _cancelledTransfers.Add(transferId);
 
-            if (!_restoredItems.TryGetValue(transferId, out Pickupable pickupable) || pickupable == null)
+            // Compensation for a Minecraft -> Subnautica return that could not be removed
+            // from Minecraft: remove the copy we just restored here.
+            if (_restoredItems.TryGetValue(transferId, out Pickupable pickupable) && pickupable != null)
+            {
+                _restoredItems.Remove(transferId);
+                try
+                {
+                    if (pickupable.inventoryItem != null && pickupable.inventoryItem.container != null)
+                        pickupable.inventoryItem.container.RemoveItem(pickupable.inventoryItem, true, false);
+                }
+                catch (Exception ex)
+                {
+                    _log.LogWarning($"ITEM BRIDGE: cancellation inventory removal failed for {transferId}: {ex.Message}");
+                }
+
+                if (pickupable.gameObject != null)
+                    UnityEngine.Object.Destroy(pickupable.gameObject);
+
+                _log.LogInfo($"ITEM BRIDGE: cancelled restored transfer {transferId}.");
                 return;
-
-            _restoredItems.Remove(transferId);
-            try
-            {
-                if (pickupable.inventoryItem != null && pickupable.inventoryItem.container != null)
-                    pickupable.inventoryItem.container.RemoveItem(pickupable.inventoryItem, true, false);
-            }
-            catch (Exception ex)
-            {
-                _log.LogWarning($"ITEM BRIDGE: cancellation inventory removal failed for {transferId}: {ex.Message}");
             }
 
-            if (pickupable.gameObject != null)
-                UnityEngine.Object.Destroy(pickupable.gameObject);
-
-            _log.LogInfo($"ITEM BRIDGE: cancelled restored transfer {transferId}.");
+            // Compensation for a Subnautica -> Minecraft transfer that Minecraft could not
+            // accept (for example a full inventory): reconstruct the exact outgoing item.
+            if (_outgoingTransfers.TryGetValue(transferId, out CrossGameItem outgoing))
+            {
+                _outgoingTransfers.Remove(transferId);
+                _cancelledTransfers.Remove(transferId);
+                CoroutineHost.StartCoroutine(RestoreToSubnautica(outgoing));
+                _log.LogInfo($"ITEM BRIDGE: Minecraft rejected transfer {transferId}; restoring it to Subnautica.");
+            }
         }
 
         private IEnumerator RestoreToSubnautica(CrossGameItem item)
