@@ -71,4 +71,44 @@ rep(
 rep(
     quest,
     '''        foreach (var loader in realLoaders)\n        {\n            var saveKey = GetSaveStateKey(loader.Save);\n            var dtos = loader.Pkms.GetAllDtos();\n''',
-    '
+    '''        foreach (var loader in realLoaders)\n        {\n            var saveKey = GetSaveStateKey(loader.Save);\n            var prestigeShinyGameKey = GetPrestigeShinyGameKey(loader.Save);\n            var dtos = loader.Pkms.GetAllDtos();\n''',
+    "resolve shiny game key per save",
+)
+
+rep(
+    quest,
+    '''                else if (dto.IsShiny && species > 0 && shinySpeciesHistory.Add(species))\n                {\n                    shinySpeciesChanged = true;\n                }\n            }\n''',
+    '''                else if (dto.IsShiny && species > 0 && shinySpeciesHistory.Add(species))\n                {\n                    shinySpeciesChanged = true;\n                }\n\n                // Prestige shiny challenges count only Pokémon that originate in\n                // the relevant game family and match the trainer identity of the\n                // save proving the catch. Imported shinies therefore cannot pad a\n                // Let's Go / Unova / Kalos / Hisui challenge. Progress is permanent.\n                if (dto.IsShiny\n                    && prestigeShinyGameKey is not null\n                    && IsNativePrestigeShiny(dto, loader.Save, prestigeShinyGameKey)\n                    && shinyGameIdentities.Add($"{prestigeShinyGameKey}|{identity}"))\n                {\n                    shinyGameIdentitiesChanged = true;\n                }\n            }\n''',
+    "record native per-game shinies",
+)
+
+rep(
+    quest,
+    '''        if (shinySpeciesChanged)\n            await SaveSpeciesSet(MetaKey.QUEST_SHINY_SPECIES, shinySpeciesHistory);\n        if (unownFormsChanged)\n''',
+    '''        if (shinySpeciesChanged)\n            await SaveSpeciesSet(MetaKey.QUEST_SHINY_SPECIES, shinySpeciesHistory);\n        if (shinyGameIdentitiesChanged)\n            await SaveStringSet(MetaKey.QUEST_SHINY_GAME_IDENTITIES, shinyGameIdentities);\n        if (unownFormsChanged)\n''',
+    "persist per-game shiny history",
+)
+
+# Regional-origin dexes are collection achievements, not event distributions.
+# Mythicals are excluded from both totals and progress so the reward itself can
+# never be a circular requirement.
+rep(
+    quest,
+    '''            var regionTotal = region.EndSpecies - region.StartSpecies + 1;\n            var regionCaught = CountCaughtInRange(caughtHistory, region.StartSpecies, region.EndSpecies);\n''',
+    '''            var regionTotal = CountRequiredSpeciesInRange(region.StartSpecies, region.EndSpecies);\n            var regionCaught = CountCaughtInRange(caughtHistory, region.StartSpecies, region.EndSpecies);\n''',
+    "exclude mythicals from regional totals",
+)
+
+rep(
+    quest,
+    '''                    $"Register {percent}% of the species originally introduced in {region.Name} ({target}/{regionTotal}).",\n''',
+    '''                    $"Register {percent}% of the non-Mythical species originally introduced in {region.Name} ({target}/{regionTotal}).",\n''',
+    "regional progress description",
+)
+
+# Replace the regional completion block so Kanto is explicitly global and the
+# first-debut prestige rewards are visible on the completion cards.
+rep(
+    quest,
+    '''        foreach (var entry in regionProgress)\n        {\n            achievements.Add(await EvaluateQuest(\n                $"region-{entry.Region.Key}-complete", $"region-{entry.Region.Key}-complete", "Regional Dex",\n                $"{entry.Region.Name} Origin Dex Complete",\n                $"Register every official species originally introduced in {entry.Region.Name} ({entry.Total}/{entry.Total}).",\n                entry.Caught, entry.Total,\n                new("Master Ball + Gold Bottle Cap + 10 Max Revives + ₽30,000", 1), null,\n                completed, newlyCompleted,\n                [("master-ball", 1L), ("gold-bottle-cap", 1L), ("max-revive", 10L)],\n                bonusMoney: 30_000));\n        }\n''',
+    '''        foreach (var entry in regionProgress)\n        {\n            var completionId = $"region-{entry.Region.Key}-complete";\n            var title = entry.Region.Key == "kanto"\n                ? "Global Kanto Dex Complete"\n                : $"{entry.Region.Name} Origin Dex Complete";\n            var description = entry.Region.Key == "kanto"\n                ? $"Register every non-Mythical Kanto species across PKVault ({entry.Total}/{entry.Total}). Any supported game can contribute."\n                : $"Register every non-Mythical species originally introduced in {entry.Region.Name} ({entry.Tota
