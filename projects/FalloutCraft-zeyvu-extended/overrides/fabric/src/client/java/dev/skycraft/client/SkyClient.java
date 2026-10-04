@@ -9,6 +9,8 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.sdl.SDLVideo;
 
@@ -36,6 +38,7 @@ public final class SkyClient {
 	private static int teleportAck;
 	private static boolean teleportPending;
 	private static LocalPlayer lastPlayer;
+	private static ResourceKey<Level> lastDimension;
 	private static Vec3 holdPos;
 	private static Vec3 unlinkedHold;
 	private static long holdSince;
@@ -55,6 +58,18 @@ public final class SkyClient {
 		return linked;
 	}
 
+	/** True only while Minecraft is composited into Fallout's mirror Overworld. */
+	public static boolean falloutWorldActive() {
+		Minecraft minecraft = Minecraft.getInstance();
+		return linked && minecraft.level != null && minecraft.level.dimension().equals(Level.OVERWORLD);
+	}
+
+	/** Nether, End, or another real Minecraft dimension renders as a complete Minecraft world. */
+	public static boolean nativeMinecraftDimension() {
+		Minecraft minecraft = Minecraft.getInstance();
+		return linked && minecraft.level != null && !minecraft.level.dimension().equals(Level.OVERWORLD);
+	}
+
 	/**
 	 * True once Skyrim has connected in this session. From then on Minecraft never touches the
 	 * real mouse or keyboard again (even if Skyrim closes), since its window is hidden.
@@ -68,6 +83,9 @@ public final class SkyClient {
 	 * frame around the player (bilinear), or NaN outside it / where Fallout has none.
 	 */
 	public static double falloutGroundAt(double x, double z) {
+		if (!falloutWorldActive()) {
+			return Double.NaN;
+		}
 		int n = sky.groundN;
 		float step = sky.groundStep;
 		if (n != Proto.GROUND_GRID || !(step > 0.0F)) {
@@ -134,7 +152,6 @@ public final class SkyClient {
 		boolean nowLinked = SkyLink.active();
 		if (nowLinked) {
 			SkyLink.readSkyState(sky); // on a torn read we simply keep last frame's state
-			dev.skycraft.world.SkyWater.refresh();
 		} else {
 			dev.skycraft.world.SkyWater.clear();
 		}
@@ -165,24 +182,48 @@ public final class SkyClient {
 			InputBridge.releaseAll();
 		}
 		InputBridge.drain(minecraft);
-		ProxySync.frame(minecraft);
 
 		LocalPlayer player = minecraft.player;
-		if (player == null) {
+		if (player == null || minecraft.level == null) {
 			lastPlayer = null;
 			return;
 		}
 
-		// A new player object means we just joined or respawned: put it where Skyrim's player is.
+		ResourceKey<Level> dimension = minecraft.level.dimension();
+		boolean nativeDimension = !dimension.equals(Level.OVERWORLD);
+		boolean dimensionChanged = lastDimension != null && !lastDimension.equals(dimension);
+		if (dimensionChanged) {
+			SkyCraft.LOG.info("SkyCraft: Minecraft dimension {} -> {}", lastDimension.location(), dimension.location());
+			// Vanilla portals own the destination. Never snap a Nether/End transition back to the
+			// Fallout position that was valid in the mirror Overworld.
+			teleportPending = false;
+			holdPos = null;
+			holdSince = 0;
+		}
+		lastDimension = dimension;
+		SkyCollision.setEnabled(!nativeDimension);
+		if (nativeDimension) {
+			dev.skycraft.world.SkyWater.clear();
+		} else {
+			dev.skycraft.world.SkyWater.refresh();
+			ProxySync.frame(minecraft);
+		}
+
+		// A new player object means join/respawn. A portal creates/replaces client player state too;
+		// in a real Minecraft dimension vanilla's portal destination must win.
 		if (player != lastPlayer) {
 			lastPlayer = player;
-			teleportPending = true;
+			if (!nativeDimension && !dimensionChanged) {
+				teleportPending = true;
+			}
 		}
 		if (sky.teleportSeq != lastTeleportSeq) {
 			lastTeleportSeq = sky.teleportSeq;
-			teleportPending = true;
+			if (!nativeDimension) {
+				teleportPending = true;
+			}
 		}
-		if (teleportPending && sky.inGame() && !sky.loading()) {
+		if (!nativeDimension && teleportPending && sky.inGame() && !sky.loading()) {
 			requestTeleport(minecraft, sky.x, sky.y, sky.z, sky.yaw, sky.pitch);
 			teleportAck = sky.teleportSeq;
 			teleportPending = false;
@@ -242,7 +283,9 @@ public final class SkyClient {
 	public static void clientTick(Minecraft minecraft) {
 		MirrorWorld.tick(minecraft);
 		DiscordPresence.tick(minecraft);
-		SkyDigClient.tick(minecraft);
+		if (falloutWorldActive()) {
+			SkyDigClient.tick(minecraft);
+		}
 		syncGuestSpecial(minecraft);
 		freezeWhileUnlinked(minecraft);
 		holdUntilReady(minecraft);
@@ -338,6 +381,13 @@ public final class SkyClient {
 		if (!linked || player == null) {
 			return;
 		}
+		if (nativeMinecraftDimension()) {
+			holdPos = null;
+			holdSince = 0;
+			holdLogged = -1;
+			teleportPending = false;
+			return;
+		}
 		if (!sky.inGame() || sky.loading()) {
 			// Skyrim is on its main menu or a loading screen: park the player where they are.
 			if (holdPos == null) {
@@ -430,6 +480,14 @@ public final class SkyClient {
 			Vec3 feet = player.getPosition(partial);
 			Camera camera = minecraft.gameRenderer.mainCamera();
 			flags |= Proto.MC_IN_WORLD;
+			if (!minecraft.level.dimension().equals(Level.OVERWORLD)) {
+				flags |= Proto.MC_NATIVE_DIMENSION;
+				if (minecraft.level.dimension().equals(Level.NETHER)) {
+					flags |= Proto.MC_NETHER;
+				} else if (minecraft.level.dimension().equals(Level.END)) {
+					flags |= Proto.MC_END;
+				}
+			}
 			if (player.onGround()) {
 				flags |= Proto.MC_ON_GROUND;
 			}
