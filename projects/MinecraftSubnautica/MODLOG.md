@@ -55,9 +55,29 @@
 
 ### Still required before calling vertical slice 001 complete
 
-- CI must pass.
+- Bridge-core CI is GREEN: run `37211488227` passed build + shared-memory smoke test.
 - Build the BepInEx plugin against the user's installed Subnautica assemblies.
 - Live coordinate/yaw calibration.
 - Native Subnautica movement suppression during Minecraft takeover.
 - Real-game proof of swimming/drowning and zombie -> drowned.
 - Then replace the temporary open-ocean plane with spatial water-volume sampling and connect collision streaming.
+
+
+## 2026-10-04 — implementation pass 3
+
+- Bridge-core Windows CI is green.
+  - Run: `37211488227`
+  - Commit tested: `327b2edd5954ffb5279512186df5aa05959588cf`
+  - Core build passed.
+  - Protocol smoke executable passed.
+- Fixed heartbeat compatibility correctly for .NET Framework 4.7.2:
+  - removed unavailable `Environment.TickCount64`,
+  - now calls Win32 `GetTickCount64`,
+  - this matches the exact clock used by SkyCraft's Java `SkyLink`.
+- Verified current Nitrox uses `Player.main.playerController.SetEnabled(...)` while swapping movement controllers.
+- Added on-foot authority handoff:
+  - Minecraft takeover disables Subnautica's `PlayerController`,
+  - only in normal on-foot mode and outside cinematics,
+  - disconnect/toggle-off/mode change restores it,
+  - plugin destruction restores it as a final fail-safe.
+- Takeover remains opt-in until coordinate/yaw calibration is tested in the real game.
