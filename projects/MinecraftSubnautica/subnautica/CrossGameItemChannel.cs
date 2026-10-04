@@ -50,6 +50,19 @@ namespace MinecraftSubnautica.Bridge
             }
         }
 
+        public bool MinecraftHeartbeatIsFresh(long timeoutMs = 8000)
+        {
+            ThrowIfDisposed();
+            ulong beat = _view.ReadUInt64(
+                CrossGameItemProtocol.OffHeader + CrossGameItemProtocol.HMinecraftHeartbeat);
+
+            if (beat == 0)
+                return false;
+
+            ulong now = NativeMethods.GetTickCount64();
+            return now >= beat && now - beat < (ulong)Math.Max(1, timeoutMs);
+        }
+
         public bool TrySendToMinecraft(CrossGameItem item)
         {
             lock (_hostWriteLock)
