@@ -459,81 +459,6 @@ namespace skycraft
 			a_z = p[2];
 		}
 
-		RE::TESObjectCELL* LoadedCellAt(const RE::NiPoint3& a_game, RE::TESObjectCELL* a_fallback)
-		{
-			if (a_fallback && a_fallback->IsInterior()) {
-				return a_fallback;
-			}
-			const int wantX = static_cast<int>(std::floor(double(a_game.x) / 4096.0));
-			const int wantY = static_cast<int>(std::floor(double(a_game.y) / 4096.0));
-			if (a_fallback && !a_fallback->IsInterior() && a_fallback->GetDataX() == wantX && a_fallback->GetDataY() == wantY) {
-				return a_fallback;
-			}
-			auto* tes = RE::TES::GetSingleton();
-			auto* grid = tes ? tes->gridCells : nullptr;
-			if (!grid) {
-				return nullptr;
-			}
-			for (std::uint32_t y = 0; y < grid->dimension; ++y) {
-				for (std::uint32_t x = 0; x < grid->dimension; ++x) {
-					auto* slot = grid->Get(x, y);
-					auto* cell = slot ? slot->cell : nullptr;
-					if (cell && !cell->IsInterior() && cell->GetDataX() == wantX && cell->GetDataY() == wantY) {
-						return cell;
-					}
-				}
-			}
-			return nullptr;
-		}
-
-		void PublishWater(RE::TESObjectCELL* a_cell, const McVec& a_center, std::uint32_t a_worldId)
-		{
-			proto::WaterGrid water{};
-			water.worldId = a_worldId;
-			water.originX = static_cast<std::int32_t>(std::floor(a_center.x)) - static_cast<std::int32_t>(proto::kWaterGridSize / 2);
-			water.originZ = static_cast<std::int32_t>(std::floor(a_center.z)) - static_cast<std::int32_t>(proto::kWaterGridSize / 2);
-			for (float& v : water.surface) {
-				v = proto::kNoWater;
-			}
-
-			// Fallout CELL water is a broad water plane, not a per-column "this point is wet" query.
-			// Publishing HasWater()+waterHeight blindly made dry roads, floors, puddle props and huge
-			// chunks of the Commonwealth behave as Minecraft water. Keep the water plane only where
-			// Fallout has a real water type AND no solid Fallout surface covers the plane in this
-			// column. This deliberately errs toward dry rather than turning scenery into an ocean.
-			if (a_cell) {
-				for (std::uint32_t z = 0; z < proto::kWaterGridSize; ++z) {
-					for (std::uint32_t x = 0; x < proto::kWaterGridSize; ++x) {
-						const double mx = water.originX + x + 0.5;
-						const double mz = water.originZ + z + 0.5;
-						const auto atPlayerHeight = McToGame(mx, a_center.y, mz);
-						auto* sample = a_cell->IsInterior() ? a_cell : LoadedCellAt(atPlayerHeight, a_cell);
-						if (!sample || !sample->HasWater() || !sample->GetWaterType()) {
-							continue;
-						}
-
-						const float h = sample->waterHeight;
-						if (!std::isfinite(h) || std::fabs(h) > 1.0e8f) {
-							continue;
-						}
-
-						// A real exposed water column has its first static ground BELOW the water plane.
-						// If terrain/floor/road exists at or above that plane, this column is dry even
-						// though the CELL itself carries a default water record.
-						RE::NiPoint3 ground{};
-						const RE::NiPoint3 from{ atPlayerHeight.x, atPlayerHeight.y, h + static_cast<float>(proto::kUnitsPerBlock * 4.0) };
-						const RE::NiPoint3 to{ atPlayerHeight.x, atPlayerHeight.y, h - static_cast<float>(proto::kUnitsPerBlock * 6.0) };
-						if (PickGroundAt(sample, from, to, ground) && ground.z >= h - 4.0f) {
-							continue;
-						}
-
-						water.surface[z * proto::kWaterGridSize + x] = h / static_cast<float>(proto::kUnitsPerBlock);
-					}
-				}
-			}
-			link::WriteWaterGrid(water);
-		}
-
 		void PerFrame(RE::PlayerCharacter* a_player, float a_delta)
 		{
 			auto& st = State();
@@ -961,7 +886,6 @@ namespace skycraft
 				sky.specialValid = ok ? 1 : 0;
 			}
 			link::WriteSkyState(sky);
-			PublishWater(cell, puppet ? McVec{ mc.x, mc.y, mc.z } : playerMc, worldId);
 
 			Combat::PerFrame(a_player, puppet && !st.falloutMenuOpen, a_delta);
 
