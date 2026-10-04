@@ -159,8 +159,8 @@ namespace skycraft
 		// Hooks PlayerCamera::Update (needs the trampoline).
 		void Install();
 		// Main thread, every frame: Minecraft's F5 view (mode 0 first person, 1 behind, 2 in front),
-		// its eye (Fallout coords), look and camera distance (units).
-		void Set(bool a_active, int a_mode, const RE::NiPoint3& a_eye, float a_heading, float a_pitch, float a_distance);
+		// its eye (Fallout coords), look, camera distance (units), and effective Minecraft vertical FOV.
+		void Set(bool a_active, int a_mode, const RE::NiPoint3& a_eye, float a_heading, float a_pitch, float a_distance, float a_fovDeg);
 	}
 
 	namespace Crash
