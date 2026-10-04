@@ -173,7 +173,7 @@ namespace MinecraftSubnautica.Bridge
             try
             {
                 if (pickupable.inventoryItem != null && pickupable.inventoryItem.container != null)
-                    pickupable.inventoryItem.container.RemoveItem(pickupable, true);
+                    pickupable.inventoryItem.container.RemoveItem(pickupable.inventoryItem, true, false);
             }
             catch (Exception ex)
             {
@@ -254,7 +254,7 @@ namespace MinecraftSubnautica.Bridge
                 try
                 {
                     if (pickupable.inventoryItem != null && pickupable.inventoryItem.container != null)
-                        pickupable.inventoryItem.container.RemoveItem(pickupable, true);
+                        pickupable.inventoryItem.container.RemoveItem(pickupable.inventoryItem, true, false);
                 }
                 catch
                 {
