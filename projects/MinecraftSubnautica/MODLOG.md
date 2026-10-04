@@ -448,3 +448,27 @@ Source-backed test bundle:
 - JAR SHA-256: `c80ee7ad0828592d38fb9c5566d1d4088a4ab8e50c7620799212f6c3f930681c`
 - BepInEx DLL SHA-256: `0c67140adef6fc1a1116265e9d3a52359425ce48d95004c1f23183fe4688faab`
 - ReShade add-on SHA-256: `12c905df876e17a228f26a9b47766de80e3bc5f69ebf61e65657329f57780c2e`
+
+
+### 2026-10-04 11:39 — Java 25 FFM startup crash fixed
+
+Crash report:
+- `java.lang.ExceptionInInitializerError`
+- cause: `java.lang.IllegalArgumentException: Unsupported layout: 1%i4`
+- origin: `dev.skycraft.client.SubnauticaCameraLink.<clinit>`
+
+Root cause:
+- the packed shared-memory layouts `JAVA_INT_UNALIGNED` / `JAVA_LONG_UNALIGNED` were
+  accidentally reused in Win32 Foreign Function & Memory downcall descriptors;
+- Java 25 accepts the unaligned layouts for packed memory access, but rejects them as native ABI
+  function parameter/return layouts.
+
+Fix:
+- keep unaligned layouts for shared-memory fields;
+- use canonical aligned `JAVA_INT` / `JAVA_LONG` exclusively in
+  `OpenFileMappingW`, `MapViewOfFile`, and `GetTickCount64` descriptors.
+
+Commit: `9805000ec6ce6a6c635f1c31a34232bf3deb5808`
+
+Verification:
+- Minecraft Subnautica SkyCraft 26.3 CI build passed after the fix.
