@@ -220,17 +220,20 @@ namespace MinecraftSubnautica.Bridge
             if (energy == null || (item.Flags & CrossGameItemFlags.HasEnergy) == 0)
                 return;
 
-            // EnergyMixin routes this value through the installed battery. The spawned vanilla
-            // prefab supplies its normal default battery; this restores the exact charge carried
-            // through Minecraft.
-            if (item.MaxEnergy > 0.0f && energy.capacity > 0.0f)
+            // EnergyMixin.charge is read-only in the current game libraries; the installed
+            // battery is the mutable source of truth.
+            IBattery battery = energy.battery;
+            if (battery == null)
+                return;
+
+            if (item.MaxEnergy > 0.0f && battery.capacity > 0.0f)
             {
                 float normalized = Mathf.Clamp01(item.Energy / item.MaxEnergy);
-                energy.charge = normalized * energy.capacity;
+                battery.charge = normalized * battery.capacity;
             }
             else
             {
-                energy.charge = Mathf.Max(0.0f, item.Energy);
+                battery.charge = Mathf.Clamp(item.Energy, 0.0f, battery.capacity);
             }
         }
 
