@@ -1,5 +1,6 @@
 using BepInEx;
 using BepInEx.Configuration;
+using HarmonyLib;
 using UnityEngine;
 
 namespace MinecraftSubnautica.Bridge
@@ -17,6 +18,8 @@ namespace MinecraftSubnautica.Bridge
         private BridgeRuntime _runtime;
         private SubnauticaWorldAdapter _host;
         private SubnauticaInputForwarder _input;
+        private SubnauticaItemBridge _items;
+        private Harmony _harmony;
         private float _nextErrorLog;
         private bool _haveConnectionState;
         private bool _lastConnected;
@@ -34,6 +37,9 @@ namespace MinecraftSubnautica.Bridge
             _host = new SubnauticaWorldAdapter(Logger, _takeover.Value);
             _runtime = new BridgeRuntime(_host, BridgeProtocol.DefaultMappingName);
             _input = new SubnauticaInputForwarder();
+            _items = new SubnauticaItemBridge(Logger);
+            _harmony = new Harmony(PluginGuid);
+            _harmony.PatchAll(typeof(Plugin).Assembly);
 
             Logger.LogInfo($"{PluginName} {PluginVersion} created {BridgeProtocol.DefaultMappingName}");
             Logger.LogInfo(
@@ -64,6 +70,7 @@ namespace MinecraftSubnautica.Bridge
                 // Never leave the native Subnautica motor disabled if Minecraft disappears.
                 _host.Takeover = takeoverActive;
                 _runtime.Tick();
+                _items?.Tick();
 
                 bool forwardInput = takeoverActive && Application.isFocused;
                 _input.SetActive(forwardInput, _runtime);
@@ -87,6 +94,10 @@ namespace MinecraftSubnautica.Bridge
                 _input?.SetActive(false, _runtime);
 
             _host?.Release();
+            _items?.Dispose();
+            _items = null;
+            _harmony?.UnpatchSelf();
+            _harmony = null;
             _runtime?.Dispose();
             _runtime = null;
         }
