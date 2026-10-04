@@ -83,7 +83,7 @@ namespace MinecraftSubnautica.Bridge
         {
             surfaceY = BridgeProtocol.NoWater;
 
-            if (Player.main == null || Ocean.main == null)
+            if (Player.main == null)
                 return false;
 
             // Phase 0: open-ocean plane. Do not claim an accurate local water volume when the
@@ -92,7 +92,7 @@ namespace MinecraftSubnautica.Bridge
             if (Player.main.IsInside() || Player.main.precursorOutOfWater)
                 return false;
 
-            surfaceY = Ocean.main.GetOceanLevel();
+            surfaceY = Ocean.GetOceanLevel();
             return true;
         }
 
