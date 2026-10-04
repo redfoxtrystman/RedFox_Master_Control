@@ -15,7 +15,10 @@ import org.slf4j.LoggerFactory;
 
 public final class SkyCraft implements ModInitializer {
 	public static final String MOD_ID = "skycraft";
-	public static final String WORLD_NAME = "SkyCraft";
+	// Dimension-capable RedFox world. The upstream "SkyCraft" save was created with only an
+	// Overworld dimension, and Minecraft persists that dimension map. Keeping a new folder leaves
+	// the legacy save untouched instead of corrupting/replacing it while enabling Nether + End.
+	public static final String WORLD_NAME = "FalloutCraft";
 	public static final Logger LOG = LoggerFactory.getLogger(MOD_ID);
 	private static final String KIT2_TAG = "skycraft_builder_kit";
 
