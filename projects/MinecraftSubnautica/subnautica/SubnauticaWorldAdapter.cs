@@ -20,6 +20,9 @@ namespace MinecraftSubnautica.Bridge
         private uint _collisionEpoch = 1;
         private float _lastStatusLog;
         private PlayerController _disabledController;
+        private bool _haveMinecraftFlags;
+        private bool _lastSwimming;
+        private bool _lastDead;
 
         public SubnauticaWorldAdapter(ManualLogSource log, bool takeover)
         {
@@ -100,6 +103,22 @@ namespace MinecraftSubnautica.Bridge
         {
             if (!state.InWorld || Player.main == null)
                 return;
+
+            if (!_haveMinecraftFlags || state.Swimming != _lastSwimming)
+            {
+                _log.LogInfo(
+                    $"BRIDGE PROOF: Minecraft swimming={state.Swimming} " +
+                    $"at ({state.X:F2},{state.Y:F2},{state.Z:F2}).");
+                _lastSwimming = state.Swimming;
+            }
+
+            if (!_haveMinecraftFlags || state.Dead != _lastDead)
+            {
+                _log.LogInfo($"BRIDGE PROOF: Minecraft dead={state.Dead}.");
+                _lastDead = state.Dead;
+            }
+
+            _haveMinecraftFlags = true;
 
             if (!_takeover || _disabledController == null)
             {
