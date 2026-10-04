@@ -437,7 +437,9 @@ namespace skycraft
 			int xp = 1;
 			switch (a_ev.formId) {
 			case 10:  // old SKILL_SMITHING: crafting / smithing activity
-				xp = std::clamp(static_cast<int>(std::lround(uses * 2.0f)), 1, 25);
+				// Item worth arrives on a Skyrim-like curve (15 wood, 40 iron, 80 diamond, 150 netherite).
+				// Convert that to sane Fallout XP rather than turning almost every craft into the cap.
+				xp = std::clamp(static_cast<int>(std::lround(std::sqrt(uses) * 1.5f)), 1, 20);
 				break;
 			case 9:   // blocking
 			case 11:  // heavy armour use
