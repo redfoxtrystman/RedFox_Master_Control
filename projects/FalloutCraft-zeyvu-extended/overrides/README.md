@@ -239,9 +239,8 @@ mouse buttons and so on.
   does not understand those blocks.
 - Multiplayer plumbing is present (LAN/e4mc join/leave) but is still experimental and needs more
   Fallout-host state synchronization and testing.
-- Still missing or incomplete: Fallout consumables healing Minecraft hearts, meaningful Minecraft
-  effects for Charisma/Intelligence, Minecraft dynamic lights illuminating Fallout geometry, and
-  Fallout water being published into Minecraft's existing water-grid support.
+- RedFox intentionally does not publish Fallout CELL water into Minecraft. The broad CELL-water
+  approximation was removed because it made large dry areas behave like Minecraft water.
 - The old SkyCraft limitation about "training Fallout skills" does not map directly to Fallout 4,
   which has S.P.E.C.I.A.L., perks and XP rather than Skyrim-style trainable skills. A FalloutCraft
   extension should award appropriate Fallout XP/perk progress from Minecraft actions instead.
