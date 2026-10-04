@@ -245,3 +245,58 @@ Do not widen item coverage before Vertical Slice 001/002 are observed in the rea
   - link/background handoff is now fixed;
   - movement takeover remains opt-in until live coordinate/yaw calibration;
   - full Subnautica-side consumption of every SkyCraft render-ring/world-render primitive is a separate integration layer and should not be claimed as live-proven yet.
+
+
+## 2026-10-04 — render/collision integration pass
+
+User live test proved heartbeat + water linking but exposed that the Subnautica host still was not consuming SkyCraft's visual output and Minecraft still had no Subnautica world collision.
+
+### Fixed
+
+- Added Subnautica-side consumption of SkyCraft's overlay triple buffer.
+  - Minecraft HUD, hotbar, hand and GUI screens are uploaded into a Unity `Texture2D` and drawn over the Subnautica frame.
+- Added Subnautica-side render-ring consumer.
+  - `RenderAtlas` -> Minecraft block/item texture atlas.
+  - `RenderAtlasRegion` -> animated atlas updates (water/lava/fire/etc.).
+  - `RenderSection` -> Minecraft block section meshes as Unity `Mesh` objects.
+  - `RenderTexture` -> Minecraft entity/player textures.
+  - `RenderScene` -> Minecraft mobs/entities/particles as Unity meshes with texture batches.
+  - `RenderAvatar` -> third-person Minecraft player mesh path.
+  - `RenderClearAll` -> tears down stale Minecraft world meshes.
+- Unity 3D meshes use normal scene transforms/depth so Subnautica geometry can occlude Minecraft geometry instead of everything being a flat screenshot.
+- Added Subnautica -> Minecraft collision-ring producer.
+- Added a progressive 3x3x3 region sampler around the player using Unity's real Physics colliders.
+- Initial collision quality is intentionally conservative block-resolution:
+  - any static Unity collider intersecting a 1m cell fills that Minecraft cell;
+  - triggers are ignored;
+  - player colliders are ignored;
+  - non-kinematic rigidbodies are excluded from static world collision.
+- This gives Minecraft immediate collision awareness of Subnautica terrain, reefs, bases/wrecks and collidable flora while preserving the protocol path for later 1/8-block/exact-triangle refinement.
+- Added proof logs for each stage:
+  - `RENDER PROOF: Minecraft HUD/hand overlay received ...`
+  - `RENDER PROOF: Minecraft texture atlas received ...`
+  - `RENDER PROOF: first Minecraft section rendered ...`
+  - `RENDER PROOF: Minecraft entities/particles mesh received ...`
+  - `COLLISION PROOF: initialized ...`
+  - `COLLISION PROOF: sent first Unity region ...`
+- Added `docs/RENDER_COLLISION_LIVE_TEST.md`.
+- Expanded bridge smoke tests to verify:
+  - overlay frame acquisition;
+  - render-ring consumption/tail advance;
+  - collision-ring production/epoch payload.
+
+### Verification
+
+- Current Subnautica/Nautilus/GameLib plugin compilation: GREEN.
+- Bridge-core compilation: GREEN.
+- Updated protocol smoke build: GREEN.
+- Updated protocol smoke execution: GREEN.
+- Artifact-producing run `37218570876`: GREEN.
+
+### Next fidelity pass after live proof
+
+- refine Unity collision from full-block occupancy to 1/8-block voxels;
+- emit exact MeshCollider triangles for smooth terrain/base geometry;
+- match Subnautica lighting/fog/material response for Minecraft meshes;
+- add WorldEntities helpers (dropped block/item billboards, arrows/tridents, selection/crack overlays) where RenderScene does not already cover them;
+- improve premultiplied-alpha HUD composition if the live Unity blend path shows dark fringes.
