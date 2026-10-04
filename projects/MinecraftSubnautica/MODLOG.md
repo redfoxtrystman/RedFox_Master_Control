@@ -225,3 +225,23 @@ Do not widen item coverage before Vertical Slice 001/002 are observed in the rea
   - protocol smoke execution.
 - Final SkyCraft item behavior/readiness build `37215495814`: GREEN.
 - `tools/vertical_slice_001.ps1` now prints both the water/zombie proof and the Seaglide round-trip proof in one launch workflow.
+
+
+## 2026-10-04 — runtime link packaging fix
+
+- Found the reason the user's normal Minecraft launch did not connect/background:
+  - the dedicated Minecraft/Subnautica JAR still defaulted the primary SkyCraft mapping to `Local\\FalloutCraft_v2`;
+  - Subnautica correctly created `Local\\SkyCraft_Subnautica_v1`;
+  - therefore `SkyLink.active()` never became true, so the existing automatic `SDL_HideWindow` handoff never fired.
+- Fixed the dedicated branch default mapping to `Local\\SkyCraft_Subnautica_v1`.
+- `-Dskycraft.link=...` remains available as an explicit developer override.
+- Updated the Subnautica plugin startup log: normal dedicated JAR launch no longer requires a special JVM argument.
+- Rebuilt both deliverables successfully.
+- Binary verification confirms the compiled JAR contains:
+  - `Local\\SkyCraft_Subnautica_v1`,
+  - `SDL_HideWindow`,
+  - the linked-window hide log string.
+- Important remaining distinction:
+  - link/background handoff is now fixed;
+  - movement takeover remains opt-in until live coordinate/yaw calibration;
+  - full Subnautica-side consumption of every SkyCraft render-ring/world-render primitive is a separate integration layer and should not be claimed as live-proven yet.
