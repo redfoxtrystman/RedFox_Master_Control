@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>MinecraftSubnautica</AssemblyName>
+    <RootNamespace>MinecraftSubnautica.Bridge</RootNamespace>
+    <BepInExPluginGuid>com.redfox.minecraftsubnautica.bridge</BepInExPluginGuid>
+    <SubnauticaDir Condition="'$(SubnauticaDir)' == ''">$(SUBNAUTICA_DIR)</SubnauticaDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Core" Version="5.4.21" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(SubnauticaDir)' != ''">
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(SubnauticaDir)\Subnautica_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(SubnauticaDir)\Subnautica_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="RequireSubnauticaDir" BeforeTargets="ResolveReferences" Condition="'$(SubnauticaDir)' == ''">
+    <Error Text="Set SUBNAUTICA_DIR or pass /p:SubnauticaDir=... so the game assemblies can be referenced." />
+  </Target>
+</Project>
