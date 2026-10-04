@@ -36,3 +36,28 @@
 - Feed input to Minecraft.
 - Puppet Subnautica player/camera from Minecraft `McState`.
 - Run the first in-game water test.
+
+
+## 2026-10-04 — implementation pass 2
+
+- Verified current Nautilus development guidance: .NET Framework 4.7.2, BepInEx 5.4.21, Nautilus dependency.
+- Added the real Subnautica BepInEx host plugin scaffold.
+- Added open-ocean water export using `Ocean.main.GetOceanLevel()`.
+- Added host player/camera state export using `Player.main` and Unity camera state.
+- Added opt-in Minecraft-authoritative player transform takeover.
+- Verified SkyCraft water hooks are general entity-fluid hooks:
+  - `EntityFluidInteractionMixin`,
+  - `EntitySwimMixin`,
+  - `SkyWater.refresh()` every linked client frame.
+- Added host -> Minecraft input-ring production and Subnautica keyboard/mouse forwarding.
+- Added Windows bridge-core CI and a shared-memory smoke test covering state, water, input, and Minecraft state.
+- Added `SKYCRAFT_LINK` support to the SkyCraft dev run config and a Subnautica launcher using `Local\\SkyCraft_Subnautica_v1`.
+
+### Still required before calling vertical slice 001 complete
+
+- CI must pass.
+- Build the BepInEx plugin against the user's installed Subnautica assemblies.
+- Live coordinate/yaw calibration.
+- Native Subnautica movement suppression during Minecraft takeover.
+- Real-game proof of swimming/drowning and zombie -> drowned.
+- Then replace the temporary open-ocean plane with spatial water-volume sampling and connect collision streaming.
