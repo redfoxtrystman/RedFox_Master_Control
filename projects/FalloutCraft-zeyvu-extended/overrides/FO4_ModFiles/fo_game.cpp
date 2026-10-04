@@ -459,6 +459,63 @@ namespace skycraft
 			a_z = p[2];
 		}
 
+		RE::TESObjectCELL* LoadedCellAt(const RE::NiPoint3& a_game, RE::TESObjectCELL* a_fallback)
+		{
+			if (a_fallback && a_fallback->IsInterior()) {
+				return a_fallback;
+			}
+			const int wantX = static_cast<int>(std::floor(double(a_game.x) / 4096.0));
+			const int wantY = static_cast<int>(std::floor(double(a_game.y) / 4096.0));
+			if (a_fallback && !a_fallback->IsInterior() && a_fallback->GetDataX() == wantX && a_fallback->GetDataY() == wantY) {
+				return a_fallback;
+			}
+			auto* tes = RE::TES::GetSingleton();
+			auto* grid = tes ? tes->gridCells : nullptr;
+			if (!grid) {
+				return nullptr;
+			}
+			for (std::uint32_t y = 0; y < grid->dimension; ++y) {
+				for (std::uint32_t x = 0; x < grid->dimension; ++x) {
+					auto* slot = grid->Get(x, y);
+					auto* cell = slot ? slot->cell : nullptr;
+					if (cell && !cell->IsInterior() && cell->GetDataX() == wantX && cell->GetDataY() == wantY) {
+						return cell;
+					}
+				}
+			}
+			return nullptr;
+		}
+
+		void PublishWater(RE::TESObjectCELL* a_cell, const McVec& a_center, std::uint32_t a_worldId)
+		{
+			proto::WaterGrid water{};
+			water.worldId = a_worldId;
+			water.originX = static_cast<std::int32_t>(std::floor(a_center.x)) - static_cast<std::int32_t>(proto::kWaterGridSize / 2);
+			water.originZ = static_cast<std::int32_t>(std::floor(a_center.z)) - static_cast<std::int32_t>(proto::kWaterGridSize / 2);
+			for (float& v : water.surface) {
+				v = proto::kNoWater;
+			}
+			if (a_cell) {
+				for (std::uint32_t z = 0; z < proto::kWaterGridSize; ++z) {
+					for (std::uint32_t x = 0; x < proto::kWaterGridSize; ++x) {
+						const double mx = water.originX + x + 0.5;
+						const double mz = water.originZ + z + 0.5;
+						const auto game = McToGame(mx, a_center.y, mz);
+						auto* sample = a_cell->IsInterior() ? a_cell : LoadedCellAt(game, a_cell);
+						if (!sample || !sample->HasWater()) {
+							continue;
+						}
+						const float h = sample->waterHeight;
+						if (!std::isfinite(h) || std::fabs(h) > 1.0e8f) {
+							continue;
+						}
+						water.surface[z * proto::kWaterGridSize + x] = h / static_cast<float>(proto::kUnitsPerBlock);
+					}
+				}
+			}
+			link::WriteWaterGrid(water);
+		}
+
 		void PerFrame(RE::PlayerCharacter* a_player, float a_delta)
 		{
 			auto& st = State();
@@ -846,8 +903,8 @@ namespace skycraft
 				const double    z0 = std::floor(mc.z / kStep) * kStep - kStep * (n / 2);
 				// From a step above the feet (or above where the ground just was, if the feet are
 				// already under it) down to 3 blocks below.
-				const double from = std::max(mc.y, groundRefAge < 1.0f ? double(groundRef) : mc.y) + 0.6;
-				const double to = mc.y - 3.0;
+				const double from = std::max(mc.y, groundRefAge < 1.0f ? double(groundRef) : mc.y) + 0.9;
+				const double to = mc.y - 3.5;
 				for (int j = 0; j < n; ++j) {
 					for (int i = 0; i < n; ++i) {
 						const double x = x0 + i * kStep, z = z0 + j * kStep;
@@ -884,6 +941,7 @@ namespace skycraft
 				sky.specialValid = ok ? 1 : 0;
 			}
 			link::WriteSkyState(sky);
+			PublishWater(cell, puppet ? McVec{ mc.x, mc.y, mc.z } : playerMc, worldId);
 
 			Combat::PerFrame(a_player, puppet && !st.falloutMenuOpen, a_delta);
 
