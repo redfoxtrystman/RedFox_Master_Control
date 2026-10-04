@@ -111,6 +111,9 @@ namespace skycraft::proto
 		kMcSwimming = 1u << 6,
 		kMcFlying = 1u << 7,
 		kMcHealthValid = 1u << 8,  // FalloutCraft: McState::health is set
+		kMcNativeDimension = 1u << 9,  // MC is in a real Minecraft dimension, not Fallout's mirror Overworld
+		kMcNether = 1u << 10,
+		kMcEnd = 1u << 11,
 	};
 
 	struct McState
