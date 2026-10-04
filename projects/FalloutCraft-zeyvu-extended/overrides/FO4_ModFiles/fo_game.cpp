@@ -530,7 +530,9 @@ namespace skycraft
 					Worlds::Select(cell);  // its own place in Minecraft's world
 					++epoch;
 					Collision::Get().Reset(epoch);
-					teleportPending = true;
+					if (!nativeDimension) {
+						teleportPending = true;
+					}
 					settleTimer = kSettleSeconds;
 					haveSafeGround = haveGround = pinned = false;
 				}
@@ -581,7 +583,7 @@ namespace skycraft
 					// put back to the slightly older spot Fallout's player was shown at.
 					const bool moved = !haveLastSet || current.GetDistance(lastSetPos) > 100.0f;
 					REX::INFO("Fallout hands the player back{}", moved ? "; Minecraft follows" : "");
-					if (moved) {
+					if (moved && !nativeDimension) {
 						teleportPending = true;
 					}
 				}
