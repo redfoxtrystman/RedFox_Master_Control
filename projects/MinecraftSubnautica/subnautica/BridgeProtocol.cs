@@ -179,6 +179,14 @@ namespace MinecraftSubnautica.Bridge
         public const uint MinecraftFlying = 1u << 7;
     }
 
+    public struct VisualDiagnostics
+    {
+        public uint OverlayState;
+        public ulong OverlayFramesPublished;
+        public ulong RenderHead;
+        public ulong RenderTail;
+    }
+
     public sealed class OverlayFrame
     {
         public int Width;
