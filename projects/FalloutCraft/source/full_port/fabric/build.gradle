@@ -25,6 +25,13 @@ loom {
 		client {
 			programArgs "--username", (System.getenv("SKYCRAFT_USERNAME") ?: "Dovahkiin")
 			vmArgs "--enable-native-access=ALL-UNNAMED", "-Dskycraft.quitWithSkyrim=false"
+
+			// The v11 runtime protocol is host-neutral despite legacy Skyrim/Fallout names.
+			// Each bridge selects its own mapping without forking the Minecraft client.
+			def hostLink = System.getenv("SKYCRAFT_LINK")
+			if (hostLink != null && !hostLink.isBlank()) {
+				vmArgs "-Dskycraft.link=" + hostLink
+			}
 		}
 	}
 
