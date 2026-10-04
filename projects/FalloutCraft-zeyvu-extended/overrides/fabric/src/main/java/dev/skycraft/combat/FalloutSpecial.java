@@ -33,7 +33,7 @@ public final class FalloutSpecial {
 
 	/** Server thread: brings the player's attribute bonuses in line with Fallout's S.P.E.C.I.A.L. */
 	public static void apply(ServerPlayer player) {
-		int[] s = SkyLink.special;
+		int[] s = dev.skycraft.net.SkyNet.specialFor(player);
 		if (s == null || s.length < 7) {
 			return;
 		}
