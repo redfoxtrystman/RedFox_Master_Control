@@ -29,7 +29,7 @@ public final class SkyClient {
 	private static final SkyLink.McState mc = new SkyLink.McState();
 	private static volatile boolean linked;
 	private static boolean tookOver;
-	private static boolean windowHidden;
+	private static boolean windowParked;
 	private static int appliedViewportW, appliedViewportH;
 
 	// Teleport / hold state: Skyrim decides where the player is after loads, doors and respawns.
@@ -75,7 +75,7 @@ public final class SkyClient {
 		if (START_HIDDEN && !startedHidden) {
 			startedHidden = true;
 			Minecraft minecraft = Minecraft.getInstance();
-			hideWindowOnce(minecraft);
+			parkWindowForRendering(minecraft);
 			minecraft.options.getSoundSourceOptionInstance(net.minecraft.sounds.SoundSource.MUSIC).set(0.0);
 			minecraft.getMusicManager().stopPlaying();
 		}
@@ -105,7 +105,7 @@ public final class SkyClient {
 		}
 
 		Minecraft minecraft = Minecraft.getInstance();
-		hideWindowOnce(minecraft);
+		parkWindowForRendering(minecraft);
 		applyViewportSize(minecraft);
 		MirrorWorld.openWhenReady(minecraft);
 
@@ -454,13 +454,26 @@ public final class SkyClient {
 		options.save();
 	}
 
-	private static void hideWindowOnce(Minecraft minecraft) {
-		if (windowHidden || SHOW_WINDOW) {
+	private static void parkWindowForRendering(Minecraft minecraft) {
+		if (windowParked || SHOW_WINDOW) {
 			return;
 		}
-		windowHidden = true;
-		SDLVideo.SDL_HideWindow(minecraft.getWindow().handle());
-		SkyCraft.LOG.info("SkyCraft: game window hidden (run with -Dskycraft.showWindow=true to keep it)");
+		windowParked = true;
+
+		long handle = minecraft.getWindow().handle();
+
+		// DO NOT SDL_HideWindow/MinimizeWindow here. Minecraft 26.x/SDL can stop producing
+		// presentation frames for a truly hidden window, which kills FrameExporter/WorldExporter
+		// while the simulation and audio continue ticking. Subnautica needs Minecraft to remain
+		// a live GPU renderer, just not a user-facing window.
+		SDLVideo.SDL_ShowWindow(handle);
+		SDLVideo.SDL_SetWindowOpacity(handle, 0.01F);
+		SDLVideo.SDL_SetWindowPosition(handle, -32000, -32000);
+
+		SkyCraft.LOG.info(
+			"SkyCraft: render window parked off-screen at 1% opacity; GPU frame export remains active " +
+			"(run with -Dskycraft.showWindow=true to keep the normal window)"
+		);
 	}
 
 	private static void applyViewportSize(Minecraft minecraft) {
@@ -472,6 +485,7 @@ public final class SkyClient {
 		appliedViewportW = w;
 		appliedViewportH = h;
 		minecraft.getWindow().setWindowed(w, h);
-		SkyCraft.LOG.info("SkyCraft: sizing overlay to Skyrim viewport {}x{}", w, h);
+		windowParked = false; // resizing may let the OS move it back; park it again.
+		SkyCraft.LOG.info("SkyCraft: sizing overlay to host viewport {}x{}", w, h);
 	}
 }
