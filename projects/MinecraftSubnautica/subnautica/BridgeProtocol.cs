@@ -36,6 +36,55 @@ namespace MinecraftSubnautica.Bridge
         public const long RenderRingBytes = 64L << 20;
         public const long MappingBytes = OffRenderRing + RenderRingBytes;
 
+        // Overlay triple buffer.
+        public const long OCState = 0x00;
+        public const long OCFramesPublished = 0x08;
+        public const uint OverlayDirty = 1u << 2;
+        public const long OverlaySlotHeaderBytes = 0x40;
+        public const long OHWidth = 0x00;
+        public const long OHHeight = 0x04;
+        public const long OHFlags = 0x08;
+        public const long OHFrameId = 0x10;
+
+        // Collision byte ring: Subnautica produces, Minecraft consumes.
+        public const long CRHead = 0x00;
+        public const long CRTail = 0x40;
+        public const long CRData = 0x80;
+        public const long CRDataBytes = CollisionRingBytes - CRData;
+        public const uint CollisionPad = 0;
+        public const uint CollisionClear = 1;
+        public const uint CollisionRegion = 2;
+        public const uint CollisionTriangles = 3;
+        public const int CollisionRegionHeaderBytes = 32;
+        public const int CollisionBlockBytes = 80;
+        public const int CollisionTriangleBytes = 40;
+
+        // Render byte ring: Minecraft produces, Subnautica consumes.
+        public const long RRHead = 0x00;
+        public const long RRTail = 0x40;
+        public const long RRData = 0x80;
+        public const long RRDataBytes = RenderRingBytes - RRData;
+        public const uint RenderPad = 0;
+        public const uint RenderAtlas = 1;
+        public const uint RenderSection = 2;
+        public const uint RenderClearAll = 3;
+        public const uint RenderTexture = 4;
+        public const uint RenderAvatar = 5;
+        public const uint RenderScene = 6;
+        public const uint RenderAtlasRegion = 7;
+        public const uint RenderLights = 8;
+        public const uint RenderRagdoll = 9;
+        public const uint RenderSolids = 10;
+        public const uint RenderDug = 11;
+        public const int RenderVertexBytes = 32;
+        public const int RenderBatchBytes = 16;
+        public const int RenderTextureHeaderBytes = 16;
+        public const int RenderAtlasHeaderBytes = 8;
+        public const int RenderAtlasRegionHeaderBytes = 16;
+        public const int RenderSectionHeaderBytes = 16;
+        public const int RenderAvatarHeaderBytes = 8;
+        public const int RenderSceneHeaderBytes = 32;
+
         // Header offsets.
         public const long HMagic = 0x00;
         public const long HVersion = 0x04;
@@ -128,6 +177,15 @@ namespace MinecraftSubnautica.Bridge
         public const uint MinecraftDead = 1u << 5;
         public const uint MinecraftSwimming = 1u << 6;
         public const uint MinecraftFlying = 1u << 7;
+    }
+
+    public sealed class OverlayFrame
+    {
+        public int Width;
+        public int Height;
+        public bool BottomUp;
+        public ulong FrameId;
+        public byte[] Pixels;
     }
 
     public struct HostState
