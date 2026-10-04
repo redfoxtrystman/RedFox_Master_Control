@@ -91,6 +91,62 @@ internal static class Program
                 AssertNear(-2.0, minecraft.Y, "Minecraft Y");
                 AssertNear(44.0, minecraft.Z, "Minecraft Z");
                 AssertNear(80.0f, minecraft.Fov, "Minecraft FOV");
+
+                // Minecraft -> Subnautica HUD/hand overlay triple buffer.
+                int overlaySlot = 1;
+                long oh = BridgeProtocol.OffOverlaySlotHeader
+                    + overlaySlot * BridgeProtocol.OverlaySlotHeaderBytes;
+                view.Write(oh + BridgeProtocol.OHWidth, 2);
+                view.Write(oh + BridgeProtocol.OHHeight, 1);
+                view.Write(oh + BridgeProtocol.OHFlags, 1u);
+                view.Write(oh + BridgeProtocol.OHFrameId, 77UL);
+                byte[] overlayPixels = { 7, 8, 9, 10, 11, 12, 13, 14 };
+                view.WriteArray(
+                    BridgeProtocol.OffOverlayPixels + overlaySlot * BridgeProtocol.OverlaySlotBytes,
+                    overlayPixels, 0, overlayPixels.Length);
+                Thread.MemoryBarrier();
+                view.Write(
+                    BridgeProtocol.OffOverlayCtl + BridgeProtocol.OCState,
+                    (uint)overlaySlot | BridgeProtocol.OverlayDirty);
+
+                AssertTrue(bridge.TryAcquireOverlayFrame(out OverlayFrame overlay), "acquire overlay");
+                AssertEqual(2, overlay.Width, "overlay width");
+                AssertEqual(1, overlay.Height, "overlay height");
+                AssertTrue(overlay.BottomUp, "overlay bottom-up");
+                AssertEqual(77UL, overlay.FrameId, "overlay frame id");
+                AssertEqual(7, overlay.Pixels[0], "overlay first byte");
+                AssertEqual(14, overlay.Pixels[7], "overlay last byte");
+
+                // Minecraft -> Subnautica render byte ring.
+                long rr = BridgeProtocol.OffRenderRing;
+                view.Write(rr + BridgeProtocol.RRHead, 0UL);
+                view.Write(rr + BridgeProtocol.RRTail, 0UL);
+                long rm = rr + BridgeProtocol.RRData;
+                view.Write(rm, BridgeProtocol.RenderClearAll);
+                view.Write(rm + 4, 0u);
+                Thread.MemoryBarrier();
+                view.Write(rr + BridgeProtocol.RRHead, 8UL);
+
+                uint drainedType = 999;
+                int drained = bridge.DrainRender((type, payload) => drainedType = type);
+                AssertEqual(1, drained, "render messages drained");
+                AssertEqual(BridgeProtocol.RenderClearAll, drainedType, "render message type");
+                AssertEqual(8UL, view.ReadUInt64(rr + BridgeProtocol.RRTail), "render tail");
+
+                // Subnautica -> Minecraft collision byte ring.
+                long cr = BridgeProtocol.OffCollisionRing;
+                view.Write(cr + BridgeProtocol.CRHead, 0UL);
+                view.Write(cr + BridgeProtocol.CRTail, 0UL);
+                AssertTrue(
+                    bridge.TryWriteCollision(BridgeProtocol.CollisionClear, BitConverter.GetBytes(9u)),
+                    "write collision clear");
+                AssertEqual(16UL, view.ReadUInt64(cr + BridgeProtocol.CRHead), "collision head");
+                AssertEqual(
+                    BridgeProtocol.CollisionClear,
+                    view.ReadUInt32(cr + BridgeProtocol.CRData),
+                    "collision message type");
+                AssertEqual(4u, view.ReadUInt32(cr + BridgeProtocol.CRData + 4), "collision payload bytes");
+                AssertEqual(9u, view.ReadUInt32(cr + BridgeProtocol.CRData + 8), "collision epoch payload");
             }
 
             using (var items = new CrossGameItemChannel(itemName))
