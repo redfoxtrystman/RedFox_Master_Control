@@ -120,4 +120,104 @@ rep(
 # claim ID is persisted and EvaluateCore refreshes.
 rep(
     quest,
-    '''        var archivistPokemonRewardChanged = false;\n        if (completed.Contains("region-complete-all") && !completed.Contains(AllRegionsArchivistMagearnaRewardMarker))\n        {\n            await GrantAllRegionsArchivistMagearna();\n    
+    '''        var archivistPokemonRewardChanged = false;\n        if (completed.Contains("region-complete-all") && !completed.Contains(AllRegionsArchivistMagearnaRewardMarker))\n        {\n            await GrantAllRegionsArchivistMagearna();\n            completed.Add(AllRegionsArchivistMagearnaRewardMarker);\n            archivistPokemonRewardChanged = true;\n        }\n''',
+    '''        var pokemonRewardMarkersChanged = false;\n        if (completed.Contains("region-complete-all") && !completed.Contains(AllRegionsArchivistMagearnaRewardMarker))\n        {\n            await GrantAllRegionsArchivistMagearna();\n            completed.Add(AllRegionsArchivistMagearnaRewardMarker);\n            pokemonRewardMarkersChanged = true;\n        }\n\n        foreach (var prestige in PrestigePokemonRewards)\n        {\n            if (!completed.Contains(prestige.CompletionId) || completed.Contains(prestige.MarkerId))\n                continue;\n\n            await GrantPrestigePokemonReward(prestige);\n            completed.Add(prestige.MarkerId);\n            pokemonRewardMarkersChanged = true;\n        }\n''',
+    "grant prestige Pokémon for completed achievements",
+)
+
+rep(
+    quest,
+    '''        if (archivistPokemonRewardChanged)\n            await SaveStringSet(MetaKey.QUEST_COMPLETED, completed);\n''',
+    '''        if (pokemonRewardMarkersChanged)\n            await SaveStringSet(MetaKey.QUEST_COMPLETED, completed);\n''',
+    "persist Pokémon reward markers",
+)
+
+# Add the actual HOME-event reward generator. Exact pinned HOME card IDs are
+# used for every shiny gift. Celebi uses the newest legal non-shiny Celebi event
+# at or below level 50 and is leveled to exactly 50 if needed.
+insert_before(
+    quest,
+    '''    private async Task<QuestEntryDTO> EvaluateQuest(\n''',
+    r'''    private async Task GrantPrestigePokemonReward(PrestigePokemonRewardDefinition reward)
+    {
+        if (await pkmVariantLoader.GetEntity(reward.VariantId) is not null)
+            return;
+
+        var rewardPkm = CreatePrestigePokemon(reward);
+
+        var occupied = (await pkmVariantLoader.GetAllEntities())
+            .Values
+            .Select(entity => $"{entity.BoxId}:{entity.BoxSlot}")
+            .ToHashSet(StringComparer.Ordinal);
+
+        var boxes = (await boxLoader.GetAllDtos())
+            .Where(box => box.Type == BoxType.Box)
+            .OrderBy(box => box.BankId)
+            .ThenBy(box => box.Order)
+            .ThenBy(box => box.IdInt)
+            .ToList();
+
+        BoxDTO? targetBox = null;
+        var targetSlot = -1;
+        foreach (var box in boxes)
+        {
+            for (var slot = 0; slot < box.SlotCount; slot++)
+            {
+                if (occupied.Contains($"{box.Id}:{slot}"))
+                    continue;
+                targetBox = box;
+                targetSlot = slot;
+                break;
+            }
+            if (targetBox is not null)
+                break;
+        }
+
+        if (targetBox is null)
+        {
+            var banks = (await bankLoader.GetAllDtos())
+                .Where(bank => !bank.IsExternal)
+                .OrderByDescending(bank => bank.IsDefault)
+                .ThenBy(bank => bank.Order)
+                .ToList();
+            var bank = banks.FirstOrDefault()
+                ?? throw new InvalidOperationException($"PKVault has no local bank available for the {reward.Name} reward.");
+
+            var createdBox = await mainCreateBoxAction.CreateBox(new(bank.Id, null));
+            targetBox = boxLoader.CreateDTO(createdBox);
+            targetSlot = 0;
+        }
+
+        await pkmVariantLoader.AddEntity(new(
+            Box: targetBox,
+            BoxSlot: targetSlot,
+            IsMain: true,
+            IsExternal: false,
+            AttachedSaveId: null,
+            AttachedSavePkmIdBase: null,
+            Context: rewardPkm.Context,
+            Generation: rewardPkm.Generation,
+            Pkm: rewardPkm,
+            Id: reward.VariantId,
+            Updated: true,
+            CheckPkm: true
+        ));
+
+        await new DexMainService(sp).EnablePKM(rewardPkm);
+    }
+
+    private static ImmutablePKM CreatePrestigePokemon(PrestigePokemonRewardDefinition reward)
+    {
+        MysteryGift gift;
+        GameVersion trainerVersion;
+        var expectShiny = reward.Species != (ushort)Species.Celebi;
+
+        switch ((Species)reward.Species)
+        {
+            case Species.Meltan:
+                gift = EncounterEvent.MGDB_G7GG.Single(x => x.CardID == 9028 && x.Species == reward.Species);
+                trainerVersion = GameVersion.GP;
+                break;
+            case Species.Manaphy:
+                gift = EncounterEvent.MGDB_G8B.Single(x => x.CardID == 9026 && x.Species == reward.Species);
+   
