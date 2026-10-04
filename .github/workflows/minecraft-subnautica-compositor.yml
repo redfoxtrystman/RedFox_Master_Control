@@ -1,0 +1,57 @@
+name: Minecraft Subnautica Compositor
+
+on:
+  push:
+    branches:
+      - minecraft-subnautica-universal-bridge
+    paths:
+      - "projects/MinecraftSubnautica/compositor/**"
+      - ".github/workflows/minecraft-subnautica-compositor.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Fetch pinned ReShade 6.8.0 API headers
+        run: |
+          $dir = Join-Path $PWD "projects\MinecraftSubnautica\compositor\third_party\reshade"
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          $base = "https://raw.githubusercontent.com/crosire/reshade/v6.8.0/include"
+          $headers = @("reshade.hpp","reshade_api.hpp","reshade_api_device.hpp","reshade_api_pipeline.hpp","reshade_api_resource.hpp","reshade_api_format.hpp","reshade_events.hpp","reshade_overlay.hpp")
+          foreach ($h in $headers) { Invoke-WebRequest "$base/$h" -OutFile (Join-Path $dir $h) }
+
+      - name: Build standalone ReShade add-on
+        working-directory: projects/MinecraftSubnautica/compositor
+        run: |
+          New-Item -ItemType Directory -Force build | Out-Null
+          cl /nologo /LD /O2 /EHsc /std:c++20 /MT /W3 /DWIN32_LEAN_AND_MEAN /DNOMINMAX /I "third_party\reshade" "src\MinecraftSubnauticaAddon.cpp" /Fo"build\" /Fe"build\MinecraftSubnautica.addon64"
+
+      - name: Package compositor
+        working-directory: projects/MinecraftSubnautica/compositor
+        run: |
+          $dist = Join-Path $PWD "dist"
+          New-Item -ItemType Directory -Force "$dist\reshade-shaders\Shaders" | Out-Null
+          Copy-Item "build\MinecraftSubnautica.addon64" "$dist\MinecraftSubnautica.addon64" -Force
+          Copy-Item "shaders\MinecraftSubnautica.fx" "$dist\reshade-shaders\Shaders\MinecraftSubnautica.fx" -Force
+          Invoke-WebRequest "https://raw.githubusercontent.com/crosire/reshade-shaders/slim/Shaders/ReShade.fxh" -OutFile "$dist\reshade-shaders\Shaders\ReShade.fxh"
+          Copy-Item "Install-MinecraftSubnauticaCompositor.ps1" "$dist\Install-MinecraftSubnauticaCompositor.ps1" -Force
+          Copy-Item "README.md" "$dist\README.md" -Force
+          Compress-Archive -Path "$dist\*" -DestinationPath "MinecraftSubnautica-Compositor.zip" -Force
+
+      - name: Upload compositor
+        uses: actions/upload-artifact@v4
+        with:
+          name: MinecraftSubnautica-Compositor
+          path: projects/MinecraftSubnautica/compositor/MinecraftSubnautica-Compositor.zip
+          if-no-files-found: error
