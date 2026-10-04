@@ -121,7 +121,9 @@ public final class SubnauticaItemBridge {
 	}
 
 	private static void drainIncoming(Minecraft minecraft) {
-		if (!CrossGameItemLink.active()) {
+		// Do not consume a host transfer until there is an authoritative Minecraft
+		// inventory ready to receive it. Leaving it in the ring is lossless.
+		if (!CrossGameItemLink.active() || minecraft.player == null || minecraft.getSingleplayerServer() == null) {
 			return;
 		}
 
