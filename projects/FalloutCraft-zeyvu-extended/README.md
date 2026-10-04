@@ -32,14 +32,13 @@ The current upstream README has a stale Known Limitations block. Current main al
 - Fallout-world digging/gathering exists.
 - Placed Minecraft blocks have Fallout-side collision, so NPCs/creatures bump into them; route planning around builds is still not implemented.
 - Multiplayer code exists (LAN/e4mc join/leave plumbing), though it remains experimental.
-- Minecraft-side water support exists, but Fallout-side water-grid publishing still needs a proper Fallout implementation before it is complete.
+- Minecraft-side water support remains in the inherited code, but RedFox intentionally does not publish Fallout CELL water into Minecraft; the CELL-wide approximation was removed.
 
 Actual high-value extension targets:
 1. Fallout stimpaks/food healing Minecraft hearts.
 2. Give Charisma and Intelligence meaningful Minecraft effects.
 3. Minecraft dynamic lights affecting Fallout geometry.
-4. Fallout water -> Minecraft water grid publishing.
-5. NPC path planning around Minecraft builds, not merely collision.
-6. Fallout skill/perk progression from Minecraft actions where a Fallout analogue exists.
-7. Uneven/cracked-road collision smoothing.
-8. Multiplayer hardening and Fallout-host state synchronization.
+4. NPC path planning around Minecraft builds, not merely collision.
+5. Fallout skill/perk progression from Minecraft actions where a Fallout analogue exists.
+6. Uneven/cracked-road collision smoothing.
+7. Multiplayer hardening and Fallout-host state synchronization.
