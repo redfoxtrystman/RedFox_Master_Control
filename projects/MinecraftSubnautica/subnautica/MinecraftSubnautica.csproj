@@ -23,6 +23,10 @@
       <HintPath>$(SubnauticaDir)\Subnautica_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Unity.InputSystem">
+      <HintPath>$(SubnauticaDir)\Subnautica_Data\Managed\Unity.InputSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <Target Name="RequireSubnauticaDir" BeforeTargets="ResolveReferences" Condition="'$(SubnauticaDir)' == ''">
