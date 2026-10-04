@@ -48,10 +48,15 @@ public final class SubnauticaCameraLink {
 
 	private static final int FIRST_PERSON = 1;
 
+	// Packed shared-memory fields may be unaligned. Native ABI call descriptors may NOT be:
+	// Java 25's FFM linker rejects JAVA_INT_UNALIGNED/JAVA_LONG_UNALIGNED in downcall signatures
+	// ("Unsupported layout: 1%i4"). Keep the two layout families deliberately separate.
 	private static final ValueLayout.OfInt INT = ValueLayout.JAVA_INT_UNALIGNED;
 	private static final ValueLayout.OfLong LONG = ValueLayout.JAVA_LONG_UNALIGNED;
 	private static final ValueLayout.OfFloat FLOAT = ValueLayout.JAVA_FLOAT_UNALIGNED;
 	private static final ValueLayout.OfDouble DOUBLE = ValueLayout.JAVA_DOUBLE_UNALIGNED;
+	private static final ValueLayout.OfInt ABI_INT = ValueLayout.JAVA_INT;
+	private static final ValueLayout.OfLong ABI_LONG = ValueLayout.JAVA_LONG;
 	private static final VarHandle LONG_HANDLE = LONG.varHandle();
 
 	private static final MethodHandle OPEN_FILE_MAPPING;
@@ -79,15 +84,15 @@ public final class SubnauticaCameraLink {
 		SymbolLookup k32 = SymbolLookup.libraryLookup("kernel32", Arena.global());
 		OPEN_FILE_MAPPING = linker.downcallHandle(
 			k32.find("OpenFileMappingW").orElseThrow(),
-			FunctionDescriptor.of(ValueLayout.ADDRESS, INT, INT, ValueLayout.ADDRESS)
+			FunctionDescriptor.of(ValueLayout.ADDRESS, ABI_INT, ABI_INT, ValueLayout.ADDRESS)
 		);
 		MAP_VIEW_OF_FILE = linker.downcallHandle(
 			k32.find("MapViewOfFile").orElseThrow(),
-			FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, INT, INT, INT, LONG)
+			FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ABI_INT, ABI_INT, ABI_INT, ABI_LONG)
 		);
 		GET_TICK_COUNT64 = linker.downcallHandle(
 			k32.find("GetTickCount64").orElseThrow(),
-			FunctionDescriptor.of(LONG)
+			FunctionDescriptor.of(ABI_LONG)
 		);
 	}
 
