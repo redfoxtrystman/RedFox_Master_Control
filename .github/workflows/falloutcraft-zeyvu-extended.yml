@@ -110,14 +110,14 @@ jobs:
           RedFox FalloutCraft Extended
           Base: zeyvu/FalloutCraft @ 52030998d63532a1a4d147b394bcc7b07da6f4f4
           Controls: E inventory, Ctrl sprint, Shift crouch, O Minecraft pause, G Fallout Activate.
-          Extended: Fallout healing -> MC hearts; Fallout water -> MC swimming; C/I effects; rough-ground smoothing; MC activity -> Fallout XP; Minecraft lights -> Fallout geometry; per-player multiplayer SPECIAL/XP; Fallout AI avoidance for MC builds; crafting/defence -> Fallout XP.
+          Extended: Fallout healing -> MC hearts; Fallout water -> MC swimming; C/I effects; rough-ground smoothing; MC activity -> Fallout XP; Minecraft lights -> Fallout geometry; per-player multiplayer SPECIAL/XP; Fallout AI avoidance for MC builds; crafting/defence -> Fallout XP; corrected SDL-to-Minecraft mouse mapping so left click attacks/mines and right click uses/places.
           "@ | Set-Content -Encoding UTF8 "package/REDFOX_BUILD.txt"
 
-          Compress-Archive -Path "package/*" -DestinationPath "FalloutCraft-RedFox-v0.2.0-gameplay-bridge.zip" -Force
+          Compress-Archive -Path "package/*" -DestinationPath "FalloutCraft-RedFox-v0.2.1-mining-input-fix.zip" -Force
 
       - name: Upload combined package
         uses: actions/upload-artifact@v4
         with:
-          name: FalloutCraft-RedFox-v0.2.0-gameplay-bridge
-          path: FalloutCraft-RedFox-v0.2.0-gameplay-bridge.zip
+          name: FalloutCraft-RedFox-v0.2.1-mining-input-fix
+          path: FalloutCraft-RedFox-v0.2.1-mining-input-fix.zip
           if-no-files-found: error
