@@ -40,6 +40,7 @@ public final class SkyClient {
 	private static LocalPlayer lastPlayer;
 	private static ResourceKey<Level> lastDimension;
 	private static Vec3 holdPos;
+	private static boolean portalReturnHold;
 	private static Vec3 unlinkedHold;
 	private static long holdSince;
 	private static long qpcFreq;
@@ -202,6 +203,7 @@ public final class SkyClient {
 			// until Fallout collision around that point has restreamed. This preserves Nether 8:1
 			// travel without letting the player fall through the void while the Commonwealth catches up.
 			holdPos = nativeDimension ? null : player.position();
+			portalReturnHold = !nativeDimension;
 		}
 		lastDimension = dimension;
 		SkyCollision.setEnabled(!nativeDimension);
@@ -386,6 +388,7 @@ public final class SkyClient {
 		}
 		if (nativeMinecraftDimension()) {
 			holdPos = null;
+			portalReturnHold = false;
 			holdSince = 0;
 			holdLogged = -1;
 			teleportPending = false;
@@ -433,6 +436,7 @@ public final class SkyClient {
 				SkyCraft.LOG.info("SkyCraft: lifted player {} blocks out of the ground", String.format("%.3f", safe.y - holdPos.y));
 			}
 			holdPos = null;
+			portalReturnHold = false;
 			return;
 		}
 		player.setDeltaMovement(Vec3.ZERO);
@@ -451,6 +455,7 @@ public final class SkyClient {
 
 	private static void requestTeleport(Minecraft minecraft, double x, double y, double z, float yaw, float pitch) {
 		LocalPlayer player = minecraft.player;
+		portalReturnHold = false;
 		player.setPos(x, y, z);
 		player.setDeltaMovement(Vec3.ZERO);
 		player.resetFallDistance();
@@ -540,7 +545,10 @@ public final class SkyClient {
 		}
 		mc.flags = flags;
 		mc.sensitivity = minecraft.options.sensitivity().get().floatValue();
-		mc.teleportAck = holdPos == null ? teleportAck : teleportAck - 1; // not "arrived" until we are released
+		// A Fallout-requested teleport withholds the ack until streamed Fallout ground is ready.
+		// A vanilla portal return must keep its existing ack, otherwise Fallout would mistake our
+		// safety hold for a failed Fallout teleport and snap us back to the pre-Nether position.
+		mc.teleportAck = holdPos == null || portalReturnHold ? teleportAck : teleportAck - 1;
 		mc.guiScale = minecraft.getWindow().getGuiScale();
 		mc.frameCounter = ++frameCounter;
 		SkyLink.writeMcState(mc);
