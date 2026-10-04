@@ -37,16 +37,23 @@ public final class InputBridge {
 		switch (type) {
 			case Proto.IN_KEY -> key(minecraft, handle, code, a != 0);
 			case Proto.IN_MOUSE_BUTTON -> {
-				if (code > 0 && code < BUTTONS.length) {
-					BUTTONS[code] = a != 0;
+				// Fallout sends SDL button numbers (1=L, 2=M, 3=R, 4=X1, 5=X2), while
+				// Minecraft's MouseHandler expects GLFW-style indices (0=L, 1=R, 2=M, ...).
+				// Passing SDL straight through made physical left-click become Minecraft right-click:
+				// blocks could be placed, but attack/mining never saw a held left button.
+				int button = minecraftButton(code);
+				if (button < 0 || button >= BUTTONS.length) {
+					break;
 				}
+				BUTTONS[button] = a != 0;
 				if (a != 0 && clickLogs++ < 20) {
 					var hit = minecraft.hitResult;
-					dev.skycraft.SkyCraft.LOG.info("SkyCraft: click {} -> {} {} (grabbed {}, screen {})", code, hit == null ? "null" : hit.getType(),
+					dev.skycraft.SkyCraft.LOG.info("SkyCraft: SDL click {} -> MC button {} -> {} {} (grabbed {}, screen {})", code, button,
+						hit == null ? "null" : hit.getType(),
 						hit instanceof net.minecraft.world.phys.EntityHitResult eh ? eh.getEntity().getName().getString() : hit == null ? "" : hit.getLocation(),
 						minecraft.mouseHandler.isMouseGrabbed(), minecraft.gui.screen());
 				}
-				minecraft.mouseHandler.onButton(handle, new MouseButtonInfo(code, modifiers), a != 0 ? 1 : 0);
+				minecraft.mouseHandler.onButton(handle, new MouseButtonInfo(button, modifiers), a != 0 ? 1 : 0);
 			}
 			case Proto.IN_SCROLL -> minecraft.mouseHandler.onScroll(handle, 0.0, a / 120.0);
 			case Proto.IN_CURSOR -> {
@@ -122,6 +129,18 @@ public final class InputBridge {
 		});
 	}
 
+	/** Convert SDL mouse numbering from Fallout/F4SE to the indices Minecraft's MouseHandler uses. */
+	private static int minecraftButton(int sdlButton) {
+		return switch (sdlButton) {
+			case 1 -> 0; // SDL left -> Minecraft/GLFW left
+			case 2 -> 2; // SDL middle -> Minecraft/GLFW middle
+			case 3 -> 1; // SDL right -> Minecraft/GLFW right
+			case 4 -> 3; // X1
+			case 5 -> 4; // X2
+			default -> -1;
+		};
+	}
+
 	private static void key(Minecraft minecraft, long handle, int scancode, boolean down) {
 		if (scancode <= 0 || scancode >= KEYS.length) {
 			return;
@@ -156,7 +175,7 @@ public final class InputBridge {
 				minecraft.keyboardHandler.keyPress(handle, 0, new KeyEvent(sc, SDLKeyboard.SDL_GetKeyFromScancode(sc, (short) 0, true), modifiers));
 			}
 		}
-		for (int button = 1; button < BUTTONS.length; button++) {
+		for (int button = 0; button < BUTTONS.length; button++) {
 			if (BUTTONS[button]) {
 				BUTTONS[button] = false;
 				minecraft.mouseHandler.onButton(handle, new MouseButtonInfo(button, 0), 0);
