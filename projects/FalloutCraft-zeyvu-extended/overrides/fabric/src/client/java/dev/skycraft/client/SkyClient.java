@@ -46,6 +46,8 @@ public final class SkyClient {
 	private static int lastPacedSeq;
 	private static boolean skyrimStalled;
 	private static int exporterErrors;
+	private static long nextSpecialSyncMs;
+	private static int[] lastSpecialSent;
 
 	private SkyClient() {
 	}
@@ -242,9 +244,37 @@ public final class SkyClient {
 		MirrorWorld.tick(minecraft);
 		DiscordPresence.tick(minecraft);
 		SkyDigClient.tick(minecraft);
+		syncGuestSpecial(minecraft);
 		freezeWhileUnlinked(minecraft);
 		holdUntilReady(minecraft);
 		publishTick(minecraft);
+	}
+
+	/** A guest reports the S.P.E.C.I.A.L. from their own local Fallout, not the host's. */
+	private static void syncGuestSpecial(Minecraft minecraft) {
+		if (!linked || minecraft.player == null || minecraft.getSingleplayerServer() != null) {
+			return;
+		}
+		long now = System.currentTimeMillis();
+		if (now < nextSpecialSyncMs) {
+			return;
+		}
+		nextSpecialSyncMs = now + 1000;
+		int[] s = dev.skycraft.link.SkyLink.special;
+		if (s == null || s.length < 7 || !net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.canSend(dev.skycraft.net.SkyNet.Special.TYPE)) {
+			return;
+		}
+		int[] copy = java.util.Arrays.copyOf(s, 7);
+		if (lastSpecialSent != null && java.util.Arrays.equals(lastSpecialSent, copy)) {
+			// Still refresh every ten seconds so reconnect/server state can recover without a stat change.
+			if (now % 10000 > 1100) {
+				return;
+			}
+		}
+		lastSpecialSent = copy;
+		java.util.List<Integer> values = new java.util.ArrayList<>(7);
+		for (int v : copy) values.add(v);
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(new dev.skycraft.net.SkyNet.Special(values));
 	}
 
 	/**
