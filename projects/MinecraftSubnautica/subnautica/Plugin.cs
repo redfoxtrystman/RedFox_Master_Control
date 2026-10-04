@@ -19,7 +19,7 @@ namespace MinecraftSubnautica.Bridge
         private SubnauticaWorldAdapter _host;
         private SubnauticaInputForwarder _input;
         private SubnauticaItemBridge _items;
-        private MinecraftRenderBridge _render;
+        private SubnauticaCameraBridge _camera;
         private SubnauticaCollisionBridge _collision;
         private Harmony _harmony;
         private float _nextErrorLog;
@@ -40,7 +40,7 @@ namespace MinecraftSubnautica.Bridge
             _runtime = new BridgeRuntime(_host, BridgeProtocol.DefaultMappingName);
             _input = new SubnauticaInputForwarder();
             _items = new SubnauticaItemBridge(Logger);
-            _render = new MinecraftRenderBridge(Logger, _runtime);
+            _camera = new SubnauticaCameraBridge(Logger);
             _collision = new SubnauticaCollisionBridge(Logger, _runtime);
             _harmony = new Harmony(PluginGuid);
             _harmony.PatchAll(typeof(Plugin).Assembly);
@@ -75,7 +75,7 @@ namespace MinecraftSubnautica.Bridge
                 _host.Takeover = takeoverActive;
                 _runtime.Tick();
                 _items?.Tick();
-                _render?.Tick();
+                _camera?.Tick();
                 _collision?.Tick(minecraftConnected);
 
                 bool forwardInput = takeoverActive && Application.isFocused;
@@ -94,30 +94,14 @@ namespace MinecraftSubnautica.Bridge
             }
         }
 
-        private void OnGUI()
-        {
-            try
-            {
-                _render?.DrawOverlay();
-            }
-            catch (System.Exception ex)
-            {
-                if (Time.unscaledTime >= _nextErrorLog)
-                {
-                    _nextErrorLog = Time.unscaledTime + 5.0f;
-                    Logger.LogError(ex);
-                }
-            }
-        }
-
         private void OnDestroy()
         {
             if (_runtime != null)
                 _input?.SetActive(false, _runtime);
 
             _host?.Release();
-            _render?.Dispose();
-            _render = null;
+            _camera?.Dispose();
+            _camera = null;
             _collision = null;
             _items?.Dispose();
             _items = null;
