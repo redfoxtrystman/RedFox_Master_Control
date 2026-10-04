@@ -202,6 +202,9 @@ public final class Proto {
 	public static final int MC_SWIMMING = 1 << 6;
 	public static final int MC_FLYING = 1 << 7;
 	public static final int MC_HEALTH_VALID = 1 << 8; // FalloutCraft: McState health is set
+	public static final int MC_NATIVE_DIMENSION = 1 << 9; // Nether/End: Minecraft renders and simulates the whole world
+	public static final int MC_NETHER = 1 << 10;
+	public static final int MC_END = 1 << 11;
 
 	// Overlay
 	public static final long OC_STATE = 0x00;
