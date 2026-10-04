@@ -29,3 +29,16 @@ jobs:
           gradle-version: "9.7.1"
       - name: Build SkyCraft
         run: gradle build --no-daemon --no-configuration-cache
+      - name: Collect distributable JAR
+        shell: bash
+        run: |
+          mkdir -p dist
+          jar="$(find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' ! -name '*-dev.jar' | head -n 1)"
+          test -n "$jar"
+          cp "$jar" dist/MinecraftSubnautica-SkyCraft-26.3.jar
+      - name: Upload Minecraft mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: MinecraftSubnautica-SkyCraft-26.3
+          path: projects/FalloutCraft/source/full_port/fabric/dist/MinecraftSubnautica-SkyCraft-26.3.jar
+          if-no-files-found: error
