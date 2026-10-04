@@ -1,5 +1,6 @@
 using BepInEx;
 using BepInEx.Configuration;
+using UnityEngine;
 
 namespace MinecraftSubnautica.Bridge
 {
@@ -15,6 +16,7 @@ namespace MinecraftSubnautica.Bridge
         private ConfigEntry<bool> _takeover;
         private BridgeRuntime _runtime;
         private SubnauticaWorldAdapter _host;
+        private SubnauticaInputForwarder _input;
         private float _nextErrorLog;
 
         private void Awake()
@@ -23,11 +25,13 @@ namespace MinecraftSubnautica.Bridge
                 "Bridge",
                 "MinecraftTakeover",
                 false,
-                "When true, Minecraft's authoritative player state puppets the Subnautica player. " +
+                "When true, Minecraft's authoritative player state puppets the Subnautica player " +
+                "and Subnautica keyboard/mouse input is forwarded into Minecraft. " +
                 "Leave false until coordinate calibration is verified.");
 
             _host = new SubnauticaWorldAdapter(Logger, _takeover.Value);
             _runtime = new BridgeRuntime(_host, BridgeProtocol.DefaultMappingName);
+            _input = new SubnauticaInputForwarder();
 
             Logger.LogInfo($"{PluginName} {PluginVersion} created {BridgeProtocol.DefaultMappingName}");
             Logger.LogInfo(
@@ -45,13 +49,22 @@ namespace MinecraftSubnautica.Bridge
             try
             {
                 _runtime.Tick();
+
+                bool forwardInput =
+                    _takeover.Value &&
+                    _runtime.MinecraftConnected &&
+                    Application.isFocused;
+
+                _input.SetActive(forwardInput, _runtime);
+                if (forwardInput)
+                    _input.Tick(_runtime);
             }
             catch (System.Exception ex)
             {
                 // Don't flood BepInEx log every frame if a live-game API changes.
-                if (UnityEngine.Time.unscaledTime >= _nextErrorLog)
+                if (Time.unscaledTime >= _nextErrorLog)
                 {
-                    _nextErrorLog = UnityEngine.Time.unscaledTime + 5.0f;
+                    _nextErrorLog = Time.unscaledTime + 5.0f;
                     Logger.LogError(ex);
                 }
             }
@@ -59,6 +72,9 @@ namespace MinecraftSubnautica.Bridge
 
         private void OnDestroy()
         {
+            if (_runtime != null)
+                _input?.SetActive(false, _runtime);
+
             _runtime?.Dispose();
             _runtime = null;
         }
