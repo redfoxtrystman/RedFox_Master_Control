@@ -18,7 +18,8 @@ public final class InputBridge {
 	private static final boolean[] KEYS = new boolean[512];
 	private static final boolean[] BUTTONS = new boolean[8];
 	private static double cursorX, cursorY;
-	private static int modifiers;
+	private static int modifiers;    // Minecraft InputWithModifiers bits: shift=1 ctrl=2 alt=4 super=8
+	private static int sdlModifiers; // SDL_Keymod bits, only for SDL_GetKeyFromScancode()
 	private static int clickLogs;
 
 	private InputBridge() {
@@ -130,21 +131,30 @@ public final class InputBridge {
 		KEYS[scancode] = down;
 		updateModifiers();
 		int action = down ? (wasDown ? -1 : 1) : 0; // -1 = repeat
-		int keycode = SDLKeyboard.SDL_GetKeyFromScancode(scancode, (short) modifiers, true);
+		int keycode = SDLKeyboard.SDL_GetKeyFromScancode(scancode, (short) sdlModifiers, true);
 		minecraft.keyboardHandler.keyPress(handle, action, new KeyEvent(scancode, keycode, modifiers));
 	}
 
 	private static void updateModifiers() {
-		// MouseButtonInfo/KeyEvent expect Minecraft's InputWithModifiers bit mask, NOT SDL_KMOD.
-		// SDL scancodes are still used for KEYS[]; only the modifier *bits* are translated here.
-		// Shift-click was broken because Ctrl/Alt used SDL's 0x40/0x100 values and RShift (0x2)
-		// accidentally looked like Minecraft Ctrl.
-		int m = 0;
-		if (KEYS[225] || KEYS[229]) m |= 0x01; // shift
-		if (KEYS[224] || KEYS[228]) m |= 0x02; // control
-		if (KEYS[226] || KEYS[230]) m |= 0x04; // alt
-		if (KEYS[227] || KEYS[231]) m |= 0x08; // super / Windows
-		modifiers = m;
+		// MouseButtonInfo/KeyEvent use Minecraft's compact modifier mask. SDL's key-name lookup
+		// uses SDL_Keymod, so keep the two representations separate.
+		int mc = 0;
+		if (KEYS[225] || KEYS[229]) mc |= 0x01; // shift
+		if (KEYS[224] || KEYS[228]) mc |= 0x02; // control
+		if (KEYS[226] || KEYS[230]) mc |= 0x04; // alt
+		if (KEYS[227] || KEYS[231]) mc |= 0x08; // super / Windows
+		modifiers = mc;
+
+		int sdl = 0;
+		if (KEYS[225]) sdl |= 0x0001; // SDL_KMOD_LSHIFT
+		if (KEYS[229]) sdl |= 0x0002; // SDL_KMOD_RSHIFT
+		if (KEYS[224]) sdl |= 0x0040; // SDL_KMOD_LCTRL
+		if (KEYS[228]) sdl |= 0x0080; // SDL_KMOD_RCTRL
+		if (KEYS[226]) sdl |= 0x0100; // SDL_KMOD_LALT
+		if (KEYS[230]) sdl |= 0x0200; // SDL_KMOD_RALT
+		if (KEYS[227]) sdl |= 0x0400; // SDL_KMOD_LGUI
+		if (KEYS[231]) sdl |= 0x0800; // SDL_KMOD_RGUI
+		sdlModifiers = sdl;
 	}
 
 	/** Lift every key and button we think is held (focus moved to Skyrim, link dropped, ...). */
