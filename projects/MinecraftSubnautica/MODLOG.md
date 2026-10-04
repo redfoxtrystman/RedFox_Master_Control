@@ -213,3 +213,15 @@ Do not widen item coverage before Vertical Slice 001/002 are observed in the rea
 - Subnautica collision streaming;
 - creature proxies and cross-game combat;
 - bidirectional general inventory/container support.
+
+
+### Pass 5 closure
+
+- Full-inventory world-drop returns are now retained in the transfer-ID map, so a late Minecraft compensation can remove the dropped Subnautica copy too.
+- Final Subnautica code verification run `37215659497`: all steps GREEN:
+  - bridge core build,
+  - current Subnautica plugin build,
+  - protocol smoke build,
+  - protocol smoke execution.
+- Final SkyCraft item behavior/readiness build `37215495814`: GREEN.
+- `tools/vertical_slice_001.ps1` now prints both the water/zombie proof and the Seaglide round-trip proof in one launch workflow.
