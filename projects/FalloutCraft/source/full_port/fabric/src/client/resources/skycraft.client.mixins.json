@@ -19,6 +19,9 @@
     "RenderTypeAccessor",
     "ScreenMixin",
     "SpriteContentsAccessor",
+    "SubnauticaCameraMixin",
+    "SubnauticaGameRendererMixin",
+    "SubnauticaGlCommandEncoderMixin",
     "TextureAtlasAccessor",
     "TextureBindingAccessor",
     "TextureManagerAccessor",
@@ -26,5 +29,7 @@
     "WindowMixin",
     "WorldOpenFlowsMixin"
   ],
-  "injectors": { "defaultRequire": 1 }
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
