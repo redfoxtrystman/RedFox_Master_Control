@@ -362,3 +362,89 @@ Matched local test bundle:
 - JAR SHA-256: `09c9cb8ca825a9a948bb2864a224d0b698b15d0f0b121c1e7045b852f2089210`
 - Subnautica package SHA-256: `a532fff3e39175b8016eac6f881fd9d3e0cee79e3d0f196a03b3934f0b189ad8`
 - Subnautica DLL SHA-256: `5cfeafe5aa31766843e0f60eb511da71bbf23208af091dd8679e79ea4ba5dd50`
+
+
+## 2026-10-04 — source-backed visual pipeline reset
+
+The previous Subnautica visual pass mixed an experimental Unity OnGUI/Unity-mesh consumer with SkyCraft's
+native-host mesh protocol. User correctly rejected further guess-driven fixes because the repository already
+contains working reference implementations.
+
+### Source of truth used
+
+Universal Modder commit:
+- `8607693be42ce02442251f05e0495f58c2b77e5d`
+
+Directly inspected/ported:
+- `skills/mashup-mods/SKILL.md`
+- `skills/reverse-engineering/SKILL.md`
+- `examples/minecraft-gta5-passthrough/mc/.../FrameExporter.java`
+- `GameRendererMixin.java`
+- `GlCommandEncoderMixin.java`
+- `CameraMixin.java`
+- `gta/src/compositor.cpp`
+- `gta/shaders/MCPassthrough.fx`
+- `gta/fetch_deps.sh` and `install.sh`
+
+SkyCraft/FalloutCraft native host reference:
+- `f4se/src/Overlay.cpp`
+- `f4se/src/WorldRender.cpp`
+- `f4se/src/Launcher.cpp`
+- `protocol/falloutcraft_protocol.h`
+
+### What the source audit established
+
+- SkyCraft/FalloutCraft can hide Minecraft because Fallout has a native D3D11 renderer that consumes
+  Minecraft data in Fallout's render pipeline.
+- Universal Modder's working generic passthrough does not rebuild the guest world as host-native Unity meshes.
+  It exports Minecraft world RGBA + depth before the hand, clears colour, then exports hand/HUD/screens
+  separately and composites those three buffers against the host's real depth.
+- Universal Modder explicitly keeps Minecraft's render window open for the passthrough proof because minimized
+  rendering slows/stalls.
+- Minecraft 26.3 depth readback requires restoring GL_COLOR_ATTACHMENT0 after a depth copy; the working example
+  contains an explicit GlCommandEncoder mixin for that issue.
+- Therefore the active Subnautica visual path must follow the proven framebuffer/depth compositor architecture,
+  not the earlier Unity OnGUI/section-mesh experiment.
+
+### Implemented replacement
+
+Subnautica/BepInEx:
+- added `Local\\SkyCraft_Subnautica_Camera_v1`;
+- publishes canonical `MainCamera.camera` pose, roll, vertical FOV, near/far clip, viewport, player pose;
+- disabled the experimental `MinecraftRenderBridge`/OnGUI visual consumer in the active plugin;
+- SkyCraft state/water/collision/input/items remain active.
+
+Minecraft/Fabric 26.3:
+- added source-backed camera reader;
+- ported Universal Modder CameraMixin;
+- ported world RGBA + float depth + HUD/hand triple-buffer exporter;
+- ported GameRenderer capture points;
+- ported the exact GlCommandEncoder depth-readback fix;
+- restored real Minecraft level rendering in Subnautica compositor mode;
+- legacy SkyCraft WorldExporter/old overlay capture are bypassed in compositor mode;
+- removed hide/off-screen-opacity behavior for the source-backed proof path.
+
+Native Subnautica compositor:
+- added standalone ReShade `.addon64`;
+- pinned compile target to ReShade **6.8.0**, exactly matching Universal Modder;
+- ported the working world/depth/HUD upload and camera-reprojection logic;
+- ported/adapted `MCPassthrough.fx` as `MinecraftSubnautica.fx`;
+- uses standard ReShade D3D11 `dxgi.dll` route;
+- safe PowerShell installer opens the official ReShade 6.8.0 Add-on installer when the runtime is absent and
+  does not silently replace an existing ReShade.ini.
+
+### Verification
+
+GREEN:
+- current Subnautica GameLib/Nautilus BepInEx build with MainCamera channel;
+- current Minecraft 26.3 / Java 25 / Fabric build with exact passthrough mixins/exporter;
+- standalone `MinecraftSubnautica.addon64` MSVC build against pinned ReShade 6.8.0 headers;
+- compositor artifact packaging;
+- existing state/water/input/item/collision smoke tests.
+
+Source-backed test bundle:
+- `MinecraftSubnautica-SOURCE-BACKED-PASSTHROUGH.zip`
+- bundle SHA-256: `8f181fac067d811dc57ae8408fc70362fa803b532b2f15fab1bbe23c66b6c7f7`
+- JAR SHA-256: `c80ee7ad0828592d38fb9c5566d1d4088a4ab8e50c7620799212f6c3f930681c`
+- BepInEx DLL SHA-256: `0c67140adef6fc1a1116265e9d3a52359425ce48d95004c1f23183fe4688faab`
+- ReShade add-on SHA-256: `12c905df876e17a228f26a9b47766de80e3bc5f69ebf61e65657329f57780c2e`
