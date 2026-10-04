@@ -47,7 +47,6 @@ public final class SkyClient {
 	private static boolean skyrimStalled;
 	private static int exporterErrors;
 	private static long nextSpecialSyncMs;
-	private static int[] lastSpecialSent;
 
 	private SkyClient() {
 	}
@@ -259,21 +258,13 @@ public final class SkyClient {
 		if (now < nextSpecialSyncMs) {
 			return;
 		}
-		nextSpecialSyncMs = now + 1000;
+		nextSpecialSyncMs = now + 2000;
 		int[] s = dev.skycraft.link.SkyLink.special;
 		if (s == null || s.length < 7 || !net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.canSend(dev.skycraft.net.SkyNet.Special.TYPE)) {
 			return;
 		}
-		int[] copy = java.util.Arrays.copyOf(s, 7);
-		if (lastSpecialSent != null && java.util.Arrays.equals(lastSpecialSent, copy)) {
-			// Still refresh every ten seconds so reconnect/server state can recover without a stat change.
-			if (now % 10000 > 1100) {
-				return;
-			}
-		}
-		lastSpecialSent = copy;
 		java.util.List<Integer> values = new java.util.ArrayList<>(7);
-		for (int v : copy) values.add(v);
+		for (int k = 0; k < 7; k++) values.add(s[k]);
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(new dev.skycraft.net.SkyNet.Special(values));
 	}
 
