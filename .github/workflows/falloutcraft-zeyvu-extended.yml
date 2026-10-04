@@ -111,14 +111,14 @@ jobs:
           RedFox FalloutCraft Extended
           Base: zeyvu/FalloutCraft @ 52030998d63532a1a4d147b394bcc7b07da6f4f4
           Controls: E inventory, Ctrl sprint, Shift crouch, O Minecraft pause, G Fallout Activate.
-          Extended: Fallout healing -> MC hearts; Fallout water -> MC swimming; C/I effects; rough-ground smoothing; MC activity -> Fallout XP; Minecraft lights -> Fallout geometry; per-player multiplayer SPECIAL/XP; Fallout AI avoidance for MC builds; crafting/defence -> Fallout XP; mouse buttons reverted to upstream SDL semantics; Minecraft GUI modifier bits corrected for shift-click; first-person crouch eye height and live Minecraft FOV forwarded into Fallout; Fallout water publishing now rejects dry columns covered by Fallout geometry.
+          Extended: Fallout healing -> MC hearts; C/I effects; rough-ground smoothing; MC activity -> Fallout XP; Minecraft lights -> Fallout geometry; per-player multiplayer SPECIAL/XP; Fallout AI avoidance for MC builds; crafting/defence -> Fallout XP; mouse buttons use upstream SDL semantics; Minecraft GUI modifier bits corrected for shift-click; first-person crouch eye height and live Minecraft FOV forwarded into Fallout; Fallout CELL-water publishing removed.
           "@ | Set-Content -Encoding UTF8 "package/REDFOX_BUILD.txt"
 
-          Compress-Archive -Path "package/*" -DestinationPath "FalloutCraft-RedFox-v0.2.2-camera-water-input-fix.zip" -Force
+          Compress-Archive -Path "package/*" -DestinationPath "FalloutCraft-RedFox-v0.2.3-no-water-cell.zip" -Force
 
       - name: Upload combined package
         uses: actions/upload-artifact@v4
         with:
-          name: FalloutCraft-RedFox-v0.2.2-camera-water-input-fix
-          path: FalloutCraft-RedFox-v0.2.2-camera-water-input-fix.zip
+          name: FalloutCraft-RedFox-v0.2.3-no-water-cell
+          path: FalloutCraft-RedFox-v0.2.3-no-water-cell.zip
           if-no-files-found: error
