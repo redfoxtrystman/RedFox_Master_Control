@@ -12,5 +12,7 @@
     <Compile Include="BridgeProtocol.cs" />
     <Compile Include="SharedMemoryBridge.cs" />
     <Compile Include="BridgeRuntime.cs" />
+    <Compile Include="CrossGameItemProtocol.cs" />
+    <Compile Include="CrossGameItemChannel.cs" />
   </ItemGroup>
 </Project>
