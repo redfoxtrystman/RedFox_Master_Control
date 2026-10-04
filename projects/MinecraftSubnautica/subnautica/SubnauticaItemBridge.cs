@@ -18,6 +18,8 @@ namespace MinecraftSubnautica.Bridge
         private readonly ManualLogSource _log;
         private readonly CrossGameItemChannel _channel;
         private readonly Dictionary<ulong, CrossGameItem> _latestState = new Dictionary<ulong, CrossGameItem>();
+        private readonly Dictionary<ulong, Pickupable> _restoredItems = new Dictionary<ulong, Pickupable>();
+        private readonly HashSet<ulong> _cancelledTransfers = new HashSet<ulong>();
 
         private ulong _nextTransferId = (ulong)DateTime.UtcNow.Ticks;
         private bool _disposed;
@@ -47,7 +49,12 @@ namespace MinecraftSubnautica.Bridge
 
                 if (item.Operation == CrossGameItemOp.Transfer)
                 {
+                    _cancelledTransfers.Remove(item.TransferId);
                     CoroutineHost.StartCoroutine(RestoreToSubnautica(item));
+                }
+                else if (item.Operation == CrossGameItemOp.Remove)
+                {
+                    CancelTransfer(item.TransferId);
                 }
                 else
                 {
@@ -155,8 +162,35 @@ namespace MinecraftSubnautica.Bridge
             return item;
         }
 
+        private void CancelTransfer(ulong transferId)
+        {
+            _cancelledTransfers.Add(transferId);
+
+            if (!_restoredItems.TryGetValue(transferId, out Pickupable pickupable) || pickupable == null)
+                return;
+
+            _restoredItems.Remove(transferId);
+            try
+            {
+                if (pickupable.inventoryItem != null && pickupable.inventoryItem.container != null)
+                    pickupable.inventoryItem.container.RemoveItem(pickupable, true);
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"ITEM BRIDGE: cancellation inventory removal failed for {transferId}: {ex.Message}");
+            }
+
+            if (pickupable.gameObject != null)
+                UnityEngine.Object.Destroy(pickupable.gameObject);
+
+            _log.LogInfo($"ITEM BRIDGE: cancelled restored transfer {transferId}.");
+        }
+
         private IEnumerator RestoreToSubnautica(CrossGameItem item)
         {
+            if (_cancelledTransfers.Contains(item.TransferId))
+                yield break;
+
             TechType techType;
             if (!TryResolveTechType(item.ItemId, out techType))
             {
@@ -179,6 +213,12 @@ namespace MinecraftSubnautica.Bridge
             {
                 UnityEngine.Object.Destroy(gameObject);
                 _log.LogError($"ITEM BRIDGE: prefab {techType} had no Pickupable.");
+                yield break;
+            }
+
+            if (_cancelledTransfers.Contains(item.TransferId))
+            {
+                UnityEngine.Object.Destroy(gameObject);
                 yield break;
             }
 
@@ -209,6 +249,21 @@ namespace MinecraftSubnautica.Bridge
                 yield break;
             }
 
+            if (_cancelledTransfers.Contains(item.TransferId))
+            {
+                try
+                {
+                    if (pickupable.inventoryItem != null && pickupable.inventoryItem.container != null)
+                        pickupable.inventoryItem.container.RemoveItem(pickupable, true);
+                }
+                catch
+                {
+                }
+                UnityEngine.Object.Destroy(pickupable.gameObject);
+                yield break;
+            }
+
+            _restoredItems[item.TransferId] = pickupable;
             _log.LogInfo(
                 $"ITEM BRIDGE PROOF: restored {techType} transfer={item.TransferId} " +
                 $"energy={item.Energy:F2}/{item.MaxEnergy:F2}");
