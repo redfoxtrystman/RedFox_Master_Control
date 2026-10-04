@@ -194,7 +194,7 @@ public final class SkyClient {
 		boolean nativeDimension = !dimension.equals(Level.OVERWORLD);
 		boolean dimensionChanged = lastDimension != null && !lastDimension.equals(dimension);
 		if (dimensionChanged) {
-			SkyCraft.LOG.info("SkyCraft: Minecraft dimension {} -> {}", lastDimension.location(), dimension.location());
+			SkyCraft.LOG.info("SkyCraft: Minecraft dimension {} -> {}", lastDimension.identifier(), dimension.identifier());
 			// Vanilla portals own the destination. Never snap a Nether/End transition back to the
 			// Fallout position that was valid in the mirror Overworld.
 			teleportPending = false;
