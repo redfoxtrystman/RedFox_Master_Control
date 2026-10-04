@@ -1,6 +1,7 @@
 package dev.skycraft.client.mixin;
 
 import dev.skycraft.client.SkyClient;
+import dev.skycraft.client.SubnauticaCameraLink;
 import net.minecraft.client.renderer.LevelRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -8,8 +9,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Skyrim draws the world. While linked, Minecraft renders nothing of its own level (no sky,
- * clouds, fog or terrain) so the overlay is just hand + HUD on a transparent background.
+ * Legacy SkyCraft mesh-host mode suppresses Minecraft's own level render because the host draws
+ * exported geometry. The Subnautica compositor path is different: it must render the real
+ * Minecraft world so Universal Modder's proven colour+depth exporter can capture it.
  */
 @Mixin(LevelRenderer.class)
 public abstract class LevelRendererMixin {
@@ -19,7 +21,7 @@ public abstract class LevelRendererMixin {
 		cancellable = true
 	)
 	private void skycraft$skipLevel(CallbackInfo ci) {
-		if (SkyClient.linked()) {
+		if (SkyClient.linked() && !SubnauticaCameraLink.active()) {
 			ci.cancel();
 		}
 	}
