@@ -495,20 +495,38 @@ namespace skycraft
 			for (float& v : water.surface) {
 				v = proto::kNoWater;
 			}
+
+			// Fallout CELL water is a broad water plane, not a per-column "this point is wet" query.
+			// Publishing HasWater()+waterHeight blindly made dry roads, floors, puddle props and huge
+			// chunks of the Commonwealth behave as Minecraft water. Keep the water plane only where
+			// Fallout has a real water type AND no solid Fallout surface covers the plane in this
+			// column. This deliberately errs toward dry rather than turning scenery into an ocean.
 			if (a_cell) {
 				for (std::uint32_t z = 0; z < proto::kWaterGridSize; ++z) {
 					for (std::uint32_t x = 0; x < proto::kWaterGridSize; ++x) {
 						const double mx = water.originX + x + 0.5;
 						const double mz = water.originZ + z + 0.5;
-						const auto game = McToGame(mx, a_center.y, mz);
-						auto* sample = a_cell->IsInterior() ? a_cell : LoadedCellAt(game, a_cell);
-						if (!sample || !sample->HasWater()) {
+						const auto atPlayerHeight = McToGame(mx, a_center.y, mz);
+						auto* sample = a_cell->IsInterior() ? a_cell : LoadedCellAt(atPlayerHeight, a_cell);
+						if (!sample || !sample->HasWater() || !sample->GetWaterType()) {
 							continue;
 						}
+
 						const float h = sample->waterHeight;
 						if (!std::isfinite(h) || std::fabs(h) > 1.0e8f) {
 							continue;
 						}
+
+						// A real exposed water column has its first static ground BELOW the water plane.
+						// If terrain/floor/road exists at or above that plane, this column is dry even
+						// though the CELL itself carries a default water record.
+						RE::NiPoint3 ground{};
+						const RE::NiPoint3 from{ atPlayerHeight.x, atPlayerHeight.y, h + static_cast<float>(proto::kUnitsPerBlock * 4.0) };
+						const RE::NiPoint3 to{ atPlayerHeight.x, atPlayerHeight.y, h - static_cast<float>(proto::kUnitsPerBlock * 6.0) };
+						if (PickGroundAt(sample, from, to, ground) && ground.z >= h - 4.0f) {
+							continue;
+						}
+
 						water.surface[z * proto::kWaterGridSize + x] = h / static_cast<float>(proto::kUnitsPerBlock);
 					}
 				}
