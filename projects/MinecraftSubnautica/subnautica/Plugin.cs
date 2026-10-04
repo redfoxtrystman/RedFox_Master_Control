@@ -44,17 +44,16 @@ namespace MinecraftSubnautica.Bridge
             if (_runtime == null)
                 return;
 
-            _host.Takeover = _takeover.Value;
-
             try
             {
+                bool minecraftConnected = _runtime.MinecraftConnected;
+                bool takeoverActive = _takeover.Value && minecraftConnected;
+
+                // Never leave the native Subnautica motor disabled if Minecraft disappears.
+                _host.Takeover = takeoverActive;
                 _runtime.Tick();
 
-                bool forwardInput =
-                    _takeover.Value &&
-                    _runtime.MinecraftConnected &&
-                    Application.isFocused;
-
+                bool forwardInput = takeoverActive && Application.isFocused;
                 _input.SetActive(forwardInput, _runtime);
                 if (forwardInput)
                     _input.Tick(_runtime);
@@ -75,6 +74,7 @@ namespace MinecraftSubnautica.Bridge
             if (_runtime != null)
                 _input?.SetActive(false, _runtime);
 
+            _host?.Release();
             _runtime?.Dispose();
             _runtime = null;
         }
