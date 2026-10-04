@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace MinecraftSubnautica.Bridge
@@ -52,7 +53,7 @@ namespace MinecraftSubnautica.Bridge
             ThrowIfDisposed();
             _view.Write(
                 BridgeProtocol.OffHeader + BridgeProtocol.HHostHeartbeat,
-                unchecked((ulong)Environment.TickCount64));
+                NativeMethods.GetTickCount64());
         }
 
         public uint MinecraftPid
@@ -71,7 +72,7 @@ namespace MinecraftSubnautica.Bridge
             if (beat == 0)
                 return false;
 
-            ulong now = unchecked((ulong)Environment.TickCount64);
+            ulong now = NativeMethods.GetTickCount64();
             return now >= beat && now - beat < (ulong)Math.Max(1, timeoutMs);
         }
 
@@ -256,6 +257,14 @@ namespace MinecraftSubnautica.Bridge
                 grid[i] = waterSurfaceY;
 
             WriteWaterGrid(originX, originZ, worldId, grid);
+        }
+
+        private static class NativeMethods
+        {
+            // SkyCraft's Java side also calls kernel32 GetTickCount64, so both processes compare
+            // heartbeats on exactly the same monotonic Windows-uptime clock.
+            [DllImport("kernel32.dll")]
+            internal static extern ulong GetTickCount64();
         }
 
         private void ThrowIfDisposed()
