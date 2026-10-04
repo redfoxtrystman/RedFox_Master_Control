@@ -34,3 +34,27 @@ jobs:
       - name: Run protocol smoke test
         shell: pwsh
         run: ./tests/BridgeCoreSmoke/bin/Release/net472/BridgeCoreSmoke.exe
+      - name: Package Subnautica mod
+        shell: pwsh
+        run: |
+          $dist = Join-Path $PWD "dist\MinecraftSubnautica"
+          New-Item -ItemType Directory -Force $dist | Out-Null
+          Copy-Item "subnautica\bin\Release\net472\MinecraftSubnautica.dll" (Join-Path $dist "MinecraftSubnautica.dll") -Force
+          @"
+          Minecraft <-> Subnautica Bridge
+          Install MinecraftSubnautica.dll into:
+            <Subnautica>\BepInEx\plugins\MinecraftSubnautica\
+
+          Requires BepInEx and Nautilus.
+          Branch: minecraft-subnautica-universal-bridge
+          "@ | Set-Content (Join-Path $dist "INSTALL.txt")
+          Compress-Archive -Path "$dist\*" -DestinationPath "dist\MinecraftSubnautica-BepInEx.zip" -Force
+      - name: Upload Subnautica mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: MinecraftSubnautica-BepInEx
+          path: |
+            projects/MinecraftSubnautica/dist/MinecraftSubnautica/MinecraftSubnautica.dll
+            projects/MinecraftSubnautica/dist/MinecraftSubnautica/INSTALL.txt
+            projects/MinecraftSubnautica/dist/MinecraftSubnautica-BepInEx.zip
+          if-no-files-found: error
