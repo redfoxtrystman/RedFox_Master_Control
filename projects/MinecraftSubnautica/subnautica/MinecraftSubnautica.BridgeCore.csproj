@@ -5,5 +5,12 @@
     <Nullable>disable</Nullable>
     <AssemblyName>MinecraftSubnautica.BridgeCore</AssemblyName>
     <RootNamespace>MinecraftSubnautica.Bridge</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="BridgeProtocol.cs" />
+    <Compile Include="SharedMemoryBridge.cs" />
+    <Compile Include="BridgeRuntime.cs" />
+  </ItemGroup>
 </Project>
