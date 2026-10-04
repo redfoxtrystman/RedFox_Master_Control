@@ -81,3 +81,43 @@
   - disconnect/toggle-off/mode change restores it,
   - plugin destruction restores it as a final fail-safe.
 - Takeover remains opt-in until coordinate/yaw calibration is tested in the real game.
+
+
+## 2026-10-04 — implementation pass 4: cross-game item state
+
+- Added a dedicated second shared-memory mapping for item/state transfer:
+  - `Local\\SkyCraft_Subnautica_Items_v1`
+  - SkyCraft protocol v11 remains untouched so FalloutCraft stays binary-compatible.
+- Added fixed-size bidirectional item rings:
+  - Subnautica -> Minecraft,
+  - Minecraft -> Subnautica.
+- Added stable namespaced item identity plus mutable state:
+  - transfer ID,
+  - origin game,
+  - operation (transfer/update/consume/remove/use),
+  - stack count/max stack,
+  - energy/current max,
+  - durability/current max,
+  - item flags,
+  - display name,
+  - opaque origin-owned JSON state.
+- Added bridge-core smoke proof using a Subnautica Seaglide:
+  - enters Minecraft at 72.38% charge,
+  - returns through the Minecraft -> host ring at 41.06% charge,
+  - retains transfer ID 42 and `subnautica:seaglide` identity.
+- Windows bridge-core CI passed the stateful item round-trip test.
+- Added Java/Fabric `CrossGameItemLink` using the same mapping and record layout.
+- SkyCraft now polls the item channel alongside the primary runtime bridge.
+- Java/Fabric CI is running for the new item-link code.
+
+### Next item slice
+
+- Bind real Subnautica inventory pickup/removal to the host -> Minecraft item ring.
+- Register Minecraft-side proxy items for Subnautica TechTypes.
+- First functional item: Seaglide.
+  - preserve battery TechType and exact charge,
+  - provide underwater propulsion in Minecraft,
+  - send charge updates back to Subnautica,
+  - prevent duplication with transfer IDs/idempotent consumption.
+- Then add battery swap, scanner, oxygen tank and survival consumables.
+- Continue spatial water-volume sampling so bases/moonpools/air pockets do not look like open ocean to Minecraft.
