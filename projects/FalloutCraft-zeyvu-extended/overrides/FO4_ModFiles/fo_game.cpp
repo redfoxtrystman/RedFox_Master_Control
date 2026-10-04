@@ -811,7 +811,7 @@ namespace skycraft
 			if (!puppet) {
 				st.feetValid = false;
 				st.cameraMode = 0;
-				Camera::Set(false, 0, RE::NiPoint3{}, 0.0f, 0.0f, 0.0f);
+				Camera::Set(false, 0, RE::NiPoint3{}, 0.0f, 0.0f, 0.0f, 0.0f);
 			}
 
 			// Minecraft's feet sometimes dip up to a block or so under the road for a moment (its
@@ -866,8 +866,10 @@ namespace skycraft
 					zoomMode = mc.cameraMode;
 					const float eyeHeight = mc.eyeHeight > 0.1f ? mc.eyeHeight : 1.62f;
 					const auto  eye = McToGame(feetX, feetY + lift / proto::kUnitsPerBlock + eyeHeight, feetZ);
-					Camera::Set(detached, static_cast<int>(mc.cameraMode), eye, McYawToHeading(st.yaw), st.pitch * kDegToRad,
-						zoom * static_cast<float>(proto::kUnitsPerBlock));
+					// Camera takeover is active in first person too: Minecraft's eye height is what
+					// makes crouching lower the view. F5 only changes the offset/direction.
+					Camera::Set(!st.falloutMenuOpen, static_cast<int>(mc.cameraMode), eye, McYawToHeading(st.yaw), st.pitch * kDegToRad,
+						zoom * static_cast<float>(proto::kUnitsPerBlock), mc.fovDeg);
 				}
 
 				if (!st.falloutMenuOpen) {
