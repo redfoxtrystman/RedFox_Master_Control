@@ -16,6 +16,9 @@ namespace MinecraftSubnautica.Bridge
         private readonly MemoryMappedFile _mapping;
         private readonly MemoryMappedViewAccessor _view;
         private readonly object _inputLock = new object();
+        private readonly object _collisionLock = new object();
+        private readonly object _renderLock = new object();
+        private int _overlayFront = 2;
         private bool _disposed;
 
         public string MappingName { get; private set; }
@@ -244,6 +247,180 @@ namespace MinecraftSubnautica.Bridge
             }
 
             return false;
+        }
+
+
+        public bool TryAcquireOverlayFrame(out OverlayFrame frame)
+        {
+            ThrowIfDisposed();
+            frame = null;
+
+            uint state = _view.ReadUInt32(BridgeProtocol.OffOverlayCtl + BridgeProtocol.OCState);
+            if ((state & BridgeProtocol.OverlayDirty) == 0u)
+                return false;
+
+            int published = (int)(state & 3u);
+            if (published < 0 || published >= BridgeProtocol.OverlaySlots)
+                return false;
+
+            // Mirror SkyCraft's exchange semantics closely. This is one reader/one writer; a
+            // publication racing this store can only cost one frame, never corrupt the slot.
+            _view.Write(
+                BridgeProtocol.OffOverlayCtl + BridgeProtocol.OCState,
+                (uint)_overlayFront);
+            _overlayFront = published;
+            Thread.MemoryBarrier();
+
+            long h = BridgeProtocol.OffOverlaySlotHeader
+                + _overlayFront * BridgeProtocol.OverlaySlotHeaderBytes;
+
+            int width = _view.ReadInt32(h + BridgeProtocol.OHWidth);
+            int height = _view.ReadInt32(h + BridgeProtocol.OHHeight);
+            uint flags = _view.ReadUInt32(h + BridgeProtocol.OHFlags);
+            ulong frameId = _view.ReadUInt64(h + BridgeProtocol.OHFrameId);
+
+            if (width <= 0 || height <= 0
+                || width > BridgeProtocol.MaxOverlayWidth
+                || height > BridgeProtocol.MaxOverlayHeight)
+                return false;
+
+            long bytesLong = (long)width * height * 4L;
+            if (bytesLong <= 0 || bytesLong > int.MaxValue)
+                return false;
+
+            byte[] pixels = new byte[(int)bytesLong];
+            long pixelOffset = BridgeProtocol.OffOverlayPixels
+                + _overlayFront * BridgeProtocol.OverlaySlotBytes;
+
+            _view.ReadArray(pixelOffset, pixels, 0, pixels.Length);
+
+            frame = new OverlayFrame
+            {
+                Width = width,
+                Height = height,
+                BottomUp = (flags & 1u) != 0u,
+                FrameId = frameId,
+                Pixels = pixels
+            };
+            return true;
+        }
+
+        /// <summary>
+        /// Drain Minecraft's render byte ring. Messages are contiguous by protocol contract:
+        /// Minecraft emits RenderPad before wrap.
+        /// </summary>
+        public int DrainRender(Action<uint, byte[]> handler, long maxBytes = 48L << 20)
+        {
+            ThrowIfDisposed();
+            if (handler == null)
+                throw new ArgumentNullException("handler");
+
+            lock (_renderLock)
+            {
+                long ring = BridgeProtocol.OffRenderRing;
+                ulong head = _view.ReadUInt64(ring + BridgeProtocol.RRHead);
+                ulong tail = _view.ReadUInt64(ring + BridgeProtocol.RRTail);
+                long done = 0;
+                int messages = 0;
+
+                while (tail < head && done < maxBytes)
+                {
+                    ulong pos = tail % (ulong)BridgeProtocol.RRDataBytes;
+                    long header = ring + BridgeProtocol.RRData + (long)pos;
+
+                    uint type = _view.ReadUInt32(header);
+                    uint payloadBytes = _view.ReadUInt32(header + 4);
+
+                    if (type == BridgeProtocol.RenderPad)
+                    {
+                        tail += (ulong)BridgeProtocol.RRDataBytes - pos;
+                        continue;
+                    }
+
+                    if (payloadBytes > BridgeProtocol.RRDataBytes - 8)
+                    {
+                        // Corrupt producer state: drop to head rather than allocating attacker-sized data.
+                        tail = head;
+                        break;
+                    }
+
+                    ulong messageBytes = Align8(8UL + payloadBytes);
+                    if (pos + messageBytes > (ulong)BridgeProtocol.RRDataBytes)
+                    {
+                        // Producer should have emitted RenderPad before wrap.
+                        tail = head;
+                        break;
+                    }
+
+                    byte[] payload = new byte[payloadBytes];
+                    if (payloadBytes != 0)
+                        _view.ReadArray(header + 8, payload, 0, payload.Length);
+
+                    handler(type, payload);
+                    tail += messageBytes;
+                    done += (long)messageBytes;
+                    messages++;
+                }
+
+                Thread.MemoryBarrier();
+                _view.Write(ring + BridgeProtocol.RRTail, tail);
+                return messages;
+            }
+        }
+
+        /// <summary>
+        /// Host -> Minecraft collision ring writer. Returns false instead of blocking when Minecraft
+        /// has not yet consumed enough space.
+        /// </summary>
+        public bool TryWriteCollision(uint type, byte[] payload)
+        {
+            ThrowIfDisposed();
+            payload = payload ?? Array.Empty<byte>();
+
+            lock (_collisionLock)
+            {
+                long ring = BridgeProtocol.OffCollisionRing;
+                ulong head = _view.ReadUInt64(ring + BridgeProtocol.CRHead);
+                ulong tail = _view.ReadUInt64(ring + BridgeProtocol.CRTail);
+                ulong payloadBytes = (ulong)payload.LongLength;
+                ulong messageBytes = Align8(8UL + payloadBytes);
+
+                if (messageBytes > (ulong)BridgeProtocol.CRDataBytes / 2UL)
+                    throw new ArgumentException("Collision message is too large.", "payload");
+
+                ulong used = head - tail;
+                ulong pos = head % (ulong)BridgeProtocol.CRDataBytes;
+                ulong pad = pos + messageBytes > (ulong)BridgeProtocol.CRDataBytes
+                    ? (ulong)BridgeProtocol.CRDataBytes - pos
+                    : 0UL;
+
+                if ((ulong)BridgeProtocol.CRDataBytes - used < messageBytes + pad)
+                    return false;
+
+                if (pad != 0UL)
+                {
+                    long padHeader = ring + BridgeProtocol.CRData + (long)pos;
+                    _view.Write(padHeader, BridgeProtocol.CollisionPad);
+                    _view.Write(padHeader + 4, 0u);
+                    head += pad;
+                    pos = 0;
+                }
+
+                long at = ring + BridgeProtocol.CRData + (long)pos;
+                _view.Write(at, type);
+                _view.Write(at + 4, (uint)payload.Length);
+                if (payload.Length != 0)
+                    _view.WriteArray(at + 8, payload, 0, payload.Length);
+
+                Thread.MemoryBarrier();
+                _view.Write(ring + BridgeProtocol.CRHead, head + messageBytes);
+                return true;
+            }
+        }
+
+        private static ulong Align8(ulong value)
+        {
+            return (value + 7UL) & ~7UL;
         }
 
         public void FillUniformOcean(float waterSurfaceY, int playerBlockX, int playerBlockZ, uint worldId)
