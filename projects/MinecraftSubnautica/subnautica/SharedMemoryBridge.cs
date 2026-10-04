@@ -251,6 +251,22 @@ namespace MinecraftSubnautica.Bridge
         }
 
 
+        public VisualDiagnostics ReadVisualDiagnostics()
+        {
+            ThrowIfDisposed();
+            return new VisualDiagnostics
+            {
+                OverlayState = _view.ReadUInt32(
+                    BridgeProtocol.OffOverlayCtl + BridgeProtocol.OCState),
+                OverlayFramesPublished = _view.ReadUInt64(
+                    BridgeProtocol.OffOverlayCtl + BridgeProtocol.OCFramesPublished),
+                RenderHead = _view.ReadUInt64(
+                    BridgeProtocol.OffRenderRing + BridgeProtocol.RRHead),
+                RenderTail = _view.ReadUInt64(
+                    BridgeProtocol.OffRenderRing + BridgeProtocol.RRTail)
+            };
+        }
+
         public bool TryAcquireOverlayFrame(out OverlayFrame frame)
         {
             ThrowIfDisposed();
