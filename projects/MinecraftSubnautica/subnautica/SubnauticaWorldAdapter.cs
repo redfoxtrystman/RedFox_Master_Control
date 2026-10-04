@@ -18,8 +18,8 @@ namespace MinecraftSubnautica.Bridge
         private readonly ManualLogSource _log;
         private bool _takeover;
         private uint _collisionEpoch = 1;
-        private int _lastMinecraftPid;
         private float _lastStatusLog;
+        private PlayerController _disabledController;
 
         public SubnauticaWorldAdapter(ManualLogSource log, bool takeover)
         {
@@ -27,10 +27,18 @@ namespace MinecraftSubnautica.Bridge
             _takeover = takeover;
         }
 
+        /// <summary>
+        /// True only while Minecraft is connected and is allowed to own the on-foot player.
+        /// Changing this immediately hands movement authority between Subnautica and Minecraft.
+        /// </summary>
         public bool Takeover
         {
             get => _takeover;
-            set => _takeover = value;
+            set
+            {
+                _takeover = value;
+                SynchronizeMovementAuthority();
+            }
         }
 
         public bool TryGetFrame(out HostFrame frame)
@@ -39,7 +47,13 @@ namespace MinecraftSubnautica.Bridge
 
             Player player = Player.main;
             if (player == null)
+            {
+                ReleaseNativeController();
                 return false;
+            }
+
+            // Player objects/controllers can be recreated around loads and respawns.
+            SynchronizeMovementAuthority();
 
             Transform playerTransform = player.transform;
             Vector3 p = playerTransform.position;
@@ -87,7 +101,7 @@ namespace MinecraftSubnautica.Bridge
             if (!state.InWorld || Player.main == null)
                 return;
 
-            if (!_takeover)
+            if (!_takeover || _disabledController == null)
             {
                 if (Time.unscaledTime - _lastStatusLog > 5.0f)
                 {
@@ -105,6 +119,57 @@ namespace MinecraftSubnautica.Bridge
             Transform t = Player.main.transform;
             t.position = new Vector3((float)state.X, (float)state.Y, (float)state.Z);
             t.rotation = Quaternion.Euler(0.0f, state.Yaw, 0.0f);
+        }
+
+        public void Release()
+        {
+            _takeover = false;
+            ReleaseNativeController();
+        }
+
+        private void SynchronizeMovementAuthority()
+        {
+            Player player = Player.main;
+
+            bool canOwnOnFootPlayer =
+                _takeover &&
+                player != null &&
+                !player.cinematicModeActive &&
+                player.GetMode() == Player.Mode.Normal;
+
+            PlayerController current = canOwnOnFootPlayer ? player.playerController : null;
+
+            if (_disabledController != null && _disabledController != current)
+                ReleaseNativeController();
+
+            if (current != null && _disabledController == null)
+            {
+                current.SetEnabled(false);
+                _disabledController = current;
+                _log.LogInfo("Minecraft takeover: Subnautica PlayerController disabled; Minecraft owns movement.");
+            }
+            else if (!canOwnOnFootPlayer)
+            {
+                ReleaseNativeController();
+            }
+        }
+
+        private void ReleaseNativeController()
+        {
+            if (_disabledController == null)
+                return;
+
+            try
+            {
+                _disabledController.SetEnabled(true);
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"Could not re-enable Subnautica PlayerController during takeover release: {ex.Message}");
+            }
+
+            _disabledController = null;
+            _log.LogInfo("Minecraft takeover released: Subnautica PlayerController restored.");
         }
 
         private static float NormalizeSignedDegrees(float degrees)
