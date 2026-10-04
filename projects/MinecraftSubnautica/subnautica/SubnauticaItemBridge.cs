@@ -264,6 +264,7 @@ namespace MinecraftSubnautica.Bridge
                     gameObject.transform.position = t.position + t.forward * 1.5f;
                 }
                 gameObject.SetActive(true);
+                _restoredItems[item.TransferId] = pickupable;
                 _log.LogWarning($"ITEM BRIDGE: inventory full; returned {techType} was dropped in front of player.");
                 yield break;
             }
