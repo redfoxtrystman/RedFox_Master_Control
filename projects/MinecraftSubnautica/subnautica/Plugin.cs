@@ -43,8 +43,8 @@ namespace MinecraftSubnautica.Bridge
 
             Logger.LogInfo($"{PluginName} {PluginVersion} created {BridgeProtocol.DefaultMappingName}");
             Logger.LogInfo(
-                "Launch the SkyCraft Minecraft side with " +
-                "-Dskycraft.link=Local\\SkyCraft_Subnautica_v1");
+                "Minecraft Subnautica SkyCraft builds connect to this mapping automatically; " +
+                "no special JVM argument is required.");
         }
 
         private void Update()
