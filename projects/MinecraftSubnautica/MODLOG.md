@@ -300,3 +300,65 @@ User live test proved heartbeat + water linking but exposed that the Subnautica 
 - match Subnautica lighting/fog/material response for Minecraft meshes;
 - add WorldEntities helpers (dropped block/item billboards, arrows/tridents, selection/crack overlays) where RenderScene does not already cover them;
 - improve premultiplied-alpha HUD composition if the live Unity blend path shows dark fringes.
+
+
+## 2026-10-04 — live test: simulation alive, visual producer stalled
+
+User's live screenshot showed normal Subnautica rendering with no Minecraft HUD/hand/world visuals. Minecraft audio simultaneously produced splash/drowning sounds, proving:
+- shared-memory heartbeat/state was live;
+- Subnautica water was reaching Minecraft simulation;
+- Minecraft client tick/audio simulation was alive;
+- the failure was isolated to the visual-export path.
+
+### Root-cause candidate found and fixed
+
+The linked SkyCraft client called `SDL_HideWindow()` as soon as the host connected. On Minecraft 26.x/SDL this can leave simulation/audio ticking while the GPU presentation/render path stops or is short-circuited. That prevents both:
+- `FrameExporter` from getting new HUD/hand framebuffer readbacks;
+- the render-frame timing path that drives the world visual exporter reliably.
+
+The dedicated Minecraft/Subnautica client now does **not** hide or minimize its SDL window.
+
+Instead it:
+- explicitly keeps the SDL window shown/render-active;
+- moves it to `(-32000,-32000)`;
+- sets opacity to 1%;
+- continues pretending focused/not-iconified through the existing mixins;
+- reapplies the off-screen parking after host viewport resizing.
+
+This keeps Minecraft effectively invisible to the player while preserving an active GPU render target for Subnautica.
+
+### Added visual proof/diagnostics
+
+Minecraft now logs the first successful framebuffer publication:
+
+`SkyCraft render proof: published first HUD/hand overlay frame ...`
+
+Subnautica now logs producer/consumer health every 5 seconds until visuals arrive:
+
+`VISUAL BRIDGE STATUS: overlayFrames=..., overlayState=..., renderHead=..., renderTail=..., overlaySeen=..., sectionSeen=...`
+
+This separates:
+- no Minecraft visual production (`overlayFrames=0`, no render head);
+- Minecraft producing but Subnautica not consuming (head advances, tail stalls);
+- ring consumption working but Unity display failing (seen flags true but nothing visible).
+
+### Verification
+
+GREEN:
+- Minecraft 26.3 / Java 25 / Fabric build with render-active background window.
+- Artifact-producing SkyCraft run `37219974228`.
+- Current Subnautica/Nautilus/GameLib build with visual diagnostics.
+- Bridge-core build.
+- Overlay/render/collision protocol smoke tests.
+- Artifact-producing Subnautica run `37220071192`.
+
+Binary verification of the new JAR:
+- contains `SDL_SetWindowOpacity`;
+- contains `SDL_SetWindowPosition`;
+- contains `render window parked off-screen at 1% opacity; GPU frame export remains active`;
+- no `SDL_HideWindow` string in the compiled `SkyClient.class`.
+
+Matched local test bundle:
+- JAR SHA-256: `09c9cb8ca825a9a948bb2864a224d0b698b15d0f0b121c1e7045b852f2089210`
+- Subnautica package SHA-256: `a532fff3e39175b8016eac6f881fd9d3e0cee79e3d0f196a03b3934f0b189ad8`
+- Subnautica DLL SHA-256: `5cfeafe5aa31766843e0f60eb511da71bbf23208af091dd8679e79ea4ba5dd50`
