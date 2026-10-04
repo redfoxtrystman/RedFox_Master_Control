@@ -322,4 +322,63 @@ insert_before(
     private static int CountPrestigeShinies(HashSet<string> shinyGameIdentities, string gameKey)
     {
         var prefix = gameKey + "|";
-        return shinyGameIdentities.Count(x => x.StartsWith(prefix, S
+        return shinyGameIdentities.Count(x => x.StartsWith(prefix, StringComparison.Ordinal));
+    }
+
+    private static GameDexProgress GetBestGameDexProgress(
+        IEnumerable<SaveLoadersRecord> loaders,
+        Func<SaveWrapper, bool> predicate)
+    {
+        return loaders
+            .Select(x => x.Save)
+            .Where(predicate)
+            .Select(GetNonMythicalGameDexProgress)
+            .OrderByDescending(x => x.Target == 0 ? 0d : (double)x.Caught / x.Target)
+            .ThenByDescending(x => x.Caught)
+            .FirstOrDefault()
+            ?? new(0, 0);
+    }
+
+    private static GameDexProgress GetNonMythicalGameDexProgress(SaveWrapper save)
+    {
+        var raw = save.GetSave();
+        var caught = 0;
+        var target = 0;
+
+        for (var species = 1; species <= raw.MaxSpeciesID; species++)
+        {
+            var id = (ushort)species;
+            if (!raw.Personal.IsSpeciesInGame(id) || MythicalSpecies.ContainsKey(id))
+                continue;
+
+            target++;
+            if (raw.GetCaught(id))
+                caught++;
+        }
+
+        return new(caught, target);
+    }
+
+    private static int CountRequiredSpeciesInRange(ushort start, ushort end)
+    {
+        var count = 0;
+        for (var species = (int)start; species <= end; species++)
+        {
+            if (!MythicalSpecies.ContainsKey((ushort)species))
+                count++;
+        }
+        return count;
+    }
+
+''',
+    "prestige game/shiny/dex helpers",
+)
+
+rep(
+    quest,
+    '''    private static int CountCaughtInRange(HashSet<ushort> caught, ushort start, ushort end)\n    {\n        var count = 0;\n        for (var species = (int)start; species <= end; species++)\n        {\n            if (caught.Contains((ushort)species))\n                count++;\n        }\n        return count;\n    }\n''',
+    '''    private static int CountCaughtInRange(HashSet<ushort> caught, ushort start, ushort end)\n    {\n        var count = 0;\n        for (var species = (int)start; species <= end; species++)\n        {\n            var id = (ushort)species;\n            if (MythicalSpecies.ContainsKey(id))\n                continue;\n            if (caught.Contains(id))\n                count++;\n        }\n        return count;\n    }\n''',
+    "exclude mythicals from regional caught progress",
+)
+
+print("PASS alpha53n HOME-inspired prestige Pokémon rewards")
