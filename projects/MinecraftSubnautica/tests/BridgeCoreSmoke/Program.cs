@@ -114,8 +114,8 @@ internal static class Program
                 AssertEqual(1, overlay.Height, "overlay height");
                 AssertTrue(overlay.BottomUp, "overlay bottom-up");
                 AssertEqual(77UL, overlay.FrameId, "overlay frame id");
-                AssertEqual(7, overlay.Pixels[0], "overlay first byte");
-                AssertEqual(14, overlay.Pixels[7], "overlay last byte");
+                AssertEqual(7, (int)overlay.Pixels[0], "overlay first byte");
+                AssertEqual(14, (int)overlay.Pixels[7], "overlay last byte");
 
                 // Minecraft -> Subnautica render byte ring.
                 long rr = BridgeProtocol.OffRenderRing;
