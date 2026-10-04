@@ -14,6 +14,7 @@ namespace MinecraftSubnautica.Bridge
     {
         private readonly MemoryMappedFile _mapping;
         private readonly MemoryMappedViewAccessor _view;
+        private readonly object _inputLock = new object();
         private bool _disposed;
 
         public string MappingName { get; private set; }
@@ -133,6 +134,68 @@ namespace MinecraftSubnautica.Bridge
 
             Thread.MemoryBarrier();
             _view.Write(b + BridgeProtocol.WGSeq, odd + 1u);
+        }
+
+        /// <summary>
+        /// Push one event into the existing SkyCraft single-producer/single-consumer input ring.
+        /// Returns false when the ring is full; callers should retry state changes on a later frame.
+        /// </summary>
+        public bool PushInput(ushort type, ushort code = 0, int a = 0, int b = 0, int c = 0)
+        {
+            ThrowIfDisposed();
+
+            lock (_inputLock)
+            {
+                long ring = BridgeProtocol.OffInputRing;
+                ulong head = _view.ReadUInt64(ring + BridgeProtocol.IRHead);
+                ulong tail = _view.ReadUInt64(ring + BridgeProtocol.IRTail);
+
+                if (head - tail >= (ulong)BridgeProtocol.InputRingEntries)
+                    return false;
+
+                ulong slot = head & (ulong)(BridgeProtocol.InputRingEntries - 1);
+                long e = ring + BridgeProtocol.IRData + (long)slot * BridgeProtocol.InputEventBytes;
+
+                _view.Write(e + 0, type);
+                _view.Write(e + 2, code);
+                _view.Write(e + 4, a);
+                _view.Write(e + 8, b);
+                _view.Write(e + 12, c);
+
+                Thread.MemoryBarrier();
+                _view.Write(ring + BridgeProtocol.IRHead, head + 1);
+                return true;
+            }
+        }
+
+        public bool PushKey(ushort sdlScancode, bool down)
+        {
+            return PushInput(BridgeProtocol.InputKey, sdlScancode, down ? 1 : 0);
+        }
+
+        public bool PushMouseButton(ushort sdlButton, bool down)
+        {
+            return PushInput(BridgeProtocol.InputMouseButton, sdlButton, down ? 1 : 0);
+        }
+
+        public bool PushScroll(int wheelUnits)
+        {
+            return PushInput(BridgeProtocol.InputScroll, 0, wheelUnits);
+        }
+
+        public bool PushCursor(int x, int y)
+        {
+            return PushInput(BridgeProtocol.InputCursor, 0, x, y);
+        }
+
+        public bool ReleaseAllInput()
+        {
+            return PushInput(BridgeProtocol.InputReleaseAll);
+        }
+
+        public bool OpenMinecraftMenu()
+        {
+            return PushInput(BridgeProtocol.InputOpenMenu);
         }
 
         public bool TryReadMinecraftState(out MinecraftState state)
