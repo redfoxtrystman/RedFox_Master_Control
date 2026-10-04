@@ -27,6 +27,7 @@ namespace MinecraftSubnautica.Bridge
         public bool PushCursor(int x, int y) => _bridge.PushCursor(x, y);
         public bool ReleaseAllInput() => _bridge.ReleaseAllInput();
         public bool OpenMinecraftMenu() => _bridge.OpenMinecraftMenu();
+        public VisualDiagnostics ReadVisualDiagnostics() => _bridge.ReadVisualDiagnostics();
         public bool TryAcquireOverlayFrame(out OverlayFrame frame) => _bridge.TryAcquireOverlayFrame(out frame);
         public int DrainRender(Action<uint, byte[]> handler, long maxBytes = 48L << 20) => _bridge.DrainRender(handler, maxBytes);
         public bool TryWriteCollision(uint type, byte[] payload) => _bridge.TryWriteCollision(type, payload);
