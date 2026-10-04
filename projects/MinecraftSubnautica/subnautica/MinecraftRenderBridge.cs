@@ -39,6 +39,7 @@ namespace MinecraftSubnautica.Bridge
         private bool _loggedOverlay;
         private bool _loggedSection;
         private bool _loggedScene;
+        private float _nextVisualHealthLog;
         private bool _disposed;
 
         private sealed class SectionVisual
@@ -69,6 +70,19 @@ namespace MinecraftSubnautica.Bridge
 
             if (_runtime.TryAcquireOverlayFrame(out OverlayFrame frame))
                 UploadOverlay(frame);
+
+            if (_runtime.MinecraftConnected && Time.unscaledTime >= _nextVisualHealthLog)
+            {
+                _nextVisualHealthLog = Time.unscaledTime + 5.0f;
+                if (!_loggedOverlay || !_loggedSection)
+                {
+                    VisualDiagnostics d = _runtime.ReadVisualDiagnostics();
+                    _log.LogInfo(
+                        $"VISUAL BRIDGE STATUS: overlayFrames={d.OverlayFramesPublished}, " +
+                        $"overlayState=0x{d.OverlayState:X}, renderHead={d.RenderHead}, " +
+                        $"renderTail={d.RenderTail}, overlaySeen={_loggedOverlay}, sectionSeen={_loggedSection}.");
+                }
+            }
 
             if (_avatarObject != null && Player.main != null)
                 _avatarObject.transform.position = Player.main.transform.position;
