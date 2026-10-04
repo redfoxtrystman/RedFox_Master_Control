@@ -1294,8 +1294,9 @@ float4 LightPS(LightVSOut i) : SV_Target
 						const double mz = double(sec.sz) * 16.0 + l.z + 0.5;
 						const double dx = mx - mcCamX, dy = my - mcCamY, dz = mz - mcCamZ;
 						const float d2 = float(dx * dx + dy * dy + dz * dz);
-						const float radiusBlocks = 2.5f + float(l.level) * 0.65f;
-						if (d2 <= radiusBlocks * radiusBlocks * 1.5f) {
+						// Keep light pools visible at a distance. The shader applies the real local
+						// radius; this is only the CPU cull before selecting the nearest 24 emitters.
+						if (d2 <= 48.0f * 48.0f) {
 							candidates.push_back({ d2, float((mx - offX) * proto::kUnitsPerBlock - cam.x), float(-(mz - offZ) * proto::kUnitsPerBlock - cam.y),
 								float(my * proto::kUnitsPerBlock - cam.z), l.level, std::uint8_t((l.color >> 24) & 0x0F), l.color });
 						}
