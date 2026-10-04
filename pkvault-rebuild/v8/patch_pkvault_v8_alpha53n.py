@@ -220,4 +220,106 @@ insert_before(
                 break;
             case Species.Manaphy:
                 gift = EncounterEvent.MGDB_G8B.Single(x => x.CardID == 9026 && x.Species == reward.Species);
-   
+                trainerVersion = GameVersion.BD;
+                break;
+            case Species.Enamorus:
+                gift = EncounterEvent.MGDB_G8A.Single(x => x.CardID == 9027 && x.Species == reward.Species);
+                trainerVersion = GameVersion.PLA;
+                break;
+            case Species.Keldeo:
+                gift = EncounterEvent.MGDB_G8.Single(x => x.CardID == 9029 && x.Species == reward.Species);
+                trainerVersion = GameVersion.SW;
+                break;
+            case Species.Meloetta:
+                gift = EncounterEvent.MGDB_G9.Single(x => x.CardID == 9024 && x.Species == reward.Species);
+                trainerVersion = GameVersion.SL;
+                break;
+            case Species.Volcanion:
+                gift = EncounterEvent.MGDB_G9A.Single(x => x.CardID == 9034 && x.Species == reward.Species);
+                trainerVersion = GameVersion.ZA;
+                break;
+            case Species.Celebi:
+                gift = EncounterEvent.GetAllEvents(sorted: false)
+                    .Where(x => x.Species == reward.Species && !x.IsShiny && x.Level is > 0 and <= 50)
+                    .OrderByDescending(x => x.Level == 50)
+                    .ThenByDescending(x => x.Generation)
+                    .ThenByDescending(x => x.Level)
+                    .FirstOrDefault()
+                    ?? throw new InvalidOperationException("PKHeX has no legal non-shiny Celebi event template at or below level 50.");
+                trainerVersion = gift.Generation switch
+                {
+                    4 => GameVersion.HG,
+                    5 => GameVersion.B2,
+                    6 => GameVersion.X,
+                    7 => GameVersion.US,
+                    8 => GameVersion.SW,
+                    9 => GameVersion.SL,
+                    _ => GameVersion.SW,
+                };
+                break;
+            default:
+                throw new InvalidOperationException($"No prestige Pokémon generator is registered for species {reward.Species}.");
+        }
+
+        if (gift.Level != 50 && reward.Species != (ushort)Species.Celebi)
+            throw new InvalidOperationException($"Pinned prestige gift {reward.Name} is unexpectedly level {gift.Level}.");
+        if (expectShiny && !gift.IsShiny)
+            throw new InvalidOperationException($"Pinned prestige gift {reward.Name} is unexpectedly not Shiny.");
+
+        var trainer = new SimpleTrainerInfo(trainerVersion)
+        {
+            OT = "PKVault",
+            TID16 = 23033,
+            SID16 = 801,
+            Gender = 0,
+            Language = (int)LanguageID.English,
+        };
+        var pkm = gift.ConvertToPKM(trainer);
+        if (reward.Species == (ushort)Species.Celebi && pkm.CurrentLevel < 50)
+            pkm.CurrentLevel = 50;
+
+        return new ImmutablePKM(pkm);
+    }
+
+''',
+    "prestige Pokémon grant helpers",
+)
+
+# Add game/dex/shiny helpers immediately before the existing regional range
+# counter, then make that counter skip Mythicals too.
+insert_before(
+    quest,
+    '''    private static int CountCaughtInRange(HashSet<ushort> caught, ushort start, ushort end)\n''',
+    r'''    private static string? GetPrestigeShinyGameKey(SaveWrapper save) => save.Version switch
+    {
+        GameVersion.GP or GameVersion.GE => "lgpe",
+        GameVersion.B or GameVersion.W or GameVersion.B2 or GameVersion.W2 => "unova",
+        GameVersion.X or GameVersion.Y => "kalos",
+        GameVersion.PLA => "hisui",
+        _ => null,
+    };
+
+    private static bool IsNativePrestigeShiny(PkmBaseDTO dto, SaveWrapper save, string key)
+    {
+        var versionMatches = key switch
+        {
+            "lgpe" => dto.Version is GameVersion.GP or GameVersion.GE,
+            "unova" => dto.Version is GameVersion.B or GameVersion.W or GameVersion.B2 or GameVersion.W2,
+            "kalos" => dto.Version is GameVersion.X or GameVersion.Y,
+            "hisui" => dto.Version is GameVersion.PLA,
+            _ => false,
+        };
+        if (!versionMatches)
+            return false;
+
+        var raw = save.GetSave();
+        var pkm = dto.Pkm.GetMutablePkm();
+        return pkm.TID16 == raw.TID16
+            && pkm.SID16 == raw.SID16
+            && string.Equals(pkm.OriginalTrainerName, raw.OT, StringComparison.Ordinal);
+    }
+
+    private static int CountPrestigeShinies(HashSet<string> shinyGameIdentities, string gameKey)
+    {
+        var prefix = gameKey + "|";
+        return shinyGameIdentities.Count(x => x.StartsWith(prefix, S
