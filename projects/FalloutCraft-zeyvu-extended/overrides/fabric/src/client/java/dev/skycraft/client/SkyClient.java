@@ -197,8 +197,11 @@ public final class SkyClient {
 			// Vanilla portals own the destination. Never snap a Nether/End transition back to the
 			// Fallout position that was valid in the mirror Overworld.
 			teleportPending = false;
-			holdPos = null;
 			holdSince = 0;
+			// When a portal returns to Fallout, hold exactly at vanilla's chosen Overworld destination
+			// until Fallout collision around that point has restreamed. This preserves Nether 8:1
+			// travel without letting the player fall through the void while the Commonwealth catches up.
+			holdPos = nativeDimension ? null : player.position();
 		}
 		lastDimension = dimension;
 		SkyCollision.setEnabled(!nativeDimension);
