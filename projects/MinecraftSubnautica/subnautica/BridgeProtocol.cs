@@ -31,7 +31,7 @@ namespace MinecraftSubnautica.Bridge
         public const int MaxOverlayHeight = 2160;
         public const int OverlaySlots = 3;
         public const long OverlaySlotBytes = (long)MaxOverlayWidth * MaxOverlayHeight * 4;
-        public const long OffOverlayPixels = OffCollisionRing + CollisionRingBytes;
+        public const long OffOverlayPixels = OffCollisionRing + CollisionRingBytes * 1L;
         public const long OffRenderRing = OffOverlayPixels + OverlaySlotBytes * OverlaySlots;
         public const long RenderRingBytes = 64L << 20;
         public const long MappingBytes = OffRenderRing + RenderRingBytes;
@@ -71,6 +71,22 @@ namespace MinecraftSubnautica.Bridge
         public const long WGOriginZ = 0x08;
         public const long WGWorldId = 0x0C;
         public const long WGSurface = 0x10;
+
+        // Input ring: host produces, Minecraft consumes.
+        public const int InputRingEntries = 4096;
+        public const int InputEventBytes = 16;
+        public const long IRHead = 0x00;
+        public const long IRTail = 0x40;
+        public const long IRData = 0x80;
+
+        public const ushort InputKey = 1;
+        public const ushort InputMouseButton = 2;
+        public const ushort InputScroll = 3;
+        public const ushort InputCursor = 4;
+        public const ushort InputText = 5;
+        public const ushort InputReleaseAll = 6;
+        public const ushort InputHurt = 7;
+        public const ushort InputOpenMenu = 8;
 
         // Minecraft state offsets.
         public const long MSSeq = 0x00;
@@ -151,6 +167,7 @@ namespace MinecraftSubnautica.Bridge
         public float CameraDistance;
 
         public bool InWorld { get { return (Flags & BridgeProtocol.MinecraftInWorld) != 0; } }
+        public bool ScreenOpen { get { return (Flags & BridgeProtocol.MinecraftScreenOpen) != 0; } }
         public bool Swimming { get { return (Flags & BridgeProtocol.MinecraftSwimming) != 0; } }
         public bool Dead { get { return (Flags & BridgeProtocol.MinecraftDead) != 0; } }
     }
