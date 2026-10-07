@@ -1,0 +1,63 @@
+name: LumberLands 0.2.3 Build
+
+on:
+  push:
+    branches:
+      - chatgpt-lumberlands-0.2.3
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct LumberLands 0.2.3 source
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p work/project
+          base64 -d .chatgpt_builds/lumberlands-0.2.3-source.b64 > /tmp/LumberLands-0.2.3-source.zip
+          unzip -q /tmp/LumberLands-0.2.3-source.zip -d work/project
+          grep '^mod_version=' work/project/gradle.properties
+          test -f work/project/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2GrowthControllerItem.java
+          grep -q 'lt2_cut_mark' work/project/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2Visuals.java
+          grep -q 'STUD_TO_BLOCK = 0.36' work/project/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2TreeRuntime.java
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle 9.3.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.0'
+
+      - name: Compile all loaders
+        working-directory: work/project
+        run: gradle --no-daemon clean universalJar --stacktrace
+
+      - name: Collect final jars
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p final
+          cp work/project/build/universal/LumberLands-0.2.3+1.21.1-universal.jar final/
+          cp work/project/fabric/build/libs/LumberLands-0.2.3+1.21.1-fabric.jar final/
+          cp work/project/forge/build/libs/LumberLands-0.2.3+1.21.1-forge.jar final/
+          cp work/project/neoforge/build/libs/LumberLands-0.2.3+1.21.1-neoforge.jar final/
+          for f in final/*.jar; do
+            jar tf "$f" >/dev/null
+            echo "=== $f ==="
+            ls -lh "$f"
+          done
+          jar tf final/LumberLands-0.2.3+1.21.1-universal.jar | grep -E 'Lt2GrowthControllerItem|Lt2TreeRuntime|lt2_cut_mark|lt2_grab_marker' | sort
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LumberLands-0.2.3-compiled
+          path: final/*.jar
+          if-no-files-found: error
