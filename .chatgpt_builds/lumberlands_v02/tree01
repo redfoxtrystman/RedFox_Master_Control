@@ -1,0 +1,167 @@
+e(basePos.below()).getCollisionShape(level, basePos.below()).isEmpty()) return false;
+
+        Vec3 pivot = new Vec3(basePos.getX() + 0.5D, basePos.getY(), basePos.getZ() + 0.5D);
+        double minDistance = VolcanoProfile.MIN_SPAWN_DISTANCE * STUD_TO_BLOCK;
+        for (Tree other : TREES.values()) {
+            if (other.level == level && other.pivot.distanceTo(pivot) < minDistance) return false;
+        }
+
+        ArmorStand root = EntityType.ARMOR_STAND.create(level);
+        if (root == null) return false;
+        root.setPos(pivot.x, pivot.y, pivot.z);
+        root.setInvisible(true);
+        root.setNoGravity(true);
+        root.setInvulnerable(true);
+        root.setSilent(true);
+        root.addTag(ROOT_TAG);
+        CompoundTag rootTag = new CompoundTag();
+        root.saveWithoutId(rootTag);
+        rootTag.putBoolean("Marker", true);
+        rootTag.putBoolean("Invisible", true);
+        rootTag.putBoolean("NoGravity", true);
+        rootTag.putBoolean("Invulnerable", true);
+        root.load(rootTag);
+        root.setPos(pivot.x, pivot.y, pivot.z);
+        if (!level.addFreshEntity(root)) return false;
+
+        long seed = level.getRandom().nextLong();
+        Simulation sim = new Simulation(seed, level, pivot);
+        Tree tree = new Tree(level, root, seed, sim, sim.initialInterval);
+        TREES.put(root.getUUID(), tree);
+        tree.writeMeta();
+        tree.rebuildEntities();
+        return true;
+    }
+
+    private static void bootstrap(ServerLevel level) {
+        List<ArmorStand> roots = new ArrayList<>();
+        for (Entity entity : level.getAllEntities()) {
+            if (entity instanceof ArmorStand stand && stand.getTags().contains(ROOT_TAG)) roots.add(stand);
+        }
+        for (ArmorStand root : roots) {
+            if (TREES.containsKey(root.getUUID())) continue;
+            Long seed = longTagNullable(root, SEED_PREFIX);
+            if (seed == null) continue;
+            int growCalls = intTag(root, GROW_PREFIX, 0);
+            double ttg = doubleTag(root, TTG_PREFIX, 10.0D);
+            Simulation sim = new Simulation(seed, level, root.position());
+            for (int i = 0; i < growCalls && !sim.finished; i++) {
+                sim.grow();
+                sim.drawNextInterval();
+            }
+            Tree tree = new Tree(level, root, seed, sim, ttg);
+            tree.state = enumTag(root, STATE_PREFIX, TreeState.GROWING);
+            tree.fallAngle = doubleTag(root, FALL_ANGLE_PREFIX, 0.0D);
+            tree.fallYaw = doubleTag(root, FALL_YAW_PREFIX, 0.0D);
+            tree.freeFall = boolTag(root, FREE_FALL_PREFIX, false);
+            String carrier = stringTag(root, CARRIER_PREFIX);
+            if (carrier != null) {
+                try { tree.carriedBy = UUID.fromString(carrier); } catch (IllegalArgumentException ignored) {}
+            }
+            tree.pivot = root.position();
+            TREES.put(root.getUUID(), tree);
+            tree.removeChildren();
+            tree.rebuildEntities();
+        }
+    }
+
+    private static Tree treeFromEntity(Entity entity) {
+        if (entity.getTags().contains(ROOT_TAG)) return TREES.get(entity.getUUID());
+        String owner = stringTag(entity, OWNER_PREFIX);
+        if (owner == null) return null;
+        try { return TREES.get(UUID.fromString(owner)); }
+        catch (IllegalArgumentException ignored) { return null; }
+    }
+
+    private static final class Tree {
+        final UUID id;
+        final ServerLevel level;
+        final ArmorStand controller;
+        final long seed;
+        final Simulation sim;
+        final Map<Integer, Display.BlockDisplay> wood = new HashMap<>();
+        final Map<String, Display.BlockDisplay> leaves = new HashMap<>();
+        final Map<Integer, Interaction> hitboxes = new HashMap<>();
+        final Map<Integer, Double> cutDamage = new HashMap<>();
+
+        Vec3 pivot;
+        double timeToNextGrow;
+        TreeState state = TreeState.GROWING;
+        double fallAngle;
+        double fallYaw;
+        double angularVelocity;
+        boolean freeFall;
+        double verticalVelocity;
+        UUID carriedBy;
+        int metadataClock;
+
+        Tree(ServerLevel level, ArmorStand controller, long seed, Simulation sim, double timeToNextGrow) {
+            this.id = controller.getUUID();
+            this.level = level;
+            this.controller = controller;
+            this.seed = seed;
+            this.sim = sim;
+            this.timeToNextGrow = timeToNextGrow;
+            this.pivot = controller.position();
+        }
+
+        void tick() {
+            if (state == TreeState.GROWING) {
+                if (!sim.finished) {
+                    timeToNextGrow -= 0.05D;
+                    if (timeToNextGrow <= 0.0D) {
+                        sim.pivot = pivot;
+                        sim.grow();
+                        timeToNextGrow += sim.drawNextInterval(); // Preserve LT2's negative overshoot.
+                        rebuildEntities();
+                        writeMeta();
+                    }
+                }
+            } else if (state == TreeState.FALLING) {
+                tickFalling();
+            } else if (state == TreeState.CARRIED) {
+                tickCarried();
+            }
+
+            if (++metadataClock >= 20) {
+                metadataClock = 0;
+                writeMeta();
+            }
+        }
+
+        void chop(Player player, int segmentId) {
+            Segment segment = sim.byId(segmentId);
+            if (segment == null) segment = sim.byId(1);
+            if (segment == null || state == TreeState.CARRIED) return;
+
+            float speed = player.getMainHandItem().getDestroySpeed(Blocks.OAK_LOG.defaultBlockState());
+            double damage = Math.max(0.65D, speed * 0.8D);
+            double now = cutDamage.getOrDefault(segment.id, 0.0D) + damage;
+            cutDamage.put(segment.id, now);
+            double maxHp = segment.thickness * segment.thickness * VolcanoProfile.HARDNESS;
+            int pct = (int)Math.min(100.0D, Math.round(now / Math.max(0.01D, maxHp) * 100.0D));
+            player.displayClientMessage(Component.literal("Magma tree cut: " + pct + "%"), true);
+
+            if (now >= maxHp && state == TreeState.GROWING) {
+                state = TreeState.FALLING;
+                freeFall = false;
+                fallAngle = 0.0125D;
+                angularVelocity = 0.0D;
+                Vec3 look = player.getLookAngle();
+                fallYaw = Math.atan2(look.z, look.x);
+                sim.finished = true;
+                writeMeta();
+            }
+        }
+
+        void tickFalling() {
+            if (freeFall) {
+                Vec3 proposedPivot = pivot.add(0.0D, verticalVelocity, 0.0D);
+                verticalVelocity -= 0.035D;
+                if (collides(bodyRotation(), proposedPivot)) {
+                    state = TreeState.FALLEN;
+                    freeFall = false;
+                    verticalVelocity = 0.0D;
+                } else {
+                    pivot = proposedPivot;
+        
