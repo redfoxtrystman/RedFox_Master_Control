@@ -84,6 +84,15 @@ jobs:
           assert len(set(Image.open(root/'lt2_generic_leaf0.png').convert('RGB').getdata())) > 8
           PY
 
+      - name: Fix Fabric creative tab builder signature
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.chatgpt_builds/lumberlands_v022_src/fabric/src/main/java/com/glaziolaicefox/lumberlands/fabric/LumberLandsFabric.java')
+          s=p.read_text().replace('CreativeModeTab.builder()', 'CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0)')
+          p.write_text(s)
+          PY
+
       - name: Verify 0.2.2 source
         run: |
           root=.chatgpt_builds/lumberlands_v022_src
