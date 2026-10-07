@@ -1,0 +1,174 @@
+package __PACKAGE__.tree;
+
+import com.mojang.math.Transformation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Interaction;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Supplier;
+
+/**
+ * Server-authoritative Lumber Tycoon-style tree simulation.
+ *
+ * The growth order, ranges, split rejection behavior, section thickening,
+ * leaf construction order and Volcano parameters mirror the supplied LT2 tree
+ * scripts.  Minecraft-specific rendering/physics are an adaptation around that
+ * simulation: each LT2 Part becomes a transformed BlockDisplay and each tree
+ * is moved as one rigid graph when felled or carried.
+ */
+public final class TreeSystem {
+    public static final String ROOT_TAG = "ll_tree_root";
+    public static final String HIT_TAG = "ll_tree_hit";
+    private static final String OWNER_PREFIX = "ll_owner:";
+    private static final String SEGMENT_PREFIX = "ll_segment:";
+    private static final String SEED_PREFIX = "ll_seed:";
+    private static final String GROW_PREFIX = "ll_grow:";
+    private static final String TTG_PREFIX = "ll_ttg:";
+    private static final String STATE_PREFIX = "ll_state:";
+    private static final String FALL_ANGLE_PREFIX = "ll_fall_angle:";
+    private static final String FALL_YAW_PREFIX = "ll_fall_yaw:";
+    private static final String FREE_FALL_PREFIX = "ll_free_fall:";
+    private static final String CARRIER_PREFIX = "ll_carrier:";
+
+    /** LT2/Roblox geometry is authored in studs. */
+    public static final double STUD_TO_BLOCK = 0.28D;
+
+    private static final Map<UUID, Tree> TREES = new HashMap<>();
+    private static Supplier<? extends Block> magmaLog;
+    private static Supplier<? extends Block> magmaFoliage;
+    private static long lastBootstrapTick = Long.MIN_VALUE;
+    private static boolean smokeDone;
+
+    private TreeSystem() {}
+
+    public static void initialize(Supplier<? extends Block> log, Supplier<? extends Block> foliage) {
+        magmaLog = log;
+        magmaFoliage = foliage;
+    }
+
+    public static final class MagmaTreeSeedItem extends Item {
+        public MagmaTreeSeedItem(Properties properties) {
+            super(properties);
+        }
+
+        @Override
+        public InteractionResult useOn(UseOnContext context) {
+            Level level = context.getLevel();
+            BlockPos target = context.getClickedPos().relative(context.getClickedFace());
+            if (level instanceof ServerLevel serverLevel) {
+                Player player = context.getPlayer();
+                if (plant(serverLevel, target, player)) {
+                    if (player != null && !player.getAbilities().instabuild) {
+                        context.getItemInHand().shrink(1);
+                    }
+                    return InteractionResult.SUCCESS;
+                }
+                return InteractionResult.FAIL;
+            }
+            return InteractionResult.SUCCESS;
+        }
+    }
+
+    public static void tick(MinecraftServer server) {
+        if (magmaLog == null || magmaFoliage == null) return;
+
+        long now = server.overworld().getGameTime();
+        if (lastBootstrapTick == Long.MIN_VALUE || now - lastBootstrapTick >= 100) {
+            for (ServerLevel level : server.getAllLevels()) bootstrap(level);
+            lastBootstrapTick = now;
+        }
+
+        if (Boolean.getBoolean("lumberlands.smoketest") && !smokeDone && now > 30) {
+            ServerLevel level = server.overworld();
+            int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, 0, 0);
+            if (plant(level, new BlockPos(0, y, 0), null)) {
+                System.out.println("[LumberLands] Dynamic tree smoke test planted");
+                smokeDone = true;
+            }
+        }
+
+        for (Tree tree : new ArrayList<>(TREES.values())) {
+            if (tree.controller.isRemoved()) {
+                tree.removeChildren();
+                TREES.remove(tree.id);
+                continue;
+            }
+            tree.tick();
+        }
+    }
+
+    public static boolean handles(Entity entity) {
+        return entity.getTags().contains(HIT_TAG) || entity.getTags().contains(ROOT_TAG);
+    }
+
+    public static boolean attack(Player player, Entity target) {
+        Tree tree = treeFromEntity(target);
+        if (tree == null) return false;
+        if (player.level().isClientSide()) return true;
+        if (!(player.getMainHandItem().getItem() instanceof AxeItem)) {
+            player.displayClientMessage(Component.literal("Use an axe to chop the tree."), true);
+            return true;
+        }
+        int segmentId = intTag(target, SEGMENT_PREFIX, 1);
+        tree.chop(player, segmentId);
+        return true;
+    }
+
+    public static boolean interact(Player player, InteractionHand hand, Entity target) {
+        Tree tree = treeFromEntity(target);
+        if (tree == null) return false;
+        if (player.level().isClientSide()) return true;
+        if (hand != InteractionHand.MAIN_HAND) return true;
+
+        if (tree.state == TreeState.FALLEN && player.getItemInHand(hand).isEmpty()) {
+            tree.beginCarry(player);
+            return true;
+        }
+        if (tree.state == TreeState.CARRIED && player.getUUID().equals(tree.carriedBy)) {
+            tree.dropFromCarry();
+            return true;
+        }
+        return true;
+    }
+
+    public static boolean plant(ServerLevel level, BlockPos basePos, Player planter) {
+        if (magmaLog == null || magmaFoliage == null) return false;
+        BlockState at = level.getBlockState(basePos);
+        if (!at.canBeReplaced()) return false;
+        if (level.getBlockStat
