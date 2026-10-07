@@ -19,6 +19,28 @@ jobs:
           cat .chatgpt_builds/lumberlands_chunks/chunk00               .chatgpt_builds/lumberlands_chunks/chunk01               .chatgpt_builds/lumberlands_chunks/chunk02               .chatgpt_builds/lumberlands_chunks/chunk03               .chatgpt_builds/lumberlands_chunks/chunk04               .chatgpt_builds/lumberlands_chunks/chunk05               | base64 -d > .chatgpt_builds/LumberLands-ci-source.zip
           unzip -q .chatgpt_builds/LumberLands-ci-source.zip -d .chatgpt_builds/lumberlands
 
+      - name: Fix magma plank block properties
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path('.chatgpt_builds/lumberlands')
+          files = [
+              root/'fabric/src/main/java/com/glaziolaicefox/lumberlands/fabric/LumberLandsFabric.java',
+              root/'forge/src/main/java/com/glaziolaicefox/lumberlands/forge/LumberLandsForge.java',
+              root/'neoforge/src/main/java/com/glaziolaicefox/lumberlands/neoforge/LumberLandsNeoForge.java',
+          ]
+          needle = '''    private static BlockBehaviour.Properties woodProperties(int light) {\n        return BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG)\n                .strength(2.0F)\n                .sound(SoundType.WOOD)\n                .lightLevel(state -> light);\n    }\n'''
+          add = needle + '''\n    private static BlockBehaviour.Properties plankProperties(int light) {\n        return BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)\n                .strength(2.0F)\n                .sound(SoundType.WOOD)\n                .lightLevel(state -> light);\n    }\n'''
+          for p in files:
+              s = p.read_text()
+              s = s.replace('new Block(woodProperties(0))', 'new Block(plankProperties(0))')
+              if 'plankProperties(int light)' not in s:
+                  if needle not in s:
+                      raise RuntimeError(f'Expected property helper not found in {p}')
+                  s = s.replace(needle, add)
+              p.write_text(s)
+          PY
+
       - name: Patch loader build scripts
         run: |
           cat > .chatgpt_builds/lumberlands/build.gradle <<'EOF'
@@ -255,6 +277,6 @@ jobs:
       - name: Upload universal jar
         uses: actions/upload-artifact@v4
         with:
-          name: LumberLands-0.1.0-1.21.1-universal-fixed
+          name: LumberLands-0.1.0-1.21.1-universal-fixed-v2
           path: .chatgpt_builds/lumberlands/build/universal/*.jar
           if-no-files-found: error
