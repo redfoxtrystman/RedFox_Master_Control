@@ -140,11 +140,25 @@ jobs:
               }
           }
 
+          repositories {
+              clear()
+              minecraft.mavenizer(it)
+              maven fg.forgeMaven
+              maven fg.minecraftLibsMaven
+              mavenCentral()
+          }
+
           dependencies {
               implementation minecraft.dependency("net.minecraftforge:forge:${rootProject.forge_version}")
           }
 
           sourceSets.main.resources.srcDir rootProject.file('src/main/resources')
+
+          sourceSets.each {
+              def outputDir = layout.buildDirectory.dir("sourceSets/$it.name")
+              it.output.resourcesDir = outputDir
+              it.java.destinationDirectory = outputDir
+          }
 
           processResources {
               duplicatesStrategy = DuplicatesStrategy.EXCLUDE
