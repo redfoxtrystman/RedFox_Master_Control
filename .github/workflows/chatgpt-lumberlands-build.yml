@@ -39,6 +39,18 @@ jobs:
                       raise RuntimeError(f'Expected property helper not found in {p}')
                   s = s.replace(needle, add)
               p.write_text(s)
+
+          props = root/'gradle.properties'
+          s = props.read_text()
+          s = s.replace('fabric_loader_version=0.17.3', 'fabric_loader_version=0.19.5')
+          s = s.replace('fabric_api_version=0.116.7+1.21.1', 'fabric_api_version=0.116.17+1.21.1')
+          props.write_text(s)
+
+          meta = root/'fabric/src/main/resources/fabric.mod.json'
+          s = meta.read_text()
+          if '"fabric-api"' not in s:
+              s = s.replace('"fabricloader": ">=0.17.3",', '"fabricloader": ">=0.17.3",\n    "fabric-api": "*",')
+          meta.write_text(s)
           PY
 
       - name: Patch loader build scripts
@@ -122,6 +134,7 @@ jobs:
           cat > .chatgpt_builds/lumberlands/fabric/build.gradle <<'EOF'
           dependencies {
               modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+              modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
           }
 
           sourceSets.main.resources.srcDir rootProject.file('src/main/resources')
@@ -305,6 +318,6 @@ jobs:
       - name: Upload universal jar
         uses: actions/upload-artifact@v4
         with:
-          name: LumberLands-0.1.0-1.21.1-universal-fixed-v3
+          name: LumberLands-0.1.0-1.21.1-universal-fixed-v4
           path: .chatgpt_builds/lumberlands/build/universal/*.jar
           if-no-files-found: error
