@@ -24,9 +24,15 @@ jobs:
           sha256sum .chatgpt_builds/lumberlands_v021_delta/chunk00
           sha256sum .chatgpt_builds/lumberlands_v021_delta/chunk01
           sha256sum .chatgpt_builds/lumberlands_v021_delta/chunk02
-          sha256sum .chatgpt_builds/lumberlands_v021_delta/chunk03
+          sha256sum .chatgpt_builds/lumberlands_v021_delta/c03_0
+          sha256sum .chatgpt_builds/lumberlands_v021_delta/c03_1
+          sha256sum .chatgpt_builds/lumberlands_v021_delta/c03_2
+          sha256sum .chatgpt_builds/lumberlands_v021_delta/c03_3
           sha256sum .chatgpt_builds/lumberlands_v021_delta/chunk04
-          sha256sum .chatgpt_builds/lumberlands_v021_delta/chunk05
+          sha256sum .chatgpt_builds/lumberlands_v021_delta/c05_0
+          sha256sum .chatgpt_builds/lumberlands_v021_delta/c05_1
+          sha256sum .chatgpt_builds/lumberlands_v021_delta/c05_2
+          sha256sum .chatgpt_builds/lumberlands_v021_delta/c05_3
           sha256sum .chatgpt_builds/lumberlands_v021_delta/c6_00
           sha256sum .chatgpt_builds/lumberlands_v021_delta/c6_01
           sha256sum .chatgpt_builds/lumberlands_v021_delta/c6_02
@@ -36,9 +42,15 @@ jobs:
           echo "73b142c6631c9a7cfca1c6574630cfdfd817dd78914709583259d447aeae1192  .chatgpt_builds/lumberlands_v021_delta/chunk00" | sha256sum -c -
           echo "5af7c32aa25dbd361bf435a96f77894d19d7d9061da5a7886d581b0f2c80fcde  .chatgpt_builds/lumberlands_v021_delta/chunk01" | sha256sum -c -
           echo "c31d350a2b88bb655f9e5ec119a7e9a03ebfa9587b2a69a5df8eeb7db396a6b0  .chatgpt_builds/lumberlands_v021_delta/chunk02" | sha256sum -c -
-          echo "af1af9fe381cb6aa0a58e9c2252a020b43db64c09062243f10e258ec4d0772f0  .chatgpt_builds/lumberlands_v021_delta/chunk03" | sha256sum -c -
+          echo "0563c5f45d120f29ee970239c6e23b0dd310820a43cbc1920cab013f74428408  .chatgpt_builds/lumberlands_v021_delta/c03_0" | sha256sum -c -
+          echo "67b2de33b22b52c7ea9e7e98927f675044beb516a6689a078ad06c105aa84a7b  .chatgpt_builds/lumberlands_v021_delta/c03_1" | sha256sum -c -
+          echo "7ca75c3ea4d2f53fe0d8117b0d3e096972b61f8512019eb2dc745f785a8c5509  .chatgpt_builds/lumberlands_v021_delta/c03_2" | sha256sum -c -
+          echo "24b1eea148905a71c64685d1630b89f0c8123c3defcf734a18e19e9b422f5f67  .chatgpt_builds/lumberlands_v021_delta/c03_3" | sha256sum -c -
           echo "922951fa9b19153abee089e3dc443ca8b45cbe5621303211db2c9213d98e0c6b  .chatgpt_builds/lumberlands_v021_delta/chunk04" | sha256sum -c -
-          echo "044494f0833bd5224757ec53349e4c8e07bb7615e2d4602d81ececbb73c085d0  .chatgpt_builds/lumberlands_v021_delta/chunk05" | sha256sum -c -
+          echo "2b8caf0edf17e8c2bede86d3d786b8e8ce8d91ef3e9fa98acd31278f1c6fc705  .chatgpt_builds/lumberlands_v021_delta/c05_0" | sha256sum -c -
+          echo "0f681456d92f450108a0b3a162f3b3bf4d2e12188c618fb3c883fed610809ed0  .chatgpt_builds/lumberlands_v021_delta/c05_1" | sha256sum -c -
+          echo "979c8f118dfc91586a77d27700349439fed0b8b236a9b95e38c2693079fe1b35  .chatgpt_builds/lumberlands_v021_delta/c05_2" | sha256sum -c -
+          echo "145a8cd43642070c1ff568b0483d558405ceea281ae1664016cf301aaf2b8017  .chatgpt_builds/lumberlands_v021_delta/c05_3" | sha256sum -c -
           echo "a618e22eb9857432e3851e87853cfd18d19d203e715a7ea3bc4078433d860545  .chatgpt_builds/lumberlands_v021_delta/c6_00" | sha256sum -c -
           echo "97c9d403f3821b5bd768e925b6596e467c77b3f0de8697359a5b97b12881945b  .chatgpt_builds/lumberlands_v021_delta/c6_01" | sha256sum -c -
           echo "46b959d79b019fcd707617e3435dbc9664c2a30e43a130603fe50a9b477f1523  .chatgpt_builds/lumberlands_v021_delta/c6_02" | sha256sum -c -
@@ -48,7 +60,7 @@ jobs:
 
       - name: Reconstruct and overlay 0.2.1 delta
         run: |
-          cat .chatgpt_builds/lumberlands_v021_delta/chunk00 .chatgpt_builds/lumberlands_v021_delta/chunk01 .chatgpt_builds/lumberlands_v021_delta/chunk02 .chatgpt_builds/lumberlands_v021_delta/chunk03 .chatgpt_builds/lumberlands_v021_delta/chunk04 .chatgpt_builds/lumberlands_v021_delta/chunk05 .chatgpt_builds/lumberlands_v021_delta/c6_00 .chatgpt_builds/lumberlands_v021_delta/c6_01 .chatgpt_builds/lumberlands_v021_delta/c6_02 .chatgpt_builds/lumberlands_v021_delta/c6_03 .chatgpt_builds/lumberlands_v021_delta/c6_04 .chatgpt_builds/lumberlands_v021_delta/c6_05 | base64 -d > .chatgpt_builds/LumberLands-0.2.1-delta.zip
+          cat .chatgpt_builds/lumberlands_v021_delta/chunk00 .chatgpt_builds/lumberlands_v021_delta/chunk01 .chatgpt_builds/lumberlands_v021_delta/chunk02 .chatgpt_builds/lumberlands_v021_delta/c03_0 .chatgpt_builds/lumberlands_v021_delta/c03_1 .chatgpt_builds/lumberlands_v021_delta/c03_2 .chatgpt_builds/lumberlands_v021_delta/c03_3 .chatgpt_builds/lumberlands_v021_delta/chunk04 .chatgpt_builds/lumberlands_v021_delta/c05_0 .chatgpt_builds/lumberlands_v021_delta/c05_1 .chatgpt_builds/lumberlands_v021_delta/c05_2 .chatgpt_builds/lumberlands_v021_delta/c05_3 .chatgpt_builds/lumberlands_v021_delta/c6_00 .chatgpt_builds/lumberlands_v021_delta/c6_01 .chatgpt_builds/lumberlands_v021_delta/c6_02 .chatgpt_builds/lumberlands_v021_delta/c6_03 .chatgpt_builds/lumberlands_v021_delta/c6_04 .chatgpt_builds/lumberlands_v021_delta/c6_05 | base64 -d > .chatgpt_builds/LumberLands-0.2.1-delta.zip
           sha256sum .chatgpt_builds/LumberLands-0.2.1-delta.zip
           echo "d4a62c5655cd1383cc8b640308a14628a707f1aa9c77e8065cf285cbbff0b82a  .chatgpt_builds/LumberLands-0.2.1-delta.zip" | sha256sum -c -
           unzip -qo .chatgpt_builds/LumberLands-0.2.1-delta.zip -d .chatgpt_builds/lumberlands_v021_src
