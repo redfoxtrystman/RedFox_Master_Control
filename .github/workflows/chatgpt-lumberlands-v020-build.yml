@@ -18,6 +18,24 @@ jobs:
           cat .chatgpt_builds/lumberlands_v020_full/chunk* | base64 -d > .chatgpt_builds/LumberLands-0.2.0-source.zip
           unzip -q .chatgpt_builds/LumberLands-0.2.0-source.zip -d .chatgpt_builds/lumberlands_v020_src
 
+      - name: Patch Forge 1.21.1 tick event registration
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('.chatgpt_builds/lumberlands_v020_src/forge/src/main/java/com/glaziolaicefox/lumberlands/forge/LumberLandsForge.java')
+          s = p.read_text()
+          if 'import net.minecraftforge.common.MinecraftForge;' not in s:
+              s = s.replace('import net.minecraftforge.event.TickEvent;\n',
+                            'import net.minecraftforge.event.TickEvent;\nimport net.minecraftforge.common.MinecraftForge;\n')
+          s = s.replace(
+              'TickEvent.ServerTickEvent.Post.BUS.addListener(event -> Lt2TreeRuntime.tick(event.getServer()));',
+              'MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent.Post event) -> Lt2TreeRuntime.tick(event.getServer()));'
+          )
+          p.write_text(s)
+          PY
+          cd .chatgpt_builds/lumberlands_v020_src
+          zip -qr ../LumberLands-0.2.0-source.zip .
+
       - name: Set up Java 21
         uses: actions/setup-java@v5
         with:
