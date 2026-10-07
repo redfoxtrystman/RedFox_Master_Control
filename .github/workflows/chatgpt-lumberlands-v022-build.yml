@@ -1,0 +1,151 @@
+name: Build LumberLands 0.2.2
+
+on:
+  push:
+    branches:
+      - chatgpt-lumberlands-v0.2.2
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct 0.2.0 source
+        run: |
+          rm -rf .chatgpt_builds/lumberlands_v022_src
+          mkdir -p .chatgpt_builds/lumberlands_v022_src
+          cat .chatgpt_builds/lumberlands_v020_full/chunk* | base64 -d > .chatgpt_builds/LumberLands-0.2.0-source.zip
+          unzip -q .chatgpt_builds/LumberLands-0.2.0-source.zip -d .chatgpt_builds/lumberlands_v022_src
+
+      - name: Reconstruct and overlay 0.2.1
+        run: |
+          cat             .chatgpt_builds/lumberlands_v021_delta/chunk00             .chatgpt_builds/lumberlands_v021_delta/chunk01             .chatgpt_builds/lumberlands_v021_delta/chunk02             .chatgpt_builds/lumberlands_v021_delta/c03_0             .chatgpt_builds/lumberlands_v021_delta/c03_1             .chatgpt_builds/lumberlands_v021_delta/c03_2_0             .chatgpt_builds/lumberlands_v021_delta/c03_2_1             .chatgpt_builds/lumberlands_v021_delta/c03_3             .chatgpt_builds/lumberlands_v021_delta/chunk04             .chatgpt_builds/lumberlands_v021_delta/c05_0             .chatgpt_builds/lumberlands_v021_delta/c05_1             .chatgpt_builds/lumberlands_v021_delta/c05_2             .chatgpt_builds/lumberlands_v021_delta/c05_3             .chatgpt_builds/lumberlands_v021_delta/c6_00             .chatgpt_builds/lumberlands_v021_delta/c6_01             .chatgpt_builds/lumberlands_v021_delta/c6_02             .chatgpt_builds/lumberlands_v021_delta/c6_03             .chatgpt_builds/lumberlands_v021_delta/c6_04             .chatgpt_builds/lumberlands_v021_delta/c6_05             | base64 -d > .chatgpt_builds/LumberLands-0.2.1-delta.zip
+          echo "d4a62c5655cd1383cc8b640308a14628a707f1aa9c77e8065cf285cbbff0b82a  .chatgpt_builds/LumberLands-0.2.1-delta.zip" | sha256sum -c -
+          unzip -qo .chatgpt_builds/LumberLands-0.2.1-delta.zip -d .chatgpt_builds/lumberlands_v022_src
+
+      - name: Reconstruct and overlay 0.2.2
+        run: |
+          cat .chatgpt_builds/lumberlands_v022_delta/chunk00               .chatgpt_builds/lumberlands_v022_delta/chunk01               .chatgpt_builds/lumberlands_v022_delta/chunk02               | base64 -d > .chatgpt_builds/LumberLands-0.2.2-delta.zip
+          echo "380f321090b4cb70919cb6fdbeb4226dba0400ff17c74c5a1d434d5d5c3b860c  .chatgpt_builds/LumberLands-0.2.2-delta.zip" | sha256sum -c -
+          unzip -qo .chatgpt_builds/LumberLands-0.2.2-delta.zip -d .chatgpt_builds/lumberlands_v022_src
+
+      - name: Remove superseded Magma block-set assets
+        run: |
+          find .chatgpt_builds/lumberlands_v022_src/src/main/resources -type f \(             -name 'magma_log*' -o -name 'magma_wood*' -o -name 'magma_planks*'             -o -name 'stripped_magma_log*' -o -name 'stripped_magma_wood*'             -o -name 'magma_logs.json'           \) -print -delete
+          grep -RIl 'lumberlands:magma_' .chatgpt_builds/lumberlands_v022_src/src/main/resources 2>/dev/null | while read f; do
+            echo "ERROR: stale magma resource reference in $f"
+            exit 1
+          done || true
+
+      - name: Install texture build dependency
+        run: python3 -m pip install --disable-pip-version-check pillow
+
+      - name: Fetch real Roblox pre-2022 material maps
+        run: |
+          set -euxo pipefail
+          base='https://raw.githubusercontent.com/MaximumADHD/Roblox-Materials/main/PartsPre2022'
+          root='.chatgpt_builds/lumberlands_v022_src/tools/roblox_materials'
+          for material in Wood Concrete Grass Pebble Granite Slate Sand Foil; do
+            mkdir -p "$root/$material"
+            curl -L --fail --retry 4 "$base/$material/color.png" -o "$root/$material/color.png"
+          done
+
+      - name: Generate LT2 Roblox material textures
+        run: |
+          cd .chatgpt_builds/lumberlands_v022_src
+          python3 tools/generate_roblox_material_textures.py
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          root=Path('src/main/resources/assets/lumberlands/textures/block/lt2')
+          for name in ['lt2_generic_bark.png','lt2_generic_wood.png','lt2_generic_leaf0.png',
+                       'lt2_lonecave_bark.png','lt2_lonecave_wood.png','lt2_snowglow_leaf0.png']:
+              im=Image.open(root/name).convert('RGB')
+              print(name, im.size, len(set(im.getdata())))
+          assert len(set(Image.open(root/'lt2_generic_bark.png').convert('RGB').getdata())) > 8
+          assert len(set(Image.open(root/'lt2_generic_wood.png').convert('RGB').getdata())) > 8
+          assert len(set(Image.open(root/'lt2_generic_leaf0.png').convert('RGB').getdata())) > 8
+          PY
+
+      - name: Verify 0.2.2 source
+        run: |
+          root=.chatgpt_builds/lumberlands_v022_src
+          grep -q '^mod_version=0.2.2$' "$root/gradle.properties"
+          grep -q 'devGrowthSpeed' "$root/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2TreeRuntime.java"
+          grep -q 'sectionDisplayCorner' "$root/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2TreeRuntime.java"
+          grep -q 'applyImpulseAtPoint' "$root/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2TreeRuntime.java"
+          grep -q 'cutTop' "$root/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2TreeRuntime.java"
+          grep -q 'itemGroup.lumberlands' "$root/src/main/resources/assets/lumberlands/lang/en_us.json"
+          grep -q 'Oak Tree Seed' "$root/src/main/resources/assets/lumberlands/lang/en_us.json"
+          grep -q 'Elm Tree Seed' "$root/src/main/resources/assets/lumberlands/lang/en_us.json"
+          grep -q 'End Times Tree Seed' "$root/src/main/resources/assets/lumberlands/lang/en_us.json"
+
+      - name: Patch Forge 1.21.1 tick event registration if needed
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('.chatgpt_builds/lumberlands_v022_src/forge/src/main/java/com/glaziolaicefox/lumberlands/forge/LumberLandsForge.java')
+          s = p.read_text()
+          if 'TickEvent.ServerTickEvent.Post.BUS.addListener' in s:
+              if 'import net.minecraftforge.common.MinecraftForge;' not in s:
+                  s = s.replace('import net.minecraftforge.event.TickEvent;\n',
+                                'import net.minecraftforge.event.TickEvent;\nimport net.minecraftforge.common.MinecraftForge;\n')
+              s = s.replace(
+                  'TickEvent.ServerTickEvent.Post.BUS.addListener(event -> Lt2TreeRuntime.tick(event.getServer()));',
+                  'MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent.Post event) -> Lt2TreeRuntime.tick(event.getServer()));'
+              )
+              p.write_text(s)
+          PY
+
+      - name: Package final source
+        run: |
+          cd .chatgpt_builds/lumberlands_v022_src
+          zip -qr ../LumberLands-0.2.2-source.zip .
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.5.1'
+
+      - name: Build universal jar
+        working-directory: .chatgpt_builds/lumberlands_v022_src
+        run: gradle --no-daemon clean universalJar --stacktrace
+
+      - name: Fabric startup smoke test
+        working-directory: .chatgpt_builds/lumberlands_v022_src
+        run: |
+          mkdir -p fabric/run
+          echo 'eula=true' > fabric/run/eula.txt
+          set +e
+          timeout 75s gradle --no-daemon :fabric:runServer > fabric-smoke.log 2>&1
+          code=$?
+          set -e
+          cat fabric-smoke.log
+          if grep -q "Could not execute entrypoint.*lumberlands" fabric-smoke.log; then exit 1; fi
+          if grep -q "ExceptionInInitializerError" fabric-smoke.log; then exit 1; fi
+          if grep -q "Failed to start the minecraft server" fabric-smoke.log; then exit 1; fi
+          if grep -q "Done (" fabric-smoke.log; then exit 0; fi
+          if [ "$code" -eq 124 ]; then exit 0; fi
+          exit "$code"
+
+      - name: Upload universal jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: LumberLands-0.2.2-1.21.1-universal
+          path: .chatgpt_builds/lumberlands_v022_src/build/universal/*.jar
+          if-no-files-found: error
+
+      - name: Upload source
+        uses: actions/upload-artifact@v4
+        with:
+          name: LumberLands-0.2.2-source
+          path: .chatgpt_builds/LumberLands-0.2.2-source.zip
+          if-no-files-found: error
