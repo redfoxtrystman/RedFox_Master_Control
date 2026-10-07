@@ -43,6 +43,20 @@ jobs:
                         new Vec3(blocks(section.thickness), blocks(section.length), blocks(section.thickness)));'''
           if old in s:
               s = s.replace(old, new)
+          # LT2 leaf/tip Parts are centered on the branch tip. 0.2.1's extra
+          # 0.75*height offset is what made End Times / SnowGlow tips float.
+          s = s.replace(
+              'Vec3 center = tip(section).add(rotate(section.rotation, new Vec3(0, 0.75 * size.y / 2.0, 0)));',
+              'Vec3 center = tip(section);'
+          )
+          s = s.replace(
+              'Vec3 center = worldEnd(s).add(rotate(q, new Vec3(0, 0.75 * size.y / 2.0, 0)));',
+              'Vec3 center = worldEnd(s);'
+          )
+          s = s.replace(
+              'Vec3 center = tip(s).add(rotate(s.rotation, new Vec3(0, 0.75 * size.y / 2.0, 0)));',
+              'Vec3 center = tip(s);'
+          )
           p.write_text(s)
           PY
 
@@ -71,13 +85,108 @@ jobs:
           root='.chatgpt_builds/lumberlands_v022_src/tools/roblox_materials'
           for material in Wood Concrete Grass Pebble Granite Slate Sand Foil; do
             mkdir -p "$root/$material"
-            curl -L --fail --retry 4 "$base/$material/color.png" -o "$root/$material/color.png"
+            for map in color normal roughness metalness; do
+              if curl -L --fail --retry 4 "$base/$material/$map.png" -o "$root/$material/$map.png"; then
+                echo "Fetched Roblox pre-2022 $material/$map.png"
+              else
+                rm -f "$root/$material/$map.png"
+                echo "No $map map for $material (expected for some materials)"
+              fi
+            done
           done
 
       - name: Generate LT2 Roblox material textures
         run: |
           cd .chatgpt_builds/lumberlands_v022_src
-          python3 tools/generate_roblox_material_textures.py
+          cat > tools/generate_roblox_material_textures_pbr.py <<'PYGEN'
+          #!/usr/bin/env python3
+          """Generate LT2 surface sprites from Roblox's real pre-2022 PBR maps.
+
+          BlockDisplay cannot run Roblox's material shader, so LumberLands keeps the
+          real ColorMap pattern and bakes subtle Normal/Roughness/Metalness detail
+          into the visible diffuse sprite. Neon/SmoothPlastic remain shader-style
+          flat/fullbright because Roblox does not expose ordinary ColorMaps for them.
+          """
+          from pathlib import Path
+          from PIL import Image, ImageStat
+          import importlib.util, math
+
+          ROOT = Path(__file__).resolve().parents[1]
+          TEX = ROOT / "src/main/resources/assets/lumberlands/textures/block/lt2"
+          MAT = ROOT / "tools/roblox_materials"
+
+          spec=importlib.util.spec_from_file_location("basegen", ROOT/"tools/generate_roblox_material_textures.py")
+          base=importlib.util.module_from_spec(spec); spec.loader.exec_module(base)
+          MATERIAL=base.MATERIAL
+          SPECIAL_FLAT=base.SPECIAL_FLAT
+
+          def mean_rgb(im):
+              return tuple(float(v) for v in ImageStat.Stat(im.convert("RGB")).mean)
+
+          def tint_of(path):
+              return tuple(round(v) for v in mean_rgb(Image.open(path).convert("RGB")))
+
+          def patch(im, size=16):
+              im=im.convert("RGB")
+              side=min(im.width,im.height)
+              x=(im.width-side)//2; y=(im.height-side)//2
+              return im.crop((x,y,x+side,y+side)).resize((size,size),Image.Resampling.LANCZOS)
+
+          def gray_patch(path, size=16, default=128):
+              if not path.exists(): return Image.new("L",(size,size),default)
+              im=Image.open(path)
+              side=min(im.width,im.height)
+              x=(im.width-side)//2; y=(im.height-side)//2
+              return im.crop((x,y,x+side,y+side)).convert("L").resize((size,size),Image.Resampling.LANCZOS)
+
+          def make(material,tint):
+              if material in SPECIAL_FLAT:
+                  return Image.new("RGB",(64,64),tint)
+              color_path=MAT/material/"color.png"
+              if not color_path.exists(): raise FileNotFoundError(color_path)
+              col=patch(Image.open(color_path))
+              normal=patch(Image.open(MAT/material/"normal.png")) if (MAT/material/"normal.png").exists() else None
+              rough=gray_patch(MAT/material/"roughness.png",default=180)
+              metal=gray_patch(MAT/material/"metalness.png",default=0)
+
+              avg=mean_rgb(col)
+              out=Image.new("RGB",(16,16)); cp=col.load(); op=out.load()
+              np=normal.load() if normal else None; rp=rough.load(); mp=metal.load()
+              # Fixed soft Roblox-like light direction, used only to make the real
+              # normal/roughness structure visible in vanilla Minecraft's diffuse-only path.
+              lx,ly,lz=(-0.35,0.45,0.82)
+              ll=math.sqrt(lx*lx+ly*ly+lz*lz); lx/=ll;ly/=ll;lz/=ll
+              for y in range(16):
+                  for x in range(16):
+                      r,g,b=cp[x,y]
+                      vals=[t*c/max(1.0,a) for c,a,t in zip((r,g,b),avg,tint)]
+                      shade=1.0
+                      if np:
+                          nr,ng,nb=np[x,y]
+                          nx=(nr/255.0)*2-1; ny=(ng/255.0)*2-1; nz=(nb/255.0)*2-1
+                          nl=max(1e-6,math.sqrt(nx*nx+ny*ny+nz*nz)); nx/=nl;ny/=nl;nz/=nl
+                          lam=max(-1.0,min(1.0,nx*lx+ny*ly+nz*lz))
+                          shade *= 0.86 + 0.20*((lam+1.0)*0.5)
+                      rv=rp[x,y]/255.0
+                      mv=mp[x,y]/255.0
+                      shade *= 0.94 + (1.0-rv)*0.10
+                      # Foil/metal patterns are mostly shader-driven; this retains the
+                      # real metalness map instead of collapsing the material to a solid color.
+                      shade *= 0.94 + mv*0.10
+                      op[x,y]=tuple(max(0,min(255,round(v*shade))) for v in vals)
+              tiled=Image.new("RGB",(64,64))
+              for yy in range(0,64,16):
+                  for xx in range(0,64,16): tiled.paste(out,(xx,yy))
+              return tiled
+
+          for stem,material in MATERIAL.items():
+              p=TEX/(stem+".png")
+              if not p.exists(): raise FileNotFoundError(p)
+              tint=tint_of(p)
+              make(material,tint).save(p)
+              print(f"{stem}: Roblox pre-2022 {material} PBR maps x BrickColor {tint}")
+          PYGEN
+          python3 tools/generate_roblox_material_textures_pbr.py
           python3 - <<'PY'
           from pathlib import Path
           from PIL import Image
@@ -89,6 +198,7 @@ jobs:
           assert len(set(Image.open(root/'lt2_generic_bark.png').convert('RGB').getdata())) > 8
           assert len(set(Image.open(root/'lt2_generic_wood.png').convert('RGB').getdata())) > 8
           assert len(set(Image.open(root/'lt2_generic_leaf0.png').convert('RGB').getdata())) > 8
+          assert len(set(Image.open(root/'lt2_lonecave_wood.png').convert('RGB').getdata())) > 4
           PY
 
       - name: Fix Fabric creative tab builder signature
