@@ -31,6 +31,23 @@ jobs:
           echo "380f321090b4cb70919cb6fdbeb4226dba0400ff17c74c5a1d434d5d5c3b860c  .chatgpt_builds/LumberLands-0.2.2-delta.zip" | sha256sum -c -
           unzip -qo .chatgpt_builds/LumberLands-0.2.2-delta.zip -d .chatgpt_builds/lumberlands_v022_src
 
+      - name: Correct LT2 centered part rendering during growth
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('.chatgpt_builds/lumberlands_v022_src/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2TreeRuntime.java')
+          s = p.read_text()
+          old = '''applyDisplay(display, state(Lt2Visuals.barkBlock(section.unit.species)), section.start, section.rotation,
+                        new Vec3(blocks(section.thickness), blocks(section.length), blocks(section.thickness)));'''
+          new = '''applyDisplay(display, state(Lt2Visuals.barkBlock(section.unit.species)), sectionDisplayCorner(section.start, section.rotation, section.thickness), section.rotation,
+                        new Vec3(blocks(section.thickness), blocks(section.length), blocks(section.thickness)));'''
+          if old in s:
+              s = s.replace(old, new)
+          if 'applyDisplay(display, state(Lt2Visuals.barkBlock(section.unit.species)), section.start, section.rotation' in s:
+              raise RuntimeError('uncentered growing section display call remains')
+          p.write_text(s)
+          PY
+
       - name: Remove superseded Magma block-set assets
         run: |
           find .chatgpt_builds/lumberlands_v022_src/src/main/resources -type f \(             -name 'magma_log*' -o -name 'magma_wood*' -o -name 'magma_planks*'             -o -name 'stripped_magma_log*' -o -name 'stripped_magma_wood*'             -o -name 'magma_logs.json'           \) -print -delete
