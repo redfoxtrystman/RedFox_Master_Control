@@ -1,0 +1,65 @@
+name: Build LumberLands 0.2.0
+
+on:
+  push:
+    branches:
+      - chatgpt-lumberlands-v0.2.0
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct source
+        run: |
+          mkdir -p .chatgpt_builds/lumberlands_v020_src
+          cat .chatgpt_builds/lumberlands_v020_payload/chunk* | base64 -d > .chatgpt_builds/LumberLands-0.2.0-source.zip
+          unzip -q .chatgpt_builds/LumberLands-0.2.0-source.zip -d .chatgpt_builds/lumberlands_v020_src
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.5.1'
+
+      - name: Build universal jar
+        working-directory: .chatgpt_builds/lumberlands_v020_src
+        run: gradle --no-daemon clean universalJar --stacktrace
+
+      - name: Fabric startup smoke test
+        working-directory: .chatgpt_builds/lumberlands_v020_src
+        run: |
+          mkdir -p fabric/run
+          echo 'eula=true' > fabric/run/eula.txt
+          set +e
+          timeout 70s gradle --no-daemon :fabric:runServer > fabric-smoke.log 2>&1
+          code=$?
+          set -e
+          cat fabric-smoke.log
+          if grep -q "Could not execute entrypoint.*lumberlands" fabric-smoke.log; then exit 1; fi
+          if grep -q "ExceptionInInitializerError" fabric-smoke.log; then exit 1; fi
+          if grep -q "Failed to start the minecraft server" fabric-smoke.log; then exit 1; fi
+          if grep -q "Done (" fabric-smoke.log; then exit 0; fi
+          if [ "$code" -eq 124 ]; then exit 0; fi
+          exit "$code"
+
+      - name: Upload universal jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: LumberLands-0.2.0-1.21.1-universal
+          path: .chatgpt_builds/lumberlands_v020_src/build/universal/*.jar
+          if-no-files-found: error
+
+      - name: Upload source
+        uses: actions/upload-artifact@v4
+        with:
+          name: LumberLands-0.2.0-source
+          path: .chatgpt_builds/LumberLands-0.2.0-source.zip
+          if-no-files-found: error
