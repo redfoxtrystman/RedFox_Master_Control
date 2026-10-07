@@ -1,0 +1,141 @@
+h = Math.max(Math.abs(a.x - b.x), Math.abs(a.z - b.z)) + thick;
+            double minY = Math.min(a.y, b.y) - thick * 0.5D;
+            double maxY = Math.max(a.y, b.y) + thick * 0.5D;
+            double height = Math.max(0.35D, maxY - minY);
+            CompoundTag tag = new CompoundTag();
+            hit.saveWithoutId(tag);
+            tag.putFloat("width", (float)Math.max(0.35D, width));
+            tag.putFloat("height", (float)height);
+            tag.putBoolean("response", true);
+            hit.load(tag);
+            hit.setPos((a.x + b.x) * 0.5D, minY, (a.z + b.z) * 0.5D);
+        }
+
+        Quaternionf bodyRotation() { return bodyRotation(fallAngle); }
+
+        Quaternionf bodyRotation(double angle) {
+            if (angle == 0.0D) return new Quaternionf();
+            float ax = (float)Math.sin(fallYaw);
+            float az = (float)-Math.cos(fallYaw);
+            return new Quaternionf().fromAxisAngleRad(ax, 0.0F, az, (float)angle);
+        }
+
+        Vec3 transformPoint(Vec3 studs, Quaternionf body, Vec3 candidatePivot) {
+            Vec3 scaled = studs.scale(STUD_TO_BLOCK);
+            return candidatePivot.add(rotated(body, scaled));
+        }
+
+        void writeMeta() {
+            putSingleTag(controller, SEED_PREFIX, Long.toString(seed));
+            putSingleTag(controller, GROW_PREFIX, Integer.toString(sim.growCalls));
+            putSingleTag(controller, TTG_PREFIX, String.format(Locale.ROOT, "%.6f", timeToNextGrow));
+            putSingleTag(controller, STATE_PREFIX, state.name());
+            putSingleTag(controller, FALL_ANGLE_PREFIX, String.format(Locale.ROOT, "%.8f", fallAngle));
+            putSingleTag(controller, FALL_YAW_PREFIX, String.format(Locale.ROOT, "%.8f", fallYaw));
+            putSingleTag(controller, FREE_FALL_PREFIX, Boolean.toString(freeFall));
+            if (carriedBy != null) putSingleTag(controller, CARRIER_PREFIX, carriedBy.toString());
+            else removePrefixTags(controller, CARRIER_PREFIX);
+        }
+    }
+
+    private enum TreeState { GROWING, FALLING, FALLEN, CARRIED }
+
+    /** Exact parameter set from the supplied LT2 Volcano tree subclass. */
+    private static final class VolcanoProfile {
+        static final double HARDNESS = 7.0D;
+        static final Range GROW_INTERVAL = new Range(10, 12);
+        static final Range MAX_GROW_CALLS = new Range(80, 105);
+        static final int NEW_BRANCH_CUTOFF = 10;
+        static final Range SEED_THICKNESS = new Range(0.4, 0.6);
+        static final Range THICKNESS_GROW = new Range(0.018, 0.024);
+        static final Range LENGTH_GROW = new Range(0.3, 0.35);
+        static final Range BEND_THICKNESS_REDUCE = new Range(0.7, 0.9);
+        static final Range SPLIT_THICKNESS_REDUCE = new Range(0.3, 0.38);
+        static final Range TRUNK_ANGLE_PHI = new Range(12, 60);
+        static final Range TRUNK_ANGLE_THETA = new Range(0, 360);
+        static final Range TRUNK_DISTANCE_BEND = new Range(10000, 10000);
+        static final Range TRUNK_DISTANCE_SPLIT = new Range(8, 11);
+        static final Range TRUNK_DISTANCE_BRANCH = new Range(10, 14);
+        static final Range DISTANCE_SPLITS = new Range(8, 13);
+        static final IntRange NUM_SPLITS = new IntRange(2, 3);
+        static final Range SPLIT_ANGLE = new Range(0, 80);
+        static final Range SPLIT_SEPARATION = new Range(60, 150);
+        static final Range SPLIT_Y = new Range(0.5, 1);
+        static final Range DISTANCE_BENDS = new Range(3, 5);
+        static final Range BEND_ANGLE = new Range(10, 30);
+        static final Range BEND_Y = new Range(0, 1);
+        static final Range DISTANCE_BRANCH = new Range(4, 10);
+        static final double SPACE_CHECK_DISTANCE = 10.0D;
+        static final int NEW_SEGMENT_ATTEMPTS = 250;
+        static final double MIN_SPAWN_DISTANCE = 28.0D;
+        static final IntRange NUM_LEAF_PARTS = new IntRange(0, 1);
+        static final Range LEAF_X = new Range(3, 7);
+        static final Range LEAF_Y = new Range(1, 2.5);
+        static final Range LEAF_Z = new Range(3, 7);
+        static final Range LEAF_ANGLE_X = new Range(-10, 10);
+        static final Range LEAF_ANGLE_Y = new Range(-20, 20);
+        static final Range LEAF_ANGLE_Z = new Range(-10, 10);
+    }
+
+    private record Range(double min, double max) {}
+    private record IntRange(int min, int max) {}
+
+    private static final class Simulation {
+        final Pcg32 rng;
+        final ServerLevel level;
+        final List<Segment> sections = new ArrayList<>();
+        Vec3 pivot;
+        double maxGrowCalls;
+        int growCalls;
+        boolean finished;
+        double initialInterval;
+
+        Simulation(long seed, ServerLevel level, Vec3 pivot) {
+            this.rng = new Pcg32(seed);
+            this.level = level;
+            this.pivot = pivot;
+
+            double theta = Math.toRadians(random(VolcanoProfile.TRUNK_ANGLE_THETA));
+            double phi = Math.toRadians(random(VolcanoProfile.TRUNK_ANGLE_PHI));
+            Quaternionf seedRotation = new Quaternionf().rotationXYZ(0.0F, (float)theta, (float)phi);
+            maxGrowCalls = random(VolcanoProfile.MAX_GROW_CALLS);
+            newSection(new Vec3(0, 0, 0), seedRotation, Origin.SEED, null);
+            initialInterval = random(VolcanoProfile.GROW_INTERVAL);
+        }
+
+        Segment byId(int id) {
+            if (id <= 0 || id > sections.size()) return null;
+            return sections.get(id - 1);
+        }
+
+        double drawNextInterval() { return random(VolcanoProfile.GROW_INTERVAL); }
+
+        void grow() {
+            if (finished) return;
+            growCalls++;
+            boolean foundGrowing = false;
+            int existing = sections.size();
+            for (int idx = 0; idx < existing; idx++) {
+                Segment section = sections.get(idx);
+                if (!section.growing) continue;
+                foundGrowing = true;
+
+                if (section.extremity && coneCheck(section, section.end(), section.rotation)) {
+                    double lengthGrow = random(VolcanoProfile.LENGTH_GROW);
+                    section.length += lengthGrow;
+                    section.distanceToBend -= lengthGrow;
+                    section.distanceToSplit -= lengthGrow;
+                    section.distanceToBranch -= lengthGrow;
+
+                    if (section.distanceToSplit <= 0.0D && section.length > 2.0D) {
+                        section.extremity = false;
+                        split(section, Origin.SPLIT, VolcanoProfile.NUM_SPLITS, VolcanoProfile.SPLIT_ANGLE,
+                                VolcanoProfile.SPLIT_Y, VolcanoProfile.SPLIT_SEPARATION);
+                    } else if (section.distanceToBend <= 0.0D && section.length > 2.0D) {
+                        section.extremity = false;
+                        split(section, Origin.BEND, new IntRange(1, 1), VolcanoProfile.BEND_ANGLE,
+                                VolcanoProfile.BEND_Y, new Range(0, 180));
+                    }
+                }
+
+                section.thickness += random(Volc
