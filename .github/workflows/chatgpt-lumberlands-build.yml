@@ -63,16 +63,18 @@ jobs:
                   }
               }
 
-              java {
-                  toolchain {
-                      languageVersion = JavaLanguageVersion.of(rootProject.java_version as int)
+              if (project.name != 'neoforge') {
+                  java {
+                      toolchain {
+                          languageVersion = JavaLanguageVersion.of(rootProject.java_version as int)
+                      }
+                      withSourcesJar()
                   }
-                  withSourcesJar()
-              }
 
-              tasks.withType(JavaCompile).configureEach {
-                  options.encoding = 'UTF-8'
-                  options.release = rootProject.java_version as int
+                  tasks.withType(JavaCompile).configureEach {
+                      options.encoding = 'UTF-8'
+                      options.release = rootProject.java_version as int
+                  }
               }
           }
 
@@ -171,6 +173,18 @@ jobs:
 
           base {
               archivesName = rootProject.archives_name
+          }
+
+          java {
+              toolchain {
+                  languageVersion = JavaLanguageVersion.of(rootProject.java_version as int)
+              }
+              withSourcesJar()
+          }
+
+          tasks.withType(JavaCompile).configureEach {
+              options.encoding = 'UTF-8'
+              options.release = rootProject.java_version as int
           }
 
           neoForge {
