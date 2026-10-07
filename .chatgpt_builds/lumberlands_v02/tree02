@@ -1,0 +1,154 @@
+            moveController();
+                }
+                updateTransforms();
+                return;
+            }
+
+            double height = Math.max(1.0D, sim.maxReachStuds() * STUD_TO_BLOCK);
+            angularVelocity += (0.035D / height) * Math.max(0.15D, Math.sin(Math.max(fallAngle, 0.15D)));
+            angularVelocity = Math.min(angularVelocity, 0.075D);
+            double proposed = Math.min(Math.PI * 0.5D, fallAngle + angularVelocity);
+            Quaternionf q = bodyRotation(proposed);
+            if (collides(q, pivot) || proposed >= Math.PI * 0.5D) {
+                if (!collides(q, pivot)) fallAngle = proposed;
+                state = TreeState.FALLEN;
+                angularVelocity = 0.0D;
+            } else {
+                fallAngle = proposed;
+            }
+            updateTransforms();
+        }
+
+        void beginCarry(Player player) {
+            state = TreeState.CARRIED;
+            carriedBy = player.getUUID();
+            freeFall = false;
+            verticalVelocity = 0.0D;
+            writeMeta();
+        }
+
+        void dropFromCarry() {
+            state = TreeState.FALLING;
+            carriedBy = null;
+            freeFall = true;
+            verticalVelocity = -0.02D;
+            writeMeta();
+        }
+
+        void tickCarried() {
+            if (carriedBy == null) { dropFromCarry(); return; }
+            Player player = level.getPlayerByUUID(carriedBy);
+            if (player == null || !player.isAlive()) { dropFromCarry(); return; }
+            Vec3 target = player.getEyePosition().add(player.getLookAngle().scale(3.0D)).add(0.0D, -0.75D, 0.0D);
+            pivot = target;
+            moveController();
+            updateTransforms();
+        }
+
+        void moveController() {
+            controller.setPos(pivot.x, pivot.y, pivot.z);
+        }
+
+        boolean collides(Quaternionf body, Vec3 candidatePivot) {
+            for (Segment s : sim.sections) {
+                Vec3 a = transformPoint(s.start, body, candidatePivot);
+                Vec3 b = transformPoint(s.end(), body, candidatePivot);
+                for (int i = 1; i <= 4; i++) {
+                    double t = i / 4.0D;
+                    Vec3 p = a.lerp(b, t);
+                    if (p.distanceToSqr(candidatePivot) < 0.16D) continue;
+                    BlockPos bp = BlockPos.containing(p.x, p.y, p.z);
+                    BlockState bs = level.getBlockState(bp);
+                    if (!bs.isAir() && !bs.getCollisionShape(level, bp).isEmpty()) return true;
+                }
+            }
+            return false;
+        }
+
+        void removeChildren() {
+            String ownerTag = OWNER_PREFIX + id;
+            List<Entity> remove = new ArrayList<>();
+            for (Entity entity : level.getAllEntities()) {
+                if (entity.getTags().contains(ownerTag)) remove.add(entity);
+            }
+            for (Entity entity : remove) entity.discard();
+            wood.clear();
+            leaves.clear();
+            hitboxes.clear();
+        }
+
+        void rebuildEntities() {
+            removeChildren();
+            for (Segment segment : sim.sections) {
+                Display.BlockDisplay display = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level);
+                display.addTag(OWNER_PREFIX + id);
+                display.addTag("ll_tree_wood");
+                display.addTag(SEGMENT_PREFIX + segment.id);
+                level.addFreshEntity(display);
+                wood.put(segment.id, display);
+
+                Interaction hit = EntityType.INTERACTION.create(level);
+                if (hit != null) {
+                    hit.addTag(OWNER_PREFIX + id);
+                    hit.addTag(HIT_TAG);
+                    hit.addTag(SEGMENT_PREFIX + segment.id);
+                    level.addFreshEntity(hit);
+                    hitboxes.put(segment.id, hit);
+                }
+
+                for (int i = 0; i < segment.leaves.size(); i++) {
+                    Display.BlockDisplay leafDisplay = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level);
+                    leafDisplay.addTag(OWNER_PREFIX + id);
+                    leafDisplay.addTag("ll_tree_leaf");
+                    leafDisplay.addTag(SEGMENT_PREFIX + segment.id);
+                    level.addFreshEntity(leafDisplay);
+                    leaves.put(segment.id + ":" + i, leafDisplay);
+                }
+            }
+            updateTransforms();
+        }
+
+        void updateTransforms() {
+            Quaternionf body = bodyRotation();
+            BlockState logState = magmaLog.get().defaultBlockState();
+            BlockState leafState = magmaFoliage.get().defaultBlockState();
+
+            for (Segment s : sim.sections) {
+                Display.BlockDisplay d = wood.get(s.id);
+                if (d != null && !d.isRemoved()) {
+                    Vec3 start = transformPoint(s.start, body, pivot);
+                    Quaternionf rotation = new Quaternionf(body).mul(s.rotation);
+                    Vec3 direction = rotated(rotation, new Vec3(0.0D, 1.0D, 0.0D));
+                    double length = Math.max(0.02D, s.length * STUD_TO_BLOCK);
+                    double thickness = Math.max(0.025D, s.thickness * STUD_TO_BLOCK);
+                    Vec3 center = start.add(direction.scale(length * 0.5D));
+                    setDisplay(d, logState, center, rotation,
+                            new Vector3f((float)thickness, (float)length, (float)thickness), false);
+                }
+
+                Interaction hit = hitboxes.get(s.id);
+                if (hit != null && !hit.isRemoved()) updateHitbox(hit, s, body);
+
+                for (int i = 0; i < s.leaves.size(); i++) {
+                    Leaf leaf = s.leaves.get(i);
+                    Display.BlockDisplay ld = leaves.get(s.id + ":" + i);
+                    if (ld == null || ld.isRemoved()) continue;
+                    Quaternionf sectionRotation = new Quaternionf(body).mul(s.rotation);
+                    Vec3 tip = transformPoint(s.end(), body, pivot);
+                    double sx = leaf.sizeX * s.thickness * STUD_TO_BLOCK;
+                    double sy = leaf.sizeY * s.thickness * STUD_TO_BLOCK;
+                    double sz = leaf.sizeZ * s.thickness * STUD_TO_BLOCK;
+                    Vec3 sectionDirection = rotated(sectionRotation, new Vec3(0.0D, 1.0D, 0.0D));
+                    Vec3 center = tip.add(sectionDirection.scale(0.75D * sy * 0.5D));
+                    Quaternionf leafRotation = new Quaternionf(sectionRotation).mul(leaf.rotation);
+                    setDisplay(ld, leafState, center, leafRotation,
+                            new Vector3f((float)sx, (float)sy, (float)sz), true);
+                }
+            }
+        }
+
+        void updateHitbox(Interaction hit, Segment s, Quaternionf body) {
+            Vec3 a = transformPoint(s.start, body, pivot);
+            Vec3 b = transformPoint(s.end(), body, pivot);
+            double thick = Math.max(0.35D, s.thickness * STUD_TO_BLOCK);
+            double widt
