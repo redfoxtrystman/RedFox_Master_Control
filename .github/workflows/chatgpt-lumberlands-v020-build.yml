@@ -15,7 +15,7 @@ jobs:
       - name: Reconstruct source
         run: |
           mkdir -p .chatgpt_builds/lumberlands_v020_src
-          cat .chatgpt_builds/lumberlands_v020_payload/chunk* | base64 -d > .chatgpt_builds/LumberLands-0.2.0-source.zip
+          cat .chatgpt_builds/lumberlands_v020_full/chunk* | base64 -d > .chatgpt_builds/LumberLands-0.2.0-source.zip
           unzip -q .chatgpt_builds/LumberLands-0.2.0-source.zip -d .chatgpt_builds/lumberlands_v020_src
 
       - name: Set up Java 21
