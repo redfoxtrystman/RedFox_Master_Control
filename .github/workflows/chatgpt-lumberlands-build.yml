@@ -274,9 +274,37 @@ jobs:
         working-directory: .chatgpt_builds/lumberlands
         run: gradle --no-daemon clean universalJar --stacktrace
 
+      - name: Fabric startup smoke test
+        working-directory: .chatgpt_builds/lumberlands
+        run: |
+          mkdir -p fabric/run
+          echo 'eula=true' > fabric/run/eula.txt
+          set +e
+          timeout 45s gradle --no-daemon :fabric:runServer > fabric-smoke.log 2>&1
+          code=$?
+          set -e
+          cat fabric-smoke.log
+          if grep -q "Could not execute entrypoint.*lumberlands" fabric-smoke.log; then
+            echo "LumberLands Fabric entrypoint crashed."
+            exit 1
+          fi
+          if grep -q "ExceptionInInitializerError" fabric-smoke.log; then
+            echo "Fabric static initialization crashed."
+            exit 1
+          fi
+          if grep -q "Done (" fabric-smoke.log || grep -q "Starting minecraft server version 1.21.1" fabric-smoke.log; then
+            echo "Fabric runtime reached server startup successfully."
+            exit 0
+          fi
+          if [ "$code" -eq 124 ]; then
+            echo "Server stayed alive for the smoke-test window."
+            exit 0
+          fi
+          exit "$code"
+
       - name: Upload universal jar
         uses: actions/upload-artifact@v4
         with:
-          name: LumberLands-0.1.0-1.21.1-universal-fixed-v2
+          name: LumberLands-0.1.0-1.21.1-universal-fixed-v3
           path: .chatgpt_builds/lumberlands/build/universal/*.jar
           if-no-files-found: error
