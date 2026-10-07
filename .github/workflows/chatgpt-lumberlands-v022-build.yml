@@ -49,10 +49,17 @@ jobs:
       - name: Remove superseded Magma block-set assets
         run: |
           find .chatgpt_builds/lumberlands_v022_src/src/main/resources -type f \(             -name 'magma_log*' -o -name 'magma_wood*' -o -name 'magma_planks*'             -o -name 'stripped_magma_log*' -o -name 'stripped_magma_wood*'             -o -name 'magma_logs.json'           \) -print -delete
-          grep -RIl 'lumberlands:magma_' .chatgpt_builds/lumberlands_v022_src/src/main/resources 2>/dev/null | while read f; do
-            echo "ERROR: stale magma resource reference in $f"
+          rm -f \
+            .chatgpt_builds/lumberlands_v022_src/src/main/resources/data/minecraft/tags/item/planks.json \
+            .chatgpt_builds/lumberlands_v022_src/src/main/resources/data/minecraft/tags/item/logs.json \
+            .chatgpt_builds/lumberlands_v022_src/src/main/resources/data/minecraft/tags/block/planks.json \
+            .chatgpt_builds/lumberlands_v022_src/src/main/resources/data/minecraft/tags/block/logs.json
+          stale=$(grep -RIl 'lumberlands:magma_' .chatgpt_builds/lumberlands_v022_src/src/main/resources 2>/dev/null || true)
+          if [ -n "$stale" ]; then
+            echo "ERROR: stale magma resource references remain:"
+            echo "$stale"
             exit 1
-          done || true
+          fi
 
       - name: Install texture build dependency
         run: python3 -m pip install --disable-pip-version-check pillow
