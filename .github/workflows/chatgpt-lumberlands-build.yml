@@ -19,6 +19,52 @@ jobs:
           cat .chatgpt_builds/lumberlands_chunks/chunk00               .chatgpt_builds/lumberlands_chunks/chunk01               .chatgpt_builds/lumberlands_chunks/chunk02               .chatgpt_builds/lumberlands_chunks/chunk03               .chatgpt_builds/lumberlands_chunks/chunk04               .chatgpt_builds/lumberlands_chunks/chunk05               | base64 -d > .chatgpt_builds/LumberLands-ci-source.zip
           unzip -q .chatgpt_builds/LumberLands-ci-source.zip -d .chatgpt_builds/lumberlands
 
+      - name: Patch ForgeGradle 7 build script
+        run: |
+          cat > .chatgpt_builds/lumberlands/forge/build.gradle <<'EOF'
+          minecraft {
+              runs {
+                  configureEach {
+                      workingDir = layout.projectDirectory.dir('run')
+                  }
+                  register('client')
+                  register('server')
+              }
+          }
+
+          dependencies {
+              implementation minecraft.dependency("net.minecraftforge:forge:${rootProject.forge_version}")
+          }
+
+          sourceSets.main.resources.srcDir rootProject.file('src/main/resources')
+
+          processResources {
+              duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+              inputs.property 'version', project.version
+              filesMatching('META-INF/mods.toml') {
+                  expand(
+                      version: project.version,
+                      minecraft_version: rootProject.minecraft_version,
+                      forge_version: rootProject.forge_version
+                  )
+              }
+          }
+
+          jar {
+              archiveBaseName = rootProject.archives_name
+              archiveVersion = "${rootProject.mod_version}+${rootProject.minecraft_version}-forge"
+              archiveClassifier = null
+          }
+          EOF
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('.chatgpt_builds/lumberlands/build.gradle')
+          s = p.read_text()
+          s = s.replace("dependsOn ':fabric:remapJar', ':forge:reobfJar', ':neoforge:remapJar'",
+                        "dependsOn ':fabric:remapJar', ':forge:jar', ':neoforge:remapJar'")
+          p.write_text(s)
+          PY
+
       - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
