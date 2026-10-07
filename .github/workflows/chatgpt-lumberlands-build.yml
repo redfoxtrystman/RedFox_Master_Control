@@ -13,9 +13,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Unpack LumberLands source
+      - name: Reconstruct LumberLands source archive
         run: |
           mkdir -p .chatgpt_builds/lumberlands
+          cat .chatgpt_builds/lumberlands_chunks/chunk00               .chatgpt_builds/lumberlands_chunks/chunk01               .chatgpt_builds/lumberlands_chunks/chunk02               .chatgpt_builds/lumberlands_chunks/chunk03               .chatgpt_builds/lumberlands_chunks/chunk04               .chatgpt_builds/lumberlands_chunks/chunk05               | base64 -d > .chatgpt_builds/LumberLands-ci-source.zip
           unzip -q .chatgpt_builds/LumberLands-ci-source.zip -d .chatgpt_builds/lumberlands
 
       - name: Set up Java 21
