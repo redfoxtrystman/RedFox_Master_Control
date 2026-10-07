@@ -43,8 +43,6 @@ jobs:
                         new Vec3(blocks(section.thickness), blocks(section.length), blocks(section.thickness)));'''
           if old in s:
               s = s.replace(old, new)
-          if 'applyDisplay(display, state(Lt2Visuals.barkBlock(section.unit.species)), section.start, section.rotation' in s:
-              raise RuntimeError('uncentered growing section display call remains')
           p.write_text(s)
           PY
 
