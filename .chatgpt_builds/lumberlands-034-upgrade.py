@@ -23,7 +23,7 @@ for asset,output in assets.items():
  print('Retrieved exact Roblox asset',asset,len(data),'bytes')
 raw=assets[145815658].read_bytes()
 s=(gzip.decompress(raw) if raw.startswith(b'\x1f\x8b') else raw).decode('ascii')
-head=s.split('\n',2)[:2]
+head=[x.strip() for x in s.split('\n',2)[:2]]
 if head != ['version 1.00','2168']: raise RuntimeError('wrong Roblox mesh header '+str(head))
 groups=re.findall(r'\[([^][]+)\]',s)
 if len(groups)!=19512: raise RuntimeError('invalid Roblox vertex group count '+str(len(groups)))
