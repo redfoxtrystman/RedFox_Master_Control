@@ -60,15 +60,18 @@ s=s.replace('(zi == 0 ? -hz : hz)','(zi == 0 ? z0 : z1)')
 assert 'sliceBounds(' not in s
 p.write_text(s)
 
-edit(tree,'''        void refreshPhysicsSections() {
+p=root/tree
+s=p.read_text()
+start=s.index('        void refreshPhysicsSections() {')
+end=s.index('        double physicsImportance(',start)
+s=s[:start]+'''        void refreshPhysicsSections() {
+            // Every rendered rigid section must participate in terrain contact.
             this.physicsSections.clear();
-            if (this.sections.size() <= 72) {''','''        void refreshPhysicsSections() {
-            this.physicsSections.clear();
-            // Every visible part participates in terrain contact, even on giant trees.
             this.physicsSections.addAll(this.sections);
-            if (false) {''')
-# The now-dead older ranking branch is intentionally kept compilable. Its addAll was
-# replaced above, and the following if(false) means no sections are culled.
+        }
+
+'''+s[end:]
+p.write_text(s)
 edit(tree,
  '''                double maxProjection = this.isSmallPiece() ? 0.55 : 0.85;''',
  '''                double maxProjection = this.isSmallPiece() ? Double.POSITIVE_INFINITY : 2.0;''')
