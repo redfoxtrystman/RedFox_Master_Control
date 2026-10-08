@@ -1,0 +1,49 @@
+name: LumberLands 0.2.2 Recover Source
+on:
+  push:
+    branches: [chatgpt-lumberlands-023-recover]
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct jar
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p work
+          base64 -d .chatgpt_builds/lumberlands-0.2.2-universal.b64 > work/LumberLands-0.2.2+1.21.1-universal.jar
+          jar tf work/LumberLands-0.2.2+1.21.1-universal.jar | head
+      - name: Download CFR
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -fL https://repo1.maven.org/maven2/org/benf/cfr/0.152/cfr-0.152.jar -o work/cfr.jar
+      - name: Decompile
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p recovered-src
+          java -jar work/cfr.jar work/LumberLands-0.2.2+1.21.1-universal.jar --outputdir recovered-src --silent true
+          find recovered-src -type f | sort
+      - name: Copy resources
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p recovered-jar
+          cd recovered-jar
+          jar xf ../work/LumberLands-0.2.2+1.21.1-universal.jar
+          cd ..
+          mkdir -p recovered-resources
+          cp -a recovered-jar/assets recovered-resources/ || true
+          cp -a recovered-jar/data recovered-resources/ || true
+          cp -a recovered-jar/META-INF recovered-resources/ || true
+          find recovered-jar -maxdepth 1 -type f -exec cp {} recovered-resources/ \;
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LumberLands-0.2.2-recovered
+          path: |
+            recovered-src
+            recovered-resources
+            work/LumberLands-0.2.2+1.21.1-universal.jar
