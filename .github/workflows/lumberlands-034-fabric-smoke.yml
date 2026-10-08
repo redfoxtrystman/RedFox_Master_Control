@@ -5,7 +5,7 @@ on:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - name: Reconstruct complete 0.3.4 source and assets
@@ -32,11 +32,15 @@ jobs:
         working-directory: work/project
         run: |
           set +e
-          timeout 150s xvfb-run -a gradle --no-daemon :fabric:runClient > fabric-smoke.log 2>&1
+          timeout 720s xvfb-run -a gradle --no-daemon :fabric:runClient > fabric-smoke.log 2>&1
           code=$?
           set -e
           tail -n 200 fabric-smoke.log
           if grep -E 'InvalidInterfaceMixinException|Mixin apply for mod lumberlands failed|Minecraft has crashed|Mixin transformation .* failed|lumberlands.*FAILED during APPLY|Mixin target.*not found' fabric-smoke.log; then
+            exit 1
+          fi
+          if ! grep -E 'Starting Minecraft 1\.21\.1|Fabric Loader.*Minecraft|Minecraft client started' fabric-smoke.log; then
+            echo "INCONCLUSIVE: No confirmed Fabric Minecraft client startup marker"
             exit 1
           fi
           if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
