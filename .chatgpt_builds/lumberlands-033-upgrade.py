@@ -25,12 +25,22 @@ change(visual,'import net.minecraft.core.registries.BuiltInRegistries;',
 'insert' if False else '''import com.glaziolaicefox.lumberlands.tree.Lt2TreeRuntime;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.registries.BuiltInRegistries;''')
+change(visual,
+'    private List<AABB> collisionBoxes = List.of();',
+'''    private static final EntityDataAccessor<Boolean> DATA_COLLISION_ACTIVE =
+            SynchedEntityData.defineId(Lt2TreeVisualEntity.class, EntityDataSerializers.BOOLEAN);
+    private List<AABB> collisionBoxes = List.of();''')
+change(visual,
+'        builder.define(DATA_ROTATION, new Quaternionf());',
+'''        builder.define(DATA_ROTATION, new Quaternionf());
+        builder.define(DATA_COLLISION_ACTIVE, true);''')
 p=root/visual
 source=p.read_text()
 import re
 source,count=re.subn(
     r'if \(tree\.level\(\) == level && !tree\.geometry\(\)\.getList\("sections", 10\)\.isEmpty\(\)\s*&& tree\.getBoundingBox\(\)\.intersects\(query\)\) out\.add\(tree\);',
-    """if (tree.level() != level || tree.geometry().getList("sections", 10).isEmpty()) continue;
+    """if (tree.level() != level || !tree.entityData.get(DATA_COLLISION_ACTIVE)
+                        || tree.geometry().getList("sections", 10).isEmpty()) continue;
                 if (level instanceof ServerLevel server &&
                         !Lt2TreeRuntime.isVisualOwned(server, tree.getUUID())) continue;
                 if (tree.getBoundingBox().intersects(query)) out.add(tree);""",
@@ -43,8 +53,10 @@ change(visual,'''        super.tick();
         if (this.level() instanceof ServerLevel server && this.tickCount > 40
                 && !this.geometry().getList("sections", 10).isEmpty()
                 && !Lt2TreeRuntime.isVisualOwned(server, this.getUUID())) {
-            this.discard();
-            return;
+            // Preserve saved tree visuals; only turn off collision for lost owners.
+            this.entityData.set(DATA_COLLISION_ACTIVE, false);
+            this.collisionBoxes = List.of();
+            this.collisionDirty = false;
         }
         if (!this.level().isClientSide && this.geometry().getBoolean("leafDebris")''')
 change(runtime,'        int quietTicks;\n        int contactGraceTicks;',
@@ -93,7 +105,7 @@ f=f.replace('new Lt2Range(35.0, 150.0)','new Lt2Range(32.0, 100.0)')
 p.write_text(s[:a]+f+s[b:])
 change('gradle.properties','mod_version=0.3.2','mod_version=0.3.3')
 (root/'LUMBERLANDS_0.3.3_FIX_STATUS.md').write_text("""# 0.3.3 targeted fixes
-Orphaned persisted tree_visual geometry no longer supplies server collision; saved orphans are discarded after 40 ticks.
+Orphaned saved tree_visual geometry no longer supplies collision; saved visuals remain rendered with synchronized collision-off state.
 Grounded low-speed logs enter stable sleep after consecutive supporting contacts.
 Near-neutral bark textures have excess magenta corrected at bake time; Neon left unchanged.
 Frost overbranching reduced; exact Frost source absent from the user's pre-2018 RBXL.
