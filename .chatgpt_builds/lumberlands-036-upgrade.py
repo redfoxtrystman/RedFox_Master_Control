@@ -40,19 +40,16 @@ change(anim,'''        model.leftArm.xRot = x + 0.14F;''',
 # Preserve authoritative archive RGB in the JSON; neutralize only final rendering
 # for intended gray/neutral bark (not intentionally red Cherry, Volcano, etc.).
 build='build.gradle'
-change(build,'''            List rgb = spec[1] as List
-            if (outputPart == 'bark' && material != 'Neon'
-''',
-'''            List rgb = spec[1] as List
-            if (outputPart == 'bark' && ['generic', 'fir', 'fir_branch', 'oak',
-                    'pine', 'pine_branch', 'walnut', 'koa', 'genericspecial',
-                    'bluespruce', 'test', 'greenswampy'].contains(speciesId)) {
-                int neutral = Math.round((rgb[0] as int) * 0.2126f
-                        + (rgb[1] as int) * 0.7152f + (rgb[2] as int) * 0.0722f)
-                rgb = [neutral, neutral, neutral]
-            }
-            if (outputPart == 'bark' && material != 'Neon'
-''')
+# ROOT CAUSE: BlockRenderDispatcher.renderSingleBlock's last parameter is the
+# packed overlay UV. Zero selects Minecraft's red injury/hurt overlay. Using
+# OverlayTexture.NO_OVERLAY fixes the tint on EVERY species, without re-coloring
+# any LT2 wood texture or Neon pass.
+renderer='src/main/java/com/glaziolaicefox/lumberlands/client/Lt2TreeVisualEntityRenderer.java'
+change(renderer,
+'''Minecraft.getInstance().getBlockRenderer().renderSingleBlock(state,pose,buffers,light,0);''',
+'''Minecraft.getInstance().getBlockRenderer().renderSingleBlock(
+                state, pose, buffers, light, OverlayTexture.NO_OVERLAY);''')
+
 # Existing light-lifting rule makes Cavecrawler bark and core unnaturally
 # electric cyan-blue. Keep the source Navy Blue and Really Blue RGB while
 # retaining Neon fullbright + emissive eyes pass.
@@ -110,8 +107,9 @@ change('gradle.properties','mod_version=0.3.5','mod_version=0.3.6')
   unauthenticated asset delivery. This build does NOT include original keyframe
   animations; its existing three-stage pose motion remains approximate. A
   Roblox Studio export or authorized original keyframe source is needed.
-- Neutral common bark palette correction takes place in Gradle's texture bake,
-  not through post-render shader tricks; intentionally colored wood unaffected.
+- Root-cause global red tint fix: the tree renderer passed packedOverlay=0 to
+  renderSingleBlock, selecting Minecraft's red injury overlay. Now explicitly
+  passes OverlayTexture.NO_OVERLAY. Original species palette preserved.
 - Cavecrawler source Navy Blue and Really Blue not artificially boosted to 235;
   original Neon emission retained. Cavecrawler source branching untouched;
   Foil leaf pad overgrowth capped.
@@ -122,4 +120,4 @@ change('gradle.properties','mod_version=0.3.5','mod_version=0.3.6')
   visual checks on fresh grown trees.
 """)
 for p in root.rglob('*.json'):json.loads(p.read_text())
-print('0.3.6 changed: axe grip, LT2 cut-height selectors, bark bake, Cave blue and leaf pads, Frost size, low-energy jitter')
+print('0.3.6 changed: axe grip, LT2 cut-height selectors, red-overlay renderer fix, Cave blue and leaf pads, Frost size, low-energy jitter')
