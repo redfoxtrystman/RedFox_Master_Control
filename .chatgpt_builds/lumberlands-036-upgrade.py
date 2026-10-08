@@ -41,7 +41,8 @@ change(anim,'''        model.leftArm.xRot = x + 0.14F;''',
 # for intended gray/neutral bark (not intentionally red Cherry, Volcano, etc.).
 build='build.gradle'
 change(build,'''            List rgb = spec[1] as List
-            if (outputPart == 'bark' && material != 'Neon' ''',
+            if (outputPart == 'bark' && material != 'Neon'
+''',
 '''            List rgb = spec[1] as List
             if (outputPart == 'bark' && ['generic', 'fir', 'fir_branch', 'oak',
                     'pine', 'pine_branch', 'walnut', 'koa', 'genericspecial',
@@ -50,7 +51,8 @@ change(build,'''            List rgb = spec[1] as List
                         + (rgb[1] as int) * 0.7152f + (rgb[2] as int) * 0.0722f)
                 rgb = [neutral, neutral, neutral]
             }
-            if (outputPart == 'bark' && material != 'Neon' ''')
+            if (outputPart == 'bark' && material != 'Neon'
+''')
 # Existing light-lifting rule makes Cavecrawler bark and core unnaturally
 # electric cyan-blue. Keep the source Navy Blue and Really Blue RGB while
 # retaining Neon fullbright + emissive eyes pass.
