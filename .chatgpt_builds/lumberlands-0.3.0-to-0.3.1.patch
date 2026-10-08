@@ -1,0 +1,419 @@
+diff -ruN '--exclude=LUMBERLANDS_0.3.1_AUDIT.md' /mnt/data/ll030/LUMBERLANDS_0.3.1_TREE_PARITY_COLLISION_HOTFIX.md /mnt/data/ll031/LUMBERLANDS_0.3.1_TREE_PARITY_COLLISION_HOTFIX.md
+--- /mnt/data/ll030/LUMBERLANDS_0.3.1_TREE_PARITY_COLLISION_HOTFIX.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/ll031/LUMBERLANDS_0.3.1_TREE_PARITY_COLLISION_HOTFIX.md	2026-10-08 17:55:48.215074764 +0000
+@@ -0,0 +1,84 @@
++# LumberLands 0.3.1 — LT2 tree parity / collision / jitter hotfix
++
++This pass is a correction to 0.3.0. It keeps the working unified tree entity and Neon renderer, but removes several 0.3.0 approximations that were visibly wrong in game.
++
++## Reference basis
++
++- User-provided `LumberTycoon2.rbxl` and `LT2(2).rbxl`.
++- The supplied LT2 `TreeSubclasses/CaveCrawler` and `TreeSuperClass` source recovered from the place file.
++- User screenshots from the 0.3.0 test showing the global warm/red cast, ground clipping, inaccurate walk collision and loose-piece jitter.
++- Frost post-dates the supplied 2017 place. For Frost only, current LT2 documentation/thumbnail is used: white SmoothPlastic bark, Ice cyan inner wood, Glass cyan leaves, Oak-like but more erratic growth, and Lava/Volcano-like leaves on outer extremities.
++
++## Fixed
++
++### 1. Global red/brown tree tint
++
++0.3.0 multiplied each RGB channel of Roblox's legacy material color map by the requested LT2 BrickColor. That preserves the source material image's own hue and was contaminating the requested color, producing the visible red/brown cast across unrelated tree species.
++
++0.3.1 keeps only the material map's luminance/detail and applies the LT2 BrickColor as the actual hue. Foil's normal-derived detail path and Neon's emissive/fullbright path are preserved.
++
++### 2. Ghost hitbox after a tree is chopped down
++
++Standing-tree geometry/collision is now synchronized immediately when sections are detached instead of waiting until the next tree tick. `Lt2TreeVisualEntity` also removes itself from the active collision index immediately when discarded and clears its cached collision boxes.
++
++### 3. Loose wood ground jitter / repeated floor clipping
++
++The 0.3.0 terrain solver intentionally projected only 82% of a penetration and capped each correction to 0.20 blocks. Gravity then pushed the same body back into the floor on the next substep, creating the reported clip -> push-up -> clip loop.
++
++0.3.1 projects the body fully out to a tiny collision slop, gives small pieces more contact iterations, and allows a much larger one-step correction when necessary. Ordinary loose trees now also use every visible section for terrain contact up to 72 sections; only genuinely giant bodies use a reduced structural contact set.
++
++### 4. Walk collision now follows the actual branch much more closely
++
++0.3.0 approximated a rotated limb with AABB slices as long as 0.82 blocks. On an angled section those boxes contain a large amount of empty space above the rendered cuboid, which is why the player could stand/flo​​at above the tree.
++
++0.3.1 uses 0.10–0.20 block collision slices with no outward inflation. In addition, standing and loose trees run a final server-authoritative OBB penetration/support pass against the same rotated cuboids used by the LT2 tree graph. Moving logs use all sections—not just the mass-dominant terrain subset—for player support.
++
++### 5. Cave Crawler no longer uses the made-up 0.3.0 morphology
++
++The 0.3.0 "modern calibration" is removed. Cave Crawler is restored directly to the values in the supplied LT2 ModuleScript, including:
++
++- GrowInterval: 1–3
++- MaxGrowCalls: 120–200
++- NewBranchCutoff: 10
++- BarkThickness: 1.5
++- SeedThickness: 0.08–0.10
++- ThicknessGrow: 0.08–0.10
++- LengthGrow: 0.04–0.08
++- Trunk split distance: 1–3
++- Later split distance: 30–80
++- Split count: 2–6
++- Split angle: 0–60
++- Bend distance: 8–13
++- Bend angle: 10–30
++- Leaves: 2–5 Mulberry/Foil parts
++- LeafSizeFactor: X 4–6, Y 3–4, Z 4–6
++
++The Cavecrawler/Frost special case that incorrectly treated leaf size factors as absolute studs is removed. LT2's TreeSuperClass behavior—leaf size factors scale with the parent section thickness—is used again.
++
++This also removes the artificial "fixed-looking" Cavecrawler base/fork behavior from 0.3.0. The stump/first fork is procedural from LT2's source ranges rather than being shape-tuned into one silhouette.
++
++### 6. Frost morphology corrected
++
++Frost is not present in the supplied old place because it was added later. 0.3.0 nevertheless invented a sparse angular generator with almost no normal branching and absolute-size leaf slabs. That does not match current LT2 references.
++
++0.3.1 instead follows the documented Frost target: an Oak-like but more erratic structure, white SmoothPlastic bark, Ice cyan interior, and sparse Lava/Volcano-like Glass leaf pads only on surviving outer extremities. Its low-friction loose-wood behavior remains intact.
++
++## Preserved
++
++- Unified `Lt2TreeVisualEntity` architecture.
++- Server-authoritative growth/cutting/rigid-body tree graph.
++- Working Neon fullbright/emissive pass and real Minecraft light proxies.
++- LT2 cut marks and cut faces.
++- Re-chopping loose wood.
++- Tree grab/drag system and mass behavior.
++- Fabric, Forge, NeoForge and universal project targets for Minecraft 1.21.1.
++
++## Validation performed in this workspace
++
++- All JSON resources parse successfully.
++- Modified Java sources were passed through `javac` parsing; no Java parser/syntax diagnostics were produced before dependency-resolution errors.
++- Direct 0.3.0 -> 0.3.1 diffs were reviewed for the tree registry, runtime physics/collision, visual entity collision cache and Roblox material generation task.
++
++## Build limitation
++
++This source archive does not include a Gradle wrapper and this workspace has no Gradle installation/dependency cache, so a real Minecraft loader compile/JAR launch cannot be performed here. Build 0.3.1 on the normal development machine and test the four reported behaviors first: tree color, ghost collision after felling, a single loose log resting on flat ground, and walking along a strongly angled branch.
+diff -ruN '--exclude=LUMBERLANDS_0.3.1_AUDIT.md' /mnt/data/ll030/README.md /mnt/data/ll031/README.md
+--- /mnt/data/ll030/README.md	2026-10-08 16:33:47.000000000 +0000
++++ /mnt/data/ll031/README.md	2026-10-08 17:55:48.195074966 +0000
+@@ -34,3 +34,7 @@
+ 
+ ## 0.2.6
+ See `LUMBERLANDS_0.2.6_SCALE_JITTER_NEON.md` for the current scale, rest-stability, and Neon changes.
++
++## 0.3.1 tree parity / collision hotfix
++
++0.3.1 removes the global legacy-material color cast, fixes stale collision after felling, fully depenetrates resting loose wood to stop the floor-jitter loop, tightens walk collision, restores Cave Crawler directly from the supplied LT2 source values, and replaces the inaccurate sparse Frost generator with the documented Oak-like/erratic Frost morphology. See `LUMBERLANDS_0.3.1_TREE_PARITY_COLLISION_HOTFIX.md`.
+diff -ruN '--exclude=LUMBERLANDS_0.3.1_AUDIT.md' /mnt/data/ll030/build.gradle /mnt/data/ll031/build.gradle
+--- /mnt/data/ll030/build.gradle	2026-10-08 13:25:10.000000000 +0000
++++ /mnt/data/ll031/build.gradle	2026-10-08 17:52:58.832562761 +0000
+@@ -100,7 +100,7 @@
+                 def url = new URL('https://raw.githubusercontent.com/MaximumADHD/Roblox-Materials/main/PartsPre2022/' + material + '/' + sourceName)
+                 try {
+                     url.openConnection().with { conn ->
+-                        conn.setRequestProperty('User-Agent', 'LumberLands-LT2-material-import/0.2.8')
++                        conn.setRequestProperty('User-Agent', 'LumberLands-LT2-material-import/0.3.1')
+                         conn.connectTimeout = 15000
+                         conn.readTimeout = 30000
+                         conn.inputStream.withCloseable { input ->
+@@ -148,9 +148,17 @@
+                             g = Math.max(0, Math.min(255, Math.round((rgb[1] as int) * shade)))
+                             b = Math.max(0, Math.min(255, Math.round((rgb[2] as int) * shade)))
+                         } else {
+-                            r = Math.min(255, Math.round(sr * (rgb[0] as int) / 255.0f))
+-                            g = Math.min(255, Math.round(sg * (rgb[1] as int) / 255.0f))
+-                            b = Math.min(255, Math.round(sb * (rgb[2] as int) / 255.0f))
++                            // Roblox material color maps carry their own photographed/painted hue.
++                            // Multiplying each RGB channel independently (the 0.3.0 code) leaked that
++                            // source hue into every BrickColor and produced the global red/brown cast.
++                            // Keep only source luminance/detail, then apply LT2's actual BrickColor.
++                            float luma = (0.2126f * sr + 0.7152f * sg + 0.0722f * sb) / 255.0f
++                            // Legacy material maps are authored around mid/high gray. Center detail
++                            // around 0.72 so the requested BrickColor remains the perceived base color.
++                            float shade = Math.max(0.48f, Math.min(1.38f, luma / 0.72f))
++                            r = Math.max(0, Math.min(255, Math.round((rgb[0] as int) * shade)))
++                            g = Math.max(0, Math.min(255, Math.round((rgb[1] as int) * shade)))
++                            b = Math.max(0, Math.min(255, Math.round((rgb[2] as int) * shade)))
+                         }
+                         out.setRGB(x, y, (a << 24) | (r << 16) | (g << 8) | b)
+                     }
+diff -ruN '--exclude=LUMBERLANDS_0.3.1_AUDIT.md' /mnt/data/ll030/gradle.properties /mnt/data/ll031/gradle.properties
+--- /mnt/data/ll030/gradle.properties	2026-10-08 15:08:25.000000000 +0000
++++ /mnt/data/ll031/gradle.properties	2026-10-08 17:52:41.752804187 +0000
+@@ -7,7 +7,7 @@
+ 
+ mod_id=lumberlands
+ mod_name=LumberLands
+-mod_version=0.3.0
++mod_version=0.3.1
+ mod_group=com.glaziolaicefox.lumberlands
+ mod_author=GlaziolaIceFox
+ mod_description=mashup mod for minecraft that implaments stuff from oaklands and lumber tycoon in this one mod
+diff -ruN '--exclude=LUMBERLANDS_0.3.1_AUDIT.md' /mnt/data/ll030/src/main/java/com/glaziolaicefox/lumberlands/entity/Lt2TreeVisualEntity.java /mnt/data/ll031/src/main/java/com/glaziolaicefox/lumberlands/entity/Lt2TreeVisualEntity.java
+--- /mnt/data/ll030/src/main/java/com/glaziolaicefox/lumberlands/entity/Lt2TreeVisualEntity.java	2026-10-08 16:56:27.000000000 +0000
++++ /mnt/data/ll031/src/main/java/com/glaziolaicefox/lumberlands/entity/Lt2TreeVisualEntity.java	2026-10-08 17:52:58.832425697 +0000
+@@ -159,12 +159,16 @@
+             Vec3 worldStart = root.add(rotate(bodyQ, localStart));
+             Quaternionf localQ = new Quaternionf(s.getFloat("qx"), s.getFloat("qy"), s.getFloat("qz"), s.getFloat("qw"));
+             Quaternionf worldQ = new Quaternionf(bodyQ).mul(localQ).normalize();
+-            double sliceLength = Math.max(0.28, Math.min(0.82, sx * 0.86));
+-            int slices = Math.max(1, Math.min(24, (int)Math.ceil(sy / sliceLength)));
++            // A long AABB around an angled LT2 Part creates a large empty triangular region above
++            // the real cuboid. 0.3.0 used slices as long as 0.82 blocks, which is why walking on a
++            // branch could hold the player visibly above the model. Use short stair-step slices and
++            // no outward inflation; the server-side OBB pass remains the exact authority.
++            double sliceLength = Math.max(0.10, Math.min(0.20, sx * 0.24));
++            int slices = Math.max(1, Math.min(96, (int)Math.ceil(sy / sliceLength)));
+             for (int i = 0; i < slices; ++i) {
+                 double y0 = sy * i / slices;
+                 double y1 = sy * (i + 1) / slices;
+-                boxes.add(sliceBounds(worldStart, worldQ, sx, y0, y1, sx).inflate(0.0015));
++                boxes.add(sliceBounds(worldStart, worldQ, sx, y0, y1, sx));
+             }
+         }
+         this.collisionBoxes = List.copyOf(boxes);
+@@ -195,6 +199,17 @@
+     }
+ 
+     @Override
++    public void remove(RemovalReason reason) {
++        // Remove the visual from the world-local collision index immediately. Waiting for the next
++        // collision query to prune a discarded entity allowed a felled tree's old collision graph
++        // to survive briefly as an invisible/ghost hitbox.
++        synchronized (ACTIVE) { ACTIVE.remove(this); }
++        this.collisionBoxes = List.of();
++        this.collisionDirty = false;
++        super.remove(reason);
++    }
++
++    @Override
+     public boolean canBeCollidedWith() { return false; }
+ 
+     @Override
+diff -ruN '--exclude=LUMBERLANDS_0.3.1_AUDIT.md' /mnt/data/ll030/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2SpeciesRegistry.java /mnt/data/ll031/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2SpeciesRegistry.java
+--- /mnt/data/ll030/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2SpeciesRegistry.java	2026-10-08 16:02:35.000000000 +0000
++++ /mnt/data/ll031/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2SpeciesRegistry.java	2026-10-08 17:53:41.297688904 +0000
+@@ -21,9 +21,9 @@
+     private static final Map<String, Double> MASS_DENSITY = new LinkedHashMap<String, Double>();
+     /** Surface friction used by loose-tree contact solving. Frost/Ice is deliberately slippery. */
+     private static final Map<String, Double> SURFACE_FRICTION = new LinkedHashMap<String, Double>();
+-    // 0.2.6 keeps LT2 morphology but trims the world-space footprint to sit more naturally beside
+-    // Minecraft terrain. The universal stud conversion is slightly smaller, while the historically
+-    // oversized Cavecrawler/Spooky/Volcano/Palm generators receive an additional growth trim below.
++    // Species morphology is kept in LT2 units and converted globally by STUD_TO_BLOCK. Do not add
++    // per-species "make it look nicer in Minecraft" growth trims: where source exists, LT2 source
++    // parameters are authoritative; post-leak species are documented separately.
+     public static final Lt2Species GENERIC = Lt2SpeciesRegistry.register(new Lt2Species("generic", 2.0, new Lt2Range(3.0, 4.0), new Lt2Range(40.0, 55.0), 10, 45.0, 80.0, 0.08, new Lt2Range(0.3, 0.5), new Lt2Range(0.015, 0.022), new Lt2Range(0.4, 0.55), new Lt2Range(0.7, 0.9), new Lt2Range(0.28, 0.35), new Lt2Range(0.0, 10.0), new Lt2Range(0.0, 360.0), new Lt2Range(10000.0, 10000.0), new Lt2Range(7.0, 10.0), new Lt2Range(10.0, 14.0), new Lt2Range(6.0, 9.0), new Lt2Range(2.0, 3.0), new Lt2Range(0.0, 60.0), new Lt2Range(50.0, 130.0), new Lt2Range(0.3, 1.0), new Lt2Range(3.0, 5.0), new Lt2Range(10.0, 30.0), new Lt2Range(0.0, 1.0), new Lt2Range(4.0, 10.0), new Lt2Range(1.0, 1.0), new Lt2Range(0.0, 80.0), new Lt2Range(30.0, 180.0), new Lt2Range(-0.6, 1.0), 10.0, 15.0, 250, 15.0, new Lt2Range(1.0, 1.0), new Lt2Range(-10.0, 10.0), new Lt2Range(-20.0, 20.0), new Lt2Range(-10.0, 10.0), new Lt2Range(10.0, 14.0), new Lt2Range(2.0, 3.0), new Lt2Range(10.0, 14.0), null, false, "minecraft:oak_log", "minecraft:oak_leaves"));
+     public static final Lt2Species FIR = Lt2SpeciesRegistry.register(new Lt2Species("fir", 5.5, new Lt2Range(10.0, 17.0), new Lt2Range(30.0, 60.0), 10, 45.0, 140.0, 0.13, new Lt2Range(0.5, 0.8), new Lt2Range(0.02, 0.028), new Lt2Range(0.55, 0.65), new Lt2Range(0.05, 0.08), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 7.0), new Lt2Range(0.0, 360.0), new Lt2Range(10.0, 15.0), new Lt2Range(1000.0, 1000.0), new Lt2Range(6.0, 10.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(5.0, 10.0), new Lt2Range(2.0, 5.0), new Lt2Range(0.88, 1.0), new Lt2Range(0.6, 2.5), new Lt2Range(2.0, 5.0), new Lt2Range(80.0, 110.0), new Lt2Range(20.0, 180.0), new Lt2Range(-0.3, 0.3), 5.0, 15.0, 250, 6.0, new Lt2Range(1.0, 2.0), new Lt2Range(-10.0, 10.0), new Lt2Range(-20.0, 20.0), new Lt2Range(-10.0, 10.0), new Lt2Range(5.0, 7.0), new Lt2Range(2.0, 2.0), new Lt2Range(5.0, 7.0), "fir_branch", false, "minecraft:spruce_log", "minecraft:spruce_leaves"));
+     public static final Lt2Species FIR_BRANCH = Lt2SpeciesRegistry.register(new Lt2Species("fir_branch", 5.5, new Lt2Range(5.0, 7.0), new Lt2Range(60.0, 70.0), 10, 45.0, 140.0, 0.06, new Lt2Range(0.3, 0.26), new Lt2Range(0.008, 0.01), new Lt2Range(0.2, 0.3), new Lt2Range(0.1, 0.22), new Lt2Range(0.1, 0.22), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(1000.0, 1000.0), new Lt2Range(4.0, 6.0), new Lt2Range(0.0, 0.0), new Lt2Range(10.0, 20.0), new Lt2Range(2.0, 3.0), new Lt2Range(0.0, 40.0), new Lt2Range(20.0, 180.0), new Lt2Range(-0.5, 0.5), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), 5.0, 15.0, 250, 6.0, new Lt2Range(1.0, 2.0), new Lt2Range(-10.0, 10.0), new Lt2Range(-20.0, 20.0), new Lt2Range(-10.0, 10.0), new Lt2Range(3.0, 6.0), new Lt2Range(10.0, 15.0), new Lt2Range(3.0, 6.0), null, false, "minecraft:spruce_log", "minecraft:spruce_leaves"));
+@@ -35,25 +35,23 @@
+     public static final Lt2Species PINE = Lt2SpeciesRegistry.register(new Lt2Species("pine", 5.5, new Lt2Range(10.0, 17.0), new Lt2Range(90.0, 120.0), 10, 35.0, 180.0, 0.13, new Lt2Range(0.5, 0.8), new Lt2Range(0.012, 0.021), new Lt2Range(0.5, 0.6), new Lt2Range(0.15, 0.28), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 2.0), new Lt2Range(0.0, 360.0), new Lt2Range(15.0, 24.0), new Lt2Range(1000.0, 1000.0), new Lt2Range(13.0, 20.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(10.0, 18.0), new Lt2Range(2.0, 5.0), new Lt2Range(0.88, 1.0), new Lt2Range(3.0, 5.5), new Lt2Range(2.0, 3.0), new Lt2Range(80.0, 110.0), new Lt2Range(20.0, 180.0), new Lt2Range(-0.3, 0.3), 5.0, 15.0, 250, 6.0, new Lt2Range(1.0, 2.0), new Lt2Range(-10.0, 10.0), new Lt2Range(-20.0, 20.0), new Lt2Range(-10.0, 10.0), new Lt2Range(3.0, 5.5), new Lt2Range(1.0, 2.0), new Lt2Range(3.0, 5.5), "pine_branch", false, "minecraft:spruce_log", "minecraft:spruce_leaves"));
+     public static final Lt2Species PINE_BRANCH = Lt2SpeciesRegistry.register(new Lt2Species("pine_branch", 5.5, new Lt2Range(5.0, 7.0), new Lt2Range(30.0, 45.0), 10, 45.0, 140.0, 0.06, new Lt2Range(0.3, 0.26), new Lt2Range(0.008, 0.01), new Lt2Range(0.2, 0.3), new Lt2Range(0.1, 0.22), new Lt2Range(0.1, 0.22), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(1000.0, 1000.0), new Lt2Range(4.0, 6.0), new Lt2Range(0.0, 0.0), new Lt2Range(10.0, 20.0), new Lt2Range(2.0, 3.0), new Lt2Range(0.0, 40.0), new Lt2Range(20.0, 180.0), new Lt2Range(-0.5, 0.5), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), 5.0, 15.0, 250, 6.0, new Lt2Range(1.0, 2.0), new Lt2Range(-10.0, 10.0), new Lt2Range(-20.0, 20.0), new Lt2Range(-10.0, 10.0), new Lt2Range(6.0, 10.0), new Lt2Range(10.0, 15.0), new Lt2Range(6.0, 10.0), null, false, "minecraft:spruce_log", "minecraft:spruce_leaves"));
+     public static final Lt2Species WALNUT = Lt2SpeciesRegistry.register(new Lt2Species("walnut", 6.4, new Lt2Range(20.0, 30.0), new Lt2Range(65.0, 90.0), 10, 25.0, 130.0, 0.11, new Lt2Range(0.4, 0.6), new Lt2Range(0.021, 0.03), new Lt2Range(0.55, 0.68), new Lt2Range(0.1, 0.12), new Lt2Range(0.18, 0.28), new Lt2Range(0.0, 8.0), new Lt2Range(0.0, 360.0), new Lt2Range(7.0, 16.0), new Lt2Range(5.0, 9.0), new Lt2Range(100000.0, 100000.0), new Lt2Range(6.0, 13.0), new Lt2Range(2.0, 3.0), new Lt2Range(0.0, 45.0), new Lt2Range(50.0, 160.0), new Lt2Range(-0.1, 1.0), new Lt2Range(4.0, 16.0), new Lt2Range(5.0, 32.0), new Lt2Range(-0.1, 1.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), 10.0, 15.0, 250, 60.0, new Lt2Range(1.0, 1.0), new Lt2Range(-20.0, 20.0), new Lt2Range(-40.0, 40.0), new Lt2Range(-20.0, 20.0), new Lt2Range(12.0, 19.0), new Lt2Range(5.0, 8.0), new Lt2Range(12.0, 19.0), null, false, "minecraft:dark_oak_log", "minecraft:dark_oak_leaves"));
+-    // 0.3.0 current-LT2 Cavecrawler calibration. Mature trees are large and strange but are
+-    // organized around a few heavy sweeping limbs rather than exponential spaghetti. The first
+-    // fork can happen almost at the stump; later forks are widely spaced and normally produce two
+-    // children, matching the modern silhouettes used as visual references.
++    // Cavecrawler is taken directly from the supplied LT2 TreeSubclasses/CaveCrawler ModuleScript.
++    // Do not "shape tune" this tree: LT2 already defines the very short first split distance, broad
++    // split count, heavy bark thickness, fast per-call growth and thickness-scaled Foil leaves.
+     public static final Lt2Species CAVE_CRAWLER = Lt2SpeciesRegistry.register(new Lt2Species("cavecrawler", 5.4,
+-            // ~5h20m average maturation: ~128 calls * ~150 sec/call.
+-            new Lt2Range(135.0, 165.0), new Lt2Range(118.0, 138.0), 18, 45.0, 80.0, 0.18,
+-            new Lt2Range(0.68, 0.92), new Lt2Range(0.014, 0.019), new Lt2Range(0.65, 0.90),
+-            new Lt2Range(0.06, 0.13), new Lt2Range(0.20, 0.32),
+-            new Lt2Range(8.0, 50.0), new Lt2Range(0.0, 360.0),
+-            new Lt2Range(5.0, 11.0), new Lt2Range(0.5, 1.5), new Lt2Range(10000.0, 10000.0),
+-            new Lt2Range(22.0, 36.0), new Lt2Range(2.0, 2.0), new Lt2Range(30.0, 82.0),
+-            new Lt2Range(55.0, 155.0), new Lt2Range(-0.45, 0.90),
+-            new Lt2Range(6.0, 14.0), new Lt2Range(8.0, 28.0), new Lt2Range(-0.35, 0.96),
+-            new Lt2Range(10000.0, 10000.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0),
+-            new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0),
+-            12.0, 20.0, 260, 18.0,
+-            new Lt2Range(1.0, 1.0), new Lt2Range(-22.0, 22.0), new Lt2Range(-35.0, 35.0), new Lt2Range(-22.0, 22.0),
+-            new Lt2Range(1.35, 2.10), new Lt2Range(0.64, 1.02), new Lt2Range(1.35, 2.10),
++            new Lt2Range(1.0, 3.0), new Lt2Range(120.0, 200.0), 10, 45.0, 80.0, 1.5,
++            new Lt2Range(0.08, 0.10), new Lt2Range(0.08, 0.10), new Lt2Range(0.04, 0.08),
++            new Lt2Range(0.20, 0.40), new Lt2Range(0.20, 0.40),
++            new Lt2Range(40.0, 60.0), new Lt2Range(0.0, 360.0),
++            new Lt2Range(4.0, 8.0), new Lt2Range(1.0, 3.0), new Lt2Range(10000.0, 10000.0),
++            new Lt2Range(30.0, 80.0), new Lt2Range(2.0, 6.0), new Lt2Range(0.0, 60.0),
++            new Lt2Range(30.0, 180.0), new Lt2Range(-0.8, 0.8),
++            new Lt2Range(8.0, 13.0), new Lt2Range(10.0, 30.0), new Lt2Range(-0.8, 0.9),
++            new Lt2Range(4.0, 10.0), new Lt2Range(1.0, 1.0), new Lt2Range(0.0, 80.0),
++            new Lt2Range(30.0, 180.0), new Lt2Range(-0.6, 1.0),
++            10.0, 15.0, 250, 15.0,
++            new Lt2Range(2.0, 5.0), new Lt2Range(-40.0, 40.0), new Lt2Range(-50.0, 50.0), new Lt2Range(-40.0, 40.0),
++            new Lt2Range(4.0, 6.0), new Lt2Range(3.0, 4.0), new Lt2Range(4.0, 6.0),
+             null, false, "minecraft:mangrove_log", "minecraft:mangrove_leaves"));
+     public static final Lt2Species GOLD_SWAMPY = Lt2SpeciesRegistry.register(new Lt2Species("goldswampy", 11.0, new Lt2Range(20.0, 24.0), new Lt2Range(60.0, 75.0), 10, 45.0, 80.0, 0.06, new Lt2Range(0.5, 0.53), new Lt2Range(0.017, 0.025), new Lt2Range(0.5, 0.65), new Lt2Range(0.16, 0.25), new Lt2Range(0.3, 0.4), new Lt2Range(5.0, 30.0), new Lt2Range(0.0, 360.0), new Lt2Range(8.0, 12.0), new Lt2Range(6.0, 20.0), new Lt2Range(10000.0, 10000.0), new Lt2Range(6.0, 20.0), new Lt2Range(1.0, 2.0), new Lt2Range(10.0, 40.0), new Lt2Range(30.0, 70.0), new Lt2Range(0.4, 0.8), new Lt2Range(8.0, 12.0), new Lt2Range(10.0, 30.0), new Lt2Range(0.4, 0.8), new Lt2Range(4.0, 10.0), new Lt2Range(1.0, 1.0), new Lt2Range(0.0, 80.0), new Lt2Range(30.0, 180.0), new Lt2Range(-0.6, 1.0), 10.0, 15.0, 250, 15.0, new Lt2Range(0.0, 0.0), new Lt2Range(-40.0, 40.0), new Lt2Range(-50.0, 50.0), new Lt2Range(-40.0, 40.0), new Lt2Range(8.0, 12.0), new Lt2Range(3.0, 4.0), new Lt2Range(8.0, 12.0), null, false, "minecraft:mangrove_log", "minecraft:yellow_stained_glass"));
+     public static final Lt2Species SPOOKY = Lt2SpeciesRegistry.register(new Lt2Species("spooky", 23.0, new Lt2Range(150.0, 200.0), new Lt2Range(50.0, 62.0), 10, 120.0, 80.0, 0.18, new Lt2Range(0.72, 0.80), new Lt2Range(0.022, 0.030), new Lt2Range(0.36, 0.48), new Lt2Range(0.2, 0.3), new Lt2Range(0.28, 0.35), new Lt2Range(8.0, 25.0), new Lt2Range(0.0, 360.0), new Lt2Range(4.0, 6.0), new Lt2Range(5.0, 18.0), new Lt2Range(10000.0, 10000.0), new Lt2Range(5.0, 9.0), new Lt2Range(2.0, 3.0), new Lt2Range(20.0, 60.0), new Lt2Range(20.0, 70.0), new Lt2Range(-0.1, 0.8), new Lt2Range(3.0, 6.0), new Lt2Range(12.0, 30.0), new Lt2Range(-0.4, 1.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), 10.0, 15.0, 250, 15.0, new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0), null, false, "minecraft:dark_oak_log", "minecraft:black_stained_glass"));
+@@ -63,24 +61,24 @@
+     public static final Lt2Species GENERIC_SPECIAL = Lt2SpeciesRegistry.register(new Lt2Species("genericspecial", 2.0, new Lt2Range(3.0, 4.0), new Lt2Range(40.0, 55.0), 10, 45.0, 80.0, 0.08, new Lt2Range(0.3, 0.5), new Lt2Range(0.015, 0.022), new Lt2Range(0.4, 0.55), new Lt2Range(0.7, 0.9), new Lt2Range(0.28, 0.35), new Lt2Range(0.0, 10.0), new Lt2Range(0.0, 360.0), new Lt2Range(10000.0, 10000.0), new Lt2Range(7.0, 10.0), new Lt2Range(10.0, 14.0), new Lt2Range(6.0, 9.0), new Lt2Range(2.0, 3.0), new Lt2Range(0.0, 60.0), new Lt2Range(50.0, 130.0), new Lt2Range(0.3, 1.0), new Lt2Range(3.0, 5.0), new Lt2Range(10.0, 30.0), new Lt2Range(0.0, 1.0), new Lt2Range(4.0, 10.0), new Lt2Range(1.0, 1.0), new Lt2Range(0.0, 80.0), new Lt2Range(30.0, 180.0), new Lt2Range(-0.6, 1.0), 10.0, 15.0, 250, 15.0, new Lt2Range(1.0, 1.0), new Lt2Range(-10.0, 10.0), new Lt2Range(-20.0, 20.0), new Lt2Range(-10.0, 10.0), new Lt2Range(10.0, 14.0), new Lt2Range(2.0, 3.0), new Lt2Range(10.0, 14.0), null, false, "minecraft:oak_log", "minecraft:flowering_azalea_leaves"));
+     public static final Lt2Species LONE_CAVE = Lt2SpeciesRegistry.register(new Lt2Species("lonecave", 8.0E7, new Lt2Range(5.0, 8.0), new Lt2Range(85.0, 102.0), 10, 180.0, 140.0, 0.12, new Lt2Range(0.3, 0.5), new Lt2Range(0.016, 0.023), new Lt2Range(0.38, 0.52), new Lt2Range(0.06, 0.09), new Lt2Range(0.18, 0.25), new Lt2Range(5.0, 30.0), new Lt2Range(0.0, 360.0), new Lt2Range(3.0, 8.0), new Lt2Range(6.0, 9.0), new Lt2Range(10.0, 14.0), new Lt2Range(4.0, 7.0), new Lt2Range(2.0, 3.0), new Lt2Range(0.0, 85.0), new Lt2Range(30.0, 140.0), new Lt2Range(0.05, 1.0), new Lt2Range(6.0, 10.0), new Lt2Range(5.0, 30.0), new Lt2Range(-0.1, 1.0), new Lt2Range(4.0, 10.0), new Lt2Range(1.0, 1.0), new Lt2Range(0.0, 80.0), new Lt2Range(12.0, 180.0), new Lt2Range(-0.6, 1.0), 10.0, 15.0, 250, 15.0, new Lt2Range(1.0, 1.0), new Lt2Range(0.0, 0.0), new Lt2Range(-10.0, 10.0), new Lt2Range(0.0, 0.0), new Lt2Range(1.1, 1.6), new Lt2Range(0.5, 0.8), new Lt2Range(1.1, 1.6), null, false, "minecraft:calcite", "minecraft:sea_lantern"));
+     public static final Lt2Species SNOW_GLOW = Lt2SpeciesRegistry.register(new Lt2Species("snowglow", 2.0, new Lt2Range(4.0, 6.0), new Lt2Range(55.0, 70.0), 10, 45.0, 80.0, 0.12, new Lt2Range(0.3, 0.5), new Lt2Range(0.015, 0.022), new Lt2Range(0.3, 0.38), new Lt2Range(0.05, 0.1), new Lt2Range(0.08, 0.12), new Lt2Range(10.0, 30.0), new Lt2Range(270.0, 270.0), new Lt2Range(2.0, 10.0), new Lt2Range(1.0, 3.0), new Lt2Range(10.0, 14.0), new Lt2Range(5.0, 8.0), new Lt2Range(2.0, 3.0), new Lt2Range(0.0, 50.0), new Lt2Range(35.0, 130.0), new Lt2Range(0.4, 1.0), new Lt2Range(8.0, 12.0), new Lt2Range(10.0, 80.0), new Lt2Range(0.0, 1.0), new Lt2Range(4.0, 10.0), new Lt2Range(1.0, 1.0), new Lt2Range(0.0, 80.0), new Lt2Range(30.0, 180.0), new Lt2Range(-0.6, 1.0), 10.0, 15.0, 250, 2.0, new Lt2Range(0.0, 1.0), new Lt2Range(-40.0, 40.0), new Lt2Range(-180.0, 180.0), new Lt2Range(-40.0, 40.0), new Lt2Range(10.0, 14.0), new Lt2Range(4.0, 8.0), new Lt2Range(10.0, 14.0), null, false, "minecraft:birch_log", "minecraft:sea_lantern"));
+-    // 0.2.7 completes the tree-bearing LT2 wood roster. Frost and Blue Spruce post-date the
+-    // March-2017 leak, so their morphology is calibrated from current live documentation while
+-    // preserving LT2's documented growth time/height/thickness relationships. Test is the
+-    // unreleased leak tree: Oak-derived, Fir/Pine-like branches, rare splits and trunk-sized leaves.
++    // Frost was added after the supplied 2017 LT2 place, so there is no Frost ModuleScript in that
++    // source to copy. Use the current LT2 documented morphology instead of the old invented sparse
++    // "ice tree" generator: Oak-like but more erratic, with Lava/Volcano-like terminal leaves.
+     public static final Lt2Species FROST = Lt2SpeciesRegistry.register(new Lt2Species("frost", 10.0,
+-            new Lt2Range(5.0, 7.0), new Lt2Range(48.0, 60.0), 8, 45.0, 80.0, 0.09,
+-            new Lt2Range(0.34, 0.46), new Lt2Range(0.013, 0.019), new Lt2Range(0.42, 0.58),
+-            new Lt2Range(0.05, 0.10), new Lt2Range(0.12, 0.18),
+-            new Lt2Range(5.0, 24.0), new Lt2Range(0.0, 360.0),
+-            new Lt2Range(4.0, 8.0), new Lt2Range(5.0, 9.0), new Lt2Range(10000.0, 10000.0),
+-            new Lt2Range(8.0, 14.0), new Lt2Range(1.0, 2.0), new Lt2Range(30.0, 62.0),
+-            new Lt2Range(45.0, 150.0), new Lt2Range(0.05, 0.95),
+-            new Lt2Range(4.0, 8.0), new Lt2Range(12.0, 36.0), new Lt2Range(0.10, 0.98),
+-            new Lt2Range(10000.0, 10000.0), new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0),
+-            new Lt2Range(0.0, 0.0), new Lt2Range(0.0, 0.0),
+-            8.0, 15.0, 220, 10.0,
+-            new Lt2Range(1.0, 2.0), new Lt2Range(-10.0, 10.0), new Lt2Range(-25.0, 25.0), new Lt2Range(-10.0, 10.0),
+-            new Lt2Range(1.10, 1.70), new Lt2Range(0.45, 0.75), new Lt2Range(1.10, 1.70),
++            new Lt2Range(3.0, 5.0), new Lt2Range(72.0, 96.0), 10, 45.0, 80.0, 0.09,
++            new Lt2Range(0.30, 0.50), new Lt2Range(0.020, 0.030), new Lt2Range(0.52, 0.66),
++            new Lt2Range(0.62, 0.84), new Lt2Range(0.18, 0.30),
++            new Lt2Range(0.0, 18.0), new Lt2Range(0.0, 360.0),
++            new Lt2Range(5.0, 10.0), new Lt2Range(6.0, 11.0), new Lt2Range(10000.0, 10000.0),
++            new Lt2Range(7.0, 12.0), new Lt2Range(2.0, 4.0), new Lt2Range(0.0, 78.0),
++            new Lt2Range(35.0, 150.0), new Lt2Range(-0.15, 1.0),
++            new Lt2Range(2.5, 5.0), new Lt2Range(12.0, 38.0), new Lt2Range(-0.25, 1.0),
++            new Lt2Range(4.0, 9.0), new Lt2Range(1.0, 1.0), new Lt2Range(0.0, 82.0),
++            new Lt2Range(30.0, 180.0), new Lt2Range(-0.6, 1.0),
++            10.0, 15.0, 250, 10.0,
++            // Frost leaves are sparse terminal pads, like Volcano/Lava leaves, not permanent slabs.
++            new Lt2Range(0.0, 1.0), new Lt2Range(-10.0, 10.0), new Lt2Range(-20.0, 20.0), new Lt2Range(-10.0, 10.0),
++            new Lt2Range(3.0, 7.0), new Lt2Range(1.0, 2.5), new Lt2Range(3.0, 7.0),
+             null, false, "minecraft:packed_ice", "minecraft:cyan_stained_glass"));
+ 
+     public static final Lt2Species BLUE_SPRUCE = Lt2SpeciesRegistry.register(derived(
+diff -ruN '--exclude=LUMBERLANDS_0.3.1_AUDIT.md' /mnt/data/ll030/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2TreeRuntime.java /mnt/data/ll031/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2TreeRuntime.java
+--- /mnt/data/ll030/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2TreeRuntime.java	2026-10-08 16:15:41.000000000 +0000
++++ /mnt/data/ll031/src/main/java/com/glaziolaicefox/lumberlands/tree/Lt2TreeRuntime.java	2026-10-08 17:52:41.752546952 +0000
+@@ -88,7 +88,7 @@
+     private static final int MAX_PHYSICS_SUBSTEPS = 10;
+     private static final int CONTACT_SOLVER_ITERATIONS = 8;
+     private static final double PLAYER_SUPPORT_SLOP = 0.10;
+-    private static final double COLLISION_SLOP = 0.0015;
++    private static final double COLLISION_SLOP = 0.00025;
+     // Contact stabilization is deliberately limited to low-energy, statically-supported bodies.
+     // It removes the sub-tick gravity/contact chatter that looked like endless jitter without
+     // freezing logs that still have enough torque to tip or roll.
+@@ -174,12 +174,9 @@
+     }
+ 
+     private static Vec3 leafSizeBlocks(Lt2Species species, Vec3 sizeFactor, double thicknessStuds, double growthScale) {
+-        // Current Cavecrawler leaves are small terminal cuboids and do not balloon with trunk girth.
+-        // Treat their configured dimensions as absolute LT2 studs. Other legacy species retain the
+-        // recovered scale-by-thickness behavior until their individual generators are modernized.
+-        if (species != null && ("cavecrawler".equals(species.id()) || "frost".equals(species.id()))) {
+-            return sizeFactor.scale(STUD_TO_BLOCK * growthScale);
+-        }
++        // LT2 TreeSuperClass treats LeafSizeFactor as a factor of the parent section thickness.
++        // 0.3.0 incorrectly special-cased Cavecrawler/Frost as absolute studs, producing tiny fake
++        // leaf pads and visibly wrong silhouettes. Keep one rule for every procedural LT2 tree.
+         return sizeFactor.scale(Lt2TreeRuntime.blocks(thicknessStuds) * growthScale);
+     }
+ 
+@@ -856,6 +853,9 @@
+                 this.refreshNeonLights();
+             }
+             this.readInteractionActions();
++            // The rotated LT2 parts are the authoritative shape. Resolve against those exact OBBs
++            // every tick; the compact VoxelShape slices are only Minecraft movement broad-phase.
++            this.resolvePlayerCollisions();
+             this.syncVisualGeometry();
+             if ((tickCounter & 31L) == 0L) this.refreshNeonLights();
+         }
+@@ -1275,6 +1275,9 @@
+             if (moved.isEmpty()) return null;
+             this.dropLeaves(moved);
+             this.markVisualGeometryDirty();
++            // Do not leave the old standing collision graph alive for another tick after a cut.
++            // This was the "invisible stump/tree hitbox" left behind after felling a tree.
++            this.syncVisualGeometry();
+             Vec3 cutterPosition = cutter == null ? null : new Vec3(cutter.getX(), cutter.getY(), cutter.getZ());
+             return new LooseBody(this.level, pivot, moved, cutter == null ? null : cutter.getUUID(), cutterPosition);
+         }
+@@ -1932,16 +1935,18 @@
+ 
+         void refreshPhysicsSections() {
+             this.physicsSections.clear();
+-            if (this.sections.size() <= 36) {
++            if (this.sections.size() <= 72) {
++                // Every visible/choppable section participates in terrain contact on ordinary trees.
++                // 0.3.0 dropped sections above 36, which let legitimate limbs visibly sink through
++                // the ground even though their player hitboxes were still present.
+                 this.physicsSections.addAll(this.sections);
+                 return;
+             }
+             ArrayList<RigidSection> ranked = new ArrayList<RigidSection>(this.sections);
+             ranked.sort((a, b) -> Double.compare(this.physicsImportance(b), this.physicsImportance(a)));
+-            // Giant LT2 trees can exceed a hundred visual segments. Physics is solved against the
+-            // mass-dominant structural limbs; tiny twigs still render/chop/collide with players but
+-            // no longer multiply terrain contact work every sub-step.
+-            int limit = this.sections.size() > 120 ? 24 : this.sections.size() > 80 ? 28 : 36;
++            // Only truly giant bodies are reduced, and keep substantially more structural limbs than
++            // 0.3.0 so contact follows the rendered tree instead of just its heaviest trunk pieces.
++            int limit = this.sections.size() > 140 ? 48 : this.sections.size() > 100 ? 56 : 64;
+             this.physicsSections.addAll(ranked.subList(0, Math.min(limit, ranked.size())));
+         }
+ 
+@@ -1972,7 +1977,7 @@
+             if (this.sections.size() > 120) return 2;
+             if (this.sections.size() > 80) return 2;
+             if (this.sections.size() > 56) return 3;
+-            return this.isSmallPiece() ? 3 : CONTACT_SOLVER_ITERATIONS;
++            return this.isSmallPiece() ? 5 : CONTACT_SOLVER_ITERATIONS;
+         }
+ 
+         void tick() {
+@@ -2536,24 +2541,47 @@
+                 this.recordSupportContact(normal, bestPoint);
+                 // Position projection only removes penetration. Velocity/rotation are handled by
+                 // the contact impulse below, so there is no artificial post-contact slowdown.
+-                double push = Math.max(0.0, bestPenetration - COLLISION_SLOP) * 0.82;
+-                if (push > 0.0) this.position = this.position.add(normal.scale(Math.min(push, 0.20)));
++                // Project fully out of terrain. 0.3.0 deliberately removed only 82% (and at most
++                // 0.20 blocks), so gravity pushed the same piece back into the floor every substep:
++                // visible ground clipping followed by the endless up/down jitter reported in game.
++                double push = Math.max(0.0, bestPenetration - COLLISION_SLOP);
++                double maxProjection = this.isSmallPiece() ? 0.55 : 0.85;
++                if (push > 0.0) this.position = this.position.add(normal.scale(Math.min(push, maxProjection)));
+                 if (bestPoint != null) this.applyContactImpulse(normal, bestPoint);
+             }
+             return hit;
+         }
+ 
+         void resolvePlayerSupportAndCarry() {
+-            // Penetration is handled by vanilla entity collision now. Keep only moving-platform
+-            // support/carry so a player standing on a rolling/falling LT2 log moves with it.
++            // Use the exact rotated LT2 cuboids for final player placement. Minecraft's axis-aligned
++            // collision slices are intentionally only an approximation; without this pass players
++            // could float above angled logs or clip into their corners.
+             for (ServerPlayer player : this.level.players()) {
+                 if (player.isSpectator()) continue;
++                for (int pass = 0; pass < 6; ++pass) {
++                    Vec3 correction = null;
++                    for (RigidSection section : this.sections) {
++                        Obb wood = Lt2TreeRuntime.sectionObb(this.worldStart(section), this.worldRot(section), section.length, section.thickness);
++                        if (!Lt2TreeRuntime.obbBounds(wood).intersects(player.getBoundingBox())) continue;
++                        Vec3 mtv = Lt2TreeRuntime.obbVsAabbMtv(wood, player.getBoundingBox());
++                        if (mtv == null || (correction != null && mtv.lengthSqr() >= correction.lengthSqr())) continue;
++                        correction = mtv;
++                    }
++                    if (correction == null) break;
++                    player.setPos(player.getX() + correction.x, player.getY() + correction.y, player.getZ() + correction.z);
++                    Vec3 n = correction.normalize();
++                    Vec3 motion = player.getDeltaMovement();
++                    double into = motion.dot(n);
++                    if (into < 0.0) player.setDeltaMovement(motion.subtract(n.scale(into)));
++                    if (n.y > 0.40) { player.setOnGround(true); player.fallDistance = 0.0f; }
++                }
++
+                 AABB pb = player.getBoundingBox();
+                 AABB supportProbe = new AABB(pb.minX + 0.025, pb.minY - PLAYER_SUPPORT_SLOP, pb.minZ + 0.025,
+                         pb.maxX - 0.025, pb.maxY, pb.maxZ - 0.025);
+                 Vec3 supportPoint = null;
+                 double bestSupport = Double.POSITIVE_INFINITY;
+-                for (RigidSection section : this.contactSections()) {
++                for (RigidSection section : this.sections) {
+                     Obb wood = Lt2TreeRuntime.sectionObb(this.worldStart(section), this.worldRot(section), section.length, section.thickness);
+                     if (!Lt2TreeRuntime.obbBounds(wood).intersects(supportProbe)) continue;
+                     Vec3 mtv = Lt2TreeRuntime.obbVsAabbMtv(wood, supportProbe);
