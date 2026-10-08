@@ -49,8 +49,7 @@ change(visual,'''        super.tick();
         if (!this.level().isClientSide && this.geometry().getBoolean("leafDebris")''')
 change(runtime,'        int quietTicks;\n        int contactGraceTicks;',
  '        int quietTicks;\n        int supportSettleTicks;\n        int contactGraceTicks;')
-change(runtime,'''            if (!held) this.stabilizeRestingContact();
-            // Short loose segments''',
+change(runtime,'''            if (!held) this.stabilizeRestingContact();''',
 '''            if (!held) this.stabilizeRestingContact();
             // Multiple consecutive real ground contacts must settle small pieces.
             // This avoids gravity/impulse oscillation at the old unreachable sleep threshold.
@@ -68,7 +67,7 @@ change(runtime,'''            if (!held) this.stabilizeRestingContact();
                     }
                 } else this.supportSettleTicks = 0;
             } else this.supportSettleTicks = 0;
-            // Short loose segments''')
+''')
 change('build.gradle',
 '''            List rgb = spec[1] as List
             def source = cache.containsKey(material)''',
