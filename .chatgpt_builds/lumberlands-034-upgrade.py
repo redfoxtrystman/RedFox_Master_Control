@@ -21,7 +21,8 @@ for asset,output in assets.items():
  if len(data)<10000: raise RuntimeError('Roblox asset unexpectedly short '+str(asset))
  output.write_bytes(data)
  print('Retrieved exact Roblox asset',asset,len(data),'bytes')
-s=gzip.decompress(assets[145815658].read_bytes()).decode('ascii')
+raw=assets[145815658].read_bytes()
+s=(gzip.decompress(raw) if raw.startswith(b'\x1f\x8b') else raw).decode('ascii')
 head=s.split('\n',2)[:2]
 if head != ['version 1.00','2168']: raise RuntimeError('wrong Roblox mesh header '+str(head))
 groups=re.findall(r'\[([^][]+)\]',s)
