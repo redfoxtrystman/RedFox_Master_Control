@@ -1,0 +1,37 @@
+name: LT2 Animation Asset Retrieval
+on:
+  push:
+    branches: [chatgpt-lumberlands-036-authentic-animations-physics]
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download original AxeHold, AxeCarry, and all five AxeSwing sequences
+        shell: bash
+        run: |
+          mkdir -p out
+          python3 - <<'PY'
+          import urllib.request,json,pathlib
+          ids={'AxeHold':260880293,'AxeCarry':260880403,
+               'AxeSwing1':260880531,'AxeSwing2':260880606,'AxeSwing3':260880660,
+               'AxeSwing4':260880729,'AxeSwing5':260880809}
+          results={}
+          for name,id in ids.items():
+            try:
+              request=urllib.request.Request(f'https://assetdelivery.roblox.com/v1/asset/?id={id}',
+                   headers={'User-Agent':'RobloxStudio/WinInet'})
+              with urllib.request.urlopen(request,timeout=20) as response:
+                 data=response.read(6000000)
+              pathlib.Path('out',f'{name}-{id}.rbxm').write_bytes(data)
+              results[name]={'id':id,'bytes':len(data),'head':data[:80].hex()}
+            except Exception as e: results[name]={'id':id,'error':str(e)}
+          print(json.dumps(results,indent=2))
+          pathlib.Path('out/report.json').write_text(json.dumps(results,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LT2-Original-Axe-Animations
+          path: out/*
+          if-no-files-found: error
