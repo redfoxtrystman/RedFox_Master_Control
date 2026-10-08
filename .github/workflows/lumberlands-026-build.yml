@@ -1,0 +1,44 @@
+name: LumberLands 0.2.6 Build
+on:
+  push:
+    branches: [chatgpt-lumberlands-026-build]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct source
+        shell: bash
+        run: |
+          set -euxo pipefail
+          rm -rf work && mkdir -p work/project
+          base64 -d .chatgpt_builds/lumberlands-0.2.6-source.b64 > work/source.zip
+          unzip -q work/source.zip -d work/project
+          ls -la work/project
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.0'
+      - name: Build
+        working-directory: work/project
+        run: gradle --no-daemon clean universalJar --stacktrace
+      - name: Collect jars
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p out
+          cp work/project/build/universal/LumberLands-0.2.6+1.21.1-universal.jar out/
+          cp work/project/fabric/build/libs/LumberLands-0.2.6+1.21.1-fabric.jar out/
+          cp work/project/forge/build/libs/LumberLands-0.2.6+1.21.1-forge.jar out/
+          cp work/project/neoforge/build/libs/LumberLands-0.2.6+1.21.1-neoforge.jar out/
+          ls -lh out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LumberLands-0.2.6-compiled
+          path: out/*.jar
+          if-no-files-found: error
