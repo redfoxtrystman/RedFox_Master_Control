@@ -1,0 +1,51 @@
+name: LumberLands 0.3.4 Fabric startup smoke
+on:
+  push:
+    branches: [chatgpt-lumberlands-034-fabric-smoke]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct complete 0.3.4 source and assets
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p work/project
+          base64 -d .chatgpt_builds/lumberlands-0.3.0-source.b64 > work/source.zip
+          unzip -q work/source.zip -d work/project
+          cd work/project
+          patch --batch --fuzz=0 -p4 < ../../.chatgpt_builds/lumberlands-0.3.0-to-0.3.1.patch
+          python3 ../../.chatgpt_builds/lumberlands-032-upgrade.py
+          python3 ../../.chatgpt_builds/lumberlands-033-upgrade.py
+          python3 ../../.chatgpt_builds/lumberlands-034-upgrade.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.0'
+      - name: Launch Fabric 1.21.1 client and detect fatal mixin errors
+        shell: bash
+        working-directory: work/project
+        run: |
+          set +e
+          timeout 150s xvfb-run -a gradle --no-daemon :fabric:runClient > fabric-smoke.log 2>&1
+          code=$?
+          set -e
+          tail -n 200 fabric-smoke.log
+          if grep -E 'InvalidInterfaceMixinException|Mixin apply for mod lumberlands failed|Minecraft has crashed|Mixin transformation .* failed|lumberlands.*FAILED during APPLY|Mixin target.*not found' fabric-smoke.log; then
+            exit 1
+          fi
+          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
+            echo "Fabric failed to launch with exit code $code"
+            exit "$code"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: LumberLands-034-Fabric-smoke-log
+          path: work/project/fabric-smoke.log
+          if-no-files-found: warn
