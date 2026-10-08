@@ -25,12 +25,18 @@ change(visual,'import net.minecraft.core.registries.BuiltInRegistries;',
 'insert' if False else '''import com.glaziolaicefox.lumberlands.tree.Lt2TreeRuntime;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.registries.BuiltInRegistries;''')
-change(visual,'''                if (tree.level() == level && !tree.geometry().getList("sections", 10).isEmpty()
-                        && tree.getBoundingBox().intersects(query)) out.add(tree);''',
-'''                if (tree.level() != level || tree.geometry().getList("sections", 10).isEmpty()) continue;
+p=root/visual
+source=p.read_text()
+import re
+source,count=re.subn(
+    r'if \(tree\.level\(\) == level && !tree\.geometry\(\)\.getList\("sections", 10\)\.isEmpty\(\)\s*&& tree\.getBoundingBox\(\)\.intersects\(query\)\) out\.add\(tree\);',
+    """if (tree.level() != level || tree.geometry().getList("sections", 10).isEmpty()) continue;
                 if (level instanceof ServerLevel server &&
                         !Lt2TreeRuntime.isVisualOwned(server, tree.getUUID())) continue;
-                if (tree.getBoundingBox().intersects(query)) out.add(tree);''')
+                if (tree.getBoundingBox().intersects(query)) out.add(tree);""",
+    source)
+if count!=1: raise RuntimeError('cannot find tree collision query expression: '+str(count))
+p.write_text(source)
 change(visual,'''        super.tick();
         if (!this.level().isClientSide && this.geometry().getBoolean("leafDebris")''',
 '''        super.tick();
