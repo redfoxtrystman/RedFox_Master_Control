@@ -1,0 +1,49 @@
+name: LumberLands 0.3.1 Universal Build
+on:
+  push:
+    branches: [chatgpt-lumberlands-031-build]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct 0.3.0 source and apply 0.3.1 fixes
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p work/project
+          base64 -d .chatgpt_builds/lumberlands-0.3.0-source.b64 > work/source.zip
+          unzip -q work/source.zip -d work/project
+          cd work/project
+          patch --batch --fuzz=0 -p4 < ../../.chatgpt_builds/lumberlands-0.3.0-to-0.3.1.patch
+          grep -q 'mod_version=0.3.1' gradle.properties
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.0'
+      - name: Compile all loaders and assemble one universal JAR
+        working-directory: work/project
+        run: gradle --no-daemon clean universalJar --stacktrace
+      - name: Verify universal JAR
+        shell: bash
+        run: |
+          set -euxo pipefail
+          f=work/project/build/universal/LumberLands-0.3.1+1.21.1-universal.jar
+          test -s "$f"
+          unzip -t "$f" >/dev/null
+          jar tf "$f" | grep -q 'com/glaziolaicefox/lumberlands/entity/Lt2TreeVisualEntity.class'
+          jar tf "$f" | grep -q 'com/glaziolaicefox/lumberlands/axe/Lt2AxeItem.class'
+          jar tf "$f" | grep -q 'com/glaziolaicefox/lumberlands/mixin/Lt2AxeThirdPersonMixin.class'
+          mkdir -p out
+          cp "$f" out/
+          sha256sum out/*.jar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LumberLands-0.3.1-universal
+          path: out/LumberLands-0.3.1+1.21.1-universal.jar
+          if-no-files-found: error
