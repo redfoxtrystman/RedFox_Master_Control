@@ -23,8 +23,8 @@ for asset,output in assets.items():
  # are PNG. Shipping those compressed bytes as .png caused Minecraft's
  # black/magenta missing-texture fallback on *every* original LT2 axe.
  if output.suffix.lower()=='.png':
-  data=gzip.decompress(data) if data.startswith(b'\\x1f\\x8b') else data
-  if not data.startswith(b'\\x89PNG\\r\\n\\x1a\\n'):
+  data=gzip.decompress(data) if data.startswith(b'\x1f\x8b') else data
+  if not data.startswith(b'\x89PNG\r\n\x1a\n'):
    raise RuntimeError('Not a decoded PNG for Roblox asset '+str(asset))
   import struct
   width,height=struct.unpack('>II',data[16:24])
