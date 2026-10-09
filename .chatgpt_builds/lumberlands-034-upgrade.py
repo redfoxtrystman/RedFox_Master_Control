@@ -19,8 +19,19 @@ for asset,output in assets.items():
    headers={'User-Agent':'RobloxStudio/WinInet'})
  with urllib.request.urlopen(request,timeout=60) as response: data=response.read(15000000)
  if len(data)<10000: raise RuntimeError('Roblox asset unexpectedly short '+str(asset))
+ # Roblox delivers textures gzip-wrapped, even though the underlying bytes
+ # are PNG. Shipping those compressed bytes as .png caused Minecraft's
+ # black/magenta missing-texture fallback on *every* original LT2 axe.
+ if output.suffix.lower()=='.png':
+  data=gzip.decompress(data) if data.startswith(b'\\x1f\\x8b') else data
+  if not data.startswith(b'\\x89PNG\\r\\n\\x1a\\n'):
+   raise RuntimeError('Not a decoded PNG for Roblox asset '+str(asset))
+  import struct
+  width,height=struct.unpack('>II',data[16:24])
+  if width<32 or height<32 or width>4096 or height>4096:
+   raise RuntimeError('Invalid PNG dimensions for '+str(asset))
  output.write_bytes(data)
- print('Retrieved exact Roblox asset',asset,len(data),'bytes')
+ print('Retrieved and validated asset',asset,len(data),'bytes')
 raw=assets[145815658].read_bytes()
 s=(gzip.decompress(raw) if raw.startswith(b'\x1f\x8b') else raw).decode('ascii')
 head=[x.strip() for x in s.split('\n',2)[:2]]
