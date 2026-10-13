@@ -1,0 +1,57 @@
+LUMBERLANDS — PLANS AND CONTINUATION NOTES
+Updated: 2026-10-13
+Project: Existing Minecraft 1.21.1 FABRIC mod based on Roblox Lumber Tycoon 2 (LT2)
+Status: Existing development project. Items below include requirements and outstanding QA; they are not all confirmed implemented.
+
+GOAL: Reproduce LT2's trees, wood types, branches, foliage, chopping, tree growth, draggable logs and realistic/accurate tree physics in Minecraft. Prefer verified LT2 models and materials over fabricated lookalikes.
+
+1. LT2 TREE TYPES / SHAPES
+- Reproduce authentic tree branching, taper, trunk proportions, stump shapes, leaf arrangements and species-specific growth, with realistic procedural variation matching LT2.
+- LT2's Generic tree corresponds to Oak; LT2's tree called Oak corresponds to Elm. Do not confuse these naming schemes.
+- Cave Crawler must have irregular stump splitting and branch structure, with multiple Foil leaf pieces rather than a simplistic fixed model. Longer stumps can occur.
+- Frost/Ice trees need verified LT2-accurate growth appearance (prior approximations were inaccurate). Verify against source/wiki/reference images.
+- Distinctive tree/wood types include Neon, Sinister/Spooky, Blue Spruce, End Times and Lone Tree; validate unique behavior per species.
+- Leaves need LT2-like growth, scaling and post-felling/falling death behavior.
+
+2. MODELS / MATERIALS / RENDERING
+- Use actual LT2-style geometry and reference-accurate materials where permissions permit. Prior user provided Roblox reference game files; source data should be examined rather than guessed.
+- Reproduce correct pre-2022 Roblox material maps, tiling and BrickColor tint, instead of flat-color placeholders.
+- Sinister/Spooky should exhibit appropriate black granite/marble-style look, not incorrect flat purple/black.
+- End Times blue glow spots and foliage placement must track the real geometry.
+- Chopped pieces expose accurate internal wood surfaces.
+- Neon material must remain compatible with Sodium + Iris and should not cause red tint or shader breakage.
+
+3. TREE PHYSICS / TREE CONTACT
+- Falling trees, logs and separated segments have physically accurate collision matching their visible models.
+- Trees should be solid/walkable at the physical wood surface, and drop/fall appropriately with the player on them.
+- On chop, collision shape must update immediately: no invisible lingering solid tree hitbox.
+- Fix small-piece and trunk jitter/bouncing on contact with terrain; prevent penetration and repeated upward correction, unstable sleeping and runaway forces.
+- Handle grabbing, dragging, mass/inertia/friction, sleeping, multi-contact physics and splitting without server TPS or client stability problems.
+- Dedicated server-authoritative tree data/body graph and efficient pose syncing; adaptive simulation bounds as needed.
+- Consider prior inspiration from Create Aeronautics physics when appropriate, but do not assume it provides a copyable drop-in system.
+
+4. AXES AND CHOPPING
+- Recreate LT2's standard, special, limited and unobtainable hatchets with actual 3D models/textures, damage, range, cooldown and specialist advantages.
+- Prior development notes describe 32 axe types: 8 standard, 20 special/limited, 4 unobtainable; verify current registry.
+- Ensure correct Minecraft first-person attack swing and LT2-like third-person multi-height chopping feedback.
+- Add/maintain LT2 grab dot UI/interaction for lifting wood/tree pieces.
+- Test chopping of branches, segmentation and precise interior cut rendering.
+
+5. CREATIVE ITEMS / DEVELOPMENT TOOLS
+- Include tree seeds in a Lumberlands creative tab.
+- Add configurable developer tree-growth-speed multiplier.
+- Remove unintended magma-tree log/block content.
+- Ensure trees, wood pieces and interactions persist across unload/reload and multiplayer.
+
+6. KNOWN ISSUES TO RECHECK IN LATEST BUILD
+- Tree red tint and non-LT2 materials/shape fidelity.
+- Inaccurate hitboxes, missing tree solidity, invisible hitboxes after chopping and player floating over walking surfaces.
+- Severe physics jitter, especially tiny wood pieces, including clipping below the ground.
+- Incorrect leaf death after felling; faulty Frost growth; Cave Crawler morphology.
+- Hatchet missing or corrupted textures and shader compatibility.
+- Prior reported startup failure for EntityGetterTreeCollisionMixin involving interface field LUMBERLANDS_TREE_QUERY_PAD (verify whether still present before fixing).
+- Test under actual Fabric + Sodium + Iris, not just compilation.
+
+REFERENCE / WORKFLOW
+Past discussions involved Lumberlands 0.2.x to 0.3.x development, Roblox LT2 project files and v0.3.0 tree entity/axe architecture. Verify the CURRENT source, build and reference data before implementing changes.
+This is a planning TXT only; do not treat a previous claimed fix as verified.
