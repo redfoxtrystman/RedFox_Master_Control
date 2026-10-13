@@ -70,4 +70,11 @@ GOAL: Recreate Pixelmon's distinctive gameplay mechanics, special variants, envi
 - This applies to NATURALLY SPAWNED legendaries/mythicals; do not accidentally time-limit player-owned Pokémon or ritual/shrine summons unless separately configured.
 - PIXELMON reference documented defaults to compare: legendary-spawn-ticks=25000 average with 60%-140% variation, legendary-spawn-chance about 0.30, legendary-despawn-ticks=6000, display-legendary-global-message=true. Verify values for selected Pixelmon release before coding.
 
+ASSET / IMPLEMENTATION STRATEGY UPDATE (2026-10-13)
+- USER'S PREFERRED APPROACH: Where feasible, reuse/import Pixelmon's ACTUAL original models, textures, structure layouts, animation resources, and related content rather than fabricate approximate Cobblemon-styled replacements.
+- Specifically, the classic pre-tree Pixelmon Apricorn bushes should retain the authentic original Pixelmon bush models and appearance; adapt to Cobblemon/NeoForge 1.21.1 block state, renderer, growth and harvest hooks. No custom approximation unless a technical necessity or licensing constraint requires it.
+- Similarly assess original resources for graveyards, shrines, dimensions and special skins individually. Importing a visual/structure asset does NOT port underlying Pixelmon code or gameplay logic by itself.
+- COPYRIGHT/DISTRIBUTION BOUNDARY: The official Pixelmon project is All Rights Reserved. Directly bundled or redistributed extracted assets require appropriate permission/rights. Keep any experimental local asset-import pipeline separate from public release artifacts until rights are established; otherwise substitute authorized/original assets. Do not publish copied proprietary assets in the public GitHub project without permission.
+- Maintain a per-feature ledger for Pixelmon source asset, compatibility transformation, legal permission/release readiness and implementation status.
+
 RULES: Minecraft 1.21.1 NeoForge; multiplayer-safe; reuse Cobblemon storage, PC, Pasture, battle and trading infrastructure; keep configurations flexible; choose and verify a Pixelmon reference version for exact spawn behavior. Pixelmon's proprietary structure/model/texture assets cannot be redistributed without appropriate rights: original/authorized recreations for releases. No code has been implemented from this plan yet.
