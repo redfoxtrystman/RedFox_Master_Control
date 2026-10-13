@@ -1,0 +1,62 @@
+PKVAULT EDIT — PLANS AND CONTINUATION NOTES
+Updated: 2026-10-13
+Existing project: .NET 10 Pokémon storage / save editor desktop app, NOT a Cobblemon mod.
+Known solution/modules: pkvault.sln, PKVault.Core, PKVault.Desktop, frontend.
+Previously used GitHub branch: pkvault-v8-uranium-insurgence in redfoxtrystman/RedFox_Master_Control. Verify actual current branch/head and code before development.
+Status: Existing project. Plans and regressions below may already be implemented in some alpha builds.
+
+PURPOSE
+Cross-generation Pokémon storage, save compatibility, item/inventory support, trading, Pokedex, quests and a discovery/progression-based Shop, with extremely careful preservation of user save data.
+
+1. CORE STORAGE / SAFETY
+- Party, PC and item moving must be reliable and atomic; never erase real Pokémon, spawn phantom Pokémon or corrupt inventories.
+- Maintain safe backups, rollback, proper save transitions, unique item IDs, left/right independent panels and same-save open support.
+- Resizable item boxes up to 300 slots and renameable item boxes.
+- Gen 1 special-glitch handling: show legitimate MissingNo/'M records but block bad phantom placeholders and unsafe writes/sorts.
+- Do not regress legacy game storage or overwrite unsupported Pokémon data.
+
+2. GAME / SAVE SUPPORT
+- Official Pokémon game generations and appropriate version/region/form restrictions; Pokedex and sprite rendering.
+- Pokémon Uranium and Insurgence support with valid save and Pokémon/item data round trips, including Ruby Marshal .rxdata, correct species/moves/forms, party/PC, bags and game-specific items.
+- Protect TMs/HMs/Key Items and prevent invalid cross-game export.
+- TMT/other ROM hack support should preserve unknown/expanded raw species, types and moves during round-trips, using provenance/profile metadata and safe vanilla export guards.
+- Uranium Tandor Dex including all 200 entries; appropriate seen/caught and regional sorting; special sprites such as Aotius/Mutios.
+- Prevent uncaught/locked custom Pokémon from leaking their names in hover UI.
+
+3. SHOP (PRIORITY) / ITEM BANK
+- Shop unlocks stock based on quests, discoveries, prior item acquisition, generation/game progression.
+- Example: committed Eevee -> Flareon evolution unlocks Fire Stone purchase; evolution items unlock after first relevant obtain when intended.
+- Rarity/progression-appropriate buy/sell costs; useful recovery/rebuy mechanics; honest item cost display.
+- Item inventory categories, berries, valuables, TMs, evolution stones, correct sprites/icon sizes and inventory/Shop/Quests visibility toggles (default all on).
+- Item boxes, splitting, drag/drop, bank quantities and HGSS Apricorn withdrawal must work.
+- EXPEDITIONS were previously SHELVED; they belong in a possible.txt backlog if revisited, NOT current Shop work.
+
+4. EVOLUTION
+- Item evolutions consume an owned item and happen immediately, just like the existing trade evolution workflow.
+- Do NOT introduce a new pending Save/Cancel interaction exclusively for item evolution.
+- Correct game, generation, species, gender, region and form restrictions; preserve linked-version sync and reward progress.
+
+5. TRADING
+- Integrated Pokémon trading from storage with 0-6 Pokémon offered, including unequal trades or gifts; safe transactional reservation, confirmation, rollback and refresh.
+- Direct IP, Radmin/Hamachi and protocol/version checks.
+- Incoming Pokémon must enter the RECIPIENT'S CHOSEN BOX, not a random/default one.
+- Update Pokédex for eligible official received Pokémon; exclude invalid glitch records, Eggs and placeholder species 0.
+- Preserve trainer details and other Pokémon attributes.
+
+6. QUESTS / REWARDS / POKEDEX
+- Accurate Seen/Caught tracking, cross-save achievements, dailies, contracts and one-time rewards.
+- Prior modest playtime reward proposals: 15 minutes = ₽2,000; 2 hours = ₽10,000; 10 hours = ₽25,000.
+- Prevent repeated reward exploits; keep reward persistence consistent with existing save-confirmation rules.
+- Avoid ROM patching/hacks to implement rewards.
+
+7. OUTSTANDING BUGS / QA
+- Fix or verify 'pkvault-db already open' and SQLite concurrency/save errors, undisposed database context, and file sharing races.
+- Red PC-to-PC item deletion, false phantom items and vanishing transferred items.
+- HG/SS Apricorn withdrawal and achievement accounting.
+- Money/meta-key corruption, changing item-box names, unsupported items or bad bag mapping.
+- Mis-sized category icons, item sprites and Gen 1 Elixir asset alias problems.
+- Save/modify flow must not clear party/boxes, and user data must remain safe when changing saves.
+- Re-test prior alpha53 series bugfixes on CURRENT source; do not assume all claims were validated.
+
+KEEP SEPARATE
+PKVault is its own desktop app, NOT related to Cobblemon Mystery Dungeon or Pixelmon Rejuvenated except that users may enjoy similar collection features. Existing software should never be replaced with a placeholder implementation.
