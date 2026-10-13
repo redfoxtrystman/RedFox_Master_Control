@@ -1,0 +1,60 @@
+PIXELMON REJUVENATED — MASTER PLANS
+Updated: 2026-10-13 | Minecraft 1.21.1 NeoForge | Cobblemon addon
+Status: PLANNING ONLY. Entirely separate from Cobblemon Mystery Dungeon.
+
+GOAL: Recreate Pixelmon's distinctive gameplay mechanics, special variants, environments, and structures in Cobblemon style, reusing existing Cobblemon and addon Pokémon species wherever possible.
+
+1. SPIRIT POKÉMON AND GRAVEYARDS
+- Add Spirit Eevee and all eight Eeveelutions with Cobblemon-style models, textures and permanent aspects.
+- Reproduce Graveyard A/B/C and Haunted Graveyard A/B appearances, locations and appropriate Pokémon encounters as closely as possible.
+- Special rule: Spirit Eeveelutions retain their usual primary type and GAIN Ghost as secondary type. Eevee Normal/Ghost; Vaporeon Water/Ghost; Jolteon Electric/Ghost; Flareon Fire/Ghost; Espeon Psychic/Ghost; Umbreon Dark/Ghost; Leafeon Grass/Ghost; Glaceon Ice/Ghost; Sylveon Fairy/Ghost.
+- Spirit appearance persists through evolution, trade and PC storage.
+
+2. ULTRA SPACE
+- Recreate Ultra Space dimension: floating terrain, six Ultra biomes (Deep Sea, Desert, Forest, Jungle, Plant, Crater), wormholes, low gravity, fog, structures, world return, rare encounters, Shiny/Hidden Ability modifiers.
+- Reproduce Pixelmon's FULL spawn lists (ordinary Pokémon plus Ultra Beasts), levels and encounter conditions, not just a generic Beast spawn pool.
+- Ultra Beasts include Nihilego, Pheromosa, Guzzlord, Stakataka, Kartana, Blacephalon, Buzzwole, Poipole, Xurkitree, Celesteela; Naganadel evolved from Poipole. Confirm spawn mappings against the chosen reference release.
+
+3. DAYCARE / BREEDING
+- New Daycare block, GUI and two breeding Pokémon slots.
+- REUSE Cobblemon's Pasture roaming system: visually display both Pokémon wandering around the Daycare, fenced roaming and native animations.
+- Breeding compatibility, Ditto/Egg Groups, relevant IV/Nature/ability/move/form inheritance, progression, Eggs.
+- Eggs occupy PARTY slots and hatch through walking steps, not as standard inventory items. PC-stored Eggs do not gain steps. Safe persistence and retrieval.
+
+4. CLASSIC APRICORNS
+- Old Pixelmon short/bush-like Apricorn plants (before modern trees), all seven original colors; natural generation, growth stages, right-click harvest, replant.
+- Produce Cobblemon-compatible Apricorns. Optional config to coexist with or replace natural Apricorn trees.
+
+5. SPECIAL SKINS AND VARIANTS
+- Target at least 90% of Pixelmon's individual special appearances, converted into Cobblemon art style.
+- Examples: Spirit, Ashen, Alter, Strike, Pink, Valencian, Drowned, Zombie, Rainbow, Valentine, Christmas/Elf, Witch/Halloween, Summer, Crystal Steelix, Alien Celebi, special Arbok forms.
+- Accurate acquisition/encounter methods where practical, with variant-aware evolution, trading and PC support.
+
+6. LEGENDARY/MYTHICAL ACQUISITION
+- Legendary bird shrines and charged orbs; Celebi Ilex Shrine/GS Ball; Red Chain + Timespace Altar for Dialga/Palkia/Giratina; Arceus Arc Chalice, Plates and Azure Flute; Ho-Oh/Lugia bells; Zygarde Cube/Cells/Cores; Mewtwo cloning; Kubfu towers.
+- Legendary spawning, rituals, shrines, structures, rewards and animations as in chosen Pixelmon version.
+- Use existing Pokémon from Cobblemon, Myths and Legends or compatible addons where available; NEVER register duplicate species.
+
+7. DROWNED WORLD
+- Additional Plane of Water/Drowned World dimension with Warm, Crimson and Dark environments, Drowned Pokémon/skins, quest mechanics, underwater structures, and Drowned Lugia.
+
+8. PIXELMON BOSSES
+- Common/Uncommon/Rare/Epic/Legendary/Ultimate tiers, level scaling, visible boss effects, rewards, special Drowned/Haunted bosses and compatible Mega bosses.
+- Max Raids are only a DISCUSSED POSSIBILITY, not a committed feature.
+
+9. ONE-SIDED TRADING
+- Configurable gift trades using Cobblemon's EXISTING trading UI/validation, without another trading interface. Two-party confirmation remains required.
+
+10. MISSINGNO
+- MissingNo in Cobblemon style, including Pixelmon-inspired large size and floating behavior plus some or all Gen 1 glitch variants/forms.
+
+11. ADVANCED PC
+- Multi-select/bulk movement, automatic actual sorting across all PC boxes, dex ordering including forms, regional/skin/shiny variants, selected/protected boxes, optional previews/undo.
+- Expandable SCROLLABLE virtual boxes from 30 to as many as 1,000 slots, suitable for generation-based collections and PKVault-style organization.
+- Favor client-side display, filtering, grouping and visual sorting. Server-authoritative operations only for actual persistent moves/capacity changes. Investigate mapping multiple native 30-slot boxes into one virtual box.
+
+12. TRADING MACHINE
+- A SINGLE PLACEABLE ITEM with visually multi-block-sized model, comparable to a Cobblemon PC, NOT hand-assembled multiblock.
+- Existing Cobblemon two-player trading; optional one-sided gift support; animations, colors and optional machine requirement.
+
+RULES: Minecraft 1.21.1 NeoForge; multiplayer-safe; reuse Cobblemon storage, PC, Pasture, battle and trading infrastructure; keep configurations flexible; choose and verify a Pixelmon reference version for exact spawn behavior. Pixelmon's proprietary structure/model/texture assets cannot be redistributed without appropriate rights: original/authorized recreations for releases. No code has been implemented from this plan yet.
