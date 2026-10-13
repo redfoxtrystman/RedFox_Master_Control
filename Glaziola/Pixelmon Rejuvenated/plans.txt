@@ -57,4 +57,17 @@ GOAL: Recreate Pixelmon's distinctive gameplay mechanics, special variants, envi
 - A SINGLE PLACEABLE ITEM with visually multi-block-sized model, comparable to a Cobblemon PC, NOT hand-assembled multiblock.
 - Existing Cobblemon two-player trading; optional one-sided gift support; animations, colors and optional machine requirement.
 
+13. LEGENDARY/MYTHICAL SPAWN ANNOUNCEMENTS AND DESPAWN PROTECTION (FEATURE #16)
+- Recreate Pixelmon's separate, configurable legendary/mythical spawn-attempt system instead of handling them as ordinary wild Pokemon spawns.
+- Broadcast a server-wide chat message with the legendary/mythical species and actual biome (example: "A legendary Mew has spawned in a Jungle biome!"). Biome only by default: no coordinates unless an optional config enables them.
+- Respect the eligible Pokémon's original encounter rules, time, weather, biome and rarity. Prefer existing Pokémon species supplied by Cobblemon / Myths and Legends and prevent competing addon spawn logic from creating duplicates.
+- Set a CONFIGURABLE 15-MINUTE REAL-WORLD lifespan for natural legendary spawns by default, as requested. For reference, Pixelmon documentation lists a 6,000-tick (5-minute) default, so 15 minutes is an intentional change.
+- Do NOT allow ordinary Cobblemon distance-based despawning, entity cap cleanup or routine wild Pokemon cleanup to remove the encounter early.
+- Track each spawned encounter server-side with persistent identity, biome, location, dimension, spawn timestamp and expiration; manage loaded/unloaded chunks safely to avoid duplicate spawns.
+- Ideally preserve the same encounter if the chunk unloads/reloads, or reinstantiate it safely only if needed. No mandatory permanent chunk force-loading. Optional short-lived force-load tickets may be configurable but must release on capture, defeat, timeout or cleanup.
+- Expire uncaught encounters after the configured wall-clock time, even if the chunk was unloaded, with no hidden respawns or item duplication. Clear tracking on successful capture and define battle interaction with expiry to avoid despawning in the middle of a legitimate battle.
+- Offer settings for announcements, natural-spawn enablement, interval, attempt chance, despawn minutes, whether mythicals participate, simultaneous cap, and optional position/coordinates display.
+- This applies to NATURALLY SPAWNED legendaries/mythicals; do not accidentally time-limit player-owned Pokémon or ritual/shrine summons unless separately configured.
+- PIXELMON reference documented defaults to compare: legendary-spawn-ticks=25000 average with 60%-140% variation, legendary-spawn-chance about 0.30, legendary-despawn-ticks=6000, display-legendary-global-message=true. Verify values for selected Pixelmon release before coding.
+
 RULES: Minecraft 1.21.1 NeoForge; multiplayer-safe; reuse Cobblemon storage, PC, Pasture, battle and trading infrastructure; keep configurations flexible; choose and verify a Pixelmon reference version for exact spawn behavior. Pixelmon's proprietary structure/model/texture assets cannot be redistributed without appropriate rights: original/authorized recreations for releases. No code has been implemented from this plan yet.
