@@ -1,0 +1,53 @@
+COBBLEMON MYSTERY DUNGEON(S) — MASTER PLANS
+Updated: 2026-10-13 | Minecraft 1.21.1 NeoForge | Cobblemon addon
+Status: PLANNING ONLY. Separate from Pixelmon Rejuvenated.
+
+GOAL: Full Pokémon Mystery Dungeon-style experience in Minecraft with transformed Pokémon players, an open-world combat mode, and occasional instanced/procedural dungeons using top-down camera and tile-based turns.
+
+1. PLAY AS POKÉMON
+- Leverage compatible Pokémon Synchro Machine addon capabilities for transformation, roaming, attacks, leveling, move/PP data and animations.
+- Outside dungeons: normal Minecraft camera and free movement; fight wild Pokémon or players, earn experience, evolve and join teams.
+- The ORIGINAL player Pokémon is the permanent identity, cannot be placed into PC storage.
+- A rare very high-level Arceus dungeon ends with DIALOGUE (Arceus cannot be battled there) and a choice: remain a Pokémon or become a human again. Preserve progress.
+
+2. PARTY AND FOLLOWERS
+- Active team LIMIT: SIX POKÉMON TOTAL = original player Pokémon + at most FIVE recruited followers.
+- Wild Pokémon are RECRUITED rather than caught; recruited Pokémon can be deposited in normal Cobblemon PC boxes, freeing slots for more.
+- Followers maintain a distance, avoid blocking, follow/wait commands, and become transparent and non-colliding/non-hitting when overlapping the player's block.
+- Control can switch between original and any healthy recruited Pokémon in the Overworld, PvP or Mystery Dungeons. Original Pokémon becomes a follower while another is controlled.
+- If the currently controlled recruited Pokémon is stored in a PC, switch back to original Pokémon automatically. Original Pokémon cannot be deposited.
+
+3. FAINTING
+- If current Pokémon faints, switch to another conscious party member, including inside dungeons/PvP. Original leader fainting does NOT automatically end the adventure.
+- Only when entire party faints: blackout, teleport to bed (or spawn fallback), restore full health and retain identity/levels.
+
+4. MYSTERY DUNGEONS
+- Entrances occasionally spawn in the Overworld, tied to fixed level/difficulty tiers and floor counts.
+- Upon entry, switch into top-down view, cardinal/diagonal GRID movement and TURN-BASED attacks/moves/PP/enemy AI.
+- Procedural rooms, corridors, stairs, enemy Pokémon, treasure, rewards, traps, rare boss floors, and a Mystery Dungeon-inspired health/moves/PP/minimap/dialogue GUI.
+- Returning to Overworld restores original camera/movement/real-time combat.
+- Dungeon instances support shared multiplayer expeditions and team switching, with safe action/turn synchronization.
+- Each dungeon refreshes EVERY 24 REAL-LIFE HOURS, generating a new layout, enemies and treasure but keeping its exact same level (e.g., level 25 stays level 25) and entrance.
+- Do not reset an active expedition mid-run; subsequent runs use regenerated layout.
+- Rare Arceus dungeon contains high-level Pokémon and concludes with special dialogue/choice, not Arceus battle.
+
+5. HUNGER / HAZARDS
+- Use EXISTING Minecraft hunger, fruit and food; do not create a duplicate Belly system.
+- Dungeon floor traps: poison, sleep, warp, explosions, sticky item, food spoilage, PP drain, enemy summon, pitfall; optional Monster Houses and other dungeon features.
+
+6. PLAYER CAPTURE (SERVER-CONFIGURABLE)
+- Only Pokémon-form HUMAN PLAYERS may optionally be caught in Poké Balls; distinct from NPC recruitment.
+- During active ball shakes, a player can struggle by repeatedly pressing SPACE. Weaker ball = fewer presses, stronger ball = more.
+- MASTER BALL is NOT escapable through button-mashing.
+- ALL balls, including Master Ball, automatically release the captured human after MAXIMUM 30 REAL-WORLD SECONDS.
+- Upon release/escape, the original ball is GIVEN BACK TO THE CAPTURING PLAYER, including Master Balls. To capture again requires a fresh throw.
+- Caught human players can NEVER be deposited into PCs or permanently owned/traded.
+- Plan safe disconnect/relog handling, full-inventory ball recovery and anti-softlock/capture protection.
+
+7. ADDON INTEGRATION
+- Cobblemon: species/party/storage/move/experience foundation.
+- Synchro Machine: transformed Pokémon control where APIs allow.
+- Raid-den crystal addon: reference for teleporting parties into isolated instances, NOT a ready-made procedural dungeon engine.
+- Implement new server-authoritative grid-turn engine, procedural map generation, camera/HUD changes and multiplayer combat synchronization. Check dependency versions/licensing first.
+
+OPEN DETAILS: recruitment probability, dungeon spawn pools, battle action timer, exact ball struggle thresholds, Arceus choice repeatability, optional NPC party rules. No actual code has been created for this plan.
