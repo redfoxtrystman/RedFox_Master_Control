@@ -70,6 +70,13 @@ GOAL: Recreate Pixelmon's distinctive gameplay mechanics, special variants, envi
 - This applies to NATURALLY SPAWNED legendaries/mythicals; do not accidentally time-limit player-owned Pokémon or ritual/shrine summons unless separately configured.
 - PIXELMON reference documented defaults to compare: legendary-spawn-ticks=25000 average with 60%-140% variation, legendary-spawn-chance about 0.30, legendary-despawn-ticks=6000, display-legendary-global-message=true. Verify values for selected Pixelmon release before coding.
 
+HISTORICAL PIXELMON VERSION REFERENCES — CORRECTION (2026-10-13)
+- The old short/HD Apricorn bushes were REMOVED from the mainline Pixelmon experience when Pixelmon 9.0.0 (Minecraft 1.16.5) introduced full-sized Minecraft-style Apricorn trees. They are not present as the old bush models in Pixelmon 9.4.1.
+- Therefore, get reference models/textures/behavior for ORIGINAL APRICORN BUSHES from the Pixelmon 8.x Minecraft 1.12.2 era (specific 8.x JAR/assets to be identified and checked), not from modern 9.4.1.
+- Adopt a FEATURE-SPECIFIC source-version policy: older removed systems/assets should be referenced from the historical release that actually contained them; modern Pixelmon only for modern systems that survive there.
+- Implement for target Minecraft 1.21.1 NeoForge + Cobblemon after adapting the older visual/model formats and growth/harvest rules.
+- Private/local extraction for study is not the same as permission to redistribute. Do not commit proprietary extracted Pixelmon assets into public GitHub without authorization.
+
 ASSET / IMPLEMENTATION STRATEGY UPDATE (2026-10-13)
 - USER'S PREFERRED APPROACH: Where feasible, reuse/import Pixelmon's ACTUAL original models, textures, structure layouts, animation resources, and related content rather than fabricate approximate Cobblemon-styled replacements.
 - Specifically, the classic pre-tree Pixelmon Apricorn bushes should retain the authentic original Pixelmon bush models and appearance; adapt to Cobblemon/NeoForge 1.21.1 block state, renderer, growth and harvest hooks. No custom approximation unless a technical necessity or licensing constraint requires it.
