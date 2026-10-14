@@ -123,3 +123,11 @@ ALPHA 0.1.0-ALPHA.2 CRASH FIX (2026-10-14)
 - Rebuilt JAR and alternative datapack as 0.1.0-alpha.2, with reproducible Python generator and CSV catalogs. Verified all 207 assignment files / 622 distinct species-palette pairs, JSON syntax and ZIP/JAR integrity locally.
 - IMPORTANT: This is a crash-fix build, not a feature expansion; it remains TEXTURELESS, does NOT implement Shiny exclusivity/Ghost typing/all battle forms, and has not been tested by launching Minecraft in this environment.
 - Alpha 1 must be REMOVED from mods folder; do not also keep alpha 1 datapack. Alpha 2 files provided within ChatGPT conversation, not committed into GitHub source or binary release.
+
+ALPHA 0.1.0-ALPHA.3 PRE-EVOLUTION CRASH FIX (2026-10-14)
+- User supplied crash-2026-10-14_02.06.20-client.txt. Crash: java.lang.IllegalArgumentException: A PreEvolution needs a valid species (CobblemonLazyPreEvolution, Species.initialize, SpeciesAdditions.reload) when opening Singleplayer. This is different from alpha1's illegal ResourceLocation crash.
+- Root cause from 1.8.1 Cobblemon jar bytecode + palette data inspection: Pixelmon palette named 'tangela' for Bramblin/Brambleghast was registered globally as a flag. Cobblemon PokemonProperties.parse processes no-key custom flags before bare species tokens; this intercepts bare 'tangela' in Tangrowth preEvolution and prevents resolving the actual species.
+- Fixed by naming that palette aspect 'pr_tangela' while preserving the exact source-palette name in the CSV catalog. Test special with /pokespawn bramblin pr_tangela, and validate /pokespawn tangela plus /pokespawn tangrowth.
+- Updated generator to detect/remap collisions with ALL 1,025 Cobblemon species resource ID keys and common reserved PokemonProperties tokens. Verified that no registered flags shadow any of 483 declared preEvolution reference tokens.
+- Alpha 3 build remains 207 palette keys, 206 newly registered flag types, 622 species/palette pairs; models/textures unchanged. ZIP/JAR integrity, JSON validity and mutation checks passed locally. Still requires real Minecraft runtime verification.
+- Replace alpha2 JAR (and any earlier datapack); do not install duplicate versions or simultaneous datapack and JAR. Artifacts available in ChatGPT session but not committed as binaries to this GitHub repo.
