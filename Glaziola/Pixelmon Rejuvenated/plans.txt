@@ -93,4 +93,16 @@ SPECIAL VARIANT SHINY EXCLUSIVITY AND OCTOBER SPIRIT EVENT — FINALIZED (2026-1
 - Proposed config semantics: spiritOctoberBoostEnabled=true; spiritOctoberSpawnMultiplier=1.25; seasonalCalendarTimeZone="UTC". Refresh cached spawn settings when the calendar day/month changes; no expensive per-tick full spawn table rebuild needed.
 - Confirm any edits to species form registration, palettes, or conversion pathways preserve the special-vs-Shiny exclusion, including trades, eggs and PC storage.
 
+FIRST IMPLEMENTATION MILESTONE — TEXTURELESS SPECIAL VARIANT REGISTRATION (2026-10-13)
+- FIRST IMPLEMENTATION PRIORITY is now to register the entire available Pixelmon special-appearance catalog in Cobblemon BEFORE making/recoloring textures and BEFORE worldgen/structures.
+- Make supported Pokémon variants selectable using existing Cobblemon command syntax, e.g. /pokespawn eevee spirit, /pokespawn umbreon spirit, or species-specific ashen/strike/alter variants. Test against the exact target Cobblemon build.
+- Use Cobblemon species_features, species_feature_assignments, species_additions, and resolvers as appropriate. For cosmetic-only variants, add aspect/feature flags and retain normal base model/texture while custom texture is absent; DO NOT register a duplicate species or copy its whole model.
+- Every variant must map to Pokémon that genuinely have that named Pixelmon appearance: build a per-species/variant manifest, not universally assigning every palette to every Pokémon. If a species is supplied by another addon, enable the variant via compatible, optional assignments only when the species exists.
+- Even without recolored textures, the variant should be an identifiable persistent aspect through spawning, capture, trading, PC storage and eligible evolutions. Use clear internal display/diagnostic identification while models are visually the same.
+- Ghost-secondary-type Spirit Eeveelutions intentionally need proper form/battle typing data (Eevee Normal/Ghost, Umbreon Dark/Ghost, etc.), not merely a cosmetic flag. Preserve original moves/abilities/stats where agreed.
+- Enforce that special Pixelmon-style appearances are mutually exclusive with Shiny, INCLUDING manual /pokespawn commands and other aspect assignment pathways, not only natural spawns.
+- Later, user will recolor/provide Cobblemon-style PNG textures; hook each into the appropriate resolver based on the previously registered aspect. The initial forms must work without those textures.
+- Only after the roster and progression are validated should exact encounter tables, graveyard rules, October Spirit 1.25x multiplier and other acquisition logic be added.
+- Use automated data generation/validation for a large catalog, with versioned records of target Cobblemon and source Pixelmon reference release; don't claim full coverage until species-by-species catalog exists.
+
 RULES: Minecraft 1.21.1 NeoForge; multiplayer-safe; reuse Cobblemon storage, PC, Pasture, battle and trading infrastructure; keep configurations flexible; choose and verify a Pixelmon reference version for exact spawn behavior. Pixelmon's proprietary structure/model/texture assets cannot be redistributed without appropriate rights: original/authorized recreations for releases. No code has been implemented from this plan yet.
