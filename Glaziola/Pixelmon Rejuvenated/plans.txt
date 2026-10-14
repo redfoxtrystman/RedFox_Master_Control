@@ -106,3 +106,12 @@ FIRST IMPLEMENTATION MILESTONE — TEXTURELESS SPECIAL VARIANT REGISTRATION (202
 - Use automated data generation/validation for a large catalog, with versioned records of target Cobblemon and source Pixelmon reference release; don't claim full coverage until species-by-species catalog exists.
 
 RULES: Minecraft 1.21.1 NeoForge; multiplayer-safe; reuse Cobblemon storage, PC, Pasture, battle and trading infrastructure; keep configurations flexible; choose and verify a Pixelmon reference version for exact spawn behavior. Pixelmon's proprietary structure/model/texture assets cannot be redistributed without appropriate rights: original/authorized recreations for releases. No code has been implemented from this plan yet.
+
+IMPLEMENTATION MILESTONE — ALPHA 0.1.0 PALETTE REGISTRY (2026-10-14)
+- Inspected the user-supplied Pixelmon-1.21.1-9.3.16-universal.jar and Cobblemon-neoforge-1.8.1+1.21.1.jar directly. Pixelmon: 1,029 species, 1,357 form entries, 3,640 per-form/gender palette entries, 244 unique palette names.
+- Generated a FIRST TEST BUILD as a lowcodefml NeoForge data-only mod for Minecraft 1.21.1 / Cobblemon 1.8.1, with companion datapack and source/catalog ZIP. (Artifacts supplied in the associated ChatGPT conversation; not committed to this GitHub repo.)
+- Registers 206 NEW flag aspects plus reuses Cobblemon's pre-existing 'valencian' flag: 207 assigned palette names covering 622 eligible species/palette pairs. Uses Cobblemon's normal textures/models. Source catalog CSV records all 1,357 original Pixelmon forms and all palette entries.
+- Standard 'none', 'shiny', 'base' and 34 Shiny-derived subpalette names are excluded from the alpha aspect register. Original forms are not all newly implemented: mechanics-changing forms require a later pass.
+- Build packages, JSON structure, TOML metadata, ZIP CRC, and sample feature-species associations passed local validation. No Minecraft runtime or in-game verification occurred; must test /pokespawn eevee spirit, /pokespawn umbreon spirit, /pokespawn ninetales strike, etc. before declaring success.
+- IMPORTANT PENDING: Shiny-special exclusion, mutually exclusive special appearance aspects, Spirit Ghost secondary typing, evolution retention, special spawn rules, and new textures. Do not claim any are implemented in alpha 0.1.0.
+- No proprietary Pixelmon art/code/models/audio or structures were copied into the build.
