@@ -115,3 +115,11 @@ IMPLEMENTATION MILESTONE — ALPHA 0.1.0 PALETTE REGISTRY (2026-10-14)
 - Build packages, JSON structure, TOML metadata, ZIP CRC, and sample feature-species associations passed local validation. No Minecraft runtime or in-game verification occurred; must test /pokespawn eevee spirit, /pokespawn umbreon spirit, /pokespawn ninetales strike, etc. before declaring success.
 - IMPORTANT PENDING: Shiny-special exclusion, mutually exclusive special appearance aspects, Spirit Ghost secondary typing, evolution retention, special spawn rules, and new textures. Do not claim any are implemented in alpha 0.1.0.
 - No proprietary Pixelmon art/code/models/audio or structures were copied into the build.
+
+ALPHA 0.1.0-ALPHA.2 CRASH FIX (2026-10-14)
+- User tested Alpha 1 and supplied crash-2026-10-14_01.55.03-client.txt. Crash reason: ResourceLocationException "cobblemon:iron valiant" from Cobblemon SpeciesFeatureAssignments.reload when opening world-select; Alpha 1 generated assignment resource IDs from display names (spaces) instead of species registry IDs.
+- Corrected five invalid species references: "iron valiant" to ironvaliant, "iron leaves" to ironleaves, "iron boulder" to ironboulder, "iron crown" to ironcrown, and "slither wing" to slitherwing.
+- Alpha 2 generator now resolves species by official Cobblemon JSON filename stem and fails generation if any assigned ID is invalid or absent from Cobblemon species resources.
+- Rebuilt JAR and alternative datapack as 0.1.0-alpha.2, with reproducible Python generator and CSV catalogs. Verified all 207 assignment files / 622 distinct species-palette pairs, JSON syntax and ZIP/JAR integrity locally.
+- IMPORTANT: This is a crash-fix build, not a feature expansion; it remains TEXTURELESS, does NOT implement Shiny exclusivity/Ghost typing/all battle forms, and has not been tested by launching Minecraft in this environment.
+- Alpha 1 must be REMOVED from mods folder; do not also keep alpha 1 datapack. Alpha 2 files provided within ChatGPT conversation, not committed into GitHub source or binary release.
