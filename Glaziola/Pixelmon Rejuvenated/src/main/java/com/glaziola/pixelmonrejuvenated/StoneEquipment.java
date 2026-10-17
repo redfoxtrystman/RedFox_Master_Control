@@ -17,11 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.*;
 
-/**
- * Pixelmon 9.4.1 evolution-stone armor and tool port; stones are Cobblemon items.
- * IMPORTANT: Compile this source against the REAL Minecraft 1.21.1 interface
- * Component.translatable(String):MutableComponent, not a fabricated API stub.
- */
+/** Pixelmon 9.4.1 evolution-stone armor and tool port; stones are Cobblemon items. */
 public final class StoneEquipment {
     public static final String MODID="pixelmonrejuvenated";
     public static final DeferredRegister.Items ITEMS=DeferredRegister.createItems(MODID);
