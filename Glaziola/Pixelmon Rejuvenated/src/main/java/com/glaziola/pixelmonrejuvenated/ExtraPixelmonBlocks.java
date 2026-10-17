@@ -13,8 +13,9 @@ public final class ExtraPixelmonBlocks {
  private static BlockBehaviour.Properties stone(){return BlockBehaviour.Properties.of().strength(1.5f,6f).requiresCorrectToolForDrops().sound(SoundType.STONE);}
  private static DeferredBlock<Block> cube(String n){return add(n,BLOCKS.registerSimpleBlock(n,stone()));}
  private static DeferredBlock<RotatedPillarBlock> pillar(String n){return add(n,BLOCKS.registerBlock(n,TemplePillarBlock::new,stone().noOcclusion()));}
+ private static DeferredBlock<RotatedPillarBlock> fracturedPillar(String n){return add(n,BLOCKS.registerBlock(n,FracturedTemplePillarBlock::new,stone().noOcclusion()));}
  public static final DeferredBlock<? extends Block> TEMPLE_PILLAR=pillar("temple_pillar");
- public static final DeferredBlock<? extends Block> TEMPLE_PILLAR_FRACTURED=pillar("temple_pillar_fractured");
+ public static final DeferredBlock<? extends Block> TEMPLE_PILLAR_FRACTURED=fracturedPillar("temple_pillar_fractured");
  public static final DeferredBlock<? extends Block> CAVE_ROCK=cube("cave_rock");
  public static final DeferredBlock<? extends Block> SPAWNER_CAVE_ROCK=cube("spawner_cave_rock");
  public static final DeferredBlock<? extends Block> TIMED_FALL=add("timed_fall",BLOCKS.registerBlock("timed_fall",TimedFallBlock::new,BlockBehaviour.Properties.of().strength(.5f).sound(SoundType.SAND)));

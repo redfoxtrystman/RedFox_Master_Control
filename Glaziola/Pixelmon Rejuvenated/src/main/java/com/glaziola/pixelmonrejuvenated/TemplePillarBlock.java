@@ -2,7 +2,6 @@ package com.glaziola.pixelmonrejuvenated;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
@@ -23,7 +22,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.util.StringRepresentable;
 
 /** Connected Pixelmon-style Temple Pillar with per-face connection state and geometry. */
-public final class TemplePillarBlock extends RotatedPillarBlock implements SimpleWaterloggedBlock {
+public class TemplePillarBlock extends RotatedPillarBlock implements SimpleWaterloggedBlock {
     public enum Connection implements StringRepresentable {
         AIR("air"), PILLAR("pillar"), SOLID("solid");
         private final String name;
@@ -39,9 +38,7 @@ public final class TemplePillarBlock extends RotatedPillarBlock implements Simpl
     public static final EnumProperty<Connection> DOWN = EnumProperty.create("down", Connection.class);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    private boolean fractured() {
-        return BuiltInRegistries.BLOCK.getKey(this).getPath().equals("temple_pillar_fractured");
-    }
+    private boolean fractured() { return this instanceof FracturedTemplePillarBlock; }
 
     public TemplePillarBlock(BlockBehaviour.Properties properties) {
         super(properties);
