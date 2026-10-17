@@ -17,7 +17,7 @@ public final class ExtraPixelmonBlocks {
  public static final DeferredBlock<? extends Block> TEMPLE_PILLAR_FRACTURED=pillar("temple_pillar_fractured");
  public static final DeferredBlock<? extends Block> CAVE_ROCK=cube("cave_rock");
  public static final DeferredBlock<? extends Block> SPAWNER_CAVE_ROCK=cube("spawner_cave_rock");
- public static final DeferredBlock<? extends Block> TIMED_FALL=add("timed_fall",BLOCKS.registerBlock("timed_fall",UltraFallingBlock::new,BlockBehaviour.Properties.of().strength(.5f).sound(SoundType.SAND)));
+ public static final DeferredBlock<? extends Block> TIMED_FALL=add("timed_fall",BLOCKS.registerBlock("timed_fall",TimedFallBlock::new,BlockBehaviour.Properties.of().strength(.5f).sound(SoundType.SAND)));
  public static void populateCreativeTab(CreativeModeTab.Output out){for(DeferredItem<BlockItem> i:ALL)out.accept(((Supplier<? extends BlockItem>)i).get());}
  public static void register(IEventBus bus){BLOCKS.register(bus);ITEMS.register(bus);}
 }
