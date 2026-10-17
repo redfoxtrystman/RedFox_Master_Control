@@ -52,13 +52,13 @@ public final class StoneEquipment {
         final Tier t=tier(stone,enchant,attack);
         final ArmorMaterial m=material(stone,enchant);
         final Holder<ArmorMaterial> h=Holder.direct(m);
-        add(stone+"_sword",()->new SwordItem(t,new Item.Properties()));
-        add(stone+"_pickaxe",()->new PickaxeItem(t,new Item.Properties()));
-        add(stone+"_axe",()->new AxeItem(t,new Item.Properties()));
-        add(stone+"_shovel",()->new ShovelItem(t,new Item.Properties()));
-        add(stone+"_hoe",()->new HoeItem(t,new Item.Properties()));
+        add(stone+"_sword",()->new SwordItem(t,new Item.Properties().durability(t.getUses()).attributes(SwordItem.createAttributes(t, 3, -2.4f))));
+        add(stone+"_pickaxe",()->new PickaxeItem(t,new Item.Properties().durability(t.getUses()).attributes(DiggerItem.createAttributes(t, 1.0f, -2.8f))));
+        add(stone+"_axe",()->new AxeItem(t,new Item.Properties().durability(t.getUses()).attributes(DiggerItem.createAttributes(t, 5.0f, -3.0f))));
+        add(stone+"_shovel",()->new ShovelItem(t,new Item.Properties().durability(t.getUses()).attributes(DiggerItem.createAttributes(t, 1.5f, -3.0f))));
+        add(stone+"_hoe",()->new HoeItem(t,new Item.Properties().durability(t.getUses()).attributes(DiggerItem.createAttributes(t, -t.getAttackDamageBonus(), -1.0f))));
         // Initial vanilla-functional hammer tool; custom Pixelmon anvil/3x3 behavior is tracked separately.
-        add(stone+"_hammer",()->new PickaxeItem(t,new Item.Properties()));
+        add(stone+"_hammer",()->new PickaxeItem(t,new Item.Properties().durability(t.getUses()).attributes(DiggerItem.createAttributes(t, 1.0f, -2.8f))));
         add(stone+"_helmet",()->new ArmorItem(h,ArmorItem.Type.HELMET,new Item.Properties().durability(ArmorItem.Type.HELMET.getDurability(33))));
         add(stone+"_chestplate",()->new ArmorItem(h,ArmorItem.Type.CHESTPLATE,new Item.Properties().durability(ArmorItem.Type.CHESTPLATE.getDurability(33))));
         add(stone+"_leggings",()->new ArmorItem(h,ArmorItem.Type.LEGGINGS,new Item.Properties().durability(ArmorItem.Type.LEGGINGS.getDurability(33))));
