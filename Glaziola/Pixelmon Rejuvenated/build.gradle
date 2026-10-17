@@ -1,0 +1,23 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
+}
+
+group = 'com.glaziola.pixelmonrejuvenated'
+version = '0.1.0-alpha.46.1'
+base { archivesName = 'PixelmonRejuvenated' }
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge { version = '21.1.259' }
+
+repositories { mavenCentral() }
+
+dependencies {
+    // Place your unmodified Cobblemon 1.8.1 NeoForge 1.21.1 JAR at libs/ before running Gradle.
+    compileOnly files('libs/Cobblemon-neoforge-1.8.1+1.21.1.jar')
+    localRuntime files('libs/Cobblemon-neoforge-1.8.1+1.21.1.jar')
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
