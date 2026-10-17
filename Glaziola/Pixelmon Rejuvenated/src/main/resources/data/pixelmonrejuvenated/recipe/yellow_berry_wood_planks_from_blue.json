@@ -1,13 +1,14 @@
 {
   "type": "minecraft:crafting_shaped",
   "category": "building",
+  "group": "pixelmonrejuvenated:berry_wood_planks_yellow",
   "pattern": [
     "PPP",
     "PDP",
     "PPP"
   ],
   "key": {
-    "P": "pixelmonrejuvenated:green_berry_wood_planks",
+    "P": "pixelmonrejuvenated:blue_berry_wood_planks",
     "D": "minecraft:yellow_dye"
   },
   "result": {

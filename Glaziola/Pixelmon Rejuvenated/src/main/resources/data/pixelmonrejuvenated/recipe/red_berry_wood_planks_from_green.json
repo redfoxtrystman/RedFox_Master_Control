@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "pixelmonrejuvenated:berry_wood_planks_red",
+  "pattern": [
+    "PPP",
+    "PDP",
+    "PPP"
+  ],
+  "key": {
+    "P": "pixelmonrejuvenated:green_berry_wood_planks",
+    "D": "minecraft:red_dye"
+  },
+  "result": {
+    "id": "pixelmonrejuvenated:red_berry_wood_planks",
+    "count": 8
+  }
+}
