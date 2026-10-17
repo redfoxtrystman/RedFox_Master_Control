@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "pixelmonrejuvenated:wild_berry_tree"
+  ],
+  "step": "vegetal_decoration"
+}
