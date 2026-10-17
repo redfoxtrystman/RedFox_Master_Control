@@ -152,11 +152,11 @@ public class TemplePillarBlock extends RotatedPillarBlock implements SimpleWater
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        return pillarShape(state);
+        return Shapes.block();
     }
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        return pillarShape(state);
+        return Shapes.block();
     }
 }
