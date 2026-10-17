@@ -1,0 +1,132 @@
+{
+  "target": "cobblemon:eevee",
+  "features": [
+    "candy"
+  ],
+  "forms": [
+    {
+      "name": "Candy",
+      "aspects": [
+        "candy"
+      ],
+      "primaryType": "normal",
+      "secondaryType": "fairy",
+      "evolutions": [
+        {
+          "consumeHeldItem": false,
+          "id": "eevee_jolteon",
+          "learnableMoves": [
+            "thundershock"
+          ],
+          "requiredContext": "cobblemon:thunder_stone",
+          "requirements": [],
+          "result": "jolteon",
+          "variant": "item_interact"
+        },
+        {
+          "consumeHeldItem": false,
+          "id": "eevee_vaporeon",
+          "learnableMoves": [
+            "watergun"
+          ],
+          "requiredContext": "cobblemon:water_stone",
+          "requirements": [],
+          "result": "vaporeon",
+          "variant": "item_interact"
+        },
+        {
+          "consumeHeldItem": false,
+          "id": "eevee_flareon",
+          "learnableMoves": [
+            "ember"
+          ],
+          "requiredContext": "cobblemon:fire_stone",
+          "requirements": [],
+          "result": "flareon",
+          "variant": "item_interact"
+        },
+        {
+          "consumeHeldItem": false,
+          "id": "eevee_espeon",
+          "learnableMoves": [
+            "confusion"
+          ],
+          "requirements": [
+            {
+              "amount": 160,
+              "variant": "friendship"
+            },
+            {
+              "range": "day",
+              "variant": "time_range"
+            }
+          ],
+          "result": "espeon",
+          "variant": "level_up"
+        },
+        {
+          "consumeHeldItem": false,
+          "id": "eevee_umbreon",
+          "learnableMoves": [
+            "pursuit",
+            "snarl"
+          ],
+          "requirements": [
+            {
+              "amount": 160,
+              "variant": "friendship"
+            },
+            {
+              "range": "night",
+              "variant": "time_range"
+            }
+          ],
+          "result": "umbreon",
+          "variant": "level_up"
+        },
+        {
+          "consumeHeldItem": false,
+          "id": "eevee_sylveon",
+          "learnableMoves": [
+            "fairywind",
+            "disarmingvoice"
+          ],
+          "requirements": [
+            {
+              "amount": 160,
+              "variant": "friendship"
+            },
+            {
+              "type": "fairy",
+              "variant": "has_move_type"
+            }
+          ],
+          "result": "sylveon",
+          "variant": "level_up"
+        },
+        {
+          "consumeHeldItem": false,
+          "id": "eevee_leafeon",
+          "learnableMoves": [
+            "razorleaf"
+          ],
+          "requiredContext": "cobblemon:leaf_stone",
+          "requirements": [],
+          "result": "leafeon",
+          "variant": "item_interact"
+        },
+        {
+          "consumeHeldItem": false,
+          "id": "eevee_glaceon",
+          "learnableMoves": [
+            "icywind"
+          ],
+          "requiredContext": "cobblemon:ice_stone",
+          "requirements": [],
+          "result": "glaceon",
+          "variant": "item_interact"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "order": 3,
+  "species": "cobblemon:eevee",
+  "variations": [
+    {
+      "aspects": [
+        "candy"
+      ],
+      "texture": "pixelmonrejuvenated:textures/pokemon/0133_eevee/candy_eevee.png"
+    }
+  ]
+}
