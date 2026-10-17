@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "step": "underground_ores",
+  "features": [
+    "pixelmonrejuvenated:ores/ruby/ore_ruby_buried",
+    "pixelmonrejuvenated:ores/ruby/ore_ruby_large",
+    "pixelmonrejuvenated:ores/ruby/ore_ruby"
+  ]
+}
