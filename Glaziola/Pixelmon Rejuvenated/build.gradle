@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.glaziola.pixelmonrejuvenated'
-version = '0.1.0-alpha.48.1'
+version = '0.1.0-alpha.48.2'
 base { archivesName = 'PixelmonRejuvenated' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
