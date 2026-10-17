@@ -56,13 +56,13 @@ public final class GemContent {
     }
     private static void addGear(String gem) {
         Tier t=tier(gem);
-        addItem(gem+"_sword",()->new SwordItem(t,new Item.Properties()));
-        addItem(gem+"_pickaxe",()->new PickaxeItem(t,new Item.Properties()));
-        addItem(gem+"_axe",()->new AxeItem(t,new Item.Properties()));
-        addItem(gem+"_shovel",()->new ShovelItem(t,new Item.Properties()));
-        addItem(gem+"_hoe",()->new HoeItem(t,new Item.Properties()));
+        addItem(gem+"_sword",()->new SwordItem(t,new Item.Properties().durability(t.getUses()).attributes(SwordItem.createAttributes(t, 3, -2.4f))));
+        addItem(gem+"_pickaxe",()->new PickaxeItem(t,new Item.Properties().durability(t.getUses()).attributes(DiggerItem.createAttributes(t, 1.0f, -2.8f))));
+        addItem(gem+"_axe",()->new AxeItem(t,new Item.Properties().durability(t.getUses()).attributes(DiggerItem.createAttributes(t, 5.0f, -3.0f))));
+        addItem(gem+"_shovel",()->new ShovelItem(t,new Item.Properties().durability(t.getUses()).attributes(DiggerItem.createAttributes(t, 1.5f, -3.0f))));
+        addItem(gem+"_hoe",()->new HoeItem(t,new Item.Properties().durability(t.getUses()).attributes(DiggerItem.createAttributes(t, -t.getAttackDamageBonus(), -1.0f))));
         // Classic Pixelmon hammer special behavior requires its own later implementation.
-        addItem(gem+"_hammer",()->new PickaxeItem(t,new Item.Properties()));
+        addItem(gem+"_hammer",()->new PickaxeItem(t,new Item.Properties().durability(t.getUses()).attributes(DiggerItem.createAttributes(t, 1.0f, -2.8f))));
         if (!gem.equals("crystal")) {
             Map<ArmorItem.Type,Integer> protection=Map.of(
                 ArmorItem.Type.HELMET,3,ArmorItem.Type.CHESTPLATE,7,
