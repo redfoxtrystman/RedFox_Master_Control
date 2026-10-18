@@ -1,0 +1,50 @@
+{
+  "replace": false,
+  "values": [
+    "#pixelmonrejuvenated:spawning/freezing_mountains",
+    "#pixelmonrejuvenated:spawning/freezing_forests",
+    "minecraft:snowy_plains",
+    "minecraft:snowy_beach",
+    "minecraft:ice_spikes",
+    {
+      "id": "biomesoplenty:cold_desert",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:muskeg",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:wintry_origin_valley",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:shattered_glacier",
+      "required": false
+    },
+    {
+      "id": "terralith:cold_shrubland",
+      "required": false
+    },
+    {
+      "id": "terralith:frozen_cliffs",
+      "required": false
+    },
+    {
+      "id": "terralith:gravel_desert",
+      "required": false
+    },
+    {
+      "id": "terralith:ice_marsh",
+      "required": false
+    },
+    {
+      "id": "terralith:snowy_badlands",
+      "required": false
+    },
+    {
+      "id": "terralith:snowy_shield",
+      "required": false
+    }
+  ]
+}

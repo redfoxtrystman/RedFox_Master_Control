@@ -1,0 +1,1099 @@
+{
+  "source": "Pixelmon 9.4.1 legendary .set.json",
+  "rules": [
+    {
+      "species": "azelf",
+      "level": 50,
+      "rarity": 2,
+      "contexts": [
+        "Surface Water"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/forests",
+        "#pixelmonrejuvenated:spawning/lakes"
+      ],
+      "times": [
+        "MORNING"
+      ],
+      "excludedBiomes": [
+        "terralith:desert_oasis",
+        "terralith:red_oasis"
+      ]
+    },
+    {
+      "species": "calyrex",
+      "level": 70,
+      "rarity": 2,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/freezing_forests"
+      ],
+      "times": [
+        "MORNING"
+      ]
+    },
+    {
+      "species": "chienpao",
+      "level": 60,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/freezing_mountains"
+      ],
+      "times": [
+        "NIGHT"
+      ],
+      "minY": 100
+    },
+    {
+      "species": "chiyu",
+      "level": 60,
+      "rarity": 3,
+      "contexts": [
+        "Lava Floor"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/mesas",
+        "#pixelmonrejuvenated:spawning/volcanic"
+      ],
+      "times": [
+        "DAY"
+      ],
+      "minY": 100
+    },
+    {
+      "species": "cobalion",
+      "level": 70,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/forests",
+        "#pixelmonrejuvenated:spawning/birches"
+      ],
+      "times": [
+        "NIGHT"
+      ],
+      "minY": 85
+    },
+    {
+      "species": "cosmog",
+      "level": 15,
+      "rarity": 1,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "minecraft:sunflower_plains",
+        "#pixelmonrejuvenated:spawning/ultra_space"
+      ],
+      "times": [
+        "DUSK",
+        "NIGHT"
+      ]
+    },
+    {
+      "species": "cresselia",
+      "level": 70,
+      "rarity": 0.5,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "minecraft:old_growth_birch_forest"
+      ],
+      "times": [
+        "NIGHT"
+      ],
+      "moonPhase": 0
+    },
+    {
+      "species": "darkrai",
+      "level": 70,
+      "rarity": 0.3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/roofed"
+      ],
+      "times": [
+        "NIGHT"
+      ],
+      "minY": 85,
+      "moonPhase": 4
+    },
+    {
+      "species": "deoxys",
+      "level": 70,
+      "rarity": 0.3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "minecraft:end_highlands",
+        "#pixelmonrejuvenated:spawning/freezing_forests"
+      ],
+      "times": [
+        "AFTERNOON"
+      ],
+      "minY": 100
+    },
+    {
+      "species": "diancie",
+      "level": 70,
+      "rarity": 0.4,
+      "contexts": [
+        "Underground"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/mountainous"
+      ],
+      "times": [
+        "MORNING"
+      ],
+      "maxY": 50
+    },
+    {
+      "species": "enamorus",
+      "level": 70,
+      "rarity": 1,
+      "contexts": [
+        "Air"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/flowery"
+      ],
+      "times": [
+        "DAWN",
+        "DUSK"
+      ]
+    },
+    {
+      "species": "entei",
+      "level": 70,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/mountainous",
+        "#pixelmonrejuvenated:spawning/volcanic"
+      ],
+      "times": [
+        "DAY"
+      ],
+      "maxY": 100,
+      "excludedBiomes": [
+        "#pixelmonrejuvenated:spawning/mountainous_forests"
+      ]
+    },
+    {
+      "species": "eternatus",
+      "level": 70,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "minecraft:end_barrens",
+        "#pixelmonrejuvenated:spawning/swamps"
+      ],
+      "times": [
+        "DAWN",
+        "MORNING"
+      ]
+    },
+    {
+      "species": "genesect",
+      "level": 70,
+      "rarity": 0.3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/mountainous_forests"
+      ],
+      "times": [
+        "NIGHT"
+      ]
+    },
+    {
+      "species": "glastrier",
+      "level": 70,
+      "rarity": 0.5,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/freezing"
+      ],
+      "times": [
+        "DAY"
+      ],
+      "excludedBiomes": [
+        "#pixelmonrejuvenated:spawning/freezing_forests"
+      ]
+    },
+    {
+      "species": "groudon",
+      "level": 70,
+      "rarity": 1,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/arid"
+      ],
+      "times": [
+        "DAY"
+      ],
+      "weathers": [
+        "CLEAR"
+      ],
+      "maxY": 90
+    },
+    {
+      "species": "heatran",
+      "level": 70,
+      "rarity": 2,
+      "contexts": [
+        "Underground Lava"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/mesas"
+      ],
+      "maxY": 50
+    },
+    {
+      "species": "heatran",
+      "level": 70,
+      "rarity": 2,
+      "contexts": [
+        "Surface Lava"
+      ],
+      "biomes": [
+        "minecraft:basalt_deltas",
+        "biomesoplenty:erupting_inferno"
+      ]
+    },
+    {
+      "species": "hoopa",
+      "level": 50,
+      "rarity": 0.2,
+      "contexts": [
+        "Land"
+      ],
+      "times": [
+        "AFTERNOON"
+      ],
+      "structures": [
+        "minecraft:desert_pyramid"
+      ]
+    },
+    {
+      "species": "jirachi",
+      "level": 70,
+      "rarity": 0.2,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/mountainous"
+      ],
+      "times": [
+        "DAWN",
+        "MORNING"
+      ],
+      "minY": 100
+    },
+    {
+      "species": "keldeo",
+      "level": 50,
+      "rarity": 0.4,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/rivers",
+        "#pixelmonrejuvenated:spawning/lakes"
+      ],
+      "times": [
+        "DAY"
+      ]
+    },
+    {
+      "species": "koraidon",
+      "level": 70,
+      "rarity": 2,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "minecraft:small_end_islands"
+      ],
+      "times": [
+        "DAY"
+      ]
+    },
+    {
+      "species": "kubfu",
+      "level": 15,
+      "rarity": 2,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "minecraft:bamboo_jungle",
+        "biomeswevegone:crag_gardens"
+      ],
+      "times": [
+        "AFTERNOON"
+      ]
+    },
+    {
+      "species": "kyogre",
+      "level": 70,
+      "rarity": 2,
+      "contexts": [
+        "Water"
+      ],
+      "biomes": [
+        "minecraft:deep_ocean",
+        "minecraft:deep_lukewarm_ocean",
+        "minecraft:deep_cold_ocean",
+        "minecraft:deep_frozen_ocean"
+      ],
+      "times": [
+        "NIGHT"
+      ],
+      "weathers": [
+        "RAIN",
+        "STORM"
+      ],
+      "maxY": 40
+    },
+    {
+      "species": "kyurem",
+      "level": 70,
+      "rarity": 0.5,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "minecraft:ice_spikes",
+        "biomeswevegone:eroded_borealis"
+      ],
+      "times": [
+        "AFTERNOON",
+        "DUSK"
+      ]
+    },
+    {
+      "species": "landorus",
+      "level": 70,
+      "rarity": 1,
+      "contexts": [
+        "Air"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/mesas"
+      ],
+      "times": [
+        "DAWN",
+        "MORNING"
+      ]
+    },
+    {
+      "species": "latias",
+      "level": 70,
+      "rarity": 2,
+      "contexts": [
+        "Air"
+      ],
+      "biomes": [
+        "minecraft:ocean",
+        "minecraft:warm_ocean"
+      ],
+      "times": [
+        "MORNING"
+      ]
+    },
+    {
+      "species": "latios",
+      "level": 70,
+      "rarity": 2,
+      "contexts": [
+        "Air"
+      ],
+      "biomes": [
+        "minecraft:ocean",
+        "minecraft:warm_ocean"
+      ],
+      "times": [
+        "AFTERNOON"
+      ]
+    },
+    {
+      "species": "magearna",
+      "level": 50,
+      "rarity": 0.3,
+      "contexts": [
+        "Indoors"
+      ],
+      "times": [
+        "DAY"
+      ],
+      "structures": [
+        "minecraft:mansion"
+      ]
+    },
+    {
+      "species": "manaphy",
+      "level": 50,
+      "rarity": 0.4,
+      "contexts": [
+        "Water"
+      ],
+      "biomes": [
+        "minecraft:warm_ocean",
+        "minecraft:lukewarm_ocean",
+        "biomeswevegone:lush_stacks"
+      ],
+      "times": [
+        "MORNING"
+      ],
+      "weathers": [
+        "CLEAR"
+      ]
+    },
+    {
+      "species": "marshadow",
+      "level": 70,
+      "rarity": 0.2,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/mesas",
+        "#pixelmonrejuvenated:spawning/hellish"
+      ],
+      "times": [
+        "NIGHT"
+      ]
+    },
+    {
+      "species": "meloetta",
+      "level": 50,
+      "rarity": 0.3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/flowery"
+      ],
+      "times": [
+        "NIGHT"
+      ]
+    },
+    {
+      "species": "mesprit",
+      "level": 50,
+      "rarity": 2,
+      "contexts": [
+        "Surface Water"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/birches",
+        "#pixelmonrejuvenated:spawning/lakes"
+      ],
+      "times": [
+        "DAWN",
+        "MORNING"
+      ],
+      "excludedBiomes": [
+        "terralith:desert_oasis",
+        "terralith:red_oasis"
+      ]
+    },
+    {
+      "species": "mew",
+      "level": 70,
+      "rarity": 0.1,
+      "contexts": [
+        "Land",
+        "Manmade",
+        "Indoors"
+      ],
+      "times": [
+        "DAY"
+      ],
+      "structures": [
+        "minecraft:jungle_pyramid"
+      ]
+    },
+    {
+      "species": "miraidon",
+      "level": 70,
+      "rarity": 2,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "minecraft:small_end_islands"
+      ],
+      "times": [
+        "NIGHT"
+      ]
+    },
+    {
+      "species": "necrozma",
+      "level": 65,
+      "rarity": 0.5,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/roofed"
+      ],
+      "times": [
+        "NIGHT"
+      ],
+      "maxY": 85
+    },
+    {
+      "species": "ogerpon",
+      "level": 70,
+      "rarity": 1,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/mountainous_forests"
+      ],
+      "times": [
+        "DAWN",
+        "DUSK"
+      ]
+    },
+    {
+      "species": "raikou",
+      "level": 70,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/savannas"
+      ],
+      "times": [
+        "DAWN",
+        "MORNING"
+      ],
+      "maxY": 85
+    },
+    {
+      "species": "rayquaza",
+      "level": 70,
+      "rarity": 0.5,
+      "contexts": [
+        "Air"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/mountainous"
+      ],
+      "times": [
+        "AFTERNOON",
+        "DUSK"
+      ]
+    },
+    {
+      "species": "regice",
+      "level": 40,
+      "rarity": 3,
+      "contexts": [
+        "Underground"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/freezing"
+      ],
+      "times": [
+        "MORNING"
+      ],
+      "maxY": 30
+    },
+    {
+      "species": "regidrago",
+      "level": 40,
+      "rarity": 1,
+      "contexts": [
+        "Manmade"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/hellish"
+      ],
+      "times": [
+        "DAY"
+      ]
+    },
+    {
+      "species": "regieleki",
+      "level": 40,
+      "rarity": 1,
+      "contexts": [
+        "Manmade"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/end"
+      ],
+      "times": [
+        "AFTERNOON"
+      ]
+    },
+    {
+      "species": "regigigas",
+      "level": 70,
+      "rarity": 1,
+      "contexts": [
+        "Underground"
+      ],
+      "times": [
+        "AFTERNOON",
+        "DUSK"
+      ],
+      "structures": [
+        "minecraft:ancient_city"
+      ]
+    },
+    {
+      "species": "regirock",
+      "level": 40,
+      "rarity": 3,
+      "contexts": [
+        "Underground"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/mesas"
+      ],
+      "times": [
+        "AFTERNOON"
+      ],
+      "maxY": 30
+    },
+    {
+      "species": "registeel",
+      "level": 40,
+      "rarity": 3,
+      "contexts": [
+        "Underground"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/arid"
+      ],
+      "times": [
+        "DAWN",
+        "MORNING"
+      ],
+      "maxY": 30
+    },
+    {
+      "species": "reshiram",
+      "level": 70,
+      "rarity": 0.5,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/redwoods"
+      ],
+      "times": [
+        "DAY"
+      ]
+    },
+    {
+      "species": "shaymin",
+      "level": 70,
+      "rarity": 0.2,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/flowery"
+      ],
+      "times": [
+        "MORNING"
+      ]
+    },
+    {
+      "species": "spectrier",
+      "level": 70,
+      "rarity": 0.5,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/swamps"
+      ],
+      "times": [
+        "NIGHT"
+      ]
+    },
+    {
+      "species": "suicune",
+      "level": 70,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/beaches"
+      ],
+      "times": [
+        "NIGHT"
+      ]
+    },
+    {
+      "species": "tapubulu",
+      "level": 60,
+      "rarity": 1,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/jungles"
+      ],
+      "times": [
+        "DAY"
+      ],
+      "maxY": 90
+    },
+    {
+      "species": "tapufini",
+      "level": 60,
+      "rarity": 1,
+      "contexts": [
+        "Surface Water"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/jungles"
+      ],
+      "times": [
+        "AFTERNOON"
+      ],
+      "maxY": 90
+    },
+    {
+      "species": "tapukoko",
+      "level": 60,
+      "rarity": 1,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/jungles"
+      ],
+      "times": [
+        "MORNING"
+      ],
+      "maxY": 90
+    },
+    {
+      "species": "tapulele",
+      "level": 60,
+      "rarity": 1,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/jungles"
+      ],
+      "times": [
+        "NIGHT"
+      ],
+      "maxY": 90
+    },
+    {
+      "species": "terrakion",
+      "level": 70,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/forests",
+        "#pixelmonrejuvenated:spawning/birches"
+      ],
+      "times": [
+        "NIGHT"
+      ],
+      "minY": 85
+    },
+    {
+      "species": "thundurus",
+      "level": 70,
+      "rarity": 2,
+      "contexts": [
+        "Air"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/plains"
+      ],
+      "times": [
+        "MORNING"
+      ],
+      "weathers": [
+        "RAIN",
+        "STORM"
+      ]
+    },
+    {
+      "species": "tinglu",
+      "level": 60,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/taigas"
+      ],
+      "times": [
+        "NIGHT"
+      ]
+    },
+    {
+      "species": "tornadus",
+      "level": 70,
+      "rarity": 2,
+      "contexts": [
+        "Air"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/plains"
+      ],
+      "times": [
+        "AFTERNOON"
+      ],
+      "weathers": [
+        "RAIN",
+        "STORM"
+      ]
+    },
+    {
+      "species": "typenull",
+      "level": 15,
+      "rarity": 2,
+      "contexts": [
+        "Indoors"
+      ],
+      "times": [
+        "DUSK",
+        "NIGHT"
+      ],
+      "structures": [
+        "minecraft:stronghold"
+      ]
+    },
+    {
+      "species": "uxie",
+      "level": 50,
+      "rarity": 2,
+      "contexts": [
+        "Surface Water"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/roofed",
+        "#pixelmonrejuvenated:spawning/lakes"
+      ],
+      "times": [
+        "AFTERNOON"
+      ],
+      "excludedBiomes": [
+        "terralith:desert_oasis",
+        "terralith:red_oasis"
+      ]
+    },
+    {
+      "species": "victini",
+      "level": 70,
+      "rarity": 0.4,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/savannas"
+      ],
+      "times": [
+        "DAY"
+      ],
+      "weathers": [
+        "CLEAR"
+      ],
+      "maxY": 90
+    },
+    {
+      "species": "virizion",
+      "level": 70,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/forests",
+        "#pixelmonrejuvenated:spawning/birches"
+      ],
+      "times": [
+        "DAY"
+      ],
+      "minY": 85
+    },
+    {
+      "species": "volcanion",
+      "level": 70,
+      "rarity": 0.5,
+      "contexts": [
+        "Liquid Floor"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/arid",
+        "#pixelmonrejuvenated:spawning/volcanic",
+        "terralith:desert_oasis",
+        "terralith:red_oasis"
+      ],
+      "times": [
+        "DAWN",
+        "MORNING"
+      ]
+    },
+    {
+      "species": "wochien",
+      "level": 60,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/swamps"
+      ],
+      "times": [
+        "NIGHT"
+      ]
+    },
+    {
+      "species": "xerneas",
+      "level": 70,
+      "rarity": 0.5,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/roofed",
+        "#pixelmonrejuvenated:spawning/magical"
+      ],
+      "times": [
+        "DAY"
+      ],
+      "excludedBiomes": [
+        "#pixelmonrejuvenated:spawning/flowery"
+      ]
+    },
+    {
+      "species": "yveltal",
+      "level": 70,
+      "rarity": 0.5,
+      "contexts": [
+        "Air"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/taigas",
+        "#pixelmonrejuvenated:spawning/evil"
+      ],
+      "times": [
+        "NIGHT"
+      ],
+      "excludedBiomes": [
+        "#pixelmonrejuvenated:spawning/redwoods"
+      ]
+    },
+    {
+      "species": "zacian",
+      "level": 70,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/forests",
+        "#pixelmonrejuvenated:spawning/birches"
+      ],
+      "times": [
+        "DAY"
+      ],
+      "maxY": 85
+    },
+    {
+      "species": "zamazenta",
+      "level": 70,
+      "rarity": 3,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/forests",
+        "#pixelmonrejuvenated:spawning/birches"
+      ],
+      "times": [
+        "NIGHT"
+      ],
+      "maxY": 85
+    },
+    {
+      "species": "zarude",
+      "level": 70,
+      "rarity": 0.1,
+      "contexts": [
+        "Tree Top"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/jungles"
+      ],
+      "times": [
+        "NIGHT"
+      ],
+      "minY": 90
+    },
+    {
+      "species": "zekrom",
+      "level": 70,
+      "rarity": 0.5,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/redwoods"
+      ],
+      "times": [
+        "NIGHT"
+      ]
+    },
+    {
+      "species": "zeraora",
+      "level": 50,
+      "rarity": 0.1,
+      "contexts": [
+        "Land"
+      ],
+      "biomes": [
+        "#pixelmonrejuvenated:spawning/savannas"
+      ],
+      "times": [
+        "AFTERNOON"
+      ],
+      "minY": 90
+    }
+  ]
+}

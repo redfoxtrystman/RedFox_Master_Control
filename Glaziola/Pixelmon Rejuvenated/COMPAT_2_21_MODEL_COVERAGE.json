@@ -1,0 +1,31 @@
+{
+  "compat": "CCC Myths and Legends 2.21",
+  "model_resolvers_found": 58,
+  "not_in_uploaded_compat_model_resolvers": [
+    "latias",
+    "latios",
+    "mew",
+    "rayquaza",
+    "regice",
+    "regidrago",
+    "regieleki",
+    "regigigas",
+    "regirock",
+    "registeel",
+    "zarude"
+  ],
+  "built_in_model_resolver_species_verified_in_cobblemon_upstream": [
+    "latias",
+    "latios",
+    "mew",
+    "rayquaza",
+    "regice",
+    "regidrago",
+    "regieleki",
+    "regigigas",
+    "regirock",
+    "registeel",
+    "zarude"
+  ],
+  "note": "These 11 do not have custom resolvers in the supplied CCC compatibility pack but have model/resolver/species assets in the official Cobblemon upstream. Verify the exact installed 1.8.1 runtime in-game."
+}

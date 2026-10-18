@@ -19,5 +19,6 @@ public final class PixelmonRejuvenated {
         GemContent.register(modBus);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(BerryPlanting.class);
         SpiritOctoberSpawns.initialize();
+        LegendarySpawnEngine.register();
     }
 }

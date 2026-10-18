@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "#pixelmonrejuvenated:spawning/freezing_land",
+    "minecraft:frozen_river",
+    "minecraft:frozen_ocean"
+  ]
+}
