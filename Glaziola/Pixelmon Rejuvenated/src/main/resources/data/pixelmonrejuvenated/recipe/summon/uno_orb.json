@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "pixelmonrejuvenated:orb",
+    "cobblemon:ice_stone"
+  ],
+  "result": {
+    "id": "pixelmonrejuvenated:uno_orb",
+    "count": 1
+  }
+}

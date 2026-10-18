@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "pixelmonrejuvenated:orb",
+    "cobblemon:fire_stone"
+  ],
+  "result": {
+    "id": "pixelmonrejuvenated:tres_orb",
+    "count": 1
+  }
+}

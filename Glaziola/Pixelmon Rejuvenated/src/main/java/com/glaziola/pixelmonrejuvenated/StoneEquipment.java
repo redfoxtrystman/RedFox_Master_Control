@@ -85,6 +85,7 @@ public final class StoneEquipment {
                 @Override public void accept(CreativeModeTab.ItemDisplayParameters p, CreativeModeTab.Output o) {
                     for(DeferredHolder<Item,? extends Item> item : ALL) o.accept(((Supplier<? extends Item>)item).get());
                     GemContent.populateItems(o);
+                    BirdOrbs.populate(o);
                 }
             }).build());
     public static void register(IEventBus bus) { ITEMS.register(bus);TABS.register(bus); }

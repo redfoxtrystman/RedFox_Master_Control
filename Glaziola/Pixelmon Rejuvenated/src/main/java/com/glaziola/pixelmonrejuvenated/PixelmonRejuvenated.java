@@ -14,6 +14,8 @@ public final class PixelmonRejuvenated {
         BerryBlocks.register(modBus);
         BerryWorldgen.register(modBus);
         StoneEquipment.register(modBus);
+        BirdOrbs.register(modBus);
+        BirdOrbBattleHooks.register();
         GemContent.register(modBus);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(BerryPlanting.class);
         SpiritOctoberSpawns.initialize();
