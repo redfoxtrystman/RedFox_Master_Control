@@ -13,7 +13,7 @@
 - **Nether API** — Nether biome, ambience, structure and worldgen integration. Use during 1.16 Nether overhaul rather than duplicating its framework.
 - **Aqua Acrobatics** — authoritative existing mod for swimming/crawling/player movement and animations; avoid a competing VE swimming port.
 - **Existing ID extender / flattening** — preserve the user's high-capacity registry solution. Exact dependency/build must be inventoried; don't replace it speculatively.
-- **Outstanding separate trident bug:** current first-person charging/raised item pose and camera-end rendering are not modern-accurate. Aqua Acrobatics does not resolve this automatically; compare directly with 26.2 first-person item/hand rendering and test with Aqua Acrobatics.
+- **First-person trident positioning/animation — FIXED (owner-confirmed, 2026-11-05).** The previous incorrect charging/raised trident viewmodel and camera-side rendering must not be listed as outstanding or reimplemented. Preserve the existing working fix and use regression checks only if touching trident rendering or movement.
 
 Precise integration constraints and phased validation: [MODERN_WORLDGEN_AND_MOD_LIBRARY_ROADMAP.md](MODERN_WORLDGEN_AND_MOD_LIBRARY_ROADMAP.md). Do not claim this documentation changes the actual source tree.
 
