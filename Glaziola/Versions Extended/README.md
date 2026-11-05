@@ -7,6 +7,16 @@
 **Next milestone:** Minecraft 1.15 Buzzy Bees — **do not start until 1.14 passes review**
 **Archive inventory:** [REFERENCE_ARCHIVES_2026-10-17.md](REFERENCE_ARCHIVES_2026-10-17.md)
 
+## Confirmed external runtime architecture (owner decision: 2026-11-05)
+
+- **CaveBiomesAPI** — finite signed-Y world height and vertical/3D biome infrastructure. **Not CubicChunks** (explicitly rejected).
+- **Nether API** — Nether biome, ambience, structure and worldgen integration. Use during 1.16 Nether overhaul rather than duplicating its framework.
+- **Aqua Acrobatics** — authoritative existing mod for swimming/crawling/player movement and animations; avoid a competing VE swimming port.
+- **Existing ID extender / flattening** — preserve the user's high-capacity registry solution. Exact dependency/build must be inventoried; don't replace it speculatively.
+- **Outstanding separate trident bug:** current first-person charging/raised item pose and camera-end rendering are not modern-accurate. Aqua Acrobatics does not resolve this automatically; compare directly with 26.2 first-person item/hand rendering and test with Aqua Acrobatics.
+
+Precise integration constraints and phased validation: [MODERN_WORLDGEN_AND_MOD_LIBRARY_ROADMAP.md](MODERN_WORLDGEN_AND_MOD_LIBRARY_ROADMAP.md). Do not claim this documentation changes the actual source tree.
+
 ## Binding development ground rules
 
 1. **Review the user-supplied Minecraft 26.2 decompiled source and matching assets before implementing or correcting any vanilla behavior.** Find the actual 26.2 implementation and compare mechanics, state, rendering, model, textures, GUI, recipes, loot, spawning, AI, sounds, data layout, and version-dependent changes as applicable. Do not guess or rely solely on old 1.14 tutorials.
