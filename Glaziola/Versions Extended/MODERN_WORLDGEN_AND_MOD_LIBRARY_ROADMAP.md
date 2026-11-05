@@ -12,22 +12,48 @@ Order: finish 1.14 including live datapack tests; finish 1.15; repair the experi
 3. Preserve Forge 1.12.2 mod support, existing worlds, registry identities and existing VE modern-datapack compatibility.
 4. The existing modded registry / flattening work and user's near-unlimited block/item ID solution must be inventoried as an explicit dependency. Do not assume all ID-limit mods can co-exist with modern world-height patches.
 
-## World-height / terrain foundation: evaluate side mods first
+## Owner-selected dependency architecture (2026-11-05)
 
-Candidate: **OpenCubicChunks / CubicChunks for Forge 1.12.2** (open-source, MIT). It implements almost-unlimited vertical world height/depth and vertical 16x16x16 cube loading. Related **CubicWorldGen** supports custom cubic terrain generation. These are starting points for a host engine rather than turnkey implementations of exact modern 26.2 noise generation. Source: https://github.com/OpenCubicChunks/CubicChunks ; https://github.com/OpenCubicChunks/CubicWorldGen ; https://modrinth.com/mod/cubicchunks
+**Do not use CubicChunks or CubicWorldGen.** The owner rejects CubicChunks for performance/optimization reasons. VE must use the following existing mods as independent runtime components, avoiding duplicate or conflicting features:
 
-**Critical compatibility hazard:** CubicChunks' official mod description warns that the combination with **JustEnoughIDs (JEID)** can irreversibly corrupt worlds after certain ID thresholds, and that other mods can break unexpectedly. Do not install or recommend a CC+JEID combination in an existing world. Source: https://modrinth.com/mod/cubicchunks and https://www.curseforge.com/minecraft/mc-mods/jeid
+| Existing external dependency | Responsibility | Project/source |
+| --- | --- | --- |
+| **Cave Biomes API / CaveBiomesAPI** | Configurable finite signed-Y world height, 3D/vertical biome resolution, extended chunk sections and compatible rendering | https://github.com/Vendetta1871/CaveBiomesAPI |
+| **Nether API** | Nether biomes, generation integration, associated structures and atmospheric/ambient behavior; also includes End functionality, though Nether is the VE priority | https://github.com/jbredwards/Nether-API |
+| **Aqua Acrobatics** | Modern swimming, crawling and movement animations/poses; use the working mod instead of duplicating swimming or independently replacing it | https://github.com/embeddedt/aquaacrobatics |
+| **User's existing ID-extension / flattening components** | Expanded block/item registry capacity, existing VE flat IDs and save/registry compatibility | Exact mod name/build not yet verified; inspect before altering |
 
-**Promising alternative for ID extension:** **Roughly Enough IDs (REID)** explicitly documents compatibility with CubicChunks 1.12.2-0.0.1208.0 and 1.12.2-0.0.1271.0 in its changelog. This is not a guarantee against other coremod interactions or proof that our current flattening implementation is compatible. Source: https://modrinth.com/mod/reid/
+### CaveBiomesAPI integration
 
-### Proof-of-concept gate (new disposable test world only)
+- The project's public README documents `WorldHeightAPI.getMinY()`, `getMaxY()`, `BiomeLayerAPI.register(...)`, and `ExtendedChunkAPI.requireRange(...)` / `setBlockState(...)`. The library's configurable limits can target **Y=-64..319** via `minY=-64`, `maxY=320` (exclusive upper bound).
+- CaveBiomesAPI is an infrastructure layer, **not** a complete 26.2 generator. VE must implement 26.2 climate/noise, caves, aquifers, ore distribution, surfaces, biomes, structures, features and datapack worldgen semantics against the supplied 26.2 reference code. Do not mix in the old 1.12 biome generator for data that needs genuine Y-aware resolution.
+- Confirm compatibility with the exact user-installed ID-extension/flattening patch, server and client renderers, signed-Y storage, chunk NBT, lighting, entity and AI height checks, world migration and dedicated-server sync. Verify load/save performance in fresh disposable test worlds and ensure existing worlds retain generator identity.
+- CaveBiomesAPI's biome providers should be side-effect-free and deterministic. Its README notes `Chunk.blockBiomeArray` remains a vanilla projection, so VE must not assume persisted 3D biome identities without implementing an appropriate virtual resolver/persistence strategy.
+- CaveBiomesAPI is GPL-3.0: retain it as an external dependency and review licensing before copying any code.
 
-- Identify exact ID-extension mod and version, registry patches in VE, serialization format, and JEID/REID/NEID present or absent. Record all block/item/biome ID thresholds and format mutations.
-- Compare a clean 1.12.2 Forge + VE baseline; add CubicChunks and chosen ID patch to disposable fresh test instance only. Test above y=255, below y=0, chunk load/unload, block entities, lighting, rendering, pathfinding, redstone, world saves/reopens, dedicated server, and extended IDs. Back up worlds first and retain hash-verified baseline.
-- Verify no interaction with JEID corruption threshold and no unsupported backward conversion. Prefer an isolated, genuinely compatible palette/ID serializer or adapter; never silently replace registry serializer in an established world.
-- Implement correct finite modern range -64..319 first when needed, even if underlying engine supports much more. 1.12 assumes 0..255 in lighting, client packets, chunk storage, entities, world height, collision and rendering, so a compatible height mod can reduce but not necessarily eliminate our integration work.
-- Inject the actual 26.2 terrain and cave generation pipeline on the adapted height/storage engine. CubicWorldGen vanilla-style presets are NOT identical to 26.2; noise/density, terrain surfaces, biomes, structures, features and data-driven generation require their own ports.
-- Test datapack worldgen registry/codecs and boundaries with old 1.12 worlds. Avoid destructive world migrations. Record known unsupported interactions.
+### Nether API integration for accurate Nether generation
+
+- Use Nether API's registry/events, biome weighting, surfaces/populators, fog, music, ambient particles/sounds, structure support and relevant dimension settings rather than implementing a competing biome framework.
+- Its public description documents `NetherAPIRegistryEvent`, `NetherAPIFogColorEvent`, `BiomeAmbienceEvent`, custom surface builders and chunk populators. Determine exactly which exposed interfaces are usable in the **pinned runtime version**.
+- 1.16 Nether work must audit modern **26.2** Nether biome selection, generation, basalt deltas, soul sand valleys, crimson/warped forests, spawn rules, structures and mob AI; registering biome names alone is not enough.
+- Inspect Nether API's existing optional **256-block-tall Nether** setting before selecting a dimension-height strategy, and coordinate any height patches with CaveBiomesAPI rather than assuming they stack correctly. No old-world Nether height conversion without user approval and backups.
+- Nether API has its own distribution/license conditions; don't redistribute its JAR without checking permission.
+
+### Aqua Acrobatics integration for swimming and movement
+
+- **Do not re-port swimming as a second independent player-movement implementation.** Use the installed Aqua Acrobatics behavior/animations as the baseline, preserving swimming/crawling/eye height/collision behavior and compatibility with relevant 1.12 mods.
+- Disable, remove or reconcile duplicate VE movement patches after verifying they don't conflict with Aqua Acrobatics; perform mod-with-mod tests on client and dedicated server.
+- **First-person trident pose is an outstanding separate correctness requirement.** Aqua Acrobatics does not imply accurate trident item/arm rendering. Explicitly compare 26.2 first-person charging pose, item position/angle, hand transform, release animation, Riptide rotation, underwater pose and interaction with elytra; implement a focused renderer correction without regressing Aqua Acrobatics' swimming/camera behavior.
+- Also test trident throw/loyalty/channeling/riptide physics in game with the correct modern source as reference, and resolve any first-person viewmodel conflicts (OptiFine and other renderer mods if present).
+- Use the existing original Aqua Acrobatics release unless the owner explicitly identifies a particular fork/update. Do not silently replace it with an unofficial continuation.
+
+### Integration and sign-off gate
+
+1. Obtain exact JAR/mod versions and source snapshot; inspect installed Mixins/coremods, Forge and MixinBootstrap versions.
+2. Verify the **1.14 milestone and existing modern datapack support** before advancing to 1.15. The dependency selection doesn't waive validation requirements.
+3. Test CaveBiomesAPI, Nether API and Aqua Acrobatics separately, in combinations, and alongside VE plus the current ID extender; record conflicts and performance.
+4. For modern 1.16 Nether and eventual modern Overworld generator, validate identical seeded generation behavior where possible, AI, renderer, structure placement and world saves. Never label a feature complete based only on registration/compilation.
+5. Keep all three as explicit, independently tracked dependencies in the **canonical** `src/versions_extended_changelog_handoff.txt` once working VE source is accessible.
 
 ## Separate 26.2 mod-compatibility library: proposed subsystems
 
