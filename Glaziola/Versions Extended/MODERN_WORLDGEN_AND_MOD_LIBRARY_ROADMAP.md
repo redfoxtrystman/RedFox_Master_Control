@@ -43,8 +43,8 @@ Order: finish 1.14 including live datapack tests; finish 1.15; repair the experi
 
 - **Do not re-port swimming as a second independent player-movement implementation.** Use the installed Aqua Acrobatics behavior/animations as the baseline, preserving swimming/crawling/eye height/collision behavior and compatibility with relevant 1.12 mods.
 - Disable, remove or reconcile duplicate VE movement patches after verifying they don't conflict with Aqua Acrobatics; perform mod-with-mod tests on client and dedicated server.
-- **First-person trident pose is an outstanding separate correctness requirement.** Aqua Acrobatics does not imply accurate trident item/arm rendering. Explicitly compare 26.2 first-person charging pose, item position/angle, hand transform, release animation, Riptide rotation, underwater pose and interaction with elytra; implement a focused renderer correction without regressing Aqua Acrobatics' swimming/camera behavior.
-- Also test trident throw/loyalty/channeling/riptide physics in game with the correct modern source as reference, and resolve any first-person viewmodel conflicts (OptiFine and other renderer mods if present).
+- **First-person trident viewmodel/charging pose — FIXED (owner-confirmed, 2026-11-05).** Earlier incorrect camera-side raised position and animation are already resolved. Do not schedule a new renderer rewrite; protect the established correction with regression checks during Aqua Acrobatics or rendering changes. Other trident mechanics should be tested independently only where not already verified.
+- Retain regression coverage for trident throw/loyalty/channeling/riptide physics and any renderer-mod interactions when those subsystems are changed. Do not confuse this general compatibility testing with an unfinished first-person trident pose fix.
 - Use the existing original Aqua Acrobatics release unless the owner explicitly identifies a particular fork/update. Do not silently replace it with an unofficial continuation.
 
 ### Integration and sign-off gate
